@@ -54,7 +54,7 @@ Accept the GitHub collaborator invite (check your email), then:
 
 ```bash
 cd ~/dev                  # or wherever you keep projects
-git clone https://github.com/<OWNER>/team_project.git
+git clone https://github.com/JacobColombo4729/team_project.git
 cd team_project
 ```
 
@@ -79,8 +79,8 @@ Everyone uses the **same name (`.venv`)** and **same Python version (3.11)**.
 
 **Mac / Linux**
 ```bash
-python3.11 -m venv .venv
-source .venv/bin/activate
+python3.11 -m venv .venv # I replaced .venv to 'PL' for my venv name
+source .venv/bin/activate # PL/bin/activate for me
 ```
 
 **Windows (PowerShell)**
@@ -115,7 +115,7 @@ pip install -r requirements.txt
 With `.venv` activated:
 
 ```bash
-python -m ipykernel install --user --name team_project --display-name "Python (team_project)"
+python -m ipykernel install --user --name project_leads --display-name "Python (project_leads)"
 ```
 
 This makes **Python (team_project)** selectable in both VS Code and JupyterLab.
@@ -146,21 +146,22 @@ Your keys are stored in `~/.aws/credentials`, **outside the project folder**, so
 
 `.env` holds **non-secret** settings. Copy the template:
 
-**Mac / Linux**
-```bash
-cp .env.example .env
+Open the team_project folder in VS Code (File → Open Folder).
+In the Explorer sidebar, hover over the project name and click the New File icon.
+Name it exactly '.env.example', with the leading dot and no .txt.
+Paste in the following and save with Cmd + S:
+
+```
+AWS_PROFILE=
+AWS_REGION=
+S3_BUCKET=
 ```
 
-**Windows**
-```powershell
-copy .env.example .env
-```
-
-Open `.env` and fill in:
+Repeat with a new file called `.env` and fill in:
 
 ```
 AWS_PROFILE=team_project
-AWS_REGION=us-east-1
+AWS_REGION=us-east-2
 S3_BUCKET=<ask the team>
 ```
 
@@ -187,7 +188,7 @@ The shared `.vscode/settings.json` points VS Code to `.venv` and loads `.env` au
 
 ## 9. Test your setup
 
-Create a scratch notebook in `notebooks/` and run:
+Create a scratch notebook in `notebooks/` called `scratch.py` and run:
 
 ```python
 import os, boto3, pandas as pd, sklearn
@@ -200,6 +201,8 @@ resp = s3.list_objects_v2(Bucket=os.getenv("S3_BUCKET"), MaxKeys=5)
 print("pandas", pd.__version__, "| sklearn", sklearn.__version__)
 print("S3 objects visible:", resp.get("KeyCount"))
 ```
+
+python notebooks/scratch.py
 
 ✅ Versions plus a number means you're ready. Then **clear the output and delete the scratch notebook.**
 

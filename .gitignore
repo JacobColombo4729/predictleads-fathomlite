@@ -216,5 +216,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-PL/
-PL/
+
+# Project data — never commit
+data/
+*.csv
+*.parquet
+*.xlsx
+*.json.gz
+*.pkl
+*.joblib
+.DS_Store
