@@ -8,8 +8,7 @@
 ## Now
 
 - **Switch `.env.example` from `S3_BUCKET` to `S3_PATH`.** Claude can't read this file under the project rules, so do it by hand. It should contain three blank lines: `AWS_PROFILE=`, `AWS_REGION=`, `S3_PATH=`. The README is already updated.
-- **Tell the team** to pull, rerun `pip install -r requirements.txt` (adds `pyarrow` and `zstandard`), and switch their `.env` to `S3_PATH`.
-- **Fix or delete `notebooks/scratch.py`.** It still reads `S3_BUCKET`. The README says to delete the scratch test after setup.
+- **Tell the team** to pull, rerun `pip install -r requirements.txt` (adds `pyarrow`, `zstandard`, `sentence-transformers` with PyTorch, `rank-bm25` and `umap-learn`), and switch their `.env` to `S3_PATH`.
 - **Open the pull request** from `jacob/eda-and-plan` into `main` on GitHub. From now on, commit only on branches.
 
 ## Blocked
@@ -57,7 +56,6 @@
   - Split them: about a third for dev, the rest for test.
   - Store them in `data/`. Never commit them.
 - **Write the rating rubric** for graded relevance (0 = not relevant, 1 = stretch, 2 = strong match), with one worked example per grade. Agree on it before rating.
-- **Install the embedding library.** `pip install sentence-transformers`, pin it in `requirements.txt` and tell the team.
 - **Build the baselines.**
   - Random ranking (sanity floor)
   - Title keyword search on `title` (100% filled), not `normalized_title`
@@ -101,7 +99,7 @@
 
 - **Run 2–3 ablations,** on dev profiles only:
   - **LSA** (`TruncatedSVD` on TF-IDF). The most informative one.
-  - BM25 vs. TF-IDF cosine (`pip install rank-bm25`; pin it and tell the team)
+  - BM25 vs. TF-IDF cosine (`rank-bm25`)
   - TF-IDF with and without bigrams
   - Embedding the title only, the description only, or both
   - With and without the requirements section
@@ -121,7 +119,7 @@
 ## P3
 
 - **Polish the pitch.** Each team member is pitched for a role the system recommended.
-- **Make a UMAP plot** of the embedded postings, colored by O*NET family, with profiles marked. `pip install umap-learn`, pin it and tell the team. Use it for the picture only; never feed it into the matching.
+- **Make a UMAP plot** of the embedded postings, colored by O*NET family, with profiles marked. Use it for the picture only; never feed it into the matching.
 - **Move the shared loaders into `src/`:** `fetch`, `stream_jsonl`, `load_cached`, `unpack`. Replace `DATA_DIR = Path("../data")` with a path based on the project root, because the relative path breaks outside `jacob_eda/`.
 - **Fix the README's inconsistent names.** The kernel is registered as `project_leads`, but the text says "Python (team_project)". The README also says `.venv` while your venv is `PL`.
 - **Stream the full 19 GB job openings file** with filters and random sampling. Only needed if P0's feasibility checks find too few persona postings or a biased sample; in either case, move it up to P0.
