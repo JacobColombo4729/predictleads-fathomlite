@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./data/**)",
+      "Read(./**/*.json.zst)",
+      "Read(./**/*.csv)",
+      "Read(./**/*.parquet)",
+      "Read(./**/*.xlsx)",
+      "Read(./**/*.pkl)",
+      "Read(./**/*.joblib)",
+      "Read(~/.aws/**)"
+    ]
+  }
+}
