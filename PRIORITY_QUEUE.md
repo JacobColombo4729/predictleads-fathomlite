@@ -7,17 +7,10 @@
 
 ## Now
 
-- **Create a branch.** You're on `main` with uncommitted changes, and the README says never to commit to `main`: `git checkout -b jacob/eda-and-plan`
-- **Add `PL/` to `.gitignore`.** It only covers `.venv` and `venv/`, so `git add .` would commit your virtual environment.
-- **Clear all outputs in `jacob_eda/jacob_eda.ipynb`** before committing.
-- **Review the existing uncommitted changes** to `.env.example`, `.gitignore` and `README.md`. These were made before this work started, and your Claude settings block reading `.env.example`.
-- **Switch `.env.example` and README step 7 from `S3_BUCKET` to `S3_PATH`.** The notebook reads `S3_PATH`, so teammates following the README will hit the "S3_PATH is not set" error.
-- **Decide what to do with `.vscode/settings.json`.** Merge autosave into the team's version (Copilot off, `.venv` interpreter, `.env` loading), or keep yours out of git.
-- **Decide whether to commit `.claude/settings.json`.** Committing it applies the deny rules to teammates who use Claude Code. Known gaps:
-  - `Read(./.env.*)` also blocks `.env.example`.
-  - `Read` rules don't stop shell commands such as `cat .env`.
-- **Commit `requirements.txt`** (adds `pyarrow==25.0.1` and `zstandard==0.25.0`), and tell the team to rerun `pip install -r requirements.txt`.
-- **Open a pull request** with `PROJECT_PLAN.md` and `PRIORITY_QUEUE.md` for team discussion.
+- **Switch `.env.example` from `S3_BUCKET` to `S3_PATH`.** Claude can't read this file under the project rules, so do it by hand. It should contain three blank lines: `AWS_PROFILE=`, `AWS_REGION=`, `S3_PATH=`. The README is already updated.
+- **Tell the team** to pull, rerun `pip install -r requirements.txt` (adds `pyarrow` and `zstandard`), and switch their `.env` to `S3_PATH`.
+- **Fix or delete `notebooks/scratch.py`.** It still reads `S3_BUCKET`. The README says to delete the scratch test after setup.
+- **Open the pull request** from `jacob/eda-and-plan` into `main` on GitHub. From now on, commit only on branches.
 
 ## Blocked
 
@@ -27,10 +20,6 @@
   - Assign owners for matching, evaluation, and the explanations/card/demo.
   - Set a meeting cadence and a place for async discussion.
   - Confirm the final due date and deliverables.
-- **Advisors:** the written AI tools policy, covering:
-  - Claude Code and other AI coding tools on project files
-  - Local embedding models
-  - GenAI explanations on real postings
 - **PredictLeads:**
   - Does role discovery for career changers fit what they want?
   - Schema documentation, especially `onet_data`, and whether `normalized_title`, `categories` or `tags` come from O*NET
