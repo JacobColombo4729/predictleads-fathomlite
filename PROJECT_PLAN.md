@@ -464,8 +464,8 @@ Counts turn a list of anecdotes into a finding.
 
 | Risk | Mitigation |
 |---|---|
-| **Sending real job data to outside AI services** | The README forbids putting real data into AI tools until the advisors' policy is written. Run embeddings locally, for example with `sentence-transformers`. Show GenAI explanations on synthetic postings only, unless we get written approval. |
-| **AI coding tools on project files** | The README also limits AI coding tools until that guidance arrives. Confirm with the advisors what's allowed. |
+| **Sending real job data to outside AI services** | The advisors' rules (in `CLAUDE.md`) allow AI tools for coding, but no confidential data may be uploaded to them. Run embeddings locally, for example with `sentence-transformers`. Show GenAI explanations on synthetic postings only. |
+| **AI coding tools on project files** | Allowed for coding, brainstorming and debugging, per `CLAUDE.md`. Claude never reads `data/` or `.env`, and works from code, column names, dtypes and shapes only. |
 | Personal details in résumés | Remove names, contact details, employers, schools and locations before use. Store résumés like data: never commit them. |
 | Biased evaluation | Hide which method produced each result while rating. Use O*NET labels as an independent check. |
 | Biased sample: the first N documents, not random | Check company and date spread. If the file is sorted, sample randomly while streaming the full file. |
@@ -491,9 +491,6 @@ Counts turn a list of anecdotes into a finding.
 - Are daily snapshots full copies or incremental changes?
 - What do `status` values mean, and how are `tags` and `categories` produced?
 - Is the job openings file sorted in some way, for example by company or date?
-
-**For our advisors**
-- What does the written AI tools policy allow, especially for embeddings and GenAI on real postings?
 
 ---
 

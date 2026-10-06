@@ -154,7 +154,7 @@ Paste in the following and save with Cmd + S:
 ```
 AWS_PROFILE=
 AWS_REGION=
-S3_BUCKET=
+S3_PATH=
 ```
 
 Repeat with a new file called `.env` and fill in:
@@ -162,8 +162,10 @@ Repeat with a new file called `.env` and fill in:
 ```
 AWS_PROFILE=team_project
 AWS_REGION=us-east-2
-S3_BUCKET=<ask the team>
+S3_PATH=s3://<bucket>/<YYYY>/<MM>/<DD>/   # ask the team for the bucket and snapshot date
 ```
+
+Each variable goes on its own line.
 
 > `.env` is in `.gitignore`. Only `.env.example` (blank values) is committed.
 
@@ -195,8 +197,9 @@ import os, boto3, pandas as pd, sklearn
 from dotenv import load_dotenv
 
 load_dotenv()
+bucket, _, prefix = os.getenv("S3_PATH").removeprefix("s3://").partition("/")
 s3 = boto3.Session(profile_name=os.getenv("AWS_PROFILE")).client("s3")
-resp = s3.list_objects_v2(Bucket=os.getenv("S3_BUCKET"), MaxKeys=5)
+resp = s3.list_objects_v2(Bucket=bucket, Prefix=prefix, MaxKeys=5)
 
 print("pandas", pd.__version__, "| sklearn", sklearn.__version__)
 print("S3 objects visible:", resp.get("KeyCount"))
