@@ -30,14 +30,21 @@ AI tools are allowed for coding, brainstorming, and debugging. **Do not upload o
 | `researcher` | Finds methods, docs, citations | Unknowns, best practice |
 | `quality-control` | Methodology + data-safety checks | Before every commit |
 
-**Protocol:**
-- Use agents at **decision points and before commits**, not on every small edit.
-- Debates are **one round**, moderated by the main session (`/debate <question>`).
+**Interaction protocol (agents interact through the main session):**
+- **Automatic cross-checks:** after any agent responds, route its output to its counterpart without being asked:
+  - depth-maxer proposal → **focus** (scope) → **discourse** (challenge)
+  - researcher recommendation → **discourse** (challenge) → **focus** (scope)
+  - focus marks an idea "Out of scope" but it affects result validity → **depth-maxer** (rebut)
+  - any modeling or pipeline change → **quality-control**
+- **Handoffs:** when an agent ends with `HANDOFF → <agent>: <request>`, call that agent next with the request.
+- **Debates** use `/debate <question>`: two rounds (positions, then rebuttal), then stop.
+- **Shared memory:** all agents read `docs/decisions.md`. The main session appends an entry after every debate or major review. Agents never edit it.
+- **Loop guard:** max 6 agent calls per task unless the user approves more. Never repeat the same agent on the same question without new information.
 - **Final decisions belong to the user.** Agents flag trade-offs; they don't override.
 - Keep agent outputs short and in their defined formats.
 
 ## Commands
-- `/debate <question>`: structured focus → research → depth → discourse → recommendation
+- `/debate <question>`: two-round debate (positions → rebuttal), recommendation, logged to `docs/decisions.md`
 - `/precommit`: quality-control review of staged changes
 
 ## Conventions
