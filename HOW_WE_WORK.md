@@ -15,7 +15,6 @@ PredictLeads × TripleTen externship · **How we work.** Last updated 2026-10-09
 | [`docs/data.md`](docs/data.md) | Data sources, fields, quirks and auto-generated schemas |
 | [`docs/fit_analysis.md`](docs/fit_analysis.md) | Transferable fit: Option A vs. B, and how the team builds the 50 real + 1,000 synthetic applicant profiles |
 | [`PRIORITY_QUEUE.md`](PRIORITY_QUEUE.md) | What to do next |
-| [`EMAILS.md`](EMAILS.md) | Every question for our advisor and PredictLeads, ready to send |
 | [`APPLICATION.md`](APPLICATION.md) | The web app's design |
 | [`README.md`](README.md) | Setup and the data rules |
 | `notebooks/` | EDA_SDA_1–4, TimeSeries, ML: the analysis itself. Each has its own detailed plan. `Profiles.ipynb` finds real career switches in a public resume dataset, for the fit model |

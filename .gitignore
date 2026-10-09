@@ -227,3 +227,6 @@ data/
 *.pkl
 *.joblib
 .DS_Store
+
+# Notebook exports with outputs (tables, charts): local only, never committed
+reports/

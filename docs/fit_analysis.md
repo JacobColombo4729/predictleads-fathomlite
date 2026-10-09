@@ -2,7 +2,7 @@
 
 How we measure how well a **career changer's** background fits a job listing and which computer and mathematical roles it transfers to (role discovery). A career changer is anyone switching from their current background to a different role or field. This doc also covers how the team builds the applicant profiles it needs. Decision logged in [`decisions.md`](decisions.md). Follow the [Data & Security Rules](../README.md#data--security-rules) throughout.
 
-> **Blocked until the advisor answers question 5 in [`EMAILS.md`](../EMAILS.md).** Don't collect any real profiles before that answer is recorded in the decision log.
+> **Blocked until the advisor approves collecting applicant profiles.** Don't collect any real profiles before that answer is recorded in the decision log.
 
 ---
 
@@ -136,7 +136,7 @@ A synthetic profile's labels come from its seed's switch and the weak rules, adj
 
 | Task | Owner | Depends on |
 |:--|:--|:--|
-| Draft the consent form; get the advisor's approval | TBD | Advisor's answer (`EMAILS.md` question 5) |
+| Draft the consent form; get the advisor's approval | TBD | Advisor's approval to collect profiles |
 | Recruit 50 career changers from the chosen source backgrounds | TBD (everyone recruits) | Consent form |
 | Collect zips and convert them to clean JSON (section 3, Step 3) | One teammate only | Profiles arriving |
 | Code job titles to O*NET | TBD | Clean JSON |
