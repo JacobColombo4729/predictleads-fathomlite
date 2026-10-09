@@ -8,7 +8,7 @@
 ## Structure
 - `PROJECT_OUTLINE.md`: what we're doing. `HOW_WE_WORK.md`: how we work (standards, leakage rules, scope, risks).
 - `docs/decisions.md`: decision log. `docs/data.md`: data reference and auto-generated schemas.
-- `PRIORITY_QUEUE.md`: tasks. `EMAILS.md`: questions for the advisor and PredictLeads. `APPLICATION.md`: app design.
+- `PRIORITY_QUEUE.md`: tasks. `APPLICATION.md`: app design.
 - `notebooks/`: EDA_SDA_1 (exploration, scope) → EDA_SDA_2 (non-text, niche) → EDA_SDA_3 (NLP) → EDA_SDA_4 (statistics) → TimeSeries → ML. Each hands its final table to the next under `data/clean/`. `Profiles.ipynb` (rules in `src/career_switch.py`) finds career switches in the external resume dataset, tuned in review rounds.
 - `src/`: shared code (`src/eda_helpers.py`), imported into notebooks
 - `data/`: local data only, git-ignored, **never read by Claude**
