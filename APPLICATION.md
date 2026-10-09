@@ -36,7 +36,7 @@ The core of the app is the **priority queue**: listings ranked for this career c
 - **Filters:** they combine, and each one shows how many postings match:
   - **Priority:** minimum score, or top N
   - **Apply-by:** closing within N days, or before a date
-  - **Hidden automatically:** listings a career changer can't get (manager level and above, too many years asked, or a degree or license this user lacks). A note shows how many were hidden, and why
+  - **Hidden automatically:** listings a career changer can't get (too many years asked, a degree or license this user lacks, or manager-level roles if the user has no management experience). A note shows how many were hidden, and why
   - **Training offered:** only listings that offer training or welcome career changers
   - **Transferable fit:** minimum score (needs the user's background profile)
   - **Pay:** minimum salary; salary disclosed only
@@ -70,8 +70,15 @@ Opens full screen on tap or click:
 ### Role discovery ("Roles for you")
 
 - From the background profile, suggests the computer and mathematical roles (O*NET occupations) their skills transfer to.
+- Learned from real career switches: people in a public resume dataset who retrained into computer and mathematical roles (`notebooks/Profiles.ipynb`).
 - Each suggested role shows the skills that carry over, the main gaps, how many reachable listings are open now, and median pay.
 - Picking roles sets what the priority queue ranks.
+
+### Retraining compass
+
+- For the user's background, lists the **training options** people like them took (degrees, certificates, bootcamps), grouped by field.
+- For each one: the **tech roles it led to** (from real career switches, with how many people), and for each role its **2026 openings, median pay and how fast listings close**.
+- Picking a role sets what the priority queue ranks. Worded as "people like you got there through this training", never "this training gets you hired".
 
 ### Background profile (for transferable fit)
 
@@ -135,7 +142,7 @@ Each MCP server wraps one capability we build anyway: postings, timing, fit, mar
 | **Background** | Reads the career changer's profile and extracts past roles, skills and target fields | `fit` |
 | **Scout** | Follows the check schedule and finds new postings that match the user | `postings`, `timing` |
 | **Ranker** | Scores and ranks postings into the priority queue | `priority`, `timing`, `fit` |
-| **Coach** | Explains the queue and the strategy in plain language; turns questions into filters ("what should I apply to this week?") | All, read-only |
+| **Coach** | Explains the queue, the retraining compass and the strategy in plain language; turns questions into filters ("what should I apply to this week?") | All, read-only |
 | **Bridge** | Compares the career changer's profile with a posting's requirements, and suggests what to emphasize from their old field and what to learn | `fit` |
 | **Reminder** | Flags starred postings whose apply-by date is close, and new high-priority matches | `tracker`, `timing` |
 | **Orchestrator** | Decides which agent runs when, and combines their answers | All |
@@ -174,7 +181,7 @@ Each stage is usable on its own, so we always have something to demo.
 | Stage | What | Depends on |
 |---|---|---|
 | **1. MVP** | List view with live search, sort and filters; detail view with apply link; stars and Starred tab; unreachable listings hidden, with what each listing asks of a newcomer; apply-by, chance still open, pay, freshness | Still open / apply-by and the EDA's chosen factors |
-| **2. Transferable fit and role discovery** | Background profile; suggested roles; transferable-fit score and filter; skills that carry over, and gaps | TF-IDF or local embeddings; O*NET skills |
+| **2. Transferable fit and role discovery** | Background profile; suggested roles; retraining compass; transferable-fit score and filter; skills that carry over, and gaps | TF-IDF or local embeddings; O*NET skills |
 | **3. Priority model** | Tuned priority score with adjustable weights | Full analysis |
 | **4. Agents** | MCP servers, then the agents, starting with Ranker, Coach and Reminder | Stages 1–3; the advisors' answer |
 | **5. External data** | Market panel, wage benchmarks, market tightness | Stage 1 |

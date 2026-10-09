@@ -23,9 +23,13 @@ How we measure how well a **career changer's** background fits a job listing and
 3. **It's the project's model.** The `ML` notebook needs a trained, validated, explainable ranker (SHAP for "why it's ranked here"), not a single similarity score.
 4. **Option A stays as the baseline,** so we can show that Option B actually adds something.
 
-## 3. Applicant profiles: 50 real, 1,000 synthetic
+## 3. Applicant profiles
 
 > **Started first: real career switches from a public resume dataset.** `notebooks/Profiles.ipynb` finds people in the Kaggle structured resume dataset (about 54,000 resumes, MIT license) whose job history shows a move into a computer and mathematical role. Its rules (`src/career_switch.py`) are tuned in review rounds until the candidates are right. These give real pre-switch profiles and real labels without waiting for the advisor. The volunteer profiles below add career changers from the team's own backgrounds, in more detail.
+>
+> **Result so far:** 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; 99.7% with readable job dates) → **2,539 career changers** under rules version 8: 1,836 changed roles within tech, 364 retrained after working in another field, 339 retrained as new grads from another field. A random spot-check (Profiles 4c) is in progress. The volunteer profiles below are now a recent test set, not the main source.
+>
+> **Rules version 6 labels instead of rejecting:** everyone who reached a computer and mathematical job is kept with labels (origin, retrained, first tech job level, every tech role reached). The role model trains on everyone, with origin as a feature, and its results are reported on career changers (retrained from another field, or changed roles within tech; any job level). A check compares training on everyone with training on career changers only.
 >
 > **Download** (once, about 136 MB unzipped; no Kaggle login needed). From the project folder:
 >
@@ -97,9 +101,16 @@ The collecting teammate does this locally:
 7. **Cut the profile at the switch:** keep only positions, skills and certifications from *before* `switched_on`. Anything from after the switch leaks the answer.
 8. Delete the raw zip once the clean JSON is checked. Log every remaining copy for the end-of-project deletion.
 
-### Step 4: build 1,000 synthetic profiles from the 50
+### Step 4: synthetic profiles, only to balance small roles
 
-Each real profile is a **seed** for 19 variations, giving 50 real + 950 synthetic = 1,000. Each variation applies one or two **structured edits**. Every edit is recorded, so we know exactly how each profile differs from its seed:
+**The 1,000-profile plan is dropped (2026-10-09):** it assumed about 50 real profiles, and there are now 2,539 real career changers. Roles are uneven (data and analytics is the smallest), so:
+
+- **The compass and every reported share use real people only.** "30% of developers who changed roles moved into data" is a fact; balancing would make every role look equally common.
+- **The model handles imbalance in training:** class weights first (`class_weight="balanced"`), with per-role scores so a small role isn't hidden in an average.
+- **Only if a small role is still predicted poorly:** add synthetic people *of that role*, made by perturbing real ones with the structured edits below, **inside each training fold only**, kept in the same fold as their seed. Never in the test set, the compass or any reported number.
+- **The model's probabilities are corrected back to the real role mix** before role discovery shows them; otherwise a model trained on balanced data over-predicts small roles.
+
+Each synthetic person is a variation of a real **seed**, with one or two **structured edits**, each recorded:
 
 | Edit | Example | Rule that keeps it realistic |
 |:--|:--|:--|
@@ -118,10 +129,10 @@ A profile is only useful for training if its *(profile, listing)* pairs have lab
 | Source | Label | Use |
 |:--|:--|:--|
 | **Each real person's switch** | Listings in the target role they moved into = good fit | Training and **evaluation**: these are real outcomes |
-| **Weak rules** | Fit from O*NET occupation distance, skill overlap and the career-change flags | Training only, on real and synthetic profiles. If we evaluated on these, the model would just be graded on our own rules |
+| **Weak rules** | Fit from O*NET occupation distance, skill overlap and the career-change flags | Training only. If we evaluated on these, the model would just be graded on our own rules |
 | **Team ratings** (agreed) | Teammates rate about 30 listings per real profile: good / maybe / no | Evaluation. Only teammates see listing text; volunteers never see PredictLeads data |
 
-A synthetic profile's labels come from its seed's switch and the weak rules, adjusted for its edits (for example, a changed target field takes that field's listings as positives).
+A synthetic person (only for small roles, inside training folds) takes its seed's role label, adjusted for its edits.
 
 ## 5. Validation rules
 

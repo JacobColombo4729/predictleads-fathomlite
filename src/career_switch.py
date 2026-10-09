@@ -1,6 +1,11 @@
 """Find career changers into computer and mathematical roles in the public structured resume dataset
 (Kaggle: suriyaganesh/resume-dataset-structured, MIT license, version 2 of 2024-11-14).
 
+Nobody who reached a computer and mathematical job is thrown away (rules version 6): each person gets labels (origin,
+retrained, first_level, roles_reached), and `status` names the main one. Career changers are a view: the "candidate: ..." statuses,
+in three pools: retrained after working in another field, retrained as a new grad from another field (another-field
+origin, then a tech or math program, then the tech job), and changed roles within tech (rules version 8).
+
 Each person's resume is read as one timeline: jobs and education in date order, each labelled tech/math, other field,
 unclear, or skip. Their original background is everything before their first tech or math entry. They're a career
 changer if that background includes another field, however they got into tech (changed jobs, new grad, or retrained).
@@ -14,7 +19,7 @@ import re
 import numpy as np
 import pandas as pd
 
-RULES_VERSION = 5
+RULES_VERSION = 8
 
 RULES = {
     # "Present" / "Current" end dates mean the month the dataset was last updated
@@ -22,7 +27,10 @@ RULES = {
     # Target roles: computer and mathematical (O*NET 15-xxxx), grouped into buckets for role discovery.
     # The first bucket that matches a title wins, so order matters.
     "cm_buckets": {
-        "data and analytics": r"\bdata (?:analyst|scientist|engineer|architect)\b|\bbusiness intelligence\b|\bbi (?:analyst|developer)\b"
+        "data and analytics": r"\bdata (?:analyst|scientist|engineer|architect|specialist|management|modell?er|warehouse)\b"
+                              r"|\bbusiness intelligence\b|\bbi (?:analyst|developer|engineer)\b|\bpower ?bi\b|\btableau\b"
+                              r"|\betl (?:developer|engineer)\b|\banalytics\b|\bquantitative analyst\b|\bmis analyst\b"
+                              r"|\bbig data\b|\bhadoop\b|\bdata visuali[sz]ation\b|\bdecision scien"
                               r"|\bstatistician\b|\bmachine learning\b|\bml engineer\b|\breporting analyst\b",
         "database": r"\bdatabase (?:administrator|developer|analyst|engineer)\b|\bdba\b|\bsql developer\b",
         "quality assurance": r"\b(?:qa|software quality assurance) (?:analyst|engineer|tester|specialist)\b|\bsoftware tester\b|\btest (?:engineer|analyst)\b",
@@ -34,8 +42,10 @@ RULES = {
         "software development": r"\bsoftware (?:developer|engineer|programmer)\b|\bdeveloper\b|\bprogrammer\b|\bfull[- ]?stack\b|\bfront[- ]?end\b"
                                 r"|\bback[- ]?end\b|\bweb developer\b|\bapplication (?:developer|engineer)\b",
     },
-    # A first computer and mathematical job at these levels isn't a newcomer's job: the person was probably already in tech
-    "senior_target": r"\b(?:senior|sr\.?|lead|principal|staff|manager|director|head|chief|vp|vice president|architect)\b",
+    # Level of the job at the switch, recorded in first_level as a label and model feature; no level is left out
+    # (prior experience can qualify someone for a senior or manager role).
+    "manager_target": r"\b(?:manager|director|head|chief|vp|vice president|president|cto|cio|ceo)\b",
+    "senior_target": r"\b(?:senior|sr\.?|lead|principal|staff|architect)\b",
     # Pre-switch jobs that don't count as a background to switch from
     "not_a_background": r"\bintern(?:ship)?\b|\bstudent\b|\bvolunteer\b|\b(?:teaching|research|graduate) assistant\b|\bfellow(?:ship)?\b",
     # Job titles outside the target buckets that still sound technical ("IT Manager"); they count as tech in the timeline
@@ -70,6 +80,10 @@ RULES = {
     # Only people who retrained (a tech or math program between their original field and the tech job) are candidates.
     # True also keeps direct switches (changed jobs, or a new grad straight into tech, with no tech or math training).
     "keep_direct_switches": False,
+    # Changed roles within tech: someone already in tech who moves into a different role bucket after at least this
+    # many months in the first one (for example IT support -> data and analytics). Their own pool; False turns it off.
+    "within_tech_switches": True,
+    "min_months_in_first_bucket": 12,
 }
 
 REASONS = {  # review reason codes; "good" means a real career change into a computer and mathematical role
@@ -86,23 +100,47 @@ REASONS = {  # review reason codes; "good" means a real career change into a com
     "other": "Anything else (explain in the note)",
 }
 
-_MONTH = re.compile(r"^\s*(\d{1,2})\s*[/-]\s*(\d{4})\s*$")
-_YEAR = re.compile(r"^\s*(\d{4})\s*$")
-_NOW = re.compile(r"^\s*(?:present|current|now|today|to date|ongoing)\s*$", re.IGNORECASE)
+_MONTH = re.compile(r"^\s*(\d{1,2})\s*[/-]\s*(\d{4})\s*/?\s*$")             # 06/2015
+_MONTH_YY = re.compile(r"^\s*(\d{1,2})\s*[/-]\s*(\d{2})\s*/?\s*$")         # 06/15 (month / 2-digit year)
+_YEAR_MONTH = re.compile(r"^\s*(\d{4})\s*[/-]\s*(\d{1,2})\s*/?\s*$")       # 2015/06, 2015/06/
+_FULL_DATE = re.compile(r"^\s*(\d{1,2})\s*/\s*\d{1,2}\s*/\s*(\d{2}|\d{4})\s*$")  # 06/30/2015, 06/30/15 (month first)
+_YEAR = re.compile(r"^\s*(\d{4})\s*/?\s*$")                                   # 2015, 2015/
+_NAMED = re.compile(r"^\s*([A-Za-z]{3,9})\.?\s*,?\s*(\d{4})\s*$")             # June 2015, Sept. 2015
+_NOW = re.compile(r"^\s*(?:present|current|now|today|to date|till date|ongoing)\s*$", re.IGNORECASE)
+_MONTHS = {name: i for i, names in enumerate(
+    [("jan", "january"), ("feb", "february"), ("mar", "march"), ("apr", "april"), ("may",), ("jun", "june"),
+     ("jul", "july"), ("aug", "august"), ("sep", "sept", "september"), ("oct", "october"), ("nov", "november"),
+     ("dec", "december")], start=1) for name in names}
+
+
+def _year(two_or_four, as_of):
+    """A 4-digit year as is; a 2-digit year in this century up to as_of's year, otherwise the 1900s."""
+    y = int(two_or_four)
+    if len(two_or_four) == 4:
+        return y
+    return 2000 + y if y <= as_of.year % 100 else 1900 + y
 
 
 def parse_month(value, as_of):
-    """MM/YYYY or YYYY to a monthly Period; 'Present' to as_of; anything else to NaT."""
+    """A start or end date to a monthly Period; 'Present' and similar to as_of; anything unreadable to NaT.
+    Reads MM/YYYY, MM/YY, YYYY/MM, MM/DD/YYYY, YYYY, and month names ("June 2015"). A month above 12 stays unreadable."""
     if not isinstance(value, str):
         return pd.NaT
     if _NOW.match(value):
         return as_of
-    m = _MONTH.match(value)
-    if m and 1 <= int(m.group(1)) <= 12:
-        return pd.Period(year=int(m.group(2)), month=int(m.group(1)), freq="M")
+    for pattern, year_group, month_group in ((_MONTH, 2, 1), (_MONTH_YY, 2, 1), (_YEAR_MONTH, 1, 2), (_FULL_DATE, 2, 1)):
+        m = pattern.match(value)
+        if m:
+            month = int(m.group(month_group))
+            if not 1 <= month <= 12:
+                return pd.NaT
+            return pd.Period(year=_year(m.group(year_group), as_of), month=month, freq="M")
     m = _YEAR.match(value)
     if m:
         return pd.Period(year=int(m.group(1)), month=1, freq="M")
+    m = _NAMED.match(value)
+    if m and m.group(1).lower() in _MONTHS:
+        return pd.Period(year=int(m.group(2)), month=_MONTHS[m.group(1).lower()], freq="M")
     return pd.NaT
 
 
@@ -117,6 +155,7 @@ def tag_jobs(experience, rules=RULES):
     for bucket, pattern in reversed(list(rules["cm_buckets"].items())):  # reversed, so the first bucket wins
         jobs.loc[low.str.contains(pattern, regex=True), "cm_bucket"] = bucket
     jobs["is_cm"] = jobs["cm_bucket"].notna()
+    jobs["manager_plus"] = low.str.contains(rules["manager_target"], regex=True)
     jobs["senior"] = low.str.contains(rules["senior_target"], regex=True)
     jobs["not_background"] = low.str.contains(rules["not_a_background"], regex=True)
     jobs["tech_title"] = low.str.contains(rules["tech_source"], regex=True)
@@ -175,7 +214,10 @@ def person_timeline(jobs_p, edu_p, switch, rules=RULES):
 
 
 def _one_person(g, edu, rules):
-    out = {"status": None, "origin_type": None, "switch_month": pd.NaT, "target_title": None, "target_bucket": None,
+    """Labels for one person. Everyone who reached a computer and mathematical job gets every label; `status` is the
+    main one, so tables can count people by it. Career changers have a 'candidate: retrained ...' status."""
+    out = {"status": None, "origin": None, "origin_type": None, "first_level": None, "roles_reached": None, "from_bucket": None,
+           "reached_data": False, "switch_month": pd.NaT, "target_title": None, "target_bucket": None,
            "source_title": None, "last_source_title": None, "source_study": None, "retrained": False,
            "retrain_study": None, "study_undated": False, "background_months": 0, "gap_months": np.nan,
            "n_jobs": int(g.start.notna().sum()), "n_jobs_before": 0}
@@ -186,9 +228,10 @@ def _one_person(g, edu, rules):
     if cm.empty:
         return {**out, "status": "never in a computer and mathematical role"}
     first = cm.iloc[0]
-    out.update(switch_month=first.start, target_title=first.title, target_bucket=first.cm_bucket)
-    if first.senior:
-        return {**out, "status": "first computer and mathematical role is senior"}
+    reached = sorted(cm.cm_bucket.unique())
+    out.update(switch_month=first.start, target_title=first.title, target_bucket=first.cm_bucket,
+               roles_reached=", ".join(reached), reached_data="data and analytics" in reached,
+               first_level="manager or above" if first.manager_plus else "senior" if first.senior else "other")
 
     tl = person_timeline(g, edu, first.start, rules)
     before = tl[tl.key < first.start.ordinal]
@@ -198,22 +241,21 @@ def _one_person(g, edu, rules):
     first_tech = tech_keys.min() if len(tech_keys) else float(first.start.ordinal)
     origin = before[(before.key < first_tech) & (before.label != "skip")]
     retrain = before[(before.key >= first_tech) & (before.kind == "study") & (before.label == "tech")]
+    other = origin[origin.label == "other"]
+
+    if other.empty:
+        if (origin.label == "unclear").any():
+            out["origin"], status = "unclear field of study", "original field of study unclear"
+        elif len(tech_keys):
+            out["origin"], status = "tech or math", "original background in tech or math"
+        elif (before.label == "skip").any():
+            out["origin"], status = "school or internships only", "only school, internships or high school before the switch"
+        else:
+            out["origin"], status = "none", "no background before the switch"
+        return _within_tech({**out, "status": status}, cm, rules)  # retrained stays False: only another field can retrain
+
     out["retrained"] = not retrain.empty
     out["retrain_study"] = retrain.text.iloc[-1] if out["retrained"] else None
-
-    other = origin[origin.label == "other"]
-    if other.empty:
-        out.update(retrained=False, retrain_study=None)  # only career changers can have retrained
-        if (origin.label == "unclear").any():
-            status = "original field of study unclear"
-        elif len(tech_keys):
-            status = "original background in tech or math"
-        elif (before.label == "skip").any():
-            status = "only school, internships or high school before the switch"
-        else:
-            status = "no background before the switch"
-        return {**out, "status": status}
-
     # Months in other-field jobs, counted up to the first tech entry
     cutoff = pd.Period(ordinal=int(np.ceil(first_tech)), freq="M")
     jobs_o, studies_o = other[other.kind == "job"], other[other.kind == "study"]
@@ -229,8 +271,10 @@ def _one_person(g, edu, rules):
 
     job_background = out["background_months"] >= rules["min_background_months"]
     if not job_background and studies_o.empty:
-        return {**out, "status": f"background under {rules['min_background_months']} months"}
+        out["origin"] = "short other-field job"
+        return _within_tech({**out, "status": f"background under {rules['min_background_months']} months"}, cm, rules)
     out["origin_type"] = "job" if job_background else "study"
+    out["origin"] = "other-field job" if job_background else "other-field study"
     if out["retrained"]:
         status = ("candidate: retrained, after working in another field" if job_background
                   else "candidate: retrained, new grad from another field")
@@ -240,6 +284,28 @@ def _one_person(g, edu, rules):
         status = ("changed jobs without tech or math training" if job_background
                   else "new grad from another field without tech or math training")
     return {**out, "status": status}
+
+
+def _within_tech(out, cm, rules):
+    """If someone already in tech later moved into a different role bucket, after enough months in the first one,
+    relabel them as 'candidate: changed roles within tech', with the new bucket as their switch."""
+    if not rules["within_tech_switches"]:
+        return out
+    first_bucket = cm.cm_bucket.iloc[0]
+    moved = cm[cm.cm_bucket != first_bucket]
+    if moved.empty:
+        return out
+    new = moved.iloc[0]
+    earlier = cm[(cm.start < new.start) & (cm.cm_bucket == first_bucket)]
+    ends = earlier.end.where(earlier.end.notna() & (earlier.end <= new.start), new.start)
+    months = int(sum(_months(s, e) for s, e in zip(earlier.start, ends)))
+    if months < rules["min_months_in_first_bucket"]:
+        return out
+    return {**out, "status": "candidate: changed roles within tech", "from_bucket": first_bucket,
+            "switch_month": new.start, "target_title": new.title, "target_bucket": new.cm_bucket,
+            "first_level": "manager or above" if new.manager_plus else "senior" if new.senior else "other",
+            "background_months": months, "source_title": earlier.title.iloc[int(np.argmax([_months(s, e) for s, e in zip(earlier.start, ends)]))],
+            "last_source_title": earlier.title.iloc[-1]}
 
 
 def prepare_education(education, rules=RULES):
