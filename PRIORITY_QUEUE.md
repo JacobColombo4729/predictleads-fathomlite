@@ -1,130 +1,74 @@
 # Priority Queue
 
 > Top = next. Delete a task when it's done. Add new tasks to the tier where they belong.
-> The reasoning behind each task is in [`PROJECT_PLAN.md`](PROJECT_PLAN.md).
+> What each notebook will do is in its own plan; how we work is in [`PROJECT_PLAN.md`](PROJECT_PLAN.md).
 
 ---
 
 ## Now
 
-- **Rerun the EDA notebook from step 6.0** to render the new charts and the `contract_types` cleaning fix, then check that each "What the data shows" note and the executive summary still match the outputs. Clear outputs before committing.
-- **Decide the segment with the team:** the EDA recommends computer and mathematical (US), with healthcare practitioners as the robustness check (notebook section 9).
-- **Run the EDA notebook** (`notebooks/jacob/EDA.ipynb`) from the top: flattening (step 4), cleaning (step 6), then the prioritization EDA (Q1 which factors, Q2 time information, Q3 segment). Share only the printed aggregates, and fill in step 9.
+- **Download the structured resume dataset** into `data/external/resume_structured/` (the command is in the chat, or download it from Kaggle by hand), then run `notebooks/Profiles.ipynb`.
+- **Career-switch review rounds:** mark each round's sample in `data/profiles/review/`, share the section 5 counts, adjust `src/career_switch.py`, repeat until candidate precision is 90%+ two rounds in a row. Also review a rejected pool or two.
+- **Rerun EDA_SDA_1 from 6.1** (the lean-table cache rebuilds for the new career-change columns), then fill in every "*To fill in after rerunning*" note (6.1h, Q1a, Q1g, Q3a, 12b, the executive summary and the conclusion) and the matching rows in `PROJECT_OUTLINE.md`.
+- **Check the seniority labels** (EDA_SDA_1 Q3b) and add any entry-level ones besides `junior` to `ENTRY_LEVELS` in 6.7a.
+- **Slide deck for the team, due Friday 2026-10-09** (reminder): our findings at each step, how we made the major decisions, and a final pitch, framed around career changers.
+- **Give Claude instructions for the additional data cleaning** (reminder).
+- **Answer Claude's open suggestions:**
+  - Reword the 60.7% as "up to 60.7%" in the summaries, and add a domain check to EDA_SDA_2 (3.2) to refine it.
+  - Add a caveat that `urgency` and `mentions_remote` are keyword rules with suspected false positives ("urgent care"), and a validation step to EDA_SDA_3.
+- **EDA_SDA_2 (non-text):** follow its plan (sections 2–4). EDA_SDA_1's final table is saved (171,143 listings).
+- **Pin the packages the next notebooks need** in `requirements.txt` (`lifelines`, `statsmodels`, `nltk`, `spacy`, `lightgbm`, `catboost`, `xgboost`, `shap`), then tell the team.
 - **Delete any leftover `*_flat_*.pkl` files in `data/`** from the earlier version of the flatten cell, if they exist.
-- **Post the updated Slack summary** about the new focus, and ask the team to agree.
-- **Switch `.env.example` from `S3_BUCKET` to `S3_PATH`.** Claude can't read this file under the project rules, so do it by hand. It should contain three blank lines: `AWS_PROFILE=`, `AWS_REGION=`, `S3_PATH=`. The README is already updated.
-- **Tell the team** to pull, rerun `pip install -r requirements.txt` (adds `pyarrow`, `zstandard`, `sentence-transformers` with PyTorch, `rank-bm25` and `umap-learn`), and switch their `.env` to `S3_PATH`.
-- **Open the pull request** from `jacob/eda-and-plan` into `main` on GitHub. From now on, commit only on branches.
+- **Tell the team** to pull, rerun `pip install -r requirements.txt`, and switch their `.env` to `S3_PATH`.
+
+## Next
+
+- **Role discovery:** similarity between the team's backgrounds and computer and mathematical occupations in EDA_SDA_3; hit rate against real switchers' moves in ML.
+- **O*NET related occupations and skills:** check the terms of use and download them, including the **Career Changers Matrix** (latest release: up to 10 related occupations per occupation that people can move into with little extra preparation). EDA_SDA_2 needs them to pair source backgrounds with target fields; transferable fit needs them later; the Career Changers Matrix is a current, independent check on role discovery.
+- **BLS occupational separations (Employment Projections, 2024–34):** download the occupational transfer and labor force exit rates for each occupation; check the terms of use. Use them for how often people leave the team's background occupations, and for projected computer and mathematical openings (pitch context). They're projections from historical patterns and show who leaves, not where they go.
+- **CPS occupation transitions (IPUMS CPS ASEC, through 2025):** register, check the terms of use, and build a table of moves *into* computer and mathematical occupations by prior occupation and year (`OCC2010` vs `OCC10LY`; only people employed now and last year). Compare it with the resume dataset's background mix, and reweight the resumes if they differ a lot. Aggregates only.
+- **EDA_SDA_3 (NLP):** follow its plan. Output: niche table + text features.
+- **EDA_SDA_4 (statistics):** follow its plan. Output: modeling-ready table.
+- **TimeSeries:** follow its plan.
+- **ML:** follow its plan, including writing the hypotheses with thresholds before any modeling, and the solution report.
+- **App MVP** (stage 1 in `APPLICATION.md`): list view with search, sort and filters; detail view with apply link; stars.
+- **Write up the analysis** and **choose the final format** (write-up, notebook demo, or app).
 
 ## Blocked
 
 - **Team:**
-  - Agree on the focus: job listing prioritization for a given applicant, NLP + time series. Blocks P0.
-  - Decide which "best chance" factors matter most: still open, less competition, fit, pay, employer intent.
+  - Each teammate writes down their background (current field and roles; no personal details), to fix the source backgrounds.
   - Assign owners for time factors (seasonal context, cadence, freshness), still open / apply-by and text models, and the prioritization model and pitch.
   - Set a meeting cadence and a place for async discussion.
   - Confirm the final due date and deliverables.
-- **App** (details in `APPLICATION.md`, section 8):
-  - Course requirements: what's required for the web app and the multi-agent part (rubric, must-haves), or is it open-ended?
-  - Who is the user in the demo: a team member with their own résumé, or a synthetic job seeker?
-  - Agent ambition: are agents the centerpiece, or a layer on top of a solid queue? Decides how much of week 3 goes to them.
-  - Team split: who owns the app (front end, MCP servers), so the analysis isn't starved?
-  - Queue fields: is anything missing, such as a skills-gap column, salary vs. market benchmark, or company information?
-  - External data: which datasets are allowed, and do we need permission to combine them with PredictLeads data?
-  - Hosting: hosted, or a local demo only?
-  - Front end: is Streamlit enough for live search and full-screen detail views, or do we need React?
-- **Project advisor:** send email 1 in `EMAILS.md`, then record the answers. Get the AI-and-data answers in writing.
-  - Scope check on the new focus
-  - Final due date and deliverable format
-  - Web app and multi-agent requirements or rubric
-  - Whether an agent backed by an outside LLM may process posting text. Blocks the agent stage of the app.
-  - Using team members' de-identified résumés for fit
-  - Combining public datasets with the PredictLeads data
-  - Hosting the app, or a local demo only
-  - Showing real postings in the final presentation
-  - The data-deletion procedure
-- **PredictLeads:** send email 2 in `EMAILS.md`, then record the answers.
-  - Project fit for the new focus
-  - Schema documentation, especially the date fields and `onet_data`
-  - Crawl timing: how precise `first_seen_at` and `last_seen_at` are
-  - Daily snapshots: full copies or changes, how far back history goes, and whether older snapshots exist
-  - `status` values, and how to tell a posting is still open
-  - Sources: platforms and company sites only, or job boards too
-  - Whether `normalized_title`, `categories`, `tags` or `seniority` come from O*NET, and what `tags` contain
-  - File order, and whether the first 200,000 documents are representative
-  - Duplicates and reposts
-  - Whether `description` is cleaned, and how `language` is detected
-  - Whether real postings can appear in the final presentation
+- **App:** answer the open questions in `APPLICATION.md`, section 8.
+- **Project advisor:** send email 1 in `EMAILS.md`, then record the answers in `docs/decisions.md`. Get the AI-and-data answers in writing; the agent stage of the app depends on them. Question 5 (collecting career-changer profiles) blocks transferable fit.
+- **Applicant profiles** (after the advisor answers): follow `docs/fit_analysis.md`. Assign owners for its task table, draft the consent form, recruit 50 career changers, convert their exports, and build the synthetic generator in `src/`.
+- **PredictLeads:** send email 2 in `EMAILS.md` (12 questions), then record the answers in `docs/decisions.md`.
 
-## P0
+## Later
 
-- **Choose from the EDA:**
-  - The segment: occupation group × country (Q3)
-  - The time scales the data supports (Q2): seasonal needs two or more years of history; day of week needs the crawler check to pass
-  - The prioritization factors (Q1): those with real spread across occupation groups, sources or listing types
-- **Review the cleaning report (step 6.7).** Check that removed and flagged counts are plausible, and record the key numbers for the write-up.
-- **If the segment is too small or the sample is biased** (Q2b, Q3), stream more of the full file with filters and random sampling.
-- **Record the agreed focus, segment and time scales** in the plan's decision log.
-- **Write the hypotheses** (H1–H4 in the plan) with the segment and thresholds filled in, before any modeling.
-- **Pin `lifelines`** (survival analysis, Cox regression) **and `statsmodels`** (seasonal decomposition) in `requirements.txt`, then tell the team.
-- **Still open / apply-by:** Kaplan–Meier curves for the segment, by source and posting type, with bootstrap confidence intervals.
-- **Seasonal context:** monthly and weekly new-posting volume; STL seasonal decomposition if history allows; compare with a last-year baseline.
-- **Source and freshness:** arrival cadence: new postings per week by source and by company; turn into a "check every N days" rule and measure how many openings it catches.
-
-## P1
-
-- **Text predicts timing:**
-  - Cox regression with text features (salary disclosed, remote, urgency, TF-IDF terms)
-  - Closes-within-N-days classifier: TF-IDF + logistic regression vs. a non-text baseline, trained on earlier months and tested on later ones, folds grouped by company
-  - Features only from what's known when a posting appears (see the plan's leakage rules)
-- **Repost analysis:** frequency, time to repost, and what reposted postings have in common.
-- **Day-of-week patterns,** only if the crawler check (Q2c) shows the dates reflect employers.
-- **Statistics:** bootstrap confidence intervals throughout; Benjamini–Hochberg correction across many features or segments.
-- **Reproducibility:** fixed seeds, saved posting-ID list and snapshot date, each run's settings recorded with its results.
-
-- **App MVP** (stage 1 in `APPLICATION.md`): list view with live search, sort and filters (priority, apply-by, pay, freshness, source); detail view with apply link; stars and Starred tab. Target: end of week 2.
-
-## P2
-
-- **Prioritization model:** combine chance still open, competition proxies, pay and employer intent. Compare with a newest-first baseline on a later time period.
-- **Combine the layers into one strategy,** with the evidence and uncertainty for each.
-- **Run log:** settings, seeds and metrics for every run, in a CSV or a local MLflow store. Never posting text. If MLflow, pin it and tell the team.
-- **Remove boilerplate** (equal-opportunity statements, benefits sections) from descriptions before building TF-IDF features.
-- **Write up the analysis:** hypotheses, methods, results with confidence intervals, null results, and limitations (crawler dates, disappearing ≠ filled, sample).
-- **Choose the final format:** a write-up, a notebook demo, or a small app. If an app, pin it and tell the team.
-
-- **App fit stage:** résumé upload, fit score and filter, "why it matches" and gaps. Résumés stay local.
-- **App priority model:** tuned priority score from the analysis, with adjustable weights, checked against a newest-first baseline.
-- **MCP servers:** `postings`, `timing`, `fit`, `priority`, `tracker`, built with the `mcp` Python SDK. Pin it and tell the team.
-
-## P3
-
-- **Polish the pitch.**
-- **Fit:** TF-IDF and local embeddings to match a profile to postings, added to the prioritization score.
-- **Embeddings vs. TF-IDF** as text features for predicting timing.
-- **Change-point detection** (`ruptures`) on demand, to find hiring surges and freezes. Pin it if used.
-- **Topic modeling** (NMF or BERTopic) to find sub-roles with different timing.
-- **Several daily snapshots,** to observe postings closing directly.
-- **Calibration** of the closes-within-N predictions: reliability diagram and Brier score.
-- **Robustness:** rerun the main findings on a second occupation group or a different time window.
-- **Write a one-page system card:** intended use, data, metrics, limitations, failure modes.
-- **Move the shared loaders into `src/`:** `fetch`, `stream_jsonl`, `load_cached`, `flatten_to_parts`, `map_parts`, `load_flat`.
-- **Fix the README's inconsistent names.** The kernel is registered as `project_leads`, but the text says "Python (team_project)". The README also says `.venv` while your venv is `PL`.
-
-- **App agents:** Ranker, Coach and Reminder first, then Scout, Résumé and Gap. Follow the agent data rule in `APPLICATION.md`.
-- **External data:** BLS JOLTS for seasonality and market tightness, BLS wage statistics for pay benchmarks, O*NET skills for fit. Check each one's terms of use.
+- **App:** transferable-fit stage (the career changer's background profile), priority model with adjustable weights, MCP servers, then agents (see `APPLICATION.md`).
+- **External data:** BLS JOLTS and BLS wage statistics. Check each one's terms of use.
+- **Run log:** settings, seeds and metrics for every run, in a CSV or a local MLflow store. Never listing text.
+- **Stretch techniques:** transferable fit with embeddings; embeddings vs. TF-IDF; change-point detection (`ruptures`); topic modeling (NMF or BERTopic); several daily snapshots to observe closures directly; a one-page system card.
+- **If the niche is too small or the sample biased,** stream more of the full file with filters and random sampling.
+- **Move the data loaders into `src/`:** `fetch`, `stream_jsonl`, `load_cached`, `flatten_to_parts`, `map_parts`, `load_flat`.
+- **Fix the README's inconsistent names:** the kernel is registered as `project_leads` but the text says "Python (team_project)"; the README says `.venv` while your venv is `PL`.
 
 ## Always
 
 - Clear notebook outputs before every commit.
 - Never commit data, Parquet or pickle files, or `.env`.
 - After a kernel restart, run the notebook from the top.
+- Follow the working standards in `PROJECT_PLAN.md` and the course-template baseline in every notebook.
 - If the notebook looks out of date in VS Code, run **File: Revert File**. Don't save the older copy over newer changes.
-- Record team decisions in the plan's decision log.
+- Record every decision, with its reasoning, in `docs/decisions.md`.
 - When you add a package: pin it in `requirements.txt`, commit, and tell the team.
 - Keep track of every local copy of the data, for the final deletion.
 
 ## Finish
 
+- **Polish all six notebooks (EDA_SDA_1–4, TimeSeries, ML) so they read as one unit**, including trimming EDA_SDA_1 (one findings section instead of three; data loading moved to `src/` or its own notebook; a shorter overview): consistent titles, numbering, terms and formatting; a clear purpose for every step; each notebook's opening linking back to the previous one's conclusion; one shared executive summary or index; imports at the top of each notebook (course standard); no repeated code; every course-template requirement checked.
 - Permanently delete every copy of the data: `data/` (Parquet, pickle and `.jsonl.zst` files, including `data/flat/` and `data/clean/`), downloads, and any S3 copies.
 - Confirm the deletion in writing if asked.
