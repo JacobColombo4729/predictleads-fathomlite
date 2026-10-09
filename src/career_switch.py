@@ -14,7 +14,7 @@ import re
 import numpy as np
 import pandas as pd
 
-RULES_VERSION = 4
+RULES_VERSION = 5
 
 RULES = {
     # "Present" / "Current" end dates mean the month the dataset was last updated
@@ -40,7 +40,9 @@ RULES = {
     "not_a_background": r"\bintern(?:ship)?\b|\bstudent\b|\bvolunteer\b|\b(?:teaching|research|graduate) assistant\b|\bfellow(?:ship)?\b",
     # Job titles outside the target buckets that still sound technical ("IT Manager"); they count as tech in the timeline
     # while tech_titles_count_as_tech is True
-    "tech_source": r"\bit\b|\binformation technology\b|\bcomputer\b|\bsoftware\b|\bweb\b|\btechnical\b|\btechnology\b|\bprogramm",
+    "tech_source": r"\bit\b|\binformation technology\b|\bcomputer\b|\bsoftware\b|\bweb\b|\btechnical\b|\btechnology\b|\bprogramm"
+                   r"|\bwebmaster\b|\bsecurity (?:analyst|engineer|specialist|administrator|architect|consultant)\b|\bnetwork"
+                   r"|\bpc (?:technician|support)\b|\bdatabase\b",
     "tech_titles_count_as_tech": True,
     # Months of jobs in another field needed for a job background (a shorter job background with no other-field study is rejected)
     "min_background_months": 12,
@@ -53,7 +55,8 @@ RULES = {
     # Words that name a degree level, not a field. A program with nothing left after removing them is "field unclear"
     "degree_words": r"\b(?:bachelors?|masters?|associates?|doctor(?:ate)?|ph\.?\s?d|degree|diploma|certificate|certification|of|in|and|the"
                     r"|science|sciences|arts?|applied|general|studies|honou?rs|hons|program|course(?:work)?|graduate|undergraduate"
-                    r"|b\.?\s?s\.?c?|b\.?\s?a|m\.?\s?s\.?c?|m\.?\s?a|a\.?\s?a\.?s?|major|minor|concentration)\b",
+                    r"|b\.?\s?s\.?c?|b\.?\s?a|m\.?\s?s\.?c?|m\.?\s?a|a\.?\s?a\.?s?|major|minor|concentration"
+                    r"|technology|engineering)\b",  # alone they name no field ("Bachelor of Technology in Technology")
     # Degree level, used to place programs with no start date: below late_study_level they go at the start of the
     # timeline (degrees usually come before a career); at or above it, just before the switch (when people retrain).
     # Checked in this order; anything unmatched counts as a bachelor's (2).
