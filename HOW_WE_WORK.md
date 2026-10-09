@@ -1,4 +1,4 @@
-# Project Plan
+# How We Work
 
 PredictLeads × TripleTen externship · **How we work.** Last updated 2026-10-09.
 
@@ -10,7 +10,7 @@ PredictLeads × TripleTen externship · **How we work.** Last updated 2026-10-09
 | File | Its one job |
 |:--|:--|
 | [`PROJECT_OUTLINE.md`](PROJECT_OUTLINE.md) | **What we're doing:** the idea, findings so far, factors, the notebook series. Start here |
-| `PROJECT_PLAN.md` (this file) | **How we work:** standards, scope, roles, risks |
+| `HOW_WE_WORK.md` (this file) | **How we work:** standards, scope, roles, risks |
 | [`docs/decisions.md`](docs/decisions.md) | Every decision, with its reasoning |
 | [`docs/data.md`](docs/data.md) | Data sources, fields, quirks and auto-generated schemas |
 | [`docs/fit_analysis.md`](docs/fit_analysis.md) | Transferable fit: Option A vs. B, and how the team builds the 50 real + 1,000 synthetic applicant profiles |
@@ -66,7 +66,7 @@ For a given **career changer** (anyone switching from their current background t
 - **Applicant side only.** "Best time to post" for employers would need hiring outcomes we don't have.
 - **English-language listings in the United States, first seen April–September 2026** (decisions and reasons in `docs/decisions.md`).
 - **Applicants are career changers:** anyone switching from their current background to a different role or field. Source backgrounds are the team's own. Listings a career changer can't get are hidden; the model weighs everything else.
-- **Target: computer and mathematical (US).** EDA_SDA_2 picks the niche inside it (occupations, seniority and other dimensions), with enough data for depth once unreachable listings are hidden.
+- **Target: computer and mathematical (US).** EDA_SDA_2 splits it into role buckets shared with the career-switch profiles (not one role, since role discovery needs several), keeping buckets with enough data on both sides once unreachable listings are hidden.
 - **Transferable fit** waits for applicant profiles: real ones collected with consent (pending the advisor's answer), extended with synthetic profiles for development and testing. Approach and collection steps: [`docs/fit_analysis.md`](docs/fit_analysis.md).
 
 **How to describe the machine learning:** survival and time series analysis of listing activity, plus supervised learning (classification, survival and learning-to-rank models) on listing features and text, including career-change accessibility, validated on later months.

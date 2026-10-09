@@ -2,7 +2,7 @@
 
 **PredictLeads × TripleTen externship** · Jacob Colombo · Updated 2026-10-09
 *A working proposal; the team's final focus is still being agreed.*
-*How we work: [`PROJECT_PLAN.md`](PROJECT_PLAN.md) · Decisions: [`docs/decisions.md`](docs/decisions.md) · Data: [`docs/data.md`](docs/data.md)*
+*How we work: [`HOW_WE_WORK.md`](HOW_WE_WORK.md) · Decisions: [`docs/decisions.md`](docs/decisions.md) · Data: [`docs/data.md`](docs/data.md)*
 
 ---
 
@@ -78,7 +78,7 @@ Each notebook answers one question and hands its final table to the next. The Tr
 - **Long-open listings are kept:** they may be ghost listings *or* employers struggling to hire. Part 2 tells them apart instead of assuming.
 - **Reposts are a feature, not noise:** a job posted again and again may be hard to fill.
 - **Two features:** role discovery (which computer and mathematical roles a career changer's skills transfer to) and prioritization (ranking listings in the chosen roles).
-- **Target: computer and mathematical (US),** for its pay, remote share, rich text and the team's backgrounds. Only 9% of its listings are junior, so listings a career changer can't get are hidden. EDA_SDA_2 picks the niche inside it.
+- **Target: computer and mathematical (US),** for its pay, remote share, rich text and the team's backgrounds. Only 9% of its listings are junior, so listings a career changer can't get are hidden. EDA_SDA_2 splits it into role buckets (data and analytics, IT support, software development, …) aligned with the career-switch profiles, and drops only buckets too thin on both sides.
 - **Source backgrounds: the team's own.**
 - **Hide what a career changer can't get:** manager level and above (EDA_SDA_2), validated text blockers (EDA_SDA_3), and per-applicant blockers such as a missing degree or license (in the app). Every other factor is weighted by the model during ML training.
 - **Transferable fit uses a trained model (Option B)** on 50 real career changers and 1,000 synthetic profiles. See [`docs/fit_analysis.md`](docs/fit_analysis.md).
