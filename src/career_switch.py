@@ -259,6 +259,57 @@ def find_switches(jobs, education=None, rules=RULES):
     return out
 
 
+# Role buckets for listings: O*NET-SOC codes of computer and mathematical occupations mapped to the same buckets as
+# RULES["cm_buckets"] (the resume side), so listings and career switches line up role by role. Matched on the first 7
+# characters ("15-1252.00" -> "15-1252"). Both the 2019 SOC codes and the older 2010 ones are listed, since the
+# version in the listings isn't confirmed. Codes not listed come back as None; EDA_SDA_2 reports them.
+ONET_ROLE_BUCKETS = {
+    # 2019 SOC
+    "15-1211": "networks and systems",       # computer systems analysts
+    "15-1212": "security",                   # information security analysts
+    "15-1221": "data and analytics",         # computer and information research scientists
+    "15-1231": "networks and systems",       # computer network support specialists
+    "15-1232": "it support",                 # computer user support specialists
+    "15-1241": "networks and systems",       # computer network architects
+    "15-1242": "database",                   # database administrators
+    "15-1243": "database",                   # database architects
+    "15-1244": "networks and systems",       # network and computer systems administrators
+    "15-1251": "software development",       # computer programmers
+    "15-1252": "software development",       # software developers
+    "15-1253": "quality assurance",          # software quality assurance analysts and testers
+    "15-1254": "software development",       # web developers
+    "15-1255": "software development",       # web and digital interface designers
+    "15-1299": "other computer roles",       # computer occupations, all other
+    "15-2011": "credentialed math",          # actuaries
+    "15-2021": "credentialed math",          # mathematicians
+    "15-2031": "data and analytics",         # operations research analysts
+    "15-2041": "data and analytics",         # statisticians
+    "15-2051": "data and analytics",         # data scientists
+    "15-2099": "data and analytics",         # mathematical science occupations, all other
+    # 2010 SOC
+    "15-1111": "data and analytics",         # computer and information research scientists
+    "15-1121": "networks and systems",       # computer systems analysts
+    "15-1122": "security",                   # information security analysts
+    "15-1131": "software development",       # computer programmers
+    "15-1132": "software development",       # software developers, applications
+    "15-1133": "software development",       # software developers, systems software
+    "15-1134": "software development",       # web developers
+    "15-1141": "database",                   # database administrators
+    "15-1142": "networks and systems",       # network and computer systems administrators
+    "15-1143": "networks and systems",       # computer network architects
+    "15-1151": "it support",                 # computer user support specialists
+    "15-1152": "networks and systems",       # computer network support specialists
+    "15-1199": "other computer roles",       # computer occupations, all other
+}
+
+
+def role_bucket(onet_code):
+    """The role bucket of a listing's O*NET-SOC code; None if it isn't a mapped computer and mathematical code."""
+    if not isinstance(onet_code, str):
+        return None
+    return ONET_ROLE_BUCKETS.get(onet_code.strip()[:7])
+
+
 # Broad areas for describing where career changers come from (analysis only: changing these never changes who is a
 # candidate, so no RULES_VERSION bump). Applied to the main background job title, or the field studied. First match wins.
 BACKGROUND_AREAS = {

@@ -6,7 +6,7 @@
 - **Standard:** the TripleTen course templates (`~/Desktop/TripleTen/Templates`) are the baseline for every notebook; go further with advanced methods.
 
 ## Structure
-- `PROJECT_OUTLINE.md`: what we're doing. `PROJECT_PLAN.md`: how we work (standards, leakage rules, scope, risks).
+- `PROJECT_OUTLINE.md`: what we're doing. `HOW_WE_WORK.md`: how we work (standards, leakage rules, scope, risks).
 - `docs/decisions.md`: decision log. `docs/data.md`: data reference and auto-generated schemas.
 - `PRIORITY_QUEUE.md`: tasks. `EMAILS.md`: questions for the advisor and PredictLeads. `APPLICATION.md`: app design.
 - `notebooks/`: EDA_SDA_1 (exploration, scope) → EDA_SDA_2 (non-text, niche) → EDA_SDA_3 (NLP) → EDA_SDA_4 (statistics) → TimeSeries → ML. Each hands its final table to the next under `data/clean/`. `Profiles.ipynb` (rules in `src/career_switch.py`) finds career switches in the external resume dataset, tuned in review rounds.
@@ -31,4 +31,4 @@ AI tools are allowed for coding, brainstorming, and debugging. **Do not upload o
 ## Before every commit
 - Notebook outputs cleared, including the tagged `data-rows` preview cell.
 - Nothing from `data/`, `.env`, credentials or venvs staged; no data values, file paths or bucket names in staged files.
-- Code changes leak nothing from the future into features (see the leakage rules in `PROJECT_PLAN.md`).
+- Code changes leak nothing from the future into features (see the leakage rules in `HOW_WE_WORK.md`).

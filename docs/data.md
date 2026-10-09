@@ -27,7 +27,7 @@ Daily snapshots in S3, laid out as `YYYY/MM/DD/`. We work from the **2026-09-30*
 |---|---|
 | Timing | `attributes.first_seen_at` (100%), `attributes.last_seen_at` (100%), `attributes.posted_at` (44%) |
 | Open or closed | `attributes.last_seen_at` relative to the snapshot; `attributes.status` (65%) |
-| Segment | `attributes.onet_data.family` and `.occupation_name` (99.9%), `attributes.seniority` (100%), `attributes.location_data` (100%) for country, `attributes.contract_types` (100%) |
+| Segment | `attributes.onet_data.family`, `.occupation_name` and `.code` (99.9%; the code maps to a role bucket), `attributes.seniority` (100%), `attributes.location_data` (100%) for country, `attributes.contract_types` (100%) |
 | Text (NLP) | `attributes.description` (82%), `attributes.title` (100%); `attributes.tags` and `attributes.categories` (100%, contents still to check) |
 | Source | `attributes.url` (100%): its domain shows the hiring platform or company site. Only the platform is kept, never the full URL. |
 | Pay | `attributes.salary_data.*` (43%), with `salary_time_unit` |
