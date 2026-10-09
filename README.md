@@ -2,6 +2,8 @@
 
 PredictLeads × TripleTen externship project.
 
+**What we're building:** role discovery and job listing prioritization for career changers moving into computer and mathematical roles. See [`PROJECT_OUTLINE.md`](PROJECT_OUTLINE.md).
+
 > ⚠️ **This repo is private and confidential.** Everything in it is covered by our Training Services Agreements. Read the [Data & Security Rules](#data--security-rules) before you start working.
 
 ---

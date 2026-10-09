@@ -1,0 +1,6 @@
+section,field_1,field_2,field_3,field_4,field_5
+switch,source_field,target_field,switched_on (YYYY-MM),,
+position,title,industry,start (YYYY-MM),end (YYYY-MM),description
+skill,name,,,,
+education,degree,field,,,
+certification,name,year,,,
