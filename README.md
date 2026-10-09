@@ -1,4 +1,4 @@
-# team_project
+# project_leads
 
 PredictLeads × TripleTen externship project.
 
@@ -56,14 +56,14 @@ Accept the GitHub collaborator invite (check your email), then:
 
 ```bash
 cd ~/dev                  # or wherever you keep projects
-git clone https://github.com/JacobColombo4729/team_project.git
-cd team_project
+git clone https://github.com/JacobColombo4729/project_leads.git
+cd project_leads
 ```
 
 You should now see:
 
 ```
-team_project/
+project_leads/
 ├── .gitignore
 ├── .env.example
 ├── .vscode/settings.json
@@ -120,7 +120,7 @@ With `.venv` activated:
 python -m ipykernel install --user --name project_leads --display-name "Python (project_leads)"
 ```
 
-This makes **Python (team_project)** selectable in both VS Code and JupyterLab.
+This makes **Python (project_leads)** selectable in both VS Code and JupyterLab.
 
 ---
 
@@ -148,7 +148,7 @@ Your keys are stored in `~/.aws/credentials`, **outside the project folder**, so
 
 `.env` holds **non-secret** settings. Copy the template:
 
-Open the team_project folder in VS Code (File → Open Folder).
+Open the project_leads folder in VS Code (File → Open Folder).
 In the Explorer sidebar, hover over the project name and click the New File icon.
 Name it exactly '.env.example', with the leading dot and no .txt.
 Paste in the following and save with Cmd + S:
@@ -180,11 +180,11 @@ code .
 ```
 
 > If `code` isn't found on Mac: open VS Code → `Cmd + Shift + P` → **Shell Command: Install 'code' command in PATH** → restart Terminal.
-> Or use **File → Open Folder** and pick `team_project`.
+> Or use **File → Open Folder** and pick `project_leads`.
 
 Then:
 1. `Cmd/Ctrl + Shift + P` → **Python: Select Interpreter** → choose `.venv`
-2. Open any notebook → click **Select Kernel** (top right) → **Python (team_project)**
+2. Open any notebook → click **Select Kernel** (top right) → **Python (project_leads)**
 
 The shared `.vscode/settings.json` points VS Code to `.venv` and loads `.env` automatically. It also **turns Copilot off for this project** until our advisors confirm the AI policy (see below).
 
@@ -287,7 +287,7 @@ Everyone must **permanently delete all copies of the data** (local `data/` folde
 | `code: command not found` | See step 8 |
 | `python3.11: command not found` | Install Python 3.11 (step 1). On Mac: `brew install python@3.11` |
 | Kernel not showing in VS Code | Activate `.venv`, re-run step 5, then reload VS Code (`Cmd/Ctrl + Shift + P` → **Reload Window**) |
-| `ModuleNotFoundError` | Wrong kernel or venv not activated. Check the kernel says **Python (team_project)** |
+| `ModuleNotFoundError` | Wrong kernel or venv not activated. Check the kernel says **Python (project_leads)** |
 | `NoCredentialsError` / `ProfileNotFound` | Re-run step 6 and check `AWS_PROFILE` in `.env` |
 | `AccessDenied` from S3 | Your credentials don't have access. Ask the team lead |
 | Accidentally staged data or `.venv` | `git restore --staged <file-or-folder>` before committing |

@@ -54,7 +54,7 @@
 - **Stretch techniques:** transferable fit with embeddings; embeddings vs. TF-IDF; change-point detection (`ruptures`); topic modeling (NMF or BERTopic); several daily snapshots to observe closures directly; a one-page system card.
 - **If the niche is too small or the sample biased,** stream more of the full file with filters and random sampling.
 - **Move the data loaders into `src/`:** `fetch`, `stream_jsonl`, `load_cached`, `flatten_to_parts`, `map_parts`, `load_flat`.
-- **Fix the README's inconsistent names:** the kernel is registered as `project_leads` but the text says "Python (team_project)"; the README says `.venv` while your venv is `PL`.
+- **Fix the README's venv name:** the README says `.venv` while your venv is `PL`.
 
 ## Always
 
