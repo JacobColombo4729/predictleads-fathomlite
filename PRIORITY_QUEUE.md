@@ -8,27 +8,23 @@
 ## Now
 
 - **Slide deck for the team, due Friday 2026-10-09** (reminder): our findings at each step, how we made the major decisions, and a final pitch, framed around career changers. The 5-minute report (`python -m src.export_markdown --report notebooks/EDA_SDA_1.ipynb`, local only) is a starting point.
-- **Fill in EDA_SDA_1's "*To fill in after rerunning*" notes** from the rerun (6.1, Q1a, Q1g, Q3a, 12 and the executive summary's career-change row), and the matching row in `PROJECT_OUTLINE.md`. Then regenerate `docs/EDA_SDA_1.md`.
-- **Profiles review round (rules v5):** rerun `notebooks/Profiles.ipynb` (File: Revert File first), then in 4b/4c review 30 people from each retrained pool; fill in `verdict` and `reason`, run section 5 and share its counts. Target: 90%+ good per pool. Then update slide 11 with the new count and the measured precision.
-- **Check the seniority labels** (EDA_SDA_1 Q3b) and add any entry-level ones besides `junior` to `ENTRY_LEVELS` in 6.7a. EDA_SDA_2 needs the list to hide manager-level listings.
+- **Profiles review round (rules v6):** rerun `notebooks/Profiles.ipynb` (File: Revert File first), then rerun 4c a few times per retrained pool (5 new people each run) and tell Claude which IDs look right or wrong, and why. Slide 12 has the rules v8 counts; update it if the spot-check changes them.
 - **Give Claude instructions for the additional data cleaning** (reminder).
-- **Answer Claude's open suggestions:**
-  - Reword the 60.7% as "up to 60.7%" in the summaries, and add a domain check to EDA_SDA_2 (3.2) to refine it.
-  - Add a caveat that `urgency` and `mentions_remote` are keyword rules with suspected false positives ("urgent care"), and a validation step to EDA_SDA_3.
 - **EDA_SDA_2 (non-text), the next notebook:**
-  - **Setup:** load EDA_SDA_1's final table (171,143 listings).
+  - **Setup:** load EDA_SDA_1's final table (182,367 listings).
   - **3.1 Ghost listings vs. struggling employers:** describe the long-open listings, measure each signal (relisted, company still posting, source, `posted` vs. `first_seen`), and combine them into a "likely ghost listing" flag.
   - **3.2 Source:** source within company-volume bands; job-board copies of company-site listings; platform sizes. Add the domain check that refines the 60.7%.
   - **3.3 Freshness:** the late-found tail, survival of late-found vs. prompt listings, with vs. without `posted`.
   - **3.4 Pay disclosed:** by state, hourly vs. salaried and seniority, within company-volume bands.
   - **3.5 Reposts and company volume:** how strongly reposts count, and whether high volume means more competition or more openings (and more entry-level listings).
-  - **3.6 The niche, computer and mathematical by role bucket:** map `onet_code` to buckets (report unmapped codes); size each bucket before and after hiding manager-level listings; count retrained switches per bucket from `Profiles.ipynb`; run the depth check; keep buckets that pass on both sides (proposed: 30+ retrained switches). Fix the threshold before looking at results.
+  - **3.6 The niche, computer and mathematical by role bucket:** map `onet_code` to buckets (report unmapped codes); size each bucket with and without manager-level listings (hidden per applicant, so the niche keeps them); count retrained switches per bucket from `Profiles.ipynb`; run the depth check; keep buckets that pass on both sides (proposed: 30+ retrained switches). Fix the threshold before looking at results.
   - **3.7 Blind spots:** the 2-day live tolerance, part-time annualized pay, the seniority labels, and state from `location_data`.
   - **3.8 Join the companies table** (left join, keys checked).
   - **3.9 Missing data:** follow the per-field plan already in the notebook; by-group missingness and `isnull().corr()`.
   - **3.10 Outliers:** IQR and boxplots for days open, words, salary, times listed.
-  - **3.11 Hide what a career changer can't get:** manager level and above; report what each rule hides; accessibility checks within the niche.
+  - **3.11 Hide what a career changer can't get:** manager-level listings per applicant (only for applicants without management experience), text blockers after EDA_SDA_3; report what each rule hides; accessibility checks within the niche.
   - **4 Final table:** defend each decision, apply them all at the end, save for EDA_SDA_3. **5 Conclusion.**
+- **Rerun EDA_SDA_1 from the top once** to confirm the new loader (`src/pl_data.py`) works with the real data and cache; restart the kernel first.
 - **Pin the packages the next notebooks need** in `requirements.txt` (`lifelines`, `statsmodels`, `nltk`, `spacy`, `lightgbm`, `catboost`, `xgboost`, `shap`), then tell the team.
 - **Data housekeeping:** delete `data/archive.zip` (the resume data is unzipped), the old lean-table cache (`data/clean/job_openings_lean_*.pkl` without `_v2`), the blank review files in `data/profiles/review/`, and any leftover `*_flat_*.pkl` files.
 - **Tell the team** to pull, rerun `pip install -r requirements.txt`, and switch their `.env` to `S3_PATH`.
@@ -65,6 +61,7 @@
 - **Profiles (career switches):**
   - Fix unreadable job dates (37% of people): count date formats without showing dates, then extend the parser.
 - **O*NET (in scope, small):** check the terms of use, then download only the **Career Changers Matrix** (latest release) and the **skills** for computer and mathematical occupations plus the team's background occupations. Listings already carry O*NET codes, so they join directly.
+- **Retraining compass** (`DIFFERENTIATORS.md`): rerun Profiles 4a.2b for the training × role table; build its 2026 side in EDA_SDA_2 (3.12); then the app view (`APPLICATION.md`).
 - **App MVP** (stage 1 in `APPLICATION.md`): list view with search, sort and filters; detail view with apply link; stars.
 - **Write up the analysis** and **choose the final format** (write-up, notebook demo, or app).
 
@@ -89,7 +86,6 @@
 - **Run log:** settings, seeds and metrics for every run, in a CSV or a local MLflow store. Never listing text.
 - **Stretch techniques:** transferable fit with embeddings; embeddings vs. TF-IDF; change-point detection (`ruptures`); topic modeling (NMF or BERTopic); several daily snapshots to observe closures directly; a one-page system card.
 - **If the niche is too small or the sample biased,** stream more of the full file with filters and random sampling.
-- **Move the data loaders into `src/`:** `fetch`, `stream_jsonl`, `load_cached`, `flatten_to_parts`, `map_parts`, `load_flat`.
 - **Fix the README's venv name:** the README says `.venv` while your venv is `PL`.
 
 ## Always
@@ -106,6 +102,6 @@
 
 ## Finish
 
-- **Polish all six notebooks (EDA_SDA_1–4, TimeSeries, ML) and Profiles so they read as one unit:** consistent titles, numbering, terms and formatting; each opening links back to the previous notebook's conclusion; imports at the top (course standard); no repeated code; every course-template requirement checked. EDA_SDA_1 is already trimmed; its data loading still moves to `src/`.
+- **Polish all six notebooks (EDA_SDA_1–4, TimeSeries, ML) and Profiles so they read as one unit:** consistent titles, numbering, terms and formatting; each opening links back to the previous notebook's conclusion; imports at the top (course standard); no repeated code; every course-template requirement checked. EDA_SDA_1 is already trimmed, with its data loading in `src/pl_data.py`.
 - Permanently delete every copy of the data: `data/` (Parquet, pickle, zip and `.jsonl.zst` files, including `data/flat/`, `data/clean/`, `data/external/` and `data/profiles/`), `reports/`, downloads, and any S3 copies.
 - Confirm the deletion in writing if asked.

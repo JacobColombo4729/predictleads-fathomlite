@@ -13,7 +13,8 @@ PredictLeads × TripleTen externship · **How we work.** Last updated 2026-10-09
 | `HOW_WE_WORK.md` (this file) | **How we work:** standards, scope, roles, risks |
 | [`docs/decisions.md`](docs/decisions.md) | Every decision, with its reasoning |
 | [`docs/data.md`](docs/data.md) | Data sources, fields, quirks and auto-generated schemas |
-| [`docs/fit_analysis.md`](docs/fit_analysis.md) | Transferable fit: Option A vs. B, and how the team builds the 50 real + 1,000 synthetic applicant profiles |
+| [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) | **How we stand out:** the five angles, the pitch, how we talk about the data, and what we never claim |
+| [`docs/fit_analysis.md`](docs/fit_analysis.md) | Transferable fit: Option A vs. B, and the applicant profiles (real career switches from a public resume dataset; volunteer profiles later) |
 | [`PRIORITY_QUEUE.md`](PRIORITY_QUEUE.md) | What to do next |
 | [`APPLICATION.md`](APPLICATION.md) | The web app's design |
 | [`README.md`](README.md) | Setup and the data rules |
@@ -38,7 +39,7 @@ For a given **career changer** (anyone switching from their current background t
 - **Fix data quality as we go; apply scope filters at the end.** Cleaning fixes broken values. Scope decisions are defended first, then applied all at once in a final-filters section.
 - **Each analysis states its view of the table** (for example, originals only for counts; listings with `posted` for day of week) to avoid skew.
 - **Each notebook hands a final table to the next,** saved under `data/clean/`.
-- **Shared code lives in `src/`** (`src/eda_helpers.py`), not copied between notebooks.
+- **Shared code lives in `src/`** (`eda_helpers.py`, `pl_data.py`, `career_switch.py`, `export_markdown.py`), not copied between notebooks.
 
 ## Validation design
 
@@ -66,7 +67,7 @@ For a given **career changer** (anyone switching from their current background t
 - **English-language listings in the United States, first seen April–September 2026** (decisions and reasons in `docs/decisions.md`).
 - **Applicants are career changers:** anyone switching from their current background to a different role or field. Source backgrounds are the team's own. Listings a career changer can't get are hidden; the model weighs everything else.
 - **Target: computer and mathematical (US).** EDA_SDA_2 splits it into role buckets shared with the career-switch profiles (not one role, since role discovery needs several), keeping buckets with enough data on both sides once unreachable listings are hidden.
-- **Transferable fit** waits for applicant profiles: real ones collected with consent (pending the advisor's answer), extended with synthetic profiles for development and testing. Approach and collection steps: [`docs/fit_analysis.md`](docs/fit_analysis.md).
+- **Transferable fit and role discovery** learn from real career switches in a public resume dataset (`notebooks/Profiles.ipynb`: 2,539 career changers under rules v8, spot-check in progress). Volunteer profiles, collected with consent once the advisor approves, are a recent test set. Approach: [`docs/fit_analysis.md`](docs/fit_analysis.md).
 
 **How to describe the machine learning:** survival and time series analysis of listing activity, plus supervised learning (classification, survival and learning-to-rank models) on listing features and text, including career-change accessibility, validated on later months.
 
