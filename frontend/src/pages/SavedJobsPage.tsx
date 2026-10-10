@@ -1,3 +1,4 @@
+import CompanyHiringBadge from "../components/signals/CompanyHiringBadge";
 import { useMemo, useState } from "react";
 import type { Profile, Recommendation, Stage, TrackedJob } from "../types";
 import { STAGES } from "../types";
@@ -183,7 +184,7 @@ export default function SavedJobsPage(p: Props) {
                               </button>
                               {tracked.note && <p className="row__note">Note: {tracked.note}</p>}
                             </td>
-                            <td>{job.company.name}</td>
+                            <td>{job.company.name}<CompanyHiringBadge companyId={job.company.id} /></td>
                             <td className={job.location ? "" : "muted"}>{job.location ?? "Not provided"}</td>
                             <td className={job.salary ? "nowrap" : "muted"}>{job.salary ?? "Not provided"}</td>
                             <td><StageSelect value={tracked.stage} label={`Stage for ${job.title}`} onChange={(s) => p.onStageChange(job.id, s)} /></td>
@@ -212,6 +213,7 @@ export default function SavedJobsPage(p: Props) {
                         <div>
                           <h3 className="card__title">{job.title}</h3>
                           <p className="card__company">{job.company.name}</p>
+                          <CompanyHiringBadge companyId={job.company.id} />
                         </div>
                         <p className="card__meta-line">
                           <span className={job.location ? "" : "muted"}>{job.location ?? "Location not provided"}</span>

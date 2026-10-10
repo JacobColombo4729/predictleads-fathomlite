@@ -1,3 +1,4 @@
+import CompanyHiringBadge from "./signals/CompanyHiringBadge";
 import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import type { Company, Profile, Recommendation, Stage, TrackedJob } from "../types";
 import { descriptionParagraphs, formatDate, historicalStatusText, safeHttpUrl } from "../lib/jobs";
@@ -81,6 +82,7 @@ function DetailsBody({ item, tracked, profile, snapshotId, onToggleSave, onStage
         <div>
           <h2 className="details__title">{job.title}</h2>
           <p className="details__company">{job.company.name}</p>
+          <CompanyHiringBadge companyId={job.company.id} />
         </div>
         <button
           type="button"
