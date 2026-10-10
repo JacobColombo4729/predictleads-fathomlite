@@ -409,3 +409,22 @@ input[type="checkbox"], input[type="range"] { accent-color: var(--accent); }
 .searchform .search { flex: 1; min-width: 0; }
 .searchform .btn { height: auto; padding: 0 var(--s4); }
 .searchnote { margin: 0 0 var(--s2); }
+
+/* Why was this not for you? Appears after a thumbs-down. */
+.reason {
+  position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); z-index: 30;
+  width: min(94vw, 560px); display: grid; gap: 10px; padding: 14px 16px;
+  background: var(--surface); color: var(--text); border: 1px solid var(--border-strong); border-radius: 14px; box-shadow: var(--shadow-pop);
+}
+.reason__head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.reason__title { margin: 0; font-size: var(--fs-sm); }
+.reason__x { background: none; border: 0; color: var(--text-muted); font-size: 20px; line-height: 1; cursor: pointer; }
+.reason__chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.reason__chip { padding: 5px 12px; border-radius: var(--r-pill); border: 1px solid var(--border-strong); background: var(--surface-muted); color: var(--text); font: inherit; font-size: var(--fs-sm); cursor: pointer; }
+.reason__chip:hover { border-color: var(--accent-border); }
+.reason__chip.is-on { background: var(--accent-soft); color: var(--accent-strong); border-color: var(--accent-border); font-weight: 600; }
+.reason__note { display: grid; gap: 4px; font-size: var(--fs-xs); color: var(--text-muted); }
+.reason__note textarea { resize: vertical; padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: var(--r-md); background: var(--surface-muted); color: var(--text); font: inherit; font-size: var(--fs-sm); }
+.reason__hint { margin: 0; font-size: var(--fs-xs); color: var(--text-muted); }
+.reason__row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.reason__status { font-size: var(--fs-xs); color: var(--text-muted); margin-left: auto; }

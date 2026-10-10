@@ -97,6 +97,7 @@ export interface Filters {
 }
 
 export type FeedbackSignal = "good" | "bad";
+export type FeedbackReason = "wrong_role" | "seniority" | "location" | "pay" | "company" | "seen" | "other";
 
 /** How the last search matched: no query, in the job title, or (when few titles match) anywhere in the listing. */
 export type SearchScope = "all" | "title" | "anywhere";

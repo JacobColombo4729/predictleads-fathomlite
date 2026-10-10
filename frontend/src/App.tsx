@@ -13,6 +13,7 @@ import { useRoute } from "./lib/router";
 import { useLive } from "./state/useLive";
 import SideNav from "./components/SideNav";
 import Toast, { type ToastState } from "./components/Toast";
+import ReasonPrompt from "./components/ReasonPrompt";
 import DiscoverPage, { defaultFilters } from "./pages/DiscoverPage";
 import SavedJobsPage from "./pages/SavedJobsPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -26,6 +27,7 @@ export default function App() {
   const [mobileView, setMobileView] = useState<"list" | "detail">("list");
   const [savedSelectedId, setSavedSelectedId] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [reasonFor, setReasonFor] = useState<Recommendation | null>(null);
 
   const live = useLive(filters);
   const signalPatterns = useSignalPatterns(live.boot.status === "ready");
@@ -77,6 +79,13 @@ export default function App() {
 
   const rate = (item: Recommendation, signal: FeedbackSignal) => {
     live.rate(item.job, signal).catch(() => setToast({ message: "Could not record that rating. Please try again." }));
+    if (signal === "bad") {
+      // a thumbs-down asks why (one tap, optional note) instead of showing the plain toast
+      setToast(null);
+      setReasonFor(item);
+      return;
+    }
+    setReasonFor(null);
     setToast({
       message: signal === "good"
         ? `Marked "${item.job.title}" as a good match. Showing more like it.`
@@ -190,6 +199,16 @@ export default function App() {
         />
       )}
 
+      {reasonFor && (
+        <ReasonPrompt
+          key={reasonFor.job.id}
+          title={reasonFor.job.title}
+          company={reasonFor.job.company.name}
+          onSend={(reason, note) => live.giveReason(reasonFor.job, reason, note)}
+          onUndo={() => { void live.unrate(reasonFor.job.id); setReasonFor(null); }}
+          onClose={() => setReasonFor(null)}
+        />
+      )}
       {toast && <Toast toast={toast} onDismiss={() => setToast(null)} />}
     </div>
     </SignalPatternsContext.Provider>

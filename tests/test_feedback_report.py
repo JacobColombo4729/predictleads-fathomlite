@@ -46,6 +46,16 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(summary["rated_in_top_10"], 3)
         self.assertAlmostEqual(summary["share_good_in_top_10"], 0.667, places=3)
 
+    def test_thumbs_down_reasons_are_counted_from_the_final_rating(self) -> None:
+        self.store.log(A, "rating", job_id="a", payload={"signal": "bad", "rank": 1})
+        self.store.log(A, "rating", job_id="a", payload={"signal": "bad", "rank": 1, "reason": "location", "note": "too far"})
+        self.store.log(A, "rating", job_id="b", payload={"signal": "bad", "rank": 2, "reason": "wrong_role"})
+        self.store.log(A, "rating", job_id="c", payload={"signal": "bad", "rank": 3})
+        self.store.log(A, "rating", job_id="d", payload={"signal": "good", "rank": 4})
+        summary = fr.summarize(self.store.events())
+        self.assertEqual(summary["thumbs_down_reasons"], {"location": 1, "wrong_role": 1, "none given": 1})
+        self.assertEqual(summary["thumbs_down_notes"], 1)
+
     def test_empty_log_does_not_crash(self) -> None:
         summary = fr.summarize([])
         self.assertEqual(summary["participants"], 0)

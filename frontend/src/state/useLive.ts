@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { FeedbackSignal, Filters, Job, Profile, Recommendation, SearchScope, Stage, Tracker, TrackedJob } from "../types";
+import type { FeedbackReason, FeedbackSignal, Filters, Job, Profile, Recommendation, SearchScope, Stage, Tracker, TrackedJob } from "../types";
 import { api, ApiError } from "../lib/api";
 import { blankProfile, isBlankProfile } from "../lib/profile";
 
@@ -131,6 +131,16 @@ export function useLive(filters: Filters) {
     }
   }, [snapshot, refresh]);
 
+  /** Adds the reason (and optional note) to a thumbs-down that was just given. Rejects if it could not be saved. */
+  const giveReason = useCallback(async (job: Job, reason: FeedbackReason, note: string) => {
+    if (!snapshot) return;
+    try {
+      await api.setFeedback(job.id, snapshot.id, "bad", reason, note || undefined);
+    } finally {
+      refresh(); // some reasons change what the ranker learns from the thumbs-down
+    }
+  }, [snapshot, refresh]);
+
   const unrate = useCallback(async (jobId: string) => {
     if (!snapshot) return;
     setRatings(({ [jobId]: _gone, ...rest }) => rest);
@@ -204,7 +214,7 @@ export function useLive(filters: Filters) {
   return {
     boot, retry: bootstrap, snapshot, profile, saveProfile, startOver, profileReady: profileId !== null, profileId, profileVersion,
     recs, recsLoading, recsError, ranker, searchScope, feedbackApplied, refresh,
-    ratings, ratingCounts: counts, rate, unrate, clearRatings,
+    ratings, ratingCounts: counts, rate, giveReason, unrate, clearRatings,
     tracker, all, save, remove, restore, update,
     isApiError: (e: unknown): e is ApiError => e instanceof ApiError,
   };
