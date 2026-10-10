@@ -8,7 +8,6 @@
 ## Now
 
 - **Tomorrow (2026-10-10), Jacob:** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
-- **Rerun EDA_SDA_2 from 3.6c to the end** (it reads the new Profiles table: 2,813 career changers, with IT project management). Then Claude fills in the 1d, 3.6 and 3.12 notes.
 - **EDA_SDA_2 (non-text), the next notebook:**
   - **Setup: done** (2026-10-10): 14,139 computer and mathematical listings from 6,723 companies; occupation summary saved (`data/clean/occupation_summary.pkl`, 1,008 occupations).
   - **2b Additional cleaning: done** (2026-10-10); the staffing flags were checked in the 2b.1 review.
@@ -24,7 +23,7 @@
   - **3.9 Missing data:** follow the per-field plan already in the notebook; by-group missingness and `isnull().corr()`.
   - **3.10 Outliers:** IQR and boxplots for days open, words, salary, times listed.
   - **3.11 Hide what a career changer can't get:** manager-level listings per applicant (only for applicants without management experience), text blockers after EDA_SDA_3; report what each rule hides; accessibility checks within the niche.
-  - **3.12 The compass, 2026 side (code written, needs the reruns):** each role's openings, pay, closing speed, entry-level share and expected growth, joined to Profiles' three path tables (prior career, training, within tech), with people counts and thin paths marked.
+  - **3.12 The compass, 2026 side: done** (2026-10-10; growth column waits for the projections). each role's openings, pay, closing speed, entry-level share and expected growth, joined to Profiles' three path tables (prior career, training, within tech), with people counts and thin paths marked.
   - **4 Final table:** defend each decision, apply them all at the end, save for EDA_SDA_3. **5 Conclusion.**
 - **Tell the team about the new packages:** pull, `pip install -r requirements.txt`, and on a Mac `brew install libomp`; then `python -m spacy download en_core_web_sm` (README section 4).
 - **Data housekeeping:** delete `data/external/resume_structured/archive.zip` once you no longer want a backup (the resume data is unzipped; the notebook re-extracts from it only if the CSVs go missing), the old `data/profiles/*_v9*` files (replaced by `modeling_table.pkl` and `retrained_candidates.csv`), the old lean-table cache (`data/clean/job_openings_lean_*.pkl` without `_v2`), the whole `data/profiles/review/` folder (old round_01 files; nothing reads them), and any leftover `*_flat_*.pkl` files.
