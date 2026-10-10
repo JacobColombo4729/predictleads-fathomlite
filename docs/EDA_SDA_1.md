@@ -178,11 +178,12 @@ Reads the flattened job openings one part at a time and keeps only the columns t
 - **Most jobs are listed once,** but a long tail is relisted 10 or more times (1,268 listings are a job's 5th listing or later).
 - **Job boards repost far more** (8.4%) than company sites (1.8%) or hiring platforms (0.5%).
 
-### 6.5 Salary to one annual unit
+### 6.5 Salary to one hourly rate
 
 **Decisions, and why:**
-- **The midpoint of the low and high values, converted to a year** (2,080 hours, 260 workdays, 52 weeks or 12 months), so hourly and yearly pay compare. This assumes full-time work, which overstates part-time pay.
-- **A missing or unknown unit, or a result outside $10k–$1M a year:** only the salary is blanked, and counted.
+- **The midpoint of the low and high values, converted to an hourly rate** (a year is 2,080 hours, 260 workdays, 52 weeks or 12 months), so hourly and salaried pay compare. Many career changers come from hourly jobs, so hourly reads naturally. Hourly listings keep their posted rate; converting salaried pay assumes full-time work.
+- **Reversed ranges** (low above high) are swapped, and **clearly wrong units** are re-read: "$25 a year" is hourly pay, "$85,000 an hour" is yearly pay. Each is flagged `pay_suspect`.
+- **A missing or unknown unit, or a result outside $4.81–$480.77 an hour** ($10k–$1M a year): only the salary is blanked, and counted.
 
 **What the data shows**
 - **86,154 listings (43.1%) disclose pay,** all with a recognized unit: hourly is most common (48,215), then yearly (35,120).
