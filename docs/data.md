@@ -24,7 +24,7 @@ Daily snapshots in S3, laid out as `YYYY/MM/DD/`. We work from the **2026-09-30*
 **What it gives us:** 54,933 resume records → 17,952 unique people (each resume appeared about 3 times) → 16,237 who held a computer and mathematical job → **2,813 career changers**: 2,049 moved between tech roles (sideways or up; Profiles 4a.3 splits them), 407 retrained after working in another field, 357 retrained as new grads. For each: background, training field, first tech role, the switch date and the time it took. Most switches are from 2010–2019, so the dataset supplies career paths; the 2026 listings supply openings, pay and timing.
 
 **Saved by `notebooks/Profiles.ipynb`** (git-ignored, under `data/profiles/`; rerun after any change to the rules):
-- `modeling_table.pkl` (section 5): the final Profiles table for the ML notebook. All 16,237 people who reached a computer and mathematical job, one row each: pre-switch features, the role at the switch as the label, outcome columns (never features), and the `career_changer` flag marking the 2,813 career changers that results are reported on.
+- `modeling_table.pkl` (section 5): the final Profiles table for `ML_Fit`. All 16,237 people who reached a computer and mathematical job, one row each: pre-switch features, the role at the switch as the label, outcome columns (never features), and the `career_changer` flag marking the 2,813 career changers that results are reported on.
 - `retrained_candidates.csv` (4a.2a): the 764 retrained career changers, for browsing locally.
 
 ## External data: job growth expectations
@@ -62,6 +62,7 @@ Official occupational employment projections (for example BLS's 10-year projecti
 - **`seniority`'s labels aren't documented.** The entry-level flag counts only `junior` for now; check every label before relying on it (EDA_SDA_1 Q3b).
 - **"Company site / other" (60.7% of listings) means "not on our lists of hiring platforms and job boards",** so it's an upper bound on listings hosted on employers' own sites. In the computer and mathematical niche, 58.5% of these are on the employer's own domain, 38% of all niche listings (EDA_SDA_2 3.2d).
 - **Job-board listings stop after May 2026:** 494 and 526 first seen in April and May, then 4, 2, 2 and 0 from June to September (EDA_SDA_2 3.2c). A change in collection, not in employers; job-board timing results cover April–May only. Asked of PredictLeads.
+- **More listings have no description from June 2026:** 2–10% of niche listings first seen in March–April lack one, about 30% from June on, mostly on company sites (EDA_SDA_2 3.9). They close in a median 3 days vs. 30, so "has a description" is a standard confounder; asked of PredictLeads.
 
 ## Schemas
 

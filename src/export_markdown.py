@@ -84,6 +84,23 @@ LAYOUTS = {
         "charts": ["# 6.1i", "# Q1a chart", "# Q1b chart", "# Q1c chart", "# Q1d charts", "# Q1e charts", "# Q1f chart",
                    "# Q1g chart", "# Q2 charts: weekday", "# Q3 chart: seniority mix"],
     },
+    "EDA_SDA_2": {
+        "skip_sections": {"2.", "2b."},
+        "hide_headings": {"4a–4e"},  # its tables (the funnel and the summary) still show
+        "full_text_sections": {"5."},  # the conclusion opens with the summary and answers the clarifying questions
+        "max_bullets": 1,
+        "bullets_by_section": {"3.1": 2, "3.9": 2, "3.11": 2},
+        "table_groups": [
+            ["1d. The niche cut"],
+            ["3.3c Median window (Kaplan–Meier) by company volume"],
+            ["3.6b Role buckets in the niche"],
+            ["3.11a What each rule hides"],
+            ["3.12a The 2026 market by role bucket"],
+            ["4b Final table: listings after each step", "4c Final niche table at a glance"],
+        ],
+        "charts": ["# 1c Chart", "# 3.1 Chart", "# 3.2 Chart", "# 3.3e Chart", "# 3.6 Chart", "# 3.9 Chart", "# 3.11 Chart",
+                   "# 3.12 Chart"],
+    },
     "Profiles": {
         "skip_sections": {"1.", "3.", "4b", "5."},
         "full_text_sections": {"Job", "6."},

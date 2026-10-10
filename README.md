@@ -67,8 +67,9 @@ project_leads/
 ├── .gitignore
 ├── .env.example
 ├── .vscode/settings.json
-├── README.md
+├── README.md, PROJECT_OUTLINE.md, STANDARDS.md, DIFFERENTIATORS.md, COMPASS.md, APPLICATION.md, PRIORITY_QUEUE.md, CLAUDE.md
 ├── requirements.txt
+├── docs/          (decision log, data reference, job growth plan, notebook text exports)
 ├── notebooks/
 └── src/
 ```
