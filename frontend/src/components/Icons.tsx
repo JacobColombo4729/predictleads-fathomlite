@@ -26,6 +26,9 @@ export const FindIcon = (p: SVGProps<SVGSVGElement>) => (
 export const CompassIcon = (p: SVGProps<SVGSVGElement>) => (
   <Svg {...p}><circle cx="12" cy="12" r="9" /><path d="m15.5 8.5-2 5-5 2 2-5z" /></Svg>
 );
+export const SignalsIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></Svg>
+);
 export const BookmarkIcon = ({ filled, ...p }: SVGProps<SVGSVGElement> & { filled?: boolean }) => (
   <Svg {...p} fill={filled ? "currentColor" : "none"}><path d="M6 4h12v17l-6-4-6 4z" /></Svg>
 );
