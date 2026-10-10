@@ -2,7 +2,11 @@
 
 **Direction (decided 2026-10-09):** help career changers, starting with ourselves (TripleTen AI/ML graduates), find realistic roles in AI/ML, data and technical sales/solutions engineering. Deadline: about 2026-10-23.
 
-**Read this file first.** `docs/journal.md` and the older experiment folders are an archive of how we got here. They are accurate as history but are not the current plan. Earlier exploratory results (water operations, logistics, records control and so on) say nothing about AI/ML candidates and should not be quoted as evidence for the final product.
+**Read this file first.** `docs/archive/journal.md`, `archive/experiments/` and the older experiment folders under `data/matching/` are an archive of how we got here. They are accurate as history but are not the current plan. Earlier exploratory results (water operations, logistics, records control and so on) say nothing about AI/ML candidates and should not be quoted as evidence for the final product.
+
+## Repository layout (cleaned up 2026-10-09)
+
+Experiments no longer used by the app live in `archive/experiments/` (tests included, all passing). The app depends only on `code/bge_text.py`, `job_matching_engine.py`, `grounded_match_explanations.py` and `resume_profile_extraction.py`. One environment (`.venv`, `requirements.txt`) runs everything; run all tests with `.un_tests.ps1 [-Frontend] [-Archive]`. The BGE model now lives in `models/bge-base-en-v1.5` (git-ignored, or set `PREDICTLEADS_BGE_MODEL_DIR`). Safety tag `pre-cleanup` (local only) marks the state before the cleanup. See the [README](README.md) for the map.
 
 ## Run the app (live, 2026-10-09)
 

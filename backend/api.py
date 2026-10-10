@@ -38,7 +38,7 @@ from . import feedback_ranking  # noqa: E402
 
 SNAPSHOT_ID_PREFIX = "predictleads-"
 SESSION_COOKIE = "pl_demo_session"
-DEFAULT_SAMPLE = PROJECT_ROOT / "data/discovery/role_exploration/roles_corrected_20261006T000000Z/jobs_prepared_random_sample.jsonl"
+DEFAULT_SAMPLE = PROJECT_ROOT / "data/matching/ai_ml_serving_v1/jobs_prepared_corpus.jsonl"
 DEFAULT_DB = PROJECT_ROOT / "backend/data/predictleads-demo.sqlite3"
 RANKER_ID = "tfidf_cosine"
 RANKER_VERSION = "job_matching_engine.rank_tfidf-v1"

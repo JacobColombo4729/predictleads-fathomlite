@@ -1,6 +1,6 @@
 # Starts the demo API on http://127.0.0.1:8000 with the TF-IDF + BGE (RRF) ranker on the serving corpus.
 # Needs: data/matching/ai_ml_serving_v1 (built by `python code/rank_candidates.py export-serving`).
-# Uses the project .venv (has torch / sentence-transformers) plus the backend .venv's packages (fastapi, uvicorn).
+# Uses the single project .venv (pip install -r requirements.txt) and the BGE model in models/bge-base-en-v1.5.
 # First start takes a few minutes (it fits TF-IDF over the corpus once). Stop it with Ctrl+C.
 # Use -Ranker tfidf to start the lighter TF-IDF-only ranker instead.
 # Use -ResumeFill to enable the Profile page's "Magic fill" (it sends the resume text you pick to OpenAI; needs OPENAI_API_KEY in .env; off by default).
@@ -8,7 +8,6 @@ param([string]$Ranker = "rrf", [int]$Port = 8000, [switch]$ResumeFill)
 
 $root = $PSScriptRoot
 $serving = Join-Path $root "data\matching\ai_ml_serving_v1"
-$env:PYTHONPATH = Join-Path $root "backend\.venv\Lib\site-packages"
 $env:PREDICTLEADS_API_JOBS_PATH = Join-Path $serving "jobs_prepared_corpus.jsonl"
 $env:PREDICTLEADS_API_CORPUS_DIR = $serving
 $env:PREDICTLEADS_API_RANKER = $Ranker

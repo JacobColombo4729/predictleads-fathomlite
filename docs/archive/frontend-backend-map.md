@@ -1,6 +1,6 @@
 # Frontend / Backend Integration Map
 
-> **Update 2026-10-09:** the screen table below describes the earlier mock-only state. The React app now calls the demo API (profile, ranked recommendations, relevance feedback, details, saved jobs); fixtures were removed. See [STATUS.md](../STATUS.md) and [backend-api.md](backend-api.md). Current availability is still unverified, and company details beyond name and domain are still unknown.
+> **Update 2026-10-09:** the screen table below describes the earlier mock-only state. The React app now calls the demo API (profile, ranked recommendations, relevance feedback, details, saved jobs); fixtures were removed. See [STATUS.md](../../STATUS.md) and [backend-api.md](../backend-api.md). Current availability is still unverified, and company details beyond name and domain are still unknown.
 
 ## Current State
 
@@ -46,6 +46,6 @@ A basic **skills-gap** view can compare candidate-evidenced skills with skills e
 
 ## References
 
-- Frontend contract and screens: [App.tsx](../frontend/src/App.tsx), [types.ts](../frontend/src/types.ts), [ProfilePage.tsx](../frontend/src/pages/ProfilePage.tsx), [DiscoverPage.tsx](../frontend/src/pages/DiscoverPage.tsx), [SavedJobsPage.tsx](../frontend/src/pages/SavedJobsPage.tsx), [JobDetails.tsx](../frontend/src/components/JobDetails.tsx).
-- Demo data and local persistence: [mockRecommendations.ts](../frontend/src/data/mockRecommendations.ts), [mockProfile.ts](../frontend/src/data/mockProfile.ts), [useProfile.ts](../frontend/src/state/useProfile.ts), [useTracker.ts](../frontend/src/state/useTracker.ts).
-- Offline ranking and evidence contracts: [job_matching_engine.py](../code/job_matching_engine.py), [requirement_aware_reranker.py](../code/requirement_aware_reranker.py), [run_requirement_reranker.py](../code/run_requirement_reranker.py), [data-preparation.md](data-preparation.md), [job-matching-engine.md](job-matching-engine.md).
+- Frontend contract and screens: [App.tsx](../../frontend/src/App.tsx), [types.ts](../../frontend/src/types.ts), [ProfilePage.tsx](../../frontend/src/pages/ProfilePage.tsx), [DiscoverPage.tsx](../../frontend/src/pages/DiscoverPage.tsx), [SavedJobsPage.tsx](../../frontend/src/pages/SavedJobsPage.tsx), [JobDetails.tsx](../../frontend/src/components/JobDetails.tsx).
+- Demo data and local persistence: mockRecommendations.ts, mockProfile.ts, useProfile.ts, useTracker.ts.
+- Offline ranking and evidence contracts: [job_matching_engine.py](../../code/job_matching_engine.py), [requirement_aware_reranker.py](../../archive/experiments/code/requirement_aware_reranker.py), [run_requirement_reranker.py](../../archive/experiments/code/run_requirement_reranker.py), [data-preparation.md](../data-preparation.md), [job-matching-engine.md](../job-matching-engine.md).

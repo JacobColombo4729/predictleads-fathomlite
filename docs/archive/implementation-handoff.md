@@ -7,16 +7,16 @@
 
 This is an evaluator-protocol experiment on 12 purposively selected development pairs. It is not improved matching, general validation, independent human review, or evidence for a ranking change. Do not inspect held-out profiles. Do not call an API, restart an evaluator, retry a pair, reset/alter the ledger, edit the frontend, change branches, commit, or push. Preserve all existing inputs, raw Responses, original/v2 judgments, grades, metrics, and failed attempts.
 
-The wastewater operator case is a development regression only. The original reviewer input contained the complete 4,351-character description, including driver-license and one-year wastewater-license wording; it was not truncated. See [the evidence sheet](../data/matching/weighted_rrf_20261008T233000Z/diagnostics/dev_top5_strong_ceiling_20261009/wastewater_operator_ai_evidence_sheet.md).
+The wastewater operator case is a development regression only. The original reviewer input contained the complete 4,351-character description, including driver-license and one-year wastewater-license wording; it was not truncated. See [the evidence sheet](../../data/matching/weighted_rrf_20261008T233000Z/diagnostics/dev_top5_strong_ceiling_20261009/wastewater_operator_ai_evidence_sheet.md).
 
 ## Code and Tests
 
-- Runner: [code/run_weighted_rrf_qualification_protocol.py](../code/run_weighted_rrf_qualification_protocol.py)
-- Focused tests: [tests/test_weighted_rrf_qualification_protocol.py](../tests/test_weighted_rrf_qualification_protocol.py)
-- Full report: [comparison_report.md](../data/matching/weighted_rrf_20261008T233000Z/diagnostics/dev_top5_strong_ceiling_20261009/blinded_grader_audit_20261009/qualification_protocol_v3_1_validator_correction_20261009/model_comparison_gpt41_20261009/comparison_report.md)
-- Per-pair comparison: [protocol_comparison.jsonl](../data/matching/weighted_rrf_20261008T233000Z/diagnostics/dev_top5_strong_ceiling_20261009/blinded_grader_audit_20261009/qualification_protocol_v3_1_validator_correction_20261009/model_comparison_gpt41_20261009/protocol_comparison.jsonl)
-- Offline v3.2 summary recalculation: [python_eligibility_recalculation_v3_2.jsonl](../data/matching/weighted_rrf_20261008T233000Z/diagnostics/dev_top5_strong_ceiling_20261009/blinded_grader_audit_20261009/qualification_protocol_v3_1_validator_correction_20261009/model_comparison_gpt41_20261009/python_eligibility_recalculation_v3_2.jsonl)
-- Recalculation provenance: [python_eligibility_recalculation_v3_2_manifest.json](../data/matching/weighted_rrf_20261008T233000Z/diagnostics/dev_top5_strong_ceiling_20261009/blinded_grader_audit_20261009/qualification_protocol_v3_1_validator_correction_20261009/model_comparison_gpt41_20261009/python_eligibility_recalculation_v3_2_manifest.json)
+- Runner: [code/run_weighted_rrf_qualification_protocol.py](../../archive/experiments/code/run_weighted_rrf_qualification_protocol.py)
+- Focused tests: [tests/test_weighted_rrf_qualification_protocol.py](../../archive/experiments/tests/test_weighted_rrf_qualification_protocol.py)
+- Full report: [comparison_report.md](../../data/matching/weighted_rrf_20261008T233000Z/diagnostics/dev_top5_strong_ceiling_20261009/blinded_grader_audit_20261009/qualification_protocol_v3_1_validator_correction_20261009/model_comparison_gpt41_20261009/comparison_report.md)
+- Per-pair comparison: [protocol_comparison.jsonl](../../data/matching/weighted_rrf_20261008T233000Z/diagnostics/dev_top5_strong_ceiling_20261009/blinded_grader_audit_20261009/qualification_protocol_v3_1_validator_correction_20261009/model_comparison_gpt41_20261009/protocol_comparison.jsonl)
+- Offline v3.2 summary recalculation: [python_eligibility_recalculation_v3_2.jsonl](../../data/matching/weighted_rrf_20261008T233000Z/diagnostics/dev_top5_strong_ceiling_20261009/blinded_grader_audit_20261009/qualification_protocol_v3_1_validator_correction_20261009/model_comparison_gpt41_20261009/python_eligibility_recalculation_v3_2.jsonl)
+- Recalculation provenance: [python_eligibility_recalculation_v3_2_manifest.json](../../data/matching/weighted_rrf_20261008T233000Z/diagnostics/dev_top5_strong_ceiling_20261009/blinded_grader_audit_20261009/qualification_protocol_v3_1_validator_correction_20261009/model_comparison_gpt41_20261009/python_eligibility_recalculation_v3_2_manifest.json)
 
 Experiment root: `data/matching/weighted_rrf_20261008T233000Z/diagnostics/dev_top5_strong_ceiling_20261009/blinded_grader_audit_20261009/`.
 
