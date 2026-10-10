@@ -34,10 +34,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import numpy as np  # noqa: E402
 
 import job_matching_engine as engine  # noqa: E402
-import run_bge_transition_experiment as bge  # noqa: E402
+import bge_text as bge  # noqa: E402
 
 SAMPLE_PATH = PROJECT_ROOT / "data/discovery/role_exploration/roles_corrected_20261006T000000Z/jobs_prepared_random_sample.jsonl"
-BGE_SNAPSHOT = PROJECT_ROOT / "data/matching/bge_transition_20261008T142818Z/bge_model_files"
+BGE_SNAPSHOT = bge.model_dir()  # models/bge-base-en-v1.5, or $PREDICTLEADS_BGE_MODEL_DIR
 DEFAULT_CORPUS_DIR = PROJECT_ROOT / "data/matching/ai_ml_corpus_v1"
 DEPTH = 50
 RRF_K = 60

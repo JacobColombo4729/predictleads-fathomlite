@@ -37,7 +37,7 @@ QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 
 
 def _default_encoder(model_dir: Path) -> tuple[Callable[[str], np.ndarray], Callable[[matching.CandidateProfile], str]]:
-    import run_bge_transition_experiment as bge  # lazy: pulls in the experiment helpers
+    import bge_text as bge  # lazy: keeps torch-free startup for the TF-IDF backend
     from sentence_transformers import SentenceTransformer
 
     model = SentenceTransformer(str(model_dir), device="cpu", local_files_only=True, trust_remote_code=False)
@@ -81,7 +81,9 @@ class RrfRankingBackend:
         self.index_of = {job_id: index for index, job_id in enumerate(self.job_ids)}
         self.corpus = matching.fit_tfidf(self.jobs)
         if encoder is None:
-            model_dir = model_dir or PROJECT_ROOT / "data/matching/bge_transition_20261008T142818Z/bge_model_files"
+            import bge_text  # lazy, for the model location
+
+            model_dir = model_dir or bge_text.model_dir()
             encoder, query_text = _default_encoder(model_dir)
         self._encode = encoder
         self._query_text = query_text or (lambda profile: " ".join((*profile.experience, *profile.evidenced_skills)))

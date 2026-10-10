@@ -85,7 +85,7 @@ def _confusion_csv(path: Path, classes: Sequence[str], y_true: np.ndarray, y_pre
 
 
 def _encode_profiles(profile_paths: Sequence[Path], device: str) -> tuple[list[dict[str, Any]], np.ndarray]:
-    import run_bge_transition_experiment as bge
+    import bge_text as bge
 
     raw_profiles = rc._read_profiles(profile_paths)
     model, _, _ = rc._load_model(device)
