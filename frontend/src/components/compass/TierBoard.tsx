@@ -14,6 +14,7 @@ interface Props {
   addedIds: Set<string>;
   onAdd: (job: CompassJob) => void;
   onRemove: (jobId: string) => void;
+  onHighlight: (jobId: string | null) => void;
   savedIds: Set<string>;
   onSave: (job: CompassJob) => void;
 }
@@ -21,7 +22,7 @@ interface Props {
 const TIERS: Tier[] = ["best", "reach", "stretch"];
 
 /** Your picks and the suggested roles in three tiers by fit. Releasing the stretch slider brings in roles further from your picks; cards slide to their column. */
-export default function TierBoard({ jobs, themeFilter, stretch, selectedId, onSelect, addedIds, onAdd, onRemove, savedIds, onSave }: Props) {
+export default function TierBoard({ jobs, themeFilter, stretch, selectedId, onSelect, addedIds, onAdd, onRemove, onHighlight, savedIds, onSave }: Props) {
   const board = useRef<HTMLDivElement>(null);
   const rects = useRef(new Map<string, { left: number; top: number }>());
 
@@ -68,6 +69,10 @@ export default function TierBoard({ jobs, themeFilter, stretch, selectedId, onSe
               role="button"
               tabIndex={0}
               onClick={() => onSelect(j.job.id)}
+              onMouseEnter={() => onHighlight(j.job.id)}
+              onMouseLeave={() => onHighlight(null)}
+              onFocus={() => onHighlight(j.job.id)}
+              onBlur={() => onHighlight(null)}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(j.job.id); } }}
             >
               {!j.pick && <SaveButton job={j} saved={savedIds.has(j.job.id)} onSave={onSave} />}

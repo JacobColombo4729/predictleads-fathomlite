@@ -65,7 +65,7 @@ const inScopeKey = (roles: CompassRole[], turn: number, half: number) =>
 /**
  * You are at the centre. Distance from the centre is how closely a listing matches your profile; direction is the
  * listing's role family: up to 4 axes, with the least alike roles facing each other. Colour is the theme. Dots are
- * jobs you picked, diamonds are suggestions. Marks fly out from the centre when the map mounts.
+ * suggestions, diamonds are the jobs you picked. Marks fly out from the centre when the map mounts.
  *
  * Like a hand compass: the role ring is a bezel you can turn (drag it, use the arrow keys, or click a role to face
  * it) while N/E/S/W and the needle stay still on north. The highlighted scope
@@ -82,6 +82,8 @@ const inScopeKey = (roles: CompassRole[], turn: number, half: number) =>
  * comes to rest (a drag is released or an eased turn arrives); the class toggle happens outside React.
  */
 export default function CompassMap({ result, themeFilter, selectedId, highlightId, stretch, onSelect, onScopeChange }: Props) {
+  // hovering a legend entry lights every mark of that kind (picked jobs or suggested roles)
+  const [legendGroup, setLegendGroup] = useState<"pick" | "suggested" | null>(null);
   const wrap = useRef<HTMLDivElement>(null);
   const [placed, setPlaced] = useState(prefersReducedMotion());
   const [tip, setTip] = useState<Tip | null>(null);
@@ -409,12 +411,13 @@ export default function CompassMap({ result, themeFilter, selectedId, highlightI
           const visible = matches(j);
           const selected = selectedId === j.job.id;
           const color = themeColor(j.themeId);
-          const dim = highlightId !== null && highlightId !== j.job.id;
-          const lit = highlightId === j.job.id;
+          const inGroup = legendGroup !== null && (legendGroup === "pick") === j.pick;
+          const dim = (highlightId !== null && highlightId !== j.job.id) || (legendGroup !== null && !inGroup);
+          const lit = highlightId === j.job.id || inGroup;
           return (
             <g
               key={j.job.id}
-              className={`cp-dot${dim ? " is-dim" : ""}${lit ? " is-lit" : ""}${scopeJobs.has(j.job.id) ? "" : " is-out"}${j.pick ? "" : " is-sug"}`}
+              className={`cp-dot${dim ? " is-dim" : ""}${lit ? " is-lit" : ""}${scopeJobs.has(j.job.id) ? "" : " is-out"}`}
               tabIndex={visible ? 0 : -1}
               role="button"
               aria-label={`${j.job.title} at ${j.job.company.name}, ${j.role}, ${theme.name}, fit ${j.fit} percent, ${TIER_NAME[tierOf(j.fit, stretch)]}${j.pick ? "" : ", suggested"}`}
@@ -434,12 +437,9 @@ export default function CompassMap({ result, themeFilter, selectedId, highlightI
               <circle r={16} fill="transparent" />
               <g ref={(el) => { marks.current[i] = el; }} transform={`rotate(${-turn})`}>
               {j.pick ? (
-                <circle className="cp-mark" r={8} strokeWidth={selected ? 3 : 2} style={{ fill: color, stroke: selected ? "var(--text)" : "var(--surface)" }} />
+                <rect className="cp-mark" x={-7} y={-7} width={14} height={14} rx={2} transform="rotate(45)" strokeWidth={selected ? 3 : 2} style={{ fill: color, stroke: selected ? "var(--text)" : "var(--surface)" }} />
               ) : (
-                <>
-                  <circle className="cp-halo" r={13} style={{ fill: color, opacity: 0.4 }} />
-                  <rect className="cp-mark cp-mark--sug" x={-9} y={-9} width={18} height={18} rx={3} transform="rotate(45)" strokeWidth={selected ? 3 : 2} style={{ fill: color, stroke: "var(--text)" }} />
-                </>
+                <circle className="cp-mark" r={8} strokeWidth={selected ? 3 : 2} style={{ fill: color, stroke: selected ? "var(--text)" : "var(--surface)" }} />
               )}
               </g>
             </g>
@@ -457,11 +457,17 @@ export default function CompassMap({ result, themeFilter, selectedId, highlightI
       )}
 
       <div className="cp-legend">
+        <span className="cp-legend__label">Color is the theme:</span>
         {result.themes.map((t) => (
           <span key={t.id}><i className="cp-key" style={{ background: themeColor(t.id) }} />{t.name}</span>
         ))}
-        <span><i className="cp-key" style={{ background: "var(--text-muted)" }} />A job you picked</span>
-        <span><i className="cp-key cp-key--diamond" style={{ background: "var(--text-muted)" }} />A suggested role ({result.jobs.filter((j) => !j.pick).length})</span>
+        <span className="cp-legend__label">Shape:</span>
+        <span className="cp-legend__item" tabIndex={0} onMouseEnter={() => setLegendGroup("pick")} onMouseLeave={() => setLegendGroup(null)} onFocus={() => setLegendGroup("pick")} onBlur={() => setLegendGroup(null)}>
+          <i className="cp-key cp-key--diamond" style={{ background: "var(--text-muted)" }} />A job you picked ({result.jobs.filter((j) => j.pick).length})
+        </span>
+        <span className="cp-legend__item" tabIndex={0} onMouseEnter={() => setLegendGroup("suggested")} onMouseLeave={() => setLegendGroup(null)} onFocus={() => setLegendGroup("suggested")} onBlur={() => setLegendGroup(null)}>
+          <i className="cp-key" style={{ background: "var(--text-muted)" }} />A suggested role ({result.jobs.filter((j) => !j.pick).length})
+        </span>
         <span><i className="cp-key cp-key--scope" />Scope: what faces north (narrower means a tighter set of good fits)</span>
         <span><i className="cp-key cp-key--rings" />Rings, inside out: {TIER_NAME.best}, {TIER_NAME.reach}, {TIER_NAME.stretch}</span>
         <span className="cp-legend__hint">Drag the outer ring to turn it, or click a role to face it</span>

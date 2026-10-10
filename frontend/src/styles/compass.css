@@ -250,6 +250,7 @@ tr.row--picked { background: var(--accent-soft); }
 .cp-sug, .cp-jcard { position: relative; }
 .cp-toast a.cp-toast__btn { text-decoration: none; }
 
-/* Suggested roles must stay easy to see: a bright outline, and only a slight fade when outside the scope wedge. */
-.cp-dot.is-sug.is-out > g { opacity: 0.85; }
-.cp-mark--sug { stroke-width: 1.5px; }
+/* Legend: the entries light up the matching marks on the map when hovered or focused. */
+.cp-legend__label { font-weight: 600; color: var(--text); }
+.cp-legend .cp-legend__item { padding: 2px 8px; border-radius: 8px; cursor: default; }
+.cp-legend .cp-legend__item:hover, .cp-legend .cp-legend__item:focus-visible { background: var(--surface-muted); color: var(--text); outline: 1px solid var(--border-strong); }
