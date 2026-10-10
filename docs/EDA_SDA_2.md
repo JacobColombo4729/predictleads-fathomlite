@@ -192,6 +192,12 @@ Steps: describe the long-open listings (how many, which occupation groups and so
 
 **As built (2026-10-10):** state comes later (3.7, from `location_data`), so 3.4 uses role level, source, company volume and role bucket. Disclosure is compared within company-volume bands and without likely ghosts (the confounders rule).
 
+**What the data shows**
+- **About 41% of entry, mid and manager listings disclose pay,** rising to 48% for senior and 51% for leadership. Hiring platforms disclose most (55–67%, rising with company volume), company sites 34–46%, and job boards almost never (under 1%: pay doesn't seem to carry over from job boards).
+- **Listings that disclose pay stay open much longer, in every volume band:** 20.1 vs. 2.5 days for companies with 20+ listings, 43.8 vs. 35.0 for a company's first listing, and the same without likely ghosts. The 2.5 days for undisclosed listings at busy companies is suspiciously short and looks like the crawl-timing effect from 3.3, so disclosure partly marks source and visibility. EDA_SDA_4 tests it within source before it counts as a factor.
+- **Pay is mostly posted yearly** (85%; 14.5% hourly), so most hourly figures are full-time equivalents.
+- **Hourly pay by bucket (medians):** software development and IT project management $72 (middle half $54–92), database $68, security $66, data and analytics $64, quality assurance $62, networks and systems $61, and IT support $32 (middle half $24.50–42), the clearest pay step for a career changer moving on from an entry door.
+
 ### 3.5 Reposts and company hiring volume
 
 - **Cross-posted vs. reposted (added 2026-10-10).** EDA_SDA_1 counts every later copy of the same job (same company, title and description) as a repost, so a copy on a second board while the first is still up looks the same as a job relisted after it closed. Split them, using each listing's earlier copies only, so nothing comes from the future:
