@@ -153,6 +153,8 @@ Steps: describe the long-open listings (how many, which occupation groups and so
 | | Low | Keep them |
 | Platform sizes in the chosen groups | Only a few platforms have 1,000+ listings | Name those platforms; group the rest as "other platform" |
 
+**Also (added 2026-10-10):** why every open job-board listing is over 90 days old (3.1b); the domain check compares each listing's web domain with its company's domain (loaded for the niche only, never printed).
+
 ### 3.3 Freshness and crawler lag
 
 | Check | If the result is… | Then… |
