@@ -46,7 +46,7 @@ A plain inventory for defending the project. For each piece: what it does, the p
 - **What:** per company, new openings in the last 30 days against the company's own prior 90-day pace, giving burst / sustained / cooling / quiet.
 - **Methods:** z-score anomaly detection with a count-based variance; entity resolution (repost merging by company, title and description); rule-based flags for bulk-import days and crawler dropouts; no look-ahead at any cutoff.
 - **Evaluation:** temporal holdout (train on earlier cutoffs, test on 2026-08-31, 23,961 companies). We also trained gradient-boosting models on the momentum features. **They did not beat "how many openings last month" for predicting volume**, so we did not ship them and we do not claim a forecast.
-- **What it can claim:** bursts are a real, timing-sensitive signal. Flagged companies stay above their own baseline next month 60% of the time vs 16% for unflagged ones, but keep only about 63% of their volume (sustained hirers keep 106%).
+- **What it can claim:** bursts are a real, timing-sensitive signal. Flagged companies stay above their own baseline next month 59% of the time vs 16% for unflagged ones, but keep only about 64% of their volume (sustained hirers keep 99%).
 - **Honest limits:** four months of data, one test month, dates are crawler observation times (not posting dates). See [hiring-signals.md](hiring-signals.md) and [signal-semantics.md](signal-semantics.md).
 
 ## 6. Role-family classifier (supporting, not shipped in the app)
