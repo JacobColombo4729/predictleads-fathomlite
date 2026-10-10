@@ -39,7 +39,7 @@ Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
 - **Analyzed so far:** 200,000 job listings from 51,006 companies, first seen 2026-03-30 to 2026-09-30.
 - **Analysis table after cleaning and scoping:** 184,889 English-language listings from 47,252 companies, April–September 2026 plus the data's first two days in late March, flagged `partial_month` (US, plus flagged listings with no country); 41,984 still open at the snapshot.
 - **Career switches:** the public Kaggle structured resume dataset (MIT license): 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; almost all with readable job dates) → **2,813 career changers**: 2,049 changed roles within tech, 407 retrained after working in another field, 357 retrained as new grads from another field. Career paths from real switches spanning two decades; the 2026 listings supply today's openings, pay and timing. Built in `notebooks/Profiles.ipynb`.
-- **Job growth expectations:** expected employment growth by occupation, from official occupational projections (time frame to be decided). They're published by occupation code, so they plug straight into the O*NET codes on listings and role buckets.
+- **Job growth expectations:** expected employment growth by occupation over at most the next 5 years, from official occupational projections, used to recommend roles with the future in mind. They're published by occupation code, so they plug straight into the O*NET codes on listings and role buckets.
 - **Data handling:** stays local; nothing is shared with outside AI services; only aggregates are reported.
 
 ## What we've found so far
@@ -71,7 +71,7 @@ The listing itself matters more than the job title: two listings in the same fie
 | Employer intent | Listing text: urgency, remote, description length, evergreen wording |
 | Source | Hiring platform, job board, or company site |
 | Occupation group | O*NET occupation group; also for showing related jobs |
-| Job growth expected | Expected employment growth for the listing's role. The same for every listing in a role, so it ranks roles (role discovery, compass) more than listings |
+| Job growth expected | Expected employment growth for the listing's role over at most 5 years. The same for every listing in a role, so it shifts role recommendations (role discovery, compass) toward growing roles, as a visible, adjustable weight |
 | Transferable fit | Listing text vs. the career changer's profile, with O*NET skills connecting the old and new occupations (learned from real career switches in `Profiles.ipynb`; volunteer profiles later as a recent test set) |
 
 ## How we're doing it: seven notebooks
@@ -101,7 +101,7 @@ Each notebook answers one question and hands its final table to the next. The Tr
 - **Target: computer and mathematical (US),** for its pay, remote share, rich text and the team's backgrounds. Only 9% of its listings are junior, so listings a career changer can't get are hidden. EDA_SDA_2 splits it into role buckets (data and analytics, IT support, software development, …) aligned with the career-switch profiles, and drops only buckets too thin on both sides.
 - **Source backgrounds: the team's own.**
 - **Hide what a career changer can't get:** validated text blockers (EDA_SDA_3), and per-applicant blockers in the app: a missing degree or license, or manager-level roles for applicants without management experience. Every other factor is weighted by the model during ML training.
-- **Job growth expectations replace the wider external-data list:** one number per role (time frame to be decided), from official projections that join on occupation code.
+- **Job growth expectations replace the wider external-data list:** one number per role over at most 5 years, from official projections that join on occupation code, so recommendations account for where roles are heading.
 - **Pick a date (as-of date):** the queue can be shown as it stood on any date in the data: listings live that day (first seen on or before it, last seen on or after it), scored, and its model trained, only with what was known that day.
 - **Two supervised models, combined by a formula:** listings → how long they stay open (PredictLeads), and career changers → the role bucket they moved into (the 2,813 career changers). No data links a person to a listing, so the role buckets connect the two. Volunteer profiles, once the advisor approves, are a recent test set. See [`docs/fit_analysis.md`](docs/fit_analysis.md).
 

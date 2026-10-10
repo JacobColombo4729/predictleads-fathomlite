@@ -20,9 +20,16 @@ It's built from **2,813 real career switches** in a public resume dataset (`note
 | **Field trained in → first tech job** | Where each kind of training led | Profiles 4a.2b | Built |
 | **Moves within tech** | Which roles people in the user's tech role moved into, sideways or up | Profiles 4a.3 | Built |
 | **Each role's 2026 market** | Open listings, new per week, hourly pay, how fast listings close, entry-level share, openness to career changers, remote share | EDA_SDA_2 3.12 | Built (needs a rerun after each change) |
-| **Expected job growth** | Growth for each role, from official occupational projections (BLS plugs in by occupation code) | EDA_SDA_2 3.12 | Column ready; download queued |
+| **Expected job growth** | Growth for each role over **at most the next 5 years**, from official occupational projections (BLS plugs in by occupation code); it drives forward-looking recommendations (section 2b) | EDA_SDA_2 3.12; used in `ML_Fit` | Column ready; download queued |
 | **People behind each path** | "Based on N people"; paths under 10 people marked thin | EDA_SDA_2 3.12 | Built |
 | **Suggested roles for this user** | Roles the user's background transfers to | `ML_Fit` | Planned |
+
+### 2b. Why job growth: recommendations based on future estimates
+
+The point of expected job growth is to **recommend roles with the future in mind**, not just to describe them: among the roles a person fits, a role expected to grow ranks higher than one expected to shrink.
+- **At most 5 years out.** Projections further ahead are too uncertain to act on; the exact horizon within 5 years is still the team's call.
+- **A visible adjustment, not a trained input.** Growth is a future estimate, so it can't be checked against the historical career moves the fit model learns from. `ML_Fit` applies it after the fit model, shows how much it moved each suggestion, and lets the user change its weight.
+- **Never alone.** It's occupation-wide, so it's always shown with the role's entry-level share and today's openings: a fast-growing role with no entry-level listings is still a later move.
 
 **Role buckets** (the same on listings and resumes): IT support, networks and systems, security, database, software development, quality assurance, data and analytics, IT project management.
 
@@ -50,7 +57,7 @@ A separate tab built on the compass: a personal outlook from the user's résumé
 | **Skills to build** | "Based on your current résumé, we think you should build these skills" | Listing skills mapped to O*NET (EDA_SDA_3) vs. the résumé (`ML_Fit`) |
 | **Career options down the line** | "Here's what your career options could look like" | Roles similar people reached and how long it took (Profiles), with each role's 2026 openings |
 | **Pay increase** | "Here's your pay increase" | Hourly pay in each option (EDA_SDA_2 3.12) vs. the user's current field (EDA_SDA_2 1c), or a rate they enter |
-| **Job growth** | "Here's the job growth we expect in your career" | Official projections, next to the role's entry-level share |
+| **Job growth** | "Here's the job growth we expect in your career" (within 5 years) | Official projections, next to the role's entry-level share |
 | **Stepping-stone roles** | Roles that bridge two functions on the way to a bigger move (for example engineer → pre-sales engineer → director) | Levels at each move (Profiles) |
 
 ## 6. How it connects to the rest of the app
@@ -79,6 +86,6 @@ A separate tab built on the compass: a personal outlook from the user's résumé
 
 ## 9. Open decisions
 
-- **Time frames** for career options and job growth (team).
+- **Time frames** for career options and job growth (team), **with growth capped at 5 years**.
 - **A separate `Compass.ipynb`** that assembles everything that doesn't need ML now, with `ML_Fit` adding personal suggestions later, instead of assembling at the end of `ML_Fit`.
 - **The "moved up in the same role" pool** (would reopen Profiles).
