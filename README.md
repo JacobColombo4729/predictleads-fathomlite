@@ -35,7 +35,7 @@ Commands below are PowerShell (Windows). On **macOS / Linux** use the `.sh` equi
    ```powershell
    .\run_demo_backend.ps1            # add -ResumeFill to enable Magic fill; -Ranker tfidf for the lighter ranker
    ```
-   macOS / Linux: `./run_demo_backend.sh` (flags `--resume-fill`, `--ranker tfidf`, `--port N`).
+   macOS / Linux: `./run_demo_backend.sh` (flags `--resume-fill`, `--ranker tfidf`, `--port N`). On a laptop, `--preview` runs TF-IDF on a 5,000-job sample in `data/preview/jobs.jsonl` (starts in ~20 s, no model needed, Compass unavailable); the script prints how to build the sample if it is missing.
 4. **Frontend**: `cd frontend; npm run dev` (macOS / Linux: `cd frontend && npm run dev`), then open http://127.0.0.1:5173.
 5. **Magic fill** sends the resume text you choose to OpenAI after you tick a consent box. Copy `.env.example` to `.env` and set `OPENAI_API_KEY`. It is off unless the backend starts with `-ResumeFill`.
 
