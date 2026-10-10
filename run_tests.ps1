@@ -1,0 +1,28 @@
+# Runs the project's tests from one place.
+#   .\run_tests.ps1             live Python tests (tests/ and backend/tests/)
+#   .\run_tests.ps1 -Frontend   also type-check and build the React app
+#   .\run_tests.ps1 -Archive    also run the archived experiment tests (history, slower to care about)
+param([switch]$Frontend, [switch]$Archive)
+
+$root = $PSScriptRoot
+$py = Join-Path $root ".venv\Scripts\python.exe"
+$env:PYTHONPATH = Join-Path $root "code"
+Set-Location $root
+$failed = $false
+
+function Run-Step($name, [scriptblock]$step) {
+    Write-Host "`n=== $name ===" -ForegroundColor Cyan
+    & $step
+    if ($LASTEXITCODE -ne 0) { Write-Host "FAILED: $name" -ForegroundColor Red; $script:failed = $true }
+}
+
+Run-Step "tests/ (engine, explanations, BGE text)" { & $py -m unittest discover -s tests -q }
+Run-Step "backend/tests/ (API, ranker, feedback, resume reader)" { & $py -m unittest discover -s backend/tests -t . -q }
+if ($Archive) { Run-Step "archive/experiments/tests/" { & $py -m unittest discover -s archive/experiments/tests -q } }
+if ($Frontend) {
+    Run-Step "frontend type-check" { Push-Location frontend; npx tsc -b; $code = $LASTEXITCODE; Pop-Location; $global:LASTEXITCODE = $code }
+    Run-Step "frontend build" { Push-Location frontend; npm run build --silent; $code = $LASTEXITCODE; Pop-Location; $global:LASTEXITCODE = $code }
+}
+
+if ($failed) { Write-Host "`nSome steps failed." -ForegroundColor Red; exit 1 }
+Write-Host "`nAll steps passed." -ForegroundColor Green

@@ -44,7 +44,7 @@ Status terms: **Built** means working in the running app and verified; **Impleme
 **Built: role-family classifier (supporting model, not in the app)**
 - BGE embeddings + logistic regression predicts 17 role families from the provider's O*NET occupation label (no human labels), with a company-held-out 80/20 split. Test accuracy 94.7% (macro-F1 0.94) against 69.4% for TF-IDF + logistic regression and 29.8% for the majority class. This measures agreement with provider labels, not fit. On resumes it describes past career rather than target roles, so it is not used to rank or filter. See `code/role_family_classifier.py` and `data/matching/role_family_classifier_20261009T205400Z/`.
 
-**History, not evidence.** Earlier experiments (MiniLM, section-aware text, cross-encoder, weighted RRF, faceted text) used synthetic profiles in other job areas and model-generated grades, and were small and inconclusive. They are kept as history in [docs/journal.md](docs/journal.md); do not quote them as evidence for the final product.
+**History, not evidence.** Earlier experiments (MiniLM, section-aware text, cross-encoder, weighted RRF, faceted text) used synthetic profiles in other job areas and model-generated grades, and were small and inconclusive. They are kept as history in [docs/archive/journal.md](docs/archive/journal.md); do not quote them as evidence for the final product.
 
 ## 3. GenAI Features
 
@@ -123,8 +123,8 @@ Status terms: **Built** means working in the running app and verified; **Impleme
 
 - [STATUS.md](STATUS.md) (current state, how to run, pending items)
 - [Corpus report](data/matching/ai_ml_corpus_v1/corpus_report.json) and [classifier results](data/matching/role_family_classifier_20261009T205400Z/metrics.json)
-- [Journal and experiment chronology](docs/journal.md) and [data artifacts](docs/artifact-index.md)
+- [Journal and experiment chronology](docs/archive/journal.md) and [data artifacts](docs/artifact-index.md)
 - [Data feasibility summary](docs/discovery-summary.md) and [data preparation](docs/data-preparation.md)
 - [Matching implementation notes](docs/job-matching-engine.md)
 - [Grounded-explanation contract](docs/grounded-match-explanations.md) and [API contracts](docs/api-contracts.md)
-- [Backend API](docs/backend-api.md) and [frontend/backend map](docs/frontend-backend-map.md) (both partly stale; see section 4)
+- [Backend API](docs/backend-api.md) and [frontend/backend map](docs/archive/frontend-backend-map.md) (both partly stale; see section 4)

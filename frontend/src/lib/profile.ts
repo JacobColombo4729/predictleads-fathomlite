@@ -122,38 +122,6 @@ export function validateDraft(d: ProfileDraft): Record<string, string> {
   return e;
 }
 
-const isObj = (v: unknown): v is Record<string, unknown> =>
-  typeof v === "object" && v !== null && !Array.isArray(v);
-
-/** Validates untrusted stored data; returns null if it cannot be used as-is. */
-export function validateStoredProfile(v: unknown): Profile | null {
-  if (!isObj(v)) return null;
-  const { name, headline, experience, skills, desiredRoles, location, arrangements, constraints } = v;
-  if (typeof name !== "string" || typeof headline !== "string" || typeof location !== "string" || typeof constraints !== "string") return null;
-  if (!Array.isArray(experience) || !Array.isArray(skills) || !Array.isArray(desiredRoles) || !Array.isArray(arrangements)) return null;
-
-  const exp = [];
-  for (const x of experience) {
-    if (!isObj(x) || typeof x.id !== "string" || typeof x.title !== "string" || typeof x.organization !== "string" || typeof x.description !== "string") return null;
-    exp.push({ id: x.id, kind: isEntryKind(x.kind) ? x.kind : "job", title: x.title, organization: x.organization, description: x.description });
-  }
-  const sk = [];
-  for (const x of skills) {
-    if (!isObj(x) || typeof x.id !== "string" || typeof x.name !== "string" || typeof x.evidence !== "string") return null;
-    sk.push({ id: x.id, name: x.name, evidence: x.evidence });
-  }
-  if (!desiredRoles.every((r) => typeof r === "string")) return null;
-  if (!arrangements.every((a) => (ARRANGEMENT_OPTIONS as unknown[]).includes(a))) return null;
-
-  const profile: Profile = {
-    name, headline, location, constraints,
-    experience: exp, skills: sk,
-    desiredRoles: desiredRoles as string[],
-    arrangements: arrangements as PreferredArrangement[],
-  };
-  return Object.keys(validateDraft(toDraft(profile))).length === 0 ? profile : null;
-}
-
 export function newId(prefix: string): string {
   return `${prefix}-${Math.random().toString(36).slice(2, 9)}`;
 }

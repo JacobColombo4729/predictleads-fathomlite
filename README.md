@@ -1,119 +1,69 @@
-# PredictLeads Hackathon
+# PredictLeads Hackathon: career-changer job matching
 
-This workspace contains data-quality discovery and reversible preparation tools for the September 30, 2026 PredictLeads jobs and companies snapshots. It is research and reproducibility support for a proposed job-seeker experience, not a finished application or matching model.
+A demo that helps career changers (starting with TripleTen AI/ML graduates) find realistic roles in AI/ML, data and technical sales / solutions engineering. A user builds a profile (optionally with **Magic fill** from a resume), sees ranked jobs from the September 30, 2026 PredictLeads snapshot, rates them 👍/👎 to refine the list, and saves the ones they like.
 
-## Product Scope
+**Start with [STATUS.md](STATUS.md)** for the current state and [roadmap.md](roadmap.md) for what is planned. This file is only the map.
 
-The hackathon problem space is helping job seekers explore opportunities and possible career transitions. Evidence-backed skill search, location-aware discovery, compensation-transparent filtering, and the preparation schema are proposals for team review, not finalized requirements or team decisions. See [the proposal](docs/data-preparation-proposal.md). No application, skill extraction, cross-file company enrichment, embedding retrieval, or LLM matching is implemented here. A first local keyword/TF-IDF retrieval baseline is available in [the matching milestone](docs/job-matching-engine.md); it has not been evaluated with human relevance labels.
+Everything here is a hackathon prototype. Listings are **historical records, not verified open positions**, and no ranking-quality claim is made: the ranker has not been compared against alternatives on this audience.
 
-What is implemented:
+## What is in the repo
 
-- A completed full-file quality audit of jobs and companies, with saved report and summary.
-- A bounded preparation script and two validated 10,000-job development slices.
-- A completed full-file jobs role exploration, exact SQLite-backed record frequencies, and a seeded uniform 30,000-job reservoir.
-- A first local keyword/TF-IDF matching baseline with five synthetic profiles and a pooled human-review export; ranking quality is not yet evaluated.
-- Offline synthetic self-tests and reports describing data limitations.
+| Path | What it is |
+|---|---|
+| `backend/` | FastAPI demo API: sessions, profiles, search, ranked recommendations (TF-IDF + BGE reciprocal-rank fusion), relevance feedback, saved jobs, grounded assessment (off by default) and resume extraction (opt-in). See [docs/backend-api.md](docs/backend-api.md). |
+| `frontend/` | React + Vite app wired to the API (Discover, Saved, Profile). See [frontend/README.md](frontend/README.md). |
+| `code/` | Python modules: matching engine (`job_matching_engine`), BGE text builders (`bge_text`), corpus and ranking pipeline (`rank_candidates`, `extract_targeted_pool`, `prepare_jobs`), role-family classifier, grounded explanations, resume extraction, review tooling, and the early data-discovery scripts. |
+| `tests/`, `backend/tests/` | Live tests. Run them all with `.\run_tests.ps1`. |
+| `archive/experiments/` | Earlier experiments, kept as history. Nothing live imports them. See its [README](archive/experiments/README.md). |
+| `docs/` | Data discovery and preparation notes, API contracts, the grounded-explanation contract. `docs/archive/` holds historical documents. |
+| `notebooks/` | Data discovery notebook (local-only view). |
+| `data/`, `models/` | **Git-ignored.** Source data, corpus, embeddings and the local BGE model. |
 
-The data files themselves are local and ignored by Git. Counts are source-record frequencies, not verified unique jobs or currently open positions.
+## Set up and run
 
-## Read In This Order
+1. **Environment** (one virtual environment for everything):
+   ```powershell
+   python -m venv .venv
+   & ".\.venv\Scripts\pip" install -r requirements.txt
+   cd frontend; npm install; cd ..
+   ```
+2. **Data and model** (not in git): the serving corpus at `data/matching/ai_ml_serving_v1` (built by the pipeline below) and the BGE model `BAAI/bge-base-en-v1.5` (revision pinned in `code/bge_text.py`) in `models/bge-base-en-v1.5`, or set `PREDICTLEADS_BGE_MODEL_DIR`.
+3. **Backend** (about 3.5 minutes to load, about 2.5 GB of memory):
+   ```powershell
+   .\run_demo_backend.ps1            # add -ResumeFill to enable Magic fill; -Ranker tfidf for the lighter ranker
+   ```
+4. **Frontend**: `cd frontend; npm run dev`, then open http://127.0.0.1:5173.
+5. **Magic fill** sends the resume text you choose to OpenAI after you tick a consent box. Copy `.env.example` to `.env` and set `OPENAI_API_KEY`. It is off unless the backend starts with `-ResumeFill`.
 
-1. [Discovery summary](docs/discovery-summary.md) for current verified findings.
-2. [Artifact index](docs/artifact-index.md) to locate local reports, summaries, samples, and partial attempts.
-3. [Full role exploration report](data/discovery/role_exploration/roles_corrected_20261006T000000Z/role_exploration_report.md) when local artifacts are available.
-4. [Preparation methodology](docs/data-preparation.md), then [preparation review](docs/preparation-review.md).
-5. [Preparation proposal](docs/data-preparation-proposal.md) for undecided product/data-contract questions.
-6. [Notebook entry point](notebooks/data_discovery.ipynb) for a local-only view of the saved documentation.
-7. [Job Matching Engine milestone](docs/job-matching-engine.md) for the local baseline, synthetic profiles, and human-review workflow.
-8. [Project roadmap](roadmap.md) for proposed components, decisions, and next milestones.
-9. [Retail review tool](docs/retail-review-tool.md) for the blinded local review screen and later evaluation command.
-10. Run `python -m streamlit run .\code\retail_review_app.py` from the project root to review saved retail/inventory recommendations locally.
-
-## Directory Guide
-
-- `code/`: runnable scripts for inspection, profiling, preparation, and role exploration.
-- `notebooks/`: local documentation entry notebook. It does not access AWS or run scans.
-- `docs/`: methodology, findings, artifact index, review notes, and proposals.
-- `data/`: ignored local source copies and generated artifacts; never add these to a contribution.
-- `code/prototype_v1/`: ignored `results/active_editor_state.json`; its purpose is uncertain, so it is preserved and not treated as runnable project code.
-- `.venv/`: local Python environment, ignored by Git.
-
-## Windows PowerShell Setup
-
-From the project root:
+## Tests
 
 ```powershell
-py -3.12 -m venv .venv
-& ".\.venv\Scripts\Activate.ps1"
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+.\run_tests.ps1                  # live Python tests
+.\run_tests.ps1 -Frontend        # also type-check and build the React app
+.\run_tests.ps1 -Archive         # also the archived experiment tests
 ```
 
-If PowerShell blocks activation, use the environment executable directly instead of changing machine-wide policy:
+## Data pipeline (rebuilding the corpus)
 
-```powershell
-& ".\.venv\Scripts\python.exe" -m pip install -r requirements.txt
-```
+All commands run from the repo root with the project `.venv`; each script's `--help` lists its options.
 
-Select `.venv\Scripts\python.exe` as the VS Code interpreter and notebook kernel. Python 3.12 is the environment used for the saved runs.
+1. `python code/extract_targeted_pool.py --scan` streams the full snapshot (about 19 GB from S3, using the `predictleads` AWS profile; about 36 minutes) and keeps AI/ML, data and technical-sales listings. `--check-sample` tests the matcher offline.
+2. `python code/rank_candidates.py build-corpus --targeted-dir data/matching/targeted_pool_<timestamp>` builds the deduplicated corpus. `encode` then `finalize-encode` compute the BGE embeddings (GPU recommended).
+3. `python code/rank_candidates.py export-serving` writes the serving subset the backend loads.
+4. `python code/rank_candidates.py rank ...` ranks the 12 test profiles; `python code/build_review_page.py --run-dir <ranking run> --profiles <profile files>` builds an optional blinded review page.
+5. `python code/role_family_classifier.py` trains and evaluates the supporting role-family classifier.
 
-## AWS Profile
+**The raw snapshot is not stored locally**, so deleting `data/matching/targeted_pool_*` or the 30,000-job random sample under `data/discovery/` means re-reading it from S3.
 
-Only optional source scans need AWS access when a matching local source file is unavailable. Configure the named profile using your organization’s approved credential process; never paste credentials into source, notebooks, chat, or this repository. The scripts expect profile `predictleads` in region `us-east-2`.
+## Privacy and data rules
 
-```powershell
-aws configure --profile predictleads
-aws configure set region us-east-2 --profile predictleads
-aws sts get-caller-identity --profile predictleads
-```
+- Resumes, real profiles, credentials (`.env`) and everything under `data/` stay out of git.
+- Nothing is sent to an outside AI service unless the person whose text it is agrees first. Magic fill removes emails, phone numbers and links before sending.
+- Missing information is **unknown**, not a gap. Null status is not "open".
 
-Do not run the identity check unless you have AWS CLI installed and are authorized. Use approved SSO/role-based configuration instead of long-lived keys where available. The configured principal must have authorized read access to the specified snapshot objects.
+## Where to read more
 
-## Review Saved Findings
-
-Review existing results without network access or expensive rescans:
-
-- Open `docs/discovery-summary.md` and `docs/artifact-index.md`.
-- Open the saved audit and role-exploration Markdown reports listed in the index.
-- Inspect saved JSON summaries for stop reason, EOF, record totals, errors, and source metadata.
-- Open `notebooks/data_discovery.ipynb` and use **Run All**; it reads the reviewed Markdown docs, saved full-population aggregate CSVs, and the prepared 30,000-job JSONL from local paths only. It does not access AWS, rerun scans, or call AI services. To run every exploration section, obtain the sample and aggregate exports through an approved private location and place them under the documented `data/discovery/role_exploration/roles_corrected_20261006T000000Z/` path. Without these local files, the notebook explains what is missing and the sample-analysis cells skip safely.
-
-The workspace Explorer hides `data/` to reduce clutter. To reveal it, disable the `**/data` entry in `.vscode/settings.json` or use Explorer's excluded-files visibility control. Git ignore rules remain in effect regardless of Explorer visibility.
-
-## Optional Runs
-
-These commands can read the full remote objects and create local artifacts. They are not needed to review saved findings. Use a fresh output location for any command that accepts one, and confirm storage/access approval first.
-
-### Optional full audit
-
-```powershell
-$runId = Get-Date -Format "yyyyMMdd_HHmmss"
-& ".\.venv\Scripts\python.exe" .\code\profile_data_quality.py --mode audit --output-dir ".\data\discovery\audit_$runId"
-```
-
-The audit can take a substantial amount of time and disk. Use its saved run summary to verify EOF; a full-looking report is not sufficient.
-
-### Optional preparation slice
-
-```powershell
-& ".\.venv\Scripts\python.exe" .\code\prepare_jobs.py --self-test
-& ".\.venv\Scripts\python.exe" .\code\prepare_jobs.py --limit 10000
-```
-
-This creates a bounded sequential development slice, not a representative sample.
-
-### Optional full-file role exploration and sample
-
-```powershell
-$runId = Get-Date -Format "yyyyMMdd_HHmmss"
-& ".\.venv\Scripts\python.exe" .\code\explore_roles_and_sample.py --self-test
-& ".\.venv\Scripts\python.exe" .\code\explore_roles_and_sample.py --sample-size 30000 --seed 20261005 --output-dir ".\data\discovery\role_exploration\roles_$runId"
-```
-
-This reads the full jobs stream to EOF to calculate exact record frequencies and a uniform reservoir over successfully parsed eligible job resources. Check available disk and use a new output directory each time. Resume from a checkpoint is not supported.
-
-## Data Interpretation and Safety
-
-Missing, null, blank, and invalid field states are not interchangeable. A null historical status does not establish that a role is open; observation timestamps are not posting or closing dates. The 10,000-row slices are sequential development slices, while the 30,000-row role sample is uniform only across eligible records in the completed full-file pass. Rare roles may be absent by chance. Company enrichment in preparation uses only the same wrapper's `included` resources; no separate companies-file join is implemented. No real candidate resumes are included or processed.
-
-See [the artifact index](docs/artifact-index.md) for local-only artifacts and transfer guidance. Do not commit, email, or upload raw job records, resumes, database files, samples, or frequency exports to unapproved locations.
+1. [STATUS.md](STATUS.md) and [roadmap.md](roadmap.md)
+2. [Discovery summary](docs/discovery-summary.md), [data preparation](docs/data-preparation.md), [preparation review](docs/preparation-review.md), [role exploration](docs/role-exploration.md), [artifact index](docs/artifact-index.md)
+3. [Backend API](docs/backend-api.md), [API contracts](docs/api-contracts.md), [grounded match explanations](docs/grounded-match-explanations.md), [matching engine notes](docs/job-matching-engine.md)
+4. History: [docs/archive/](docs/archive/) and [archive/experiments/](archive/experiments/README.md)
