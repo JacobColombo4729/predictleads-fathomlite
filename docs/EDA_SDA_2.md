@@ -88,7 +88,7 @@ Some factors travel together, so a raw gap can belong to something else. **Every
 
 ## 2b. Additional cleaning
 
-**Decided (2026-10-09):** five fixes here (salary sanity moved into EDA_SDA_1 6.5, description cleanup to EDA_SDA_3), run before the checks in section 3 so they use clean pay, dates and titles. Same rules as EDA_SDA_1: **fix or flag, never drop** (a flagged listing leaves only the analyses it would distort), keep the original column next to every cleaned one, and report how many listings each step changes (counts only). Spot-checks of examples are done locally by a teammate.
+**Decided (2026-10-09):** five fixes and the app's filter fields here (salary sanity moved into EDA_SDA_1 6.5, description cleanup to EDA_SDA_3), run before the checks in section 3 so they use clean pay, dates and titles. Same rules as EDA_SDA_1: **fix or flag, never drop** (a flagged listing leaves only the analyses it would distort), keep the original column next to every cleaned one, and report how many listings each step changes (counts only). Spot-checks of examples are done locally by a teammate.
 
 | # | Fix | How | Result |
 |:-:|:--|:--|:--|
@@ -98,6 +98,7 @@ Some factors travel together, so a raw gap can belong to something else. **Every
 | 3 | **Internships and temporary roles** | `contract_types` plus title words (intern, internship, temporary, temp, seasonal, contract-to-hire) | `job_type` (internship, temporary, contract, regular), kept: they can be entry points for career changers. Report their share in the niche and their days open; the app can filter them |
 | 4 | **Title normalization** | Lowercase; strip bracketed text, locations after " - " or " \| ", requisition IDs, pay, and "remote" or "hybrid" tags (kept as a flag) | `title_clean`; the original title stays. Recheck the repost count and the role-bucket mapping with it |
 | 5 | **Multi-location listings** | `n_locations` (from EDA_SDA_1) above 1 | `multi_location` flag; one row per listing for timing. The state list for the app's location filter comes with `location_data` in 3.7 |
+| 6 | **Filter fields for the app** | Role level from `seniority` (entry = junior; `mid_senior` split into mid and senior by title words, the Profiles rule; manager; leadership = director and above); work mode from contract types and title; schedule from contract types | `level`, `work_mode` (remote, hybrid, onsite, not stated), `schedule` (full time, part time, not stated); with `job_type` (2b.3) and the state list (3.7) they back every filter in the app |
 | – | **Description cleanup** | **Moved to EDA_SDA_3:** this table keeps only description features (`desc_words`, `desc_hash`, `has_html`), not the text, to fit in memory; EDA_SDA_3 loads the text anyway | `desc_clean` there, with HTML and boilerplate removed |
 
 **Leakage:** every fix uses only what the listing showed when it was posted, so none of them leaks the outcome.

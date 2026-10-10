@@ -41,12 +41,15 @@ The core of the app is the **priority queue**: listings ranked for this career c
   - **Hidden automatically:** listings a career changer can't get (too many years asked, a degree or license this user lacks, or manager-level roles if the user has no management experience), and listings more than **90 days old** on the date being viewed (likely stale; the threshold is checked in EDA_SDA_2 3.1). A note shows how many were hidden, and why. Hidden listings are never deleted: a "show hidden" toggle brings them back
   - **Training offered:** only listings that offer training or welcome career changers
   - **Transferable fit:** minimum score (needs the user's background profile)
-  - **Pay:** minimum salary; salary disclosed only
+  - **Pay:** minimum hourly rate; pay disclosed only
   - **Freshness:** first seen within N days
   - **Competition:** low, medium or high
   - **Source:** hiring platform or company site; specific platforms
-  - **Location and remote**
-  - **Seniority and contract type**
+  - **Location:** one or more states (from `location_data`), listings naming several locations included where any matches
+  - **Work mode:** remote, hybrid, onsite (`work_mode`; "not stated" shown separately rather than hidden)
+  - **Schedule and job type:** full time, part time (`schedule`); internship, temporary, contract, regular (`job_type`)
+  - **Role level:** entry, mid, senior, manager, leadership (`level`). The data's "mid_senior" label lumps mid and senior together, so they're split by title words (senior, lead, principal, staff, architect). Manager and leadership listings stay hidden for users without management experience unless they turn on "show hidden"
+  - Every filter allows several choices at once (for example remote **or** hybrid, entry **or** mid)
 - **Each row shows:** title, company, priority score, an "open to career changers" badge, apply-by date, transferable fit, pay and a star.
 
 ### Starred postings
