@@ -1,16 +1,13 @@
 import type { SignalCompany } from "../../types";
 import { shortDate } from "../../lib/signals";
 
-/** The evidence behind a company's hiring signal: the interpretation, example openings, technologies and counts. */
+/** The evidence behind a company's hiring signal: the surge by role family, example openings, technologies and counts. */
 export default function SignalDetail({ detail }: { detail: SignalCompany }) {
   return (
     <>
       {detail.intent.map((s) => (
-        <p key={s.family} className="sg-detail__intent"><strong>{s.signal}.</strong> {s.meaning[0].toUpperCase() + s.meaning.slice(1)}.</p>
+        <p key={s.family} className="sg-detail__intent"><strong>{s.signal}:</strong> {s.meaning}.</p>
       ))}
-      {detail.intent.length > 0 && (
-        <p className="cp-sub">The buying-interest note is our own interpretation of the job titles. It is not a statement from the company or from PredictLeads.</p>
-      )}
       {detail.evidence && detail.evidence.length > 0 && (
         <div>
           <h4>Example new openings</h4>

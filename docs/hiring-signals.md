@@ -11,7 +11,7 @@ Tests: `tests/test_hiring_signals.py` (24).
 | File | Contents |
 |---|---|
 | `company_signals.csv` | per company: new openings in 30 days, baseline, active, gone, surge z-score, `pattern` |
-| `intent_signals.csv` | companies hiring in AI/ML, data and technical-sales families (buying-intent proxy) |
+| `intent_signals.csv` | companies hiring in AI/ML, data and technical-sales families (surges by role family, with example openings) |
 | `technology_leads.csv` | technologies named in a company's new openings |
 | `company_weekly.csv` | weekly new-opening counts (sparklines) |
 

@@ -40,8 +40,8 @@ class SignalsApiTests(unittest.TestCase):
         pd.DataFrame({"company_code": [1, 1, 2], "week_end": [97, 104, 97], "new": [4, 9, 3], "gone": [0, 0, 0], "active": [1, 2, 3],
                       "company_id": ["c-burst", "c-burst", "c-steady"], "company_name": ["Alpha", "Alpha", "Beta"], "domain": ["a", "a", "b"]}
                      ).to_csv(sig / "company_weekly.csv", index=False)
-        pd.DataFrame([{"company_code": 1, "company_id": "c-burst", "company_name": "Alpha", "domain": "a", "family": "ai_ml", "signal": "AI/ML buildout",
-                       "meaning": "hiring ML roles", "new_30": 25, "baseline_monthly": 3.0, "surge_z": 9.0, "active": 3, "top_tech": "Python|SQL",
+        pd.DataFrame([{"company_code": 1, "company_id": "c-burst", "company_name": "Alpha", "domain": "a", "family": "ai_ml", "signal": "Hiring surge in AI/ML roles",
+                       "meaning": "new AI/ML openings are well above this company's usual pace", "new_30": 25, "baseline_monthly": 3.0, "surge_z": 9.0, "active": 3, "top_tech": "Python|SQL",
                        "evidence": json.dumps([{"job_id": "j1", "title": "ML Engineer", "first_seen": "2026-09-30"}])}]).to_csv(sig / "intent_signals.csv", index=False)
         pd.DataFrame([{"technology": "Python", "company_code": 1, "company_id": "c-burst", "company_name": "Alpha", "domain": "a", "new_30": 20, "still_observed": 3}]
                      ).to_csv(sig / "technology_leads.csv", index=False)
