@@ -107,10 +107,16 @@ Status terms: **Built** means working in the running app and verified; **Impleme
 - Risks: small samples and noisy accuracy; selection bias (users only rate what the ranker already showed); ambiguous 👎; no accounts, so no persistence; storing a taste model next to resume content needs consent. Cross-user learning needs far more users and is future work.
 - Revisit and decide go/no-go after the demo, gap analysis and write-up.
 
+**Ideas to decide on later (added 2026-10-10; pick after reviewing [docs/ml-inventory.md](docs/ml-inventory.md))**
+- **Listing-lifetime (survival) model:** predict how long a listing stays up from what is known when it first appears; flags likely ghost or stale postings. Uses first/last-seen as the label. Watch for leakage (do not use last_seen as a feature), and remember last_seen is a crawl time, not a closing date ([docs/signal-semantics.md](docs/signal-semantics.md)). Strongest story for PredictLeads: separates real hiring from stale listings.
+- **Hiring-pattern clustering:** cluster companies' weekly opening curves to discover patterns (campaign, steady, seasonal) instead of using hand-set thresholds.
+- **Salary estimator:** regression to fill in salary for listings without one (about 56% have a salary). Report error ranges, never a point estimate alone.
+- **Also noted:** repost / near-duplicate detection beyond exact matches, a profile "what-if" (how would one added skill change the ranking), a skills-ROI view across top jobs, grounded resume-bullet suggestions (needs consent and budget), and fixing the last-week spike in the Signals sparklines (9/30 first-seen batch not fully caught by the batch filter).
+
 **Other optional work (as time permits)**
 - **Skills across top jobs:** run the gap analysis over a user's top or saved jobs and show the most frequent missing skills (the unbuilt Skills & Paths idea). A fuller Skill Opportunity Optimizer needs skill normalization and a defensible opportunity population; report association, not a guarantee of qualification.
 - **Career Adjacency:** a distinct, interpretable feature would need exposed transferable duties and validated O*NET assignments; matching transitions is not a graph.
-- **Listing timing:** descriptive first-to-last-seen summaries with caveats are possible; survival or hiring-time modelling is unsupported by one snapshot.
+- **Listing timing:** superseded by the listing-lifetime idea below (the 2026 data does contain repeated first/last-seen observations).
 - **Market momentum:** needs comparable snapshots; not possible from one.
 - **PDF OCR, accounts and persistent profiles, deployment hardening:** not planned for the demo.
 
