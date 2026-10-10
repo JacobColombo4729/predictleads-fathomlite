@@ -8,8 +8,7 @@
 ## Now
 
 - **Full dataset (decided 2026-10-10): run the stream test** from the project folder: `PL/bin/python -m src.stream_full --test 1000000` (about 20–40 minutes; needs S3 access as for EDA_SDA_1). Tell Claude the printed projections (counts, hours, GB only). Then: the full run overnight (`PL/bin/python -m src.stream_full`, resumable), move EDA_SDA_1's cleaning into `src/` so it can clean the full niche, point EDA_SDA_2 at it, and rerun EDA_SDA_2–3. Delete `data/flat/stream_test/` after the test.
-- **Jacob (from 2026-10-10):** upload the slide deck (`reports/Team update 2026-10-10.pptx`, local only, already built; it replaces the 2026-10-09 version) to Google Slides; do the data housekeeping and tell the team (both below).
-- **Data housekeeping:** delete `data/external/resume_structured/archive.zip` once you no longer want a backup (the resume data is unzipped; the notebook re-extracts from it only if the CSVs go missing), the old `data/profiles/*_v9*` files (replaced by `modeling_table.pkl` and `retrained_candidates.csv`), the old lean-table cache (`data/clean/job_openings_lean_*.pkl` without `_v2`), the whole `data/profiles/review/` folder (old round_01 files; nothing reads them), and any leftover `*_flat_*.pkl` files.
+- **Jacob (from 2026-10-10):** upload the slide deck (`reports/Team update 2026-10-10.pptx`, local only, already built; it replaces the 2026-10-09 version) to Google Slides, then delete the old 2026-10-09 deck; tell the team (below). Data housekeeping done 2026-10-10 (about 50 GB free).
 - **Tell the team** to pull, rerun `pip install -r requirements.txt` (and on a Mac `brew install libomp`), run `python -m spacy download en_core_web_sm`, and switch their `.env` to `S3_PATH` (README section 4).
 
 ## Next
