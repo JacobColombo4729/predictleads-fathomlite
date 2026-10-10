@@ -10,10 +10,13 @@ interface Props {
   stretch: number;
   saved: boolean;
   onSave: (job: CompassJob) => void;
+  added: boolean;
+  onAdd: (job: CompassJob) => void;
+  onRemove: (jobId: string) => void;
 }
 
 /** Why a pick or suggestion fits, and where you would stretch. Every quoted line is verbatim from your profile or the listing. */
-export default function JobDetailPanel({ result, job, stretch, saved, onSave }: Props) {
+export default function JobDetailPanel({ result, job, stretch, saved, onSave, added, onAdd, onRemove }: Props) {
   const [meter, setMeter] = useState(0);
   useEffect(() => {
     setMeter(0);
@@ -30,7 +33,7 @@ export default function JobDetailPanel({ result, job, stretch, saved, onSave }: 
 
   return (
     <div className="cp-card cp-detail" aria-live="polite">
-      <div className="cp-eyebrow">{job.pick ? "Picked job" : "Suggested job"}</div>
+      <div className="cp-eyebrow">{job.pick ? "Picked job" : added ? "Added role" : "Suggested job"}</div>
       <h3>{job.job.title}</h3>
       <p className="cp-sub">{job.job.company.name}{job.job.location ? ` · ${job.job.location}` : ""}</p>
       <CompanyHiringBadge companyId={job.job.company.id} />
@@ -76,7 +79,10 @@ export default function JobDetailPanel({ result, job, stretch, saved, onSave }: 
             <ExternalIcon />View listing
           </a>
         )}
-        <button type="button" className="btn btn--primary" disabled={saved} onClick={() => onSave(job)}>
+        {!job.pick && (added
+          ? <button type="button" className="btn" onClick={() => onRemove(job.job.id)}>Remove from my tiers</button>
+          : <button type="button" className="btn btn--primary" onClick={() => onAdd(job)}>+ Add to my tiers</button>)}
+        <button type="button" className="btn" disabled={saved} onClick={() => onSave(job)}>
           {saved ? "Saved" : "Save job"}
         </button>
       </div>

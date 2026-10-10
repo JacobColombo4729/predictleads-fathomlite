@@ -38,6 +38,8 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [themeFilter, setThemeFilter] = useState("all");
+  const [added, setAdded] = useState<CompassJob[]>([]);
+  const [notice, setNotice] = useState<string | null>(null);
   const [stretch, setStretch] = useState(0);
   const [table, setTable] = useState(false);
 
@@ -48,8 +50,26 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
       setThemeFilter("all");
       setTable(false);
       setStretch(0);
+      setAdded([]);
+      setNotice(null);
     }
   }, [state.status]);
+
+  useEffect(() => {
+    if (!notice) return;
+    const t = setTimeout(() => setNotice(null), 7000);
+    return () => clearTimeout(t);
+  }, [notice]);
+
+  const addRole = useCallback((job: CompassJob) => {
+    setAdded((list) => (list.some((x) => x.job.id === job.job.id) ? list : [...list, job]));
+    setNotice(`Added “${job.job.title}” (${job.job.company.name}) to Your fit, in tiers.`);
+  }, []);
+  const removeRole = useCallback((jobId: string) => {
+    setAdded((list) => list.filter((x) => x.job.id !== jobId));
+    setNotice(null);
+  }, []);
+  const showTiers = () => { document.getElementById("cp-tiers")?.scrollIntoView({ behavior: "smooth", block: "start" }); setNotice(null); };
 
   const finished = useCallback(() => {
     setRevealDone(true);
@@ -75,7 +95,11 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
   const showReveal = state.status !== "ready" || !revealDone;
   const result = state.status === "ready" ? state.result : null;
   const stale = state.status === "ready" && state.profileVersion !== currentProfileVersion;
-  const selected: CompassJob | null = result ? result.jobs.find((j) => j.job.id === (selectedId ?? defaultSelection(result))) ?? null : null;
+  // Roles the person added stay on the board and map even after the stretch slider replaces the suggestions.
+  const addedIds = new Set(added.map((j) => j.job.id));
+  const viewResult: CompassResult | null = result ? { ...result, jobs: [...result.jobs.filter((j) => !addedIds.has(j.job.id)), ...added] } : null;
+  const listResult: CompassResult | null = result ? { ...result, jobs: result.jobs.filter((j) => j.pick || !addedIds.has(j.job.id)) } : null;
+  const selected: CompassJob | null = viewResult ? viewResult.jobs.find((j) => j.job.id === (selectedId ?? defaultSelection(viewResult))) ?? null : null;
   const picks = result?.picksAnalyzed ?? state.jobIds.length;
 
   return (
@@ -140,10 +164,10 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
                   </div>
                 )}
                 {table ? (
-                  <JobTable result={result} themeFilter={themeFilter} stretch={stretch} onSelect={setSelectedId} />
+                  <JobTable result={viewResult!} themeFilter={themeFilter} stretch={stretch} onSelect={setSelectedId} />
                 ) : (
                   <CompassMap
-                    result={result}
+                    result={viewResult!}
                     themeFilter={themeFilter}
                     selectedId={selected?.job.id ?? null}
                     highlightId={highlightId}
@@ -153,16 +177,19 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
                 )}
               </div>
               <JobDetailPanel
-                result={result}
+                result={viewResult!}
                 job={selected}
                 stretch={stretch}
                 saved={selected ? savedIds.has(selected.job.id) : false}
                 onSave={(j) => onSave(j.job)}
+                added={selected ? addedIds.has(selected.job.id) : false}
+                onAdd={addRole}
+                onRemove={removeRole}
               />
             </div>
           </section>
 
-          <section className="cp-block">
+          <section className="cp-block" id="cp-tiers">
             <div className="cp-card">
               <header className="cp-cardhead">
                 <div>
@@ -182,7 +209,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
               </div>
               {state.status === "ready" && state.updating && <p className="cp-sub" role="status">Finding roles at this stretch…</p>}
               {state.status === "ready" && state.notice && <p className="field__error" role="alert">{state.notice}</p>}
-              <TierBoard jobs={result.jobs} themeFilter={themeFilter} stretch={stretch} selectedId={selected?.job.id ?? null} onSelect={setSelectedId} />
+              <TierBoard jobs={viewResult!.jobs} themeFilter={themeFilter} stretch={stretch} selectedId={selected?.job.id ?? null} onSelect={setSelectedId} addedIds={addedIds} onAdd={addRole} onRemove={removeRole} />
             </div>
           </section>
 
@@ -199,7 +226,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
           </section>
 
           <section className="cp-block">
-            <GapSection picks={result.jobs.filter((j) => j.pick)} gap={gap} snapshotReady={snapshotReady} />
+            <GapSection picks={[...result.jobs.filter((j) => j.pick), ...added]} gap={gap} snapshotReady={snapshotReady} />
           </section>
 
           <section className="cp-block">
@@ -219,16 +246,23 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
               <header className="cp-cardhead">
                 <div>
                   <h2>Roles you didn’t pick but might fit</h2>
-                  <p className="cp-sub">Different titles, similar work. Hover a card to find it on the compass.</p>
+                  <p className="cp-sub">Different titles, similar work. Hover a card to find it on the compass. Press “Add to my tiers” to move a role up into Your fit, in tiers; it stays there when you move the stretch slider, and it is included in the skills gap analysis.</p>
                 </div>
               </header>
-              <Suggestions result={result} selectedId={selected?.job.id ?? null} onSelect={setSelectedId} onHighlight={setHighlightId} />
+              <Suggestions result={listResult!} selectedId={selected?.job.id ?? null} onSelect={setSelectedId} onHighlight={setHighlightId} onAdd={addRole} />
             </div>
           </section>
 
           <footer className="cp-foot">
             {result.limits.map((l) => <p key={l}>{l}</p>)}
           </footer>
+        </div>
+      )}
+      {notice && (
+        <div className="cp-toast" role="status">
+          <span>{notice}</span>
+          <button type="button" className="cp-toast__btn" onClick={showTiers}>Show me</button>
+          <button type="button" className="cp-toast__x" aria-label="Dismiss" onClick={() => setNotice(null)}>×</button>
         </div>
       )}
     </main>

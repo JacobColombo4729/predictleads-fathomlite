@@ -6,6 +6,7 @@ interface Props {
   selectedId: string | null;
   onSelect: (jobId: string) => void;
   onHighlight: (jobId: string | null) => void;
+  onAdd: (job: CompassJob) => void;
 }
 
 function blurb(job: CompassJob): string {
@@ -16,9 +17,9 @@ function blurb(job: CompassJob): string {
 }
 
 /** Listings you did not pick that sit near your picks and your profile. Hovering a card lights its diamond on the map. */
-export default function Suggestions({ result, selectedId, onSelect, onHighlight }: Props) {
+export default function Suggestions({ result, selectedId, onSelect, onHighlight, onAdd }: Props) {
   const suggestions = result.jobs.filter((j) => !j.pick);
-  if (suggestions.length === 0) return <p className="cp-sub">No further suggestions for this set of picks.</p>;
+  if (suggestions.length === 0) return <p className="cp-sub">No more suggestions here. The roles you added are on the tier board above, and moving the stretch slider finds more.</p>;
   return (
     <div className="cp-sugs">
       {suggestions.map((j) => {
@@ -45,6 +46,7 @@ export default function Suggestions({ result, selectedId, onSelect, onHighlight 
               {theme && <span className="cp-chip"><i className="cp-key" style={{ background: themeColor(theme.id) }} />Fit {j.fit}%</span>}
               {builds.map((r) => <span key={r.id} className="cp-chip" title={r.text}>Builds: {requirementShortName(r.text, 36)}</span>)}
             </div>
+            <button type="button" className="btn btn--sm cp-sug__add" onClick={(e) => { e.stopPropagation(); onAdd(j); }}>+ Add to my tiers</button>
           </div>
         );
       })}
