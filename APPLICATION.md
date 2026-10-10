@@ -38,7 +38,7 @@ The core of the app is the **priority queue**: listings ranked for this career c
 - **Filters:** they combine, and each one shows how many postings match:
   - **Priority:** minimum score, or top N
   - **Apply-by:** closing within N days, or before a date
-  - **Hidden automatically:** listings a career changer can't get (too many years asked, a degree or license this user lacks, or manager-level roles if the user has no management experience). A note shows how many were hidden, and why
+  - **Hidden automatically:** listings a career changer can't get (too many years asked, a degree or license this user lacks, or manager-level roles if the user has no management experience), and listings more than **90 days old** on the date being viewed (likely stale; the threshold is checked in EDA_SDA_2 3.1). A note shows how many were hidden, and why. Hidden listings are never deleted: a "show hidden" toggle brings them back
   - **Training offered:** only listings that offer training or welcome career changers
   - **Transferable fit:** minimum score (needs the user's background profile)
   - **Pay:** minimum salary; salary disclosed only
