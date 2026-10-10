@@ -8,8 +8,7 @@
 ## Now
 
 - **Jacob (from 2026-10-10):** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
-- **EDA_SDA_2 (non-text), in progress.** Done (2026-10-10): setup and the niche cut (14,019 listings), 2b cleaning and filter fields, 3.1 ghosts and the 90-day line, 3.2 source, 3.3 freshness and crawl timing, 3.4 pay disclosure, 3.7 blind spots and state, 3.5 company volume and copies, 3.6 role buckets, 3.8 company facts and no-country listings, 3.9 missing data, 3.10 outliers, 3.12 the compass's 2026 side. Twelve charts, matching EDA_SDA_1. Still to write:
-  - **3.11 Hide what a career changer can't get:** written (what each rule hides, accessibility vs. volume and source, pay and days open, degree by bucket, with a chart); needs a run, then notes.
+- **EDA_SDA_2 (non-text), in progress.** Done (2026-10-10): setup and the niche cut (14,019 listings), 2b cleaning and filter fields, 3.1 ghosts and the 90-day line, 3.2 source, 3.3 freshness and crawl timing, 3.4 pay disclosure, 3.7 blind spots and state, 3.5 company volume and copies, 3.6 role buckets, 3.8 company facts and no-country listings, 3.9 missing data, 3.10 outliers, 3.11 hiding rules and accessibility, 3.12 the compass's 2026 side. Thirteen charts, matching EDA_SDA_1. Still to write:
   - **4 Final table:** defend each decision, apply them at the end (including the 132 out-of-scope no-country listings and the `pay_implausible` flag), save for EDA_SDA_3. **5 Conclusion.**
 - **Data housekeeping:** delete `data/external/resume_structured/archive.zip` once you no longer want a backup (the resume data is unzipped; the notebook re-extracts from it only if the CSVs go missing), the old `data/profiles/*_v9*` files (replaced by `modeling_table.pkl` and `retrained_candidates.csv`), the old lean-table cache (`data/clean/job_openings_lean_*.pkl` without `_v2`), the whole `data/profiles/review/` folder (old round_01 files; nothing reads them), and any leftover `*_flat_*.pkl` files.
 - **Tell the team** to pull, rerun `pip install -r requirements.txt` (and on a Mac `brew install libomp`), run `python -m spacy download en_core_web_sm`, and switch their `.env` to `S3_PATH` (README section 4).
@@ -19,7 +18,7 @@
 - **EDA_SDA_3 (text features; no matching models):**
   - Description cleanup moved here from EDA_SDA_2 2b (HTML, equal-opportunity and benefits boilerplate → `desc_clean`), loading the text from the saved parts; normalize, stopwords, lemmatize.
   - Validate the keyword flags: a teammate checks a random sample of matches locally (career-change flags, `urgency`, `mentions_remote`); precision and recall against EDA_SDA_1's rules.
-  - Hard-blocker rules per role bucket (years-asked threshold, required credentials), hidden in the app with a count of what each hides.
+  - Hard-blocker rules per role bucket (years-asked threshold, required credentials), hidden in the app with a count of what each hides. The "asks 5+ years" preview would hide 31% of open listings (EDA_SDA_2 3.11): check required vs. preferred and the year counts first. The degree flag fires on only 3–6% of listings: widen and validate its pattern ("Bachelor's in …") before any degree rule.
   - Evergreen wording (feeds the ghost-listing flag), required vs. preferred qualifications, **skills mapped to O*NET** (the input to `ML_Fit`'s skills-based matching).
   - Save the niche table with text features for EDA_SDA_4 and `ML_Fit`.
 - **EDA_SDA_4 (statistics):**
