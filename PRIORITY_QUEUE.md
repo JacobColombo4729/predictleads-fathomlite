@@ -8,8 +8,7 @@
 ## Now
 
 - **Slide deck for the team, due Friday 2026-10-09:** `reports/Team update 2026-10-09.pptx` (local only) is built; upload it to Google Slides.
-- **Rerun Profiles once** (File: Revert File, then Run All, save): the duplicate charts and table were removed and the sideways-or-up headers fixed. Then Claude regenerates `reports/Profiles.md`. Delete the old `data/profiles/*_v9` files.
-- **Profiles review round:** rerun 4c a few times per pool (5 new people each run) and tell Claude which IDs look right or wrong, and why. Slide 11 has the current counts; update it if the spot-check changes them.
+- **Profiles spot-check (4b/4c):** about 20 people per pool (4 runs of 5), using the checklist in 4b; tell Claude each ID's verdict (right or wrong, and why) so the results table after 4c gets its counts. Order: the two retrained pools, within tech, then the rejected pool "changed jobs without tech or math training" (possible self-taught career changers). Slide 11 has the current counts; update it if the spot-check changes them.
 - **Give Claude instructions for the additional data cleaning** (reminder).
 - **EDA_SDA_2 (non-text), the next notebook:**
   - **Setup:** load EDA_SDA_1's final table (182,367 listings).
