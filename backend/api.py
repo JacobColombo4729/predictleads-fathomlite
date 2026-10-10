@@ -33,6 +33,7 @@ if str(CODE_DIR) not in sys.path:
 import grounded_match_explanations as grounded  # noqa: E402
 import job_matching_engine as matching  # noqa: E402
 import resume_profile_extraction as resume_extraction  # noqa: E402
+from . import compass as compass_analysis  # noqa: E402
 from . import feedback_ranking  # noqa: E402
 
 
@@ -162,6 +163,13 @@ class RecommendationsRequest(BaseModel):
     profile_version: int = Field(ge=1)
     limit: int = Field(default=10, ge=1, le=50)
     filters: RecommendationFilters = Field(default_factory=RecommendationFilters)
+
+
+class CompassRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    snapshot_id: str = Field(min_length=1, max_length=80)
+    profile_version: int = Field(ge=1)
+    job_ids: list[str] = Field(min_length=compass_analysis.MIN_PICKS, max_length=compass_analysis.MAX_PICKS)
 
 
 class AssessmentRequest(BaseModel):
@@ -729,6 +737,27 @@ def _saved_payload(row: sqlite3.Row) -> dict[str, Any]:
     }
 
 
+def _candidate_from_profile(profile_id: str, profile_data: Mapping[str, Any]) -> matching.CandidateProfile:
+    """The stored API profile as the matching engine's candidate (shared by recommendations and the Compass)."""
+    return matching.CandidateProfile(
+        profile_id=profile_id,
+        experience=tuple(
+            " ".join(part for part in (entry.get("title"), entry.get("organization") or "", entry.get("description")) if part)
+            for entry in profile_data.get("experience", [])
+        ),
+        evidenced_skills=tuple(
+            ": ".join(part for part in (item.get("name", ""), item.get("evidence", "")) if part)
+            for item in profile_data.get("skills", [])
+        ),
+        desired_roles=tuple(profile_data.get("desired_roles", [])),
+        location=profile_data.get("location"),
+        preferences={
+            "keywords": [text for text in (profile_data.get("headline"),) if text],
+            "work_arrangement": list(profile_data.get("arrangements", [])),
+        },
+    )
+
+
 def _candidate_mapping(profile_id: str, profile: Mapping[str, Any]) -> dict[str, Any]:
     return {
         "profile_id": profile_id,
@@ -1080,23 +1109,7 @@ def create_app(
         if profile_row["version"] != payload.profile_version:
             raise APIError(409, "profile_version_conflict", "Reload the current profile before requesting recommendations.")
         profile_data = json.loads(profile_row["profile_json"])
-        candidate = matching.CandidateProfile(
-            profile_id=profile_id,
-            experience=tuple(
-                " ".join(part for part in (entry.get("title"), entry.get("organization") or "", entry.get("description")) if part)
-                for entry in profile_data.get("experience", [])
-            ),
-            evidenced_skills=tuple(
-                ": ".join(part for part in (item.get("name", ""), item.get("evidence", "")) if part)
-                for item in profile_data.get("skills", [])
-            ),
-            desired_roles=tuple(profile_data.get("desired_roles", [])),
-            location=profile_data.get("location"),
-            preferences={
-                "keywords": [text for text in (profile_data.get("headline"),) if text],
-                "work_arrangement": list(profile_data.get("arrangements", [])),
-            },
-        )
+        candidate = _candidate_from_profile(profile_id, profile_data)
         indices = _search_indices(jobs, payload.filters)
         feedback_rows = store.list_feedback(session_hash, payload.snapshot_id)
         liked = [row["job_id"] for row in feedback_rows if row["signal"] == "good"]
@@ -1142,6 +1155,50 @@ def create_app(
             },
             "snapshot": {"snapshot_id": payload.snapshot_id, "date": jobs.snapshot_date},
             "items": items,
+        }
+
+    @app.post("/api/v1/profiles/{profile_id}/compass")
+    def compass(
+        profile_id: str,
+        payload: CompassRequest,
+        session_hash: str = Depends(session_dependency),
+    ) -> dict[str, Any]:
+        """Compass analysis of 2-20 picked jobs against the saved profile (local embeddings only, no outside AI call)."""
+        jobs: JobRepository = app.state.job_repository
+        jobs.require_snapshot(payload.snapshot_id)
+        ranker = app.state.ranker
+        if not getattr(ranker, "supports_compass", False):
+            raise APIError(409, "compass_unavailable", "The Compass needs the embedding ranker. Start the backend with the RRF ranker.")
+        profile_row = store.get_profile(session_hash)
+        if profile_row is None or profile_row["profile_id"] != profile_id:
+            raise APIError(404, "profile_not_found", "No matching candidate profile exists in this demo session.")
+        if profile_row["version"] != payload.profile_version:
+            raise APIError(409, "profile_version_conflict", "Reload the current profile before running the Compass.")
+        profile_data = json.loads(profile_row["profile_json"])
+        unique_ids = list(dict.fromkeys(payload.job_ids))
+        picks = []
+        for job_id in unique_ids:
+            record = jobs.by_id.get(job_id)
+            if record is None:
+                raise APIError(404, "job_not_found", "One of the picked jobs is not present in the requested snapshot.")
+            picks.append(record)
+        rated = [row["job_id"] for row in store.list_feedback(session_hash, payload.snapshot_id)]
+        try:
+            result = compass_analysis.analyze(
+                ranker, picks=picks, all_jobs=jobs.jobs, profile=_candidate_from_profile(profile_id, profile_data),
+                profile_data=profile_data, excluded_job_ids=rated,
+            )
+        except compass_analysis.CompassError as exc:
+            raise APIError(422, exc.code, str(exc)) from None
+        for item in result["jobs"]:
+            record = jobs.by_id[item["job_id"]]
+            item["job"] = _job_summary(JobRow(record.job_id, record.source), payload.snapshot_id, jobs.snapshot_date)
+        return {
+            "profile_id": profile_id,
+            "profile_version": profile_row["version"],
+            "snapshot": {"snapshot_id": payload.snapshot_id, "date": jobs.snapshot_date},
+            "ranking": {"ranker_id": ranker.ranker_id, "version": ranker.version},
+            **result,
         }
 
     @app.get("/api/v1/feedback")
