@@ -66,7 +66,6 @@ export default function SignalsPage() {
           <h1>Who is hiring right now</h1>
           <p className="cp-sub">
             Companies ranked by how many roles they opened in the 30 days before {asOf ? shortDate(asOf) : "the snapshot"}, in AI/ML, data and technical sales.
-            A hiring burst often means a team is being built, and a team being built is buying tools.
           </p>
         </div>
       </header>

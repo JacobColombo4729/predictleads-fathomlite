@@ -1,4 +1,4 @@
-"""Hiring-momentum and buying-intent signals from observed job openings.
+"""Hiring-momentum and role-mix signals from observed job openings.
 
 Built only from structured fields (company, title, role-family reasons, `first_seen_at`, `last_seen_at`, status, the
 provider's technology tags), so the same code can later run over the full snapshot; it needs no embeddings.
@@ -226,9 +226,9 @@ def company_metrics(frame: pd.DataFrame, cutoff: int, family: str | None = None)
 # --------------------------------------------------------------------------- intent signals
 
 INTENT_FAMILIES = {
-    "ai_ml": ("AI/ML buildout", "hiring ML and AI roles. Our assumption: teams like this often evaluate data, compute, MLOps and labeling tools"),
-    "data": ("Data stack buildout", "hiring analytics and data roles. Our assumption: teams like this often evaluate warehouse, BI and pipeline tools"),
-    "technical_sales": ("Technical go-to-market buildout", "hiring solutions and sales engineers. Our assumption: teams like this often evaluate sales-tech and enablement tools"),
+    "ai_ml": ("Hiring surge in AI/ML roles", "new AI/ML openings are well above this company's usual pace"),
+    "data": ("Hiring surge in data roles", "new data and analytics openings are well above this company's usual pace"),
+    "technical_sales": ("Hiring surge in technical sales roles", "new solutions and sales-engineering openings are well above this company's usual pace"),
 }
 
 

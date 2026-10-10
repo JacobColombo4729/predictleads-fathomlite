@@ -1,4 +1,4 @@
-"""Tests for the hiring-momentum and buying-intent signals. All data is synthetic; day numbers are plain integers."""
+"""Tests for the hiring-momentum and role-mix signals. All data is synthetic; day numbers are plain integers."""
 
 from __future__ import annotations
 
@@ -212,7 +212,7 @@ class OutputsTests(unittest.TestCase):
         signals = hs.intent_signals(self.frame, 300)
         self.assertEqual(list(signals["company_name"]), ["Hot Co"])
         row = signals.iloc[0]
-        self.assertEqual(row["signal"], "AI/ML buildout")
+        self.assertEqual(row["signal"], "Hiring surge in AI/ML roles")
         self.assertNotIn("Internship", row["top_tech"])
         self.assertIn("PyTorch", row["top_tech"])
         days = [e["first_seen"] for e in row["evidence"]]
