@@ -22,11 +22,11 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 | **3. Paths real people took** | "People from your background who trained in X moved into these roles," learned from real switches, not guessed. Includes **moving across tech roles** within tech or math, and moving up to senior or manager roles | 706 retrained career changers with their prior career, training field and first tech role; 1,848 people who moved between tech roles (Profiles 4a.3 splits sideways moves from moves up) |
 | **4. Retraining compass** | Prior career → the training people took → their first tech job → that role's 2026 openings, pay, closing speed and expected job growth. For changing careers (retraining into a new field) and for moving up (training to reach senior or manager roles in the user's own field). Answers "which path should I take?", including whether to retrain directly or step through another tech role | Prior career × first tech job and training × first tech job (Profiles 4a.2b); data and analytics is reached mostly from other tech roles (216) rather than by retraining (22); listing counts, pay and windows by bucket (EDA_SDA_2) |
 | **5. Where and when to look** | A watch list of employers hiring at volume or posting entry-level roles, plus a check-every-N-days cadence; a date picker shows how the list changed (July vs. September 2026) | High-volume employers post 42% of listings; 300–1,100 companies per field cover most openings; every listing has first-seen and last-seen dates |
-| **6. Compass ideas** | From the résumé: skills to build, career options down the line, the pay increase, expected job growth, and stepping-stone roles (to try) | Profiles (time to switch, paths, level at the switch), 2026 listing pay by role, job growth expectations |
+| **6. Ideas tab** | A separate tab built on the compass, from the résumé: skills to build, career options down the line, the pay increase, expected job growth, and stepping-stone roles (to try; time frames kept vague) | Profiles (time to switch, paths, level at the switch), 2026 listing pay by role, job growth expectations |
 
 ## What we lead with
 
-**Angles 3 and 4 are the story (the compass leads), angle 1 is the hook.** Angle 2 is built into every view. Angle 6 extends the compass into a personal outlook; angle 5 is a supporting feature.
+**Angles 3 and 4 are the story (the compass leads), angle 1 is the hook.** Angle 2 is built into every view. Angle 6 (the Ideas tab) extends the compass into a personal outlook; angle 5 is a supporting feature.
 
 > **Pitch:** "Everyone tells career changers what they match. We tell them what's realistically reachable, which training actually got people like them there, and how fast they have to move, using real career switches and live 2026 listings."
 
@@ -59,4 +59,4 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 | `notebooks/ML_Fit.ipynb` | Check whether knowing the training field predicts the first tech role better than the background alone |
 | Deck | The pitch on the title slide; a new "What makes this different" slide (reachable, real paths, how fast to move); slide 11 shows the training → role → 2026 openings chain; the two-decades framing replaces the date range |
 
-Added after the team meeting: moving across and up within tech, path questions, job growth expectations, the date picker and compass ideas (in `APPLICATION.md` and `PROJECT_OUTLINE.md`). EDA_SDA_2's 3.12 is written and needs a run; the app views are a design only.
+Added after the team meeting: moving across and up within tech, path questions, job growth expectations, the date picker and the Ideas tab (in `APPLICATION.md` and `PROJECT_OUTLINE.md`). EDA_SDA_2's 3.12 is written and needs a run; the app views are a design only.
