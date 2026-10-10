@@ -4,19 +4,19 @@
 
 PredictLeads × TripleTen externship · Jacob Colombo
 
-**The project:** for a given career changer (anyone switching from their current background to a different role or field), suggest the computer and mathematical roles their skills transfer to (**role discovery**), hide the listings they can't get, and rank the rest by which to apply to first, and why. **This notebook** explores the data and decides where to go in depth: which factors, which time information, and which segment.
+**The project:** for a given career changer (anyone switching from their current background to a different role or field), suggest the computer and mathematical roles their skills transfer to (**role discovery**), hide the listings they can't get, and rank the rest by which to apply to first, and why. The **retraining compass** is the foundation: prior career → training → first tech job → that role's 2026 openings, pay, closing speed and expected growth. **This notebook** explores the data and decides where to go in depth: which factors, which time information, and which segment.
 
 ### Where this notebook fits
 
 | # | Notebook | Question | Hands off |
 |:-:|:--|:--|:--|
 | **1** | **EDA_SDA_1 (you are here)** | **What's in the data, and what's the scope?** | **Final table: English US listings, April–September 2026, all groups and candidate factors** |
-| 2 | EDA_SDA_2 | Which listings do we study? Ghost listings, non-text checks, the niche (computer and mathematical, by role bucket), blockers hidden | Niche table, non-text features |
+| 2 | EDA_SDA_2 | Which listings do we study? Additional cleaning, ghost listings, non-text checks, the niche (computer and mathematical, by role bucket), blockers hidden, the compass's 2026 side | Niche table, non-text features |
 | 3 | EDA_SDA_3 | What does the text add? NLP features; validating the career-change flags | Niche table + text features |
 | 4 | EDA_SDA_4 | Which features hold up? Statistics | Modeling-ready table |
 | 5 | TimeSeries | When do listings appear and close? | Timing features |
 | 6 | ML | Which roles fit a career changer, and how should listings be ranked? | The prioritization model |
-| side | Profiles | Who really retrained into tech or math? (public resume dataset) | Career-switch profiles for ML |
+| side | Profiles (frozen) | Who changed careers into or within tech or math, and how? (public resume dataset; three career-changer pools) | The compass's past side (path tables) and the modeling table for ML |
 
 Each notebook hands its final table to the next. The TripleTen course templates are the baseline for every notebook, taken further with advanced methods.
 
@@ -53,6 +53,8 @@ What separates a listing worth applying to today is mostly **the listing itself*
 - **Six months of history,** so no seasonal advice. `first_seen` follows the crawler, so day-of-week patterns need `posted` (41% of listings).
 - **We see listings appear and disappear, not hires.** Openness to career changers is what listings *ask for*, not who gets hired.
 - **The text flags are keyword rules** with likely false positives ("urgent care") until EDA_SDA_3 validates them.
+- **The six-month window misses older listings:** listings first seen before 2026-03-30 aren't in the data, so the earliest dates undercount what was open (8b), which matters for the app's date picker.
+- **High-volume posters include staffing agencies,** which can inflate company volume; EDA_SDA_2 (2b) flags them.
 
 Detailed findings: section 9. Every decision with its evidence: section 10.
 
@@ -258,7 +260,7 @@ Which hiring platforms, job boards or company sites host listings, and whether a
 Whether a few companies post most listings (a short watch list for an applicant), and whether listings from high-volume companies close faster or slower.
 
 **What the data shows**
-- **The strongest single signal:** listings from companies with 20+ openings stay open a median 14 days vs. 32 for one-off listings. **Descriptive only:** volume counts each company's listings over all six months, including ones posted later, so EDA_SDA_2 rechecks the gap with volume counted from earlier listings only (the way the model will see it) before it's used as a finding.
+- **The strongest single signal:** listings from companies with 20+ openings stay open a median 14 days vs. 32 for one-off listings. **Descriptive only:** volume counts each company's listings over all six months, including ones posted later. *To fill in after running: the check below, with volume counted from earlier listings only (the way the model will see it), and whether the gap holds.*
 - **High-volume employers post 42% of all listings;** in every group the top 10% of companies post 39–60% (healthcare practitioners is the most concentrated).
 - **Watching about 300–1,100 companies per group** (those with 5+ listings) covers a large share of openings. Reposts are more common there too (3% vs. 1%).
 
@@ -332,6 +334,7 @@ Fields the project may use later: language (for an English-only corpus), status 
 - **English covers 92.3%** of listings, and `status` holds only "closed" or nothing.
 - **`contract_types` needed unifying** (6.2); its onsite, remote and hybrid labels give a second remote signal.
 - **`tags` are too sparse to use as skills** (53% empty, 7,196 values), while **`categories`** is a clean 27-value taxonomy (99% filled). Every job opening's company is in the companies table.
+- *To fill in after running (8b): live listings on the 1st of each month, and from which month the counts and listing ages level off; that's the earliest fair date for the app's date picker.*
 
 ## 9. Findings: where to narrow down
 
@@ -422,4 +425,4 @@ A short statistical summary of the final table: its size, how its key measures a
 
 Part 1 loaded and cleaned 200,000 listings (no rows removed), measured every candidate prioritization factor, checked which time information holds up, and compared segments for career changers. The main result: what makes a listing urgent is mostly the listing itself (employer hiring volume, source, pay disclosure), not the job title, and the best-paid field, computer and mathematical, is the hardest to enter. Every decision is defended in section 10 and applied in section 11.
 
-**Handoff:** the final table (182,367 English listings, April–September 2026, including flagged listings with no country, with every group, seniority level and candidate factor) is saved for **EDA_SDA_2**, which narrows it to the computer and mathematical niche by role bucket. Findings at a glance are in the executive summary; details in section 9.
+**Handoff:** the final table (182,367 English listings, April–September 2026, including flagged listings with no country, with every group, seniority level and candidate factor) is saved for **EDA_SDA_2**, which cleans it further (2b), narrows it to the computer and mathematical niche by role bucket, and builds the **compass's 2026 side** from it: each role's openings, pay and closing speed, mapped from `onet_code`. Findings at a glance are in the executive summary; details in section 9.
