@@ -83,7 +83,7 @@ For a given **career changer** (anyone switching from their current background t
 |---|---|---|
 | Jacob | Data pipeline, EDA/SDA | `notebooks/`, `src/` |
 | TBD | Time series | `notebooks/TimeSeries.ipynb` |
-| TBD | NLP and ML | `notebooks/EDA_SDA_3.ipynb`, `notebooks/ML.ipynb` |
+| TBD | Text features, fit and ranking | `notebooks/EDA_SDA_3.ipynb`, `notebooks/ML_Fit.ipynb`, `notebooks/ML_Rank.ipynb` |
 | TBD | Web app and pitch | `APPLICATION.md` |
 
 ## Risks and compliance

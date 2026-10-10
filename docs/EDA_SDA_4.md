@@ -6,18 +6,19 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 ## 0. Purpose
 
-Vets every candidate feature, non-text (EDA_SDA_2) and text (EDA_SDA_3), with statistical evidence, and hands a **modeling-ready table** to the `TimeSeries` and `ML` notebooks.
+Vets every candidate feature, non-text (EDA_SDA_2) and text (EDA_SDA_3), with statistical evidence, and hands a **modeling-ready table** to `TimeSeries`, `ML_Fit` and `ML_Rank` notebooks.
 
 **The series** (each notebook hands its final table to the next):
 
 | Notebook | Question | Hands off |
 |:--|:--|:--|
 | EDA_SDA_1 | What's in the data, and what's the scope? | Final table 1 |
-| EDA_SDA_2 | Which listings do we study? Non-text checks, ghost listings, the career-change target | Niche table, non-text features |
-| EDA_SDA_3 | What features does the text add? (NLP) | Niche table + text features |
-| EDA_SDA_4 | Which features hold up? (statistics) | Modeling-ready table |
-| TimeSeries | When do listings appear and close? | Timing patterns and features |
-| ML | How should listings be ranked for a career changer? | The prioritization model |
+| EDA_SDA_2 | Which listings do we study? The niche cut, additional cleaning, non-text checks, ghost listings | Niche table, non-text features, occupation summary |
+| EDA_SDA_3 | What do the descriptions say? Text features, validated blockers, skills mapped to O*NET (no matching models) | Niche table + text features |
+| EDA_SDA_4 | Which features hold up? Statistics, confounders, the adjusted Cox check | Modeling-ready table |
+| TimeSeries | When do listings appear and close? | Timing features |
+| ML_Fit | Which roles and listings fit a career changer? Keyword → TF-IDF → BGE → RRF, skills-based matching, a trained layer on real career moves | Fit scores, role discovery, the compass |
+| ML_Rank | How should listings be ranked? The listing timing model, combined with fit into the priority queue | The priority queue algorithm |
 
 **Standard:** the TripleTen course templates are the baseline (structure, methods, reporting). Every applicable course method is used, and taken further with more advanced techniques where the data calls for them.
 
@@ -46,7 +47,7 @@ Vets every candidate feature, non-text (EDA_SDA_2) and text (EDA_SDA_3), with st
 | 7. Time structure | `pivot_table` + heatmap (month × occupation group), `pct_change` | Hands off to `TimeSeries` |
 | 8. Survival checks | | Kaplan–Meier with confidence intervals, censoring and left-truncation checks, **competing risks** (filled vs. reposted vs. ghost) described |
 | 9. Feature decisions | Document each decision with data | Each kept / dropped / combined feature recorded with its reason |
-| 10. Final table | | Modeling-ready table, saved for `TimeSeries` and `ML` |
+| 10. Final table | | Modeling-ready table, saved for `TimeSeries`, `ML_Fit` and `ML_Rank` |
 | 11. Conclusion | What was done, what it means, limitations | |
 
 ## 2.–11.

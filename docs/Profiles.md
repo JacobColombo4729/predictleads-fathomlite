@@ -117,7 +117,7 @@ Jacob spot-checked random samples with the checklist in 4b (2026-10-09). The sam
 
 ## 5. Freeze and save: the modeling table
 
-One table for the ML notebook: **everyone who reached a computer and mathematical job** (labels, not rejections), with **pre-switch features only** and the **labels** the role model predicts. It holds more people than the 2,554 career changers on purpose: the others are extra training examples (for example, people who went straight from a business degree into data show which backgrounds lead there). Results are reported on career changers only (`career_changer`), and the ML notebook tests whether training on everyone beats training on career changers alone. Every column has a role:
+One table for the `ML_Fit` notebook: **everyone who reached a computer and mathematical job** (labels, not rejections), with **pre-switch features only** and the **labels** the role model predicts. It holds more people than the 2,554 career changers on purpose: the others are extra training examples (for example, people who went straight from a business degree into data show which backgrounds lead there). Results are reported on career changers only (`career_changer`), and the ML notebook tests whether training on everyone beats training on career changers alone. Every column has a role:
 - **feature:** known before the switch, so the model may use it
 - **label:** what the model predicts, or which people results are reported on (`career_changer`)
 - **outcome:** describes what happened at or after the switch; **never a feature**
@@ -137,7 +137,7 @@ Rerun this section after any change to the rules in `src/career_switch.py`.
 - **Most moves within tech are sideways:** 79% kept the same level and 9% moved up to a senior or manager title, so "moving up" needs its own evidence before it's part of the pitch.
 - **Switches take time and have shifted:** the typical switch came after 2.4 years in the previous field (median), people who retrained after working took about 14 months from their last old-field job to their first tech job, and retraining has shifted from new grads toward people who'd already worked.
 
-**Handoff.** The modeling table (section 5) goes to the ML notebook: pre-switch features, the role at the switch as the label, and outcome columns marked. It holds all 15,145 people who reached tech: the 2,554 career changers, on whom results are reported, plus 12,591 others as extra training examples, with origin as a feature. The ML notebook keeps whichever training set predicts career changers' roles better. The prior career and training tables (4a.2b) and the within-tech table (4a.3) are the past side of the retraining compass; EDA_SDA_2 adds each role's 2026 openings, pay and closing speed.
+**Handoff.** The modeling table (section 5) goes to the `ML_Fit` notebook: pre-switch features, the role at the switch as the label, and outcome columns marked. It holds all 15,145 people who reached tech: the 2,554 career changers, on whom results are reported, plus 12,591 others as extra training examples, with origin as a feature. The ML notebook keeps whichever training set predicts career changers' roles better. The prior career and training tables (4a.2b) and the within-tech table (4a.3) are the past side of the retraining compass; EDA_SDA_2 adds each role's 2026 openings, pay and closing speed.
 
 **Limits.**
 - The rules were spot-checked on random samples (4b/4c), not every person, and the resumes were converted by OCR and an LLM.

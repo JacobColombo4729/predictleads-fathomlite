@@ -116,7 +116,7 @@ Opens full screen on tap or click:
 
 - The user describes where they're coming from: a résumé (PDF or Word), pasted text, or their LinkedIn data export (the Profile, Positions, Education and Skills files).
 - They pick the field they want to move into, or let the app suggest related fields from O*NET's related occupations.
-- The profile is compared with postings using TF-IDF or local embeddings, with O*NET skills connecting the old and new occupations, giving a transferable-fit score for every posting.
+- The profile gets a transferable-fit score for every posting from `ML_Fit`'s model: TF-IDF and BGE similarity (run locally), skills matched through O*NET, and a layer trained on real career moves, so the old field's wording doesn't dominate.
 - **Privacy:** the résumé stays local. Personal details are never stored or logged beyond the session unless the user chooses to save them.
 
 ### Market panel and check schedule
@@ -135,7 +135,7 @@ The priority score ranks postings by how much an application is worth. It combin
 | **Chance still open** | Probability the posting is still open today | Survival model |
 | **Apply-by date (estimated)** | The date by which the posting is likely to have closed | `first_seen_at` + the predicted window for postings like it. Postings rarely list a real deadline, so this is always labelled an estimate. |
 | **Career-change accessibility** | How open the posting is to someone new to the field | Seniority and listing text: years required, degree or equivalent experience, training, career-changer wording |
-| **Transferable fit** | How well the skills from the user's old field match the posting | TF-IDF or local embeddings, with O*NET skills |
+| **Transferable fit** | How well the skills from the user's old field match the posting | `ML_Fit`: TF-IDF, BGE (local) and O*NET skills, combined by a model trained on real career moves |
 | **Competition** | Lower is better | Reposts, company hiring volume, similar open postings, external market tightness |
 | **Pay** | Hourly pay rate, where disclosed (salaried pay converted at 2,080 hours a year) | Cleaned salary data (`salary_hourly_usd`), compared with listings in the same role |
 | **Freshness** | Days since first seen | `first_seen_at` |
@@ -162,7 +162,7 @@ Each MCP server wraps one capability we build anyway: postings, timing, fit, mar
 |---|---|---|
 | `postings` | Search and filter live postings; get one posting's features | Our cleaned postings, stored locally |
 | `timing` | Chance still open; apply-by date; check schedule | Our survival and arrival models |
-| `fit` | Suggest roles from a background profile; score it against postings; explain which skills transfer; list gaps | Local TF-IDF or embeddings, O*NET skills |
+| `fit` | Suggest roles from a background profile; score it against postings; explain which skills transfer; list gaps | `ML_Fit`'s model: local TF-IDF and BGE, O*NET skills |
 | `priority` | Score and rank postings with the tuned model and the user's weights | Outputs of `timing`, `fit` and competition signals |
 | `market` | Job growth expectations by role; listing volume by month | Job growth expectations; our listings |
 | `tracker` | Star, set status, list starred postings, reminders | The user's own data |

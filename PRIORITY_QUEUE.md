@@ -30,13 +30,12 @@
 
 ## Next
 
-- **EDA_SDA_3 (NLP):**
-  - Preprocessing: description cleanup moved here from EDA_SDA_2 2b (HTML, equal-opportunity and benefits boilerplate → `desc_clean`); normalize, stopwords, lemmatize; TF-IDF fit on the training months only.
-  - Validate the keyword flags: a teammate checks a random sample of matches locally (career-change flags, `urgency`, `mentions_remote`).
-  - Hard-blocker rules per role bucket (years-asked threshold, required licenses); apply them in this notebook's final table, with a count of what each hides.
-  - Evergreen wording (feeds the ghost-listing flag), required vs. preferred qualifications, skills extraction mapped to O*NET skills.
-  - Role similarity: how close each role bucket is to the team's backgrounds (TF-IDF or embeddings, plus O*NET).
-  - Course evaluation with a `DummyClassifier` baseline; save the niche table with text features.
+- **EDA_SDA_3 (text features; no matching models):**
+  - Description cleanup moved here from EDA_SDA_2 2b (HTML, equal-opportunity and benefits boilerplate → `desc_clean`), loading the text from the saved parts; normalize, stopwords, lemmatize.
+  - Validate the keyword flags: a teammate checks a random sample of matches locally (career-change flags, `urgency`, `mentions_remote`); precision and recall against EDA_SDA_1's rules.
+  - Hard-blocker rules per role bucket (years-asked threshold, required credentials), hidden in the app with a count of what each hides.
+  - Evergreen wording (feeds the ghost-listing flag), required vs. preferred qualifications, **skills mapped to O*NET** (the input to `ML_Fit`'s skills-based matching).
+  - Save the niche table with text features for EDA_SDA_4 and `ML_Fit`.
 - **EDA_SDA_4 (statistics):**
   - Descriptive statistics by group; Pearson + Spearman, Cramér's V, point-biserial; VIF.
   - Group interactions, including by role bucket, and checks for confounding (Simpson's paradox).
@@ -50,15 +49,20 @@
   - Lag and rolling features with `.shift()`; a time-ordered split, test used once.
   - Models: `DummyRegressor`, linear regression, random forest, ARIMA / SARIMA; RMSE and MAE.
   - Survival by month first seen, and a "check every N days" cadence.
-- **ML:**
+- **ML_Fit (fit, role discovery, the compass):**
+  - Build each career changer's pre-switch text from the Profiles timeline (titles and programs before the switch; no undated skills).
+  - The ladder: keyword overlap → TF-IDF cosine → BGE embeddings (small or base, local) → RRF hybrid → skills-based matching on O*NET skills → a trained layer (Option B) on real career moves.
+  - Score each step on hit rate@3/@5 for the role people actually moved into, per pool and overall, against a title-keyword baseline; measure old-field bias; exclude the current role for within-tech moves; folds grouped by person.
+  - SHAP; the compass outputs (paths with people counts, skills to build per role); hand fit scores to `ML_Rank`.
+- **ML_Rank (the priority queue):**
   - Write the hypotheses with thresholds **before** any modeling.
   - Targets: closes within N days, days open, and the survival target.
   - Split by time (train April–July, validate August, test September), folds grouped by company; test used once.
   - Baselines: `DummyClassifier`, newest first, title keyword search.
   - Models: logistic regression, trees, random forest, LightGBM, CatBoost, XGBoost; Cox and survival models; LambdaRank.
-  - Role discovery and transferable fit (Option B) trained on `Profiles.ipynb`'s modeling table, folds grouped by person; role-discovery hit rate in the top 3 and top 5, **reported per pool** (within tech is 72% of career changers) and overall.
-  - Leakage: counts from earlier listings only; a date-picker model trained only on what was known by its date; compass counts rebuilt inside each training fold.
-  - Evaluation (ROC-AUC, F1, C-index, precision@k, NDCG), SHAP, bootstrap business translation, sensitivity checks, solution report.
+  - Leakage: counts from earlier listings only; a date-picker model trained only on what was known by its date.
+  - **The priority queue:** combine the fit score, chance still open and apply-by, accessibility and pay in one formula; weights start from EDA_SDA_4's adjusted model and are tuned on the validation month; only features that survived EDA_SDA_4.
+  - Evaluation (ROC-AUC, F1, C-index, precision@k, NDCG); the queue against newest-first: of each top 10, how many stay open long enough, are reachable and are in the role the person actually moved into; SHAP, sensitivity checks, solution report.
 - **Job growth expectations:** check the terms of use, download the official 10-year occupational projections into `data/external/`, map them to role buckets by occupation code, and convert to the time frame the team picks. Add an expected-growth column to the compass (EDA_SDA_2 3.12).
 - **Date picker (as-of date):** a helper in `src/` that returns the listings live on a date with features computed as of that date; check it on July 1 vs. September 1, 2026 (counts only; EDA_SDA_1 8b shows dates before July are skewed young). The model for a date is trained only on what was known by then; the demo can start with test-period dates.
 - **Compass ideas** (`APPLICATION.md`): skills to build (EDA_SDA_3 skills vs. a résumé), career options and time to switch (Profiles), pay increase (2026 listing pay by occupation), expected growth, and stepping-stone roles (level at the switch in Profiles).
@@ -103,6 +107,6 @@
 
 ## Finish
 
-- **Polish all six notebooks (EDA_SDA_1–4, TimeSeries, ML) and Profiles so they read as one unit:** consistent titles, numbering, terms and formatting; each opening links back to the previous notebook's conclusion; imports at the top (course standard); no repeated code; every course-template requirement checked. EDA_SDA_1 is already trimmed, with its data loading in `src/pl_data.py`.
+- **Polish all seven notebooks (EDA_SDA_1–4, TimeSeries, ML_Fit, ML_Rank) and Profiles so they read as one unit:** consistent titles, numbering, terms and formatting; each opening links back to the previous notebook's conclusion; imports at the top (course standard); no repeated code; every course-template requirement checked. EDA_SDA_1 is already trimmed, with its data loading in `src/pl_data.py`.
 - Permanently delete every copy of the data: `data/` (Parquet, pickle, zip and `.jsonl.zst` files, including `data/flat/`, `data/clean/`, `data/external/` and `data/profiles/`), `reports/`, downloads, and any S3 copies.
 - Confirm the deletion in writing if asked.
