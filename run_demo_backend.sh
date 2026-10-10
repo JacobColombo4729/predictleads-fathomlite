@@ -36,7 +36,13 @@ if [[ $preview -eq 1 ]]; then
     exit 1
   fi
   export PREDICTLEADS_API_JOBS_PATH="$jobs"
-  export PREDICTLEADS_API_RANKER="tfidf"
+  # With matching embeddings and the BGE model present, use the full ranker (Compass works); otherwise TF-IDF.
+  if [[ -f "$root/data/preview/bge_embeddings.npy" && -d "$root/models/bge-base-en-v1.5" ]]; then
+    export PREDICTLEADS_API_CORPUS_DIR="$root/data/preview"
+    export PREDICTLEADS_API_RANKER="rrf"
+  else
+    export PREDICTLEADS_API_RANKER="tfidf"
+  fi
   export PREDICTLEADS_API_DB_PATH="$root/backend/data/preview.sqlite3"
 else
   export PREDICTLEADS_API_JOBS_PATH="$serving/jobs_prepared_corpus.jsonl"
