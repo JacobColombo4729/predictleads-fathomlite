@@ -13,8 +13,9 @@
 
 ## Next
 
-- **EDA_SDA_3 (text features; no matching models):**
-  - Description cleanup moved here from EDA_SDA_2 2b (HTML, equal-opportunity and benefits boilerplate → `desc_clean`), loading the text from the saved parts; normalize, stopwords, lemmatize.
+- **EDA_SDA_3 (text features; no matching models), in progress:**
+  - **Sections 1–2 written** (setup, text loaded from the saved parts, HTML to structured text, boilerplate removal, lemmas; cached in `data/clean/eda3_text.pkl`): needs a run, then notes. Section 3 (years and degree rules) is next.
+  - **Hand-checking:** decide who marks the validation samples (section 5), about 100–150 matches per rule, locally.
   - Validate the keyword flags: a teammate checks a random sample of matches locally (career-change flags, `urgency`, `mentions_remote`); precision and recall against EDA_SDA_1's rules.
   - Hard-blocker rules per role bucket (years-asked threshold, required credentials), hidden in the app with a count of what each hides. The "asks 5+ years" preview would hide 31% of open listings (EDA_SDA_2 3.11): check required vs. preferred and the year counts first. The degree flag fires on only 3–6% of listings: widen and validate its pattern ("Bachelor's in …") before any degree rule.
   - Evergreen wording (feeds the ghost-listing flag), required vs. preferred qualifications, **skills mapped to O*NET** (the input to `ML_Fit`'s skills-based matching).
