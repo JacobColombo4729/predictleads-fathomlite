@@ -1,4 +1,4 @@
-# How We Work
+# Standards
 
 PredictLeads × TripleTen externship · **How we work.** Last updated 2026-10-09.
 
@@ -10,7 +10,7 @@ PredictLeads × TripleTen externship · **How we work.** Last updated 2026-10-09
 | File | Its one job |
 |:--|:--|
 | [`PROJECT_OUTLINE.md`](PROJECT_OUTLINE.md) | **What we're doing:** the idea, findings so far, factors, the notebook series. Start here |
-| `HOW_WE_WORK.md` (this file) | **How we work:** standards, scope, roles, risks |
+| `STANDARDS.md` (this file) | **How we work:** standards, scope, roles, risks |
 | [`docs/decisions.md`](docs/decisions.md) | Every decision, with its reasoning |
 | [`docs/data.md`](docs/data.md) | Data sources, fields, quirks and auto-generated schemas |
 | [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) | **How we stand out:** the five angles, the pitch, how we talk about the data, and what we never claim |

@@ -1,7 +1,7 @@
 # Priority Queue
 
 > Top = next. Delete a task when it's done. Add new tasks to the tier where they belong.
-> Each notebook's full plan is in the notebook itself; how we work is in [`HOW_WE_WORK.md`](HOW_WE_WORK.md).
+> Each notebook's full plan is in the notebook itself; how we work is in [`STANDARDS.md`](STANDARDS.md).
 
 ---
 
@@ -88,7 +88,7 @@
 - Never commit data, Parquet or pickle files, `.env`, or anything in `reports/`.
 - After a kernel restart, run the notebook from the top.
 - **After any change to `src/` (rules, mappings, helpers), restart the kernel before rerunning:** Python keeps the old version loaded until a restart, so Run All alone uses the old code.
-- Follow the working standards in `HOW_WE_WORK.md` and the course-template baseline in every notebook.
+- Follow the working standards in `STANDARDS.md` and the course-template baseline in every notebook.
 - If the notebook looks out of date in VS Code, run **File: Revert File**. Don't save the older copy over newer changes.
 - Record every decision, with its reasoning, in `docs/decisions.md`.
 - When you add a package: pin it in `requirements.txt`, commit, and tell the team.

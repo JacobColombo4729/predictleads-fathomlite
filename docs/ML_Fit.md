@@ -49,7 +49,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 - **Role imbalance** (quality assurance and data and analytics are the smallest roles): class weights first, per-role scores, and probabilities corrected to the real role mix. Synthetic people only for a role still predicted poorly, inside training folds only.
 - Which skills should a career changer build for each suggested role (listing skills their background doesn't show)? This feeds the compass ideas.
 
-**Leakage rules** (`HOW_WE_WORK.md`):
+**Leakage rules** (`STANDARDS.md`):
 - Only **pre-switch** text and `feature` columns. Résumé skills aren't dated, so they may be from after the switch and aren't used.
 - TF-IDF vocabularies, embeddings caches used for training, and the trained layer are fit **inside each training fold**; folds are grouped by person.
 - Compass and path counts used as features are rebuilt inside each training fold, so a test person never counts toward their own answer.

@@ -301,7 +301,7 @@ Merge the companies table into the listings (a **left join** on `company_id` = c
 | `tags` | 53% empty | Sparse | Not used; `categories` (99%) instead |
 | Company description, location (joined in 3.8) | 10%, 6% | Not in the companies file | "Unknown" category |
 
-**Course standard:** percent missing, missingness **by group** (source, occupation group, role bucket, month, state), and `df.isnull().corr()` to see which fields go missing together. Every imputation or "Unknown" category is justified with plots split by the outcome (closed vs. still open). **Rules:** impute only inside the model `Pipeline`, fit on the training months (leakage rules in `HOW_WE_WORK.md`), and add a missing flag whenever a value is filled in, since missingness itself can carry signal (salary disclosure does).
+**Course standard:** percent missing, missingness **by group** (source, occupation group, role bucket, month, state), and `df.isnull().corr()` to see which fields go missing together. Every imputation or "Unknown" category is justified with plots split by the outcome (closed vs. still open). **Rules:** impute only inside the model `Pipeline`, fit on the training months (leakage rules in `STANDARDS.md`), and add a missing flag whenever a value is filled in, since missingness itself can carry signal (salary disclosure does).
 
 ### 3.10 Outliers
 
