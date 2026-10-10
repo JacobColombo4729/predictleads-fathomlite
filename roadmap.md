@@ -106,7 +106,7 @@ Ranked on: value to the demo and to PredictLeads, effort, whether we can check i
 **Per-user preference model ("Refine my matches") — design notes, decision pending (added 2026-10-09)**
 - After about 20-30 👍/👎 ratings, a button trains a small model on that user's ratings and re-ranks their results. Today's feedback is only a live Rocchio nudge.
 - Design: unlock at about 10 ratings with at least 5 of each kind; heavily regularized logistic regression or ridge on BGE vectors of rated jobs; cross-validate on the user's ratings and refuse to apply the model if it does not beat chance; fuse with the RRF rank; show "refined with N 👍 and M 👎, predicted your ratings with X% accuracy, K of your top 10 changed"; keep some variety.
-- Prerequisite: an opt-in rating export (which also supplies the ranker comparison). Risks: small samples, selection bias, ambiguous 👎, no accounts, consent for storing a taste model.
+- Prerequisite: the rating log, **built 2026-10-10** ([docs/feedback-data.md](docs/feedback-data.md)); it records what was shown, ranks, ratings, saves and Compass runs. Production needs users to opt in (the switch exists). Risks: small samples, selection bias, ambiguous 👎, no accounts, consent for storing a taste model.
 
 **Not planned**
 - Career Adjacency graph (needs validated duties and O*NET assignments); market momentum across snapshots (only one snapshot); PDF OCR; accounts and persistent profiles; deployment hardening.

@@ -6,6 +6,7 @@ import base64
 import binascii
 import hashlib
 import json
+import logging
 import os
 import secrets
 import sqlite3
@@ -34,6 +35,7 @@ import grounded_match_explanations as grounded  # noqa: E402
 import job_matching_engine as matching  # noqa: E402
 import resume_profile_extraction as resume_extraction  # noqa: E402
 from . import compass as compass_analysis  # noqa: E402
+from . import events as research_events  # noqa: E402
 from . import feedback_ranking  # noqa: E402
 from . import signals as hiring_signals  # noqa: E402
 
@@ -42,6 +44,8 @@ SNAPSHOT_ID_PREFIX = "predictleads-"
 SESSION_COOKIE = "pl_demo_session"
 DEFAULT_SAMPLE = PROJECT_ROOT / "data/matching/ai_ml_serving_v1/jobs_prepared_corpus.jsonl"
 DEFAULT_DB = PROJECT_ROOT / "backend/data/predictleads-demo.sqlite3"
+DEFAULT_EVENTS_DB = PROJECT_ROOT / "backend/data/feedback-events.sqlite3"
+PARTICIPANT_HEADER = "x-participant-id"
 RANKER_ID = "tfidf_cosine"
 RANKER_VERSION = "job_matching_engine.rank_tfidf-v1"
 NOTE_LIMIT = 500
@@ -81,6 +85,8 @@ class Settings:
     secure_cookie: bool
     allowed_origins: tuple[str, ...]
     max_page_size: int = MAX_PAGE_SIZE
+    events_db_path: Path | None = None  # research log of what was shown and how people reacted; None switches it off (the tests do not write one)
+    events_require_consent: bool = False  # demo: the team has agreed outside the app. Production: set PREDICTLEADS_EVENTS_REQUIRE_CONSENT=1 so people must opt in
 
     @classmethod
     def from_environment(cls) -> "Settings":
@@ -97,6 +103,8 @@ class Settings:
             session_ttl_seconds=ttl,
             secure_cookie=os.environ.get("PREDICTLEADS_API_COOKIE_SECURE", "0").casefold() in {"1", "true", "yes"},
             allowed_origins=tuple(origin.strip() for origin in origins.split(",") if origin.strip()),
+            events_db_path=Path(os.environ.get("PREDICTLEADS_EVENTS_DB_PATH", str(DEFAULT_EVENTS_DB))).expanduser(),
+            events_require_consent=os.environ.get("PREDICTLEADS_EVENTS_REQUIRE_CONSENT", "0").casefold() in {"1", "true", "yes"},
         )
 
 
@@ -189,6 +197,11 @@ class GapBatchRequest(BaseModel):
     snapshot_id: str = Field(min_length=1, max_length=80)
     profile_version: int = Field(ge=1)
     job_ids: list[str] = Field(min_length=1, max_length=grounded.MAX_BATCH_JOBS)
+
+
+class ResearchConsent(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    consent: bool
 
 
 class SavedJobCreate(BaseModel):
@@ -899,6 +912,9 @@ def create_app(
         app.state.assessment_provider = provider if provider is not None else _default_assessment_provider()
         app.state.extraction_provider = extraction_provider or _default_extraction_provider()
         app.state.signals = signal_store if signal_store is not None else _load_signals()
+        if config.events_db_path is not None:
+            app.state.events = research_events.EventStore(config.events_db_path, config.events_require_consent)
+            app.state.events.initialize()
         yield
 
     app = FastAPI(title="PredictLeads Hackathon Demo API", version="1.0.0", lifespan=lifespan)
@@ -907,6 +923,7 @@ def create_app(
     app.state.store = store
     app.state.assessment_provider = provider
     app.state.extraction_provider = extraction_provider
+    app.state.events = None
 
     @app.middleware("http")
     async def reject_untrusted_write_origins(request: Request, call_next):
@@ -944,7 +961,7 @@ def create_app(
         allow_origins=list(config.allowed_origins),
         allow_credentials=True,
         allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["Content-Type", "If-Match"],
+        allow_headers=["Content-Type", "If-Match", "X-Participant-Id"],
     )
 
     @app.exception_handler(APIError)
@@ -972,6 +989,25 @@ def create_app(
         if expires is None:
             raise APIError(401, "demo_session_expired", "The demo session is missing or expired.")
         return session_hash
+
+    research_log = logging.getLogger("uvicorn.error")
+
+    def participant_of(request: Request) -> tuple["research_events.EventStore | None", str | None]:
+        return getattr(app.state, "events", None), request.headers.get(PARTICIPANT_HEADER)
+
+    def log_event(request: Request, event_type: str, session_hash: str | None = None, **fields: Any) -> None:
+        """Append a research event for a participant who opted in. Logging must never break the request it rides on."""
+        try:
+            events, pid = participant_of(request)
+            if events is None or not events.is_consented(pid):
+                return
+            if session_hash is not None and "profile_hash" not in fields:
+                row = store.get_profile(session_hash)
+                if row is not None:
+                    fields["profile_hash"] = hashlib.sha256(row["profile_json"].encode("utf-8")).hexdigest()[:16]
+            events.log(pid, event_type, **fields)
+        except Exception as exc:  # noqa: BLE001
+            research_log.warning("research log skipped: %s", type(exc).__name__)
 
     @app.get("/healthz")
     def health() -> dict[str, str]:
@@ -1120,6 +1156,33 @@ def create_app(
             raise APIError(503, "signals_unavailable", "Hiring signals have not been built. Run code/hiring_signals.py build.", retryable=False)
         return store_
 
+    @app.get("/api/v1/research/status")
+    def research_status(request: Request, session_hash: str = Depends(session_dependency)) -> dict[str, Any]:
+        events, pid = participant_of(request)
+        if events is None:
+            return {"available": False, "consented": False, "events": 0}
+        consented = events.is_consented(pid)
+        return {"available": True, "consented": consented, "consent_required": events.require_consent, "events": events.count(pid) if consented else 0}
+
+    @app.put("/api/v1/research/consent")
+    def research_consent(payload: ResearchConsent, request: Request, session_hash: str = Depends(session_dependency)) -> dict[str, Any]:
+        events, pid = participant_of(request)
+        if events is None:
+            raise APIError(404, "research_unavailable", "Sharing ratings is not switched on for this server.")
+        if not pid or not research_events.PARTICIPANT_RE.match(pid):
+            raise APIError(422, "validation_error", "A valid participant id header is required.")
+        if payload.consent:
+            events.consent(pid)
+            return {"available": True, "consented": True, "events": events.count(pid)}
+        removed = events.withdraw(pid)
+        return {"available": True, "consented": False, "events": 0, "deleted": removed}
+
+    @app.delete("/api/v1/research/data")
+    def research_delete(request: Request, session_hash: str = Depends(session_dependency)) -> dict[str, Any]:
+        events, pid = participant_of(request)
+        removed = events.withdraw(pid) if events is not None and pid else 0
+        return {"available": events is not None, "consented": False, "events": 0, "deleted": removed}
+
     @app.get("/api/v1/signals/overview")
     def signals_overview(session_hash: str = Depends(session_dependency)) -> dict[str, Any]:
         return _signals().overview()
@@ -1176,6 +1239,7 @@ def create_app(
     def recommendations(
         profile_id: str,
         payload: RecommendationsRequest,
+        request: Request,
         session_hash: str = Depends(session_dependency),
     ) -> dict[str, Any]:
         jobs: JobRepository = app.state.job_repository
@@ -1216,6 +1280,21 @@ def create_app(
                     "similarity": near["similarity"],
                 }
             items.append(item)
+        try:
+            events, pid = participant_of(request)
+            if events is not None and events.is_consented(pid):
+                profile_hash = hashlib.sha256(profile_row["profile_json"].encode("utf-8")).hexdigest()[:16]
+                if not events.has_profile(pid, profile_hash):
+                    vector = ranker.query_vector(candidate).tolist() if hasattr(ranker, "query_vector") else None
+                    events.remember_profile(pid, profile_hash, vector)
+                events.log(pid, "impression", snapshot_id=payload.snapshot_id, profile_hash=profile_hash, payload={
+                    "ranker": f"{ranker.ranker_id}/{ranker.version}", "limit": payload.limit,
+                    "query": (payload.filters.query or "").strip(), "scope": search_scope,
+                    "good_before": len(liked), "bad_before": len(disliked),
+                    "items": [[str(r["job_id"]), int(r["rank"]), round(float(r["score"]), 5)] for r in ranked],
+                })
+        except Exception as exc:  # noqa: BLE001
+            research_log.warning("research log skipped: %s", type(exc).__name__)
         return {
             "profile_id": profile_id,
             "profile_version": profile_row["version"],
@@ -1241,6 +1320,7 @@ def create_app(
     def compass(
         profile_id: str,
         payload: CompassRequest,
+        request: Request,
         session_hash: str = Depends(session_dependency),
     ) -> dict[str, Any]:
         """Compass analysis of 2-20 picked jobs against the saved profile (local embeddings only, no outside AI call)."""
@@ -1273,6 +1353,10 @@ def create_app(
         for item in result["jobs"]:
             record = jobs.by_id[item["job_id"]]
             item["job"] = _job_summary(JobRow(record.job_id, record.source), payload.snapshot_id, jobs.snapshot_date)
+        # every run, including slider refreshes, is one exposure of the suggested roles
+        suggested = [[i["job_id"], round(float(i["fit"]), 1)] for i in result["jobs"] if not i["pick"]]
+        log_event(request, "compass_run", session_hash, snapshot_id=payload.snapshot_id,
+               payload={"picks": unique_ids, "stretch": payload.stretch, "suggested": suggested})
         return {
             "profile_id": profile_id,
             "profile_version": profile_row["version"],
@@ -1353,20 +1437,30 @@ def create_app(
     @app.put("/api/v1/feedback")
     def put_feedback(
         payload: FeedbackPut,
+        request: Request,
         session_hash: str = Depends(session_dependency),
     ) -> dict[str, Any]:
         jobs: JobRepository = app.state.job_repository
         jobs.get(payload.job_id, payload.snapshot_id)
         row = store.set_feedback(session_hash, payload.snapshot_id, payload.job_id, payload.signal)
+        try:
+            events, pid = participant_of(request)
+            exposure = events.last_exposure(pid, payload.job_id) if events is not None and events.is_consented(pid) else None
+            log_event(request, "rating", session_hash, snapshot_id=payload.snapshot_id, job_id=payload.job_id,
+                   payload={"signal": payload.signal, **(exposure or {})})
+        except Exception as exc:  # noqa: BLE001
+            research_log.warning("research log skipped: %s", type(exc).__name__)
         return {"job_id": row["job_id"], "snapshot_id": row["snapshot_id"], "signal": row["signal"], "created_at": row["created_at"]}
 
     @app.delete("/api/v1/feedback/{snapshot_id}/{job_id}", status_code=204)
     def remove_feedback(
         snapshot_id: str,
         job_id: str,
+        request: Request,
         session_hash: str = Depends(session_dependency),
     ) -> Response:
         store.delete_feedback(session_hash, snapshot_id, job_id)
+        log_event(request, "rating_cleared", session_hash, snapshot_id=snapshot_id, job_id=job_id)
         return Response(status_code=204)
 
     @app.post("/api/v1/profiles/{profile_id}/jobs/{job_id}/assessment")
@@ -1465,11 +1559,14 @@ def create_app(
     @app.post("/api/v1/saved-jobs", status_code=201)
     def create_saved_job(
         payload: SavedJobCreate,
+        request: Request,
         session_hash: str = Depends(session_dependency),
     ) -> dict[str, Any]:
         jobs: JobRepository = app.state.job_repository
         jobs.get(payload.job_id, payload.snapshot_id)
-        return _saved_payload(store.save_job(session_hash, payload.snapshot_id, payload.job_id))
+        saved = _saved_payload(store.save_job(session_hash, payload.snapshot_id, payload.job_id))
+        log_event(request, "save", session_hash, snapshot_id=payload.snapshot_id, job_id=payload.job_id)
+        return saved
 
     @app.patch("/api/v1/saved-jobs/{snapshot_id}/{job_id}")
     def update_saved_job(
@@ -1487,9 +1584,11 @@ def create_app(
     def remove_saved_job(
         snapshot_id: str,
         job_id: str,
+        request: Request,
         session_hash: str = Depends(session_dependency),
     ) -> Response:
         store.delete_saved_job(session_hash, snapshot_id, job_id)
+        log_event(request, "unsave", session_hash, snapshot_id=snapshot_id, job_id=job_id)
         return Response(status_code=204)
 
     @app.post("/api/v1/profile-extraction")

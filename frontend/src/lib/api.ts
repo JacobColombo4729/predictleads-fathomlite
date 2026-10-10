@@ -1,3 +1,4 @@
+import { participantId } from "./research";
 import type {
   GapBatchResult,
   GapEvidence,
@@ -34,7 +35,7 @@ async function request<T>(method: string, path: string, body?: unknown, headers:
     response = await fetch(`${BASE}${path}`, {
       method,
       credentials: "include",
-      headers: { ...(body === undefined ? {} : { "Content-Type": "application/json" }), ...headers },
+      headers: { ...(body === undefined ? {} : { "Content-Type": "application/json" }), ...(participantId() ? { "X-Participant-Id": participantId()! } : {}), ...headers },
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   } catch {
