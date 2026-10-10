@@ -8,7 +8,6 @@
 ## Now
 
 - **Tomorrow (2026-10-10), Jacob:** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
-- **Rerun EDA_SDA_1 (hourly pay):** 6.5 now cleans pay into one hourly column (`salary_hourly_usd`); rerun from the top (cached, no rebuild), then Claude re-quotes every pay figure in its notes, the docs and the deck in hourly terms.
 - **EDA_SDA_2 (non-text), the next notebook:**
   - **Setup:** load EDA_SDA_1's final table (182,367 listings).
   - **2b Additional cleaning (code written, needs a run):** staffing agencies, date consistency, internships and temporary roles, title normalization, multi-location listings. Fix or flag, never drop; counts per step. Check the 2b.1 review cell's flagged companies locally.
