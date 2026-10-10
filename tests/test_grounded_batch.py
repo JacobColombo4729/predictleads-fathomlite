@@ -71,6 +71,28 @@ class BatchTests(unittest.TestCase):
         out = explain_matches(CANDIDATE, [job("a"), job("b")], provider=MockProvider(lambda p: {"jobs": [good_item(p["jobs"][0])]}))
         self.assertEqual(out["jobs"]["b"]["state"], "failed")
 
+    def test_answers_with_changed_or_repeated_ids_are_matched_by_position(self) -> None:
+        def respond(payload):
+            items = [good_item(e) for e in payload["jobs"]]
+            for item in items:
+                item["job_id"] = "same-id-for-everyone"
+            return {"jobs": items}
+        out = explain_matches(CANDIDATE, [job("a"), job("b"), job("c")], provider=MockProvider(respond))
+        self.assertEqual(out["failed"], 0)
+        self.assertTrue(all(r["state"] == "completed" for r in out["jobs"].values()))
+
+    def test_position_matching_still_rejects_lines_from_another_job(self) -> None:
+        def respond(payload):
+            items = [good_item(e) for e in payload["jobs"]]
+            for item in items:
+                item["job_id"] = "x"
+            items[1], items[2] = items[2], items[1]  # answers swapped: each now cites the other job's lines
+            return {"jobs": items}
+        out = explain_matches(CANDIDATE, [job("a"), job("b"), job("c")], provider=MockProvider(respond))
+        self.assertEqual(out["jobs"]["a"]["state"], "completed")
+        self.assertEqual(out["jobs"]["b"]["state"], "failed")
+        self.assertEqual(out["jobs"]["c"]["state"], "failed")
+
     def test_job_without_a_description_is_not_sent(self) -> None:
         seen = {}
         def respond(payload):

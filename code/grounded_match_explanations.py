@@ -7,6 +7,7 @@ MockProvider and deterministic insufficient-evidence results run offline.
 from __future__ import annotations
 
 import json
+import logging
 import os
 import urllib.error
 import urllib.request
@@ -16,6 +17,7 @@ from typing import Any, Protocol
 
 SCHEMA_VERSION = "grounded_match_explanation_v1"
 DEFAULT_MODEL = "gpt-4.1-mini"
+log = logging.getLogger("uvicorn.error")  # shows up in the backend console; only counts and error kinds are logged, never text
 BATCH_TIMEOUT_SECONDS = 300
 BATCH_MAX_OUTPUT_TOKENS = 30000
 MAX_BATCH_JOBS = 20
@@ -115,7 +117,7 @@ Practical next steps should help the candidate verify an unknown, address an exp
 
 _BATCH_PROMPT_ADDENDUM = """
 
-You are given ONE candidate and SEVERAL jobs. Return one result object per job, echoing each job's job_id and the candidate's profile_id exactly, in the same order, and assess every job independently using only that job's own evidence IDs. Keep each result compact so all jobs fit: list at most 8 of the most important qualifications per job (required ones first), at most 3 transferable-experience items and at most 3 next steps, and keep every rationale to one or two short sentences."""
+You are given ONE candidate and SEVERAL jobs (see expected_results). Return exactly expected_results result objects, one per job, in the same order as the jobs, each echoing that job's own job_id and the candidate's profile_id exactly, and assess every job independently using only that job's own evidence IDs. Keep each result compact so all jobs fit: list at most 8 of the most important qualifications per job (required ones first), at most 3 transferable-experience items and at most 3 next steps, and keep every rationale to one or two short sentences."""
 
 _OMIT_KEYS = {
     "profile_id", "job_id", "id", "url", "source_url", "source", "status",
@@ -516,7 +518,7 @@ def explain_matches(
         results[job_id] = {"state": "completed", "assessment": insufficient_result(reason, catalog, profile_id, job_id)}
 
     if sendable:
-        payload = {"candidate": {"profile_id": profile_id, "evidence": candidate_catalog}, "jobs": sendable}
+        payload = {"candidate": {"profile_id": profile_id, "evidence": candidate_catalog}, "expected_results": len(sendable), "jobs": sendable}
         try:
             generated = provider.generate_batch(payload)
         except ProviderFailure:
@@ -528,16 +530,27 @@ def explain_matches(
         returned = generated.get("jobs") if isinstance(generated, Mapping) else None
         if not isinstance(returned, list):
             raise ResponseValidationError("Provider result must be an object with a jobs array")
-        by_id = {str(r.get("job_id")): r for r in returned if isinstance(r, Mapping)}
-        for item in sendable:
+        mappings = [r for r in returned if isinstance(r, Mapping)]
+        ids = [str(r.get("job_id")) for r in mappings]
+        expected = [item["job_id"] for item in sendable]
+        by_id = {i: r for i, r in zip(ids, mappings)}
+        # Match answers to jobs by the echoed job_id when they are all there; otherwise by position, since the model
+        # sometimes changes or repeats the ids. Our own job_id and profile_id are then put in, because only the
+        # evidence references decide whether an answer is trustworthy, and those are still checked line by line.
+        by_position = len(mappings) == len(expected) and set(ids) != set(expected)
+        log.info("gap batch: %d jobs sent, %d answers returned, ids %s", len(expected), len(mappings), "matched by position" if by_position else "matched by id")
+        for index, item in enumerate(sendable):
             job_id = item["job_id"]
-            raw = by_id.get(job_id)
+            raw = mappings[index] if by_position else by_id.get(job_id)
             if raw is None:
+                log.warning("gap batch: no answer for job %d of %d", index + 1, len(expected))
                 results[job_id] = {"state": "failed", "reason": "The AI did not return a result for this job."}
                 continue
+            raw = {**raw, "job_id": job_id, "profile_id": profile_id}
             try:
                 results[job_id] = {"state": "completed", "assessment": validate_response(raw, candidate_catalog, catalogs[job_id], profile_id, job_id)}
-            except ResponseValidationError:
+            except ResponseValidationError as exc:
+                log.warning("gap batch: answer for job %d of %d rejected: %s", index + 1, len(expected), exc)
                 results[job_id] = {"state": "failed", "reason": "The AI's answer for this job did not pass the evidence check, so it is not shown."}
 
     for entry in results.values():
