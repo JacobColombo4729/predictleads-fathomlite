@@ -57,7 +57,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 5. **Conclusion and next steps** (into EDA_SDA_3)
 
 **What the data shows**
-- *To update after the rerun (credentialed math now out of scope).* **The niche: 14,139 computer and mathematical listings** from 6,723 companies (7.6% of 184,889), 3,484 still open. None needed the O*NET-code fallback. The other 170,750 listings are cut, kept only as a summary of 1,008 occupations in 24 groups (1c).
+- **The niche: 14,019 computer and mathematical listings** from 6,685 companies (7.6% of 184,889), 3,458 still open. None needed the O*NET-code fallback. Credentialed math (120 listings: actuaries, mathematicians) is out of scope, and the other 170,750 listings are cut; both are kept only in the summary of 1,008 occupations in 24 groups (1c).
 - **In that summary, computer and mathematical pays the most** (median $66.63 an hour, original listings) but has among the fewest entry-level listings (9%) and signs of openness to career changers (21%). Its median window, 22.5 days, is close to most groups'.
 
 ## 2. Analysis views
@@ -206,13 +206,12 @@ The listing side is `role_bucket(onet_code)` (`ONET_DETAILED_BUCKETS` for detail
 
 **Related groups:** the team's source-background groups are cut with the rest (1d); they live on as rows of the 1c occupation summary (pay, timing, openness) and through O*NET skills and the Career Changers Matrix for role discovery.
 
-*To update after the reruns (IT project management is now its own bucket; credentialed math is out of scope).*
-
 **What the data shows**
-- **Seven buckets get their own analysis and compass paths:** software development (4,572 listings, 473 career changers), networks and systems (2,724; 675), data and analytics (1,739; 238), security (744; 351), IT support (711; 383), database (698; 394) and quality assurance (546; 40, just over the 30 needed).
-- **No bucket supports month × source type:** software development, networks and systems and "other" can be split by month; the rest are analyzed as a whole bucket. Section 3's checks use each bucket's finest deep-enough split.
+- **Eight buckets get their own analysis and compass paths:** software development (4,572 listings, 475 career changers), networks and systems (2,724; 670), IT project management (1,832; 264), data and analytics (1,739; 237), security (744; 350), IT support (711; 383), database (698; 395) and quality assurance (546; 39, just over the 30 needed).
+- **No bucket supports month × source type:** software development and networks and systems can be split by month; the rest are analyzed as a whole bucket. Section 3's checks use each bucket's finest deep-enough split.
 - **IT support is the clearest entry door:** the most entry-level listings (22%) and the fastest closing (median 18.3 days), but by far the lowest pay ($32.23 an hour vs. $61–72 for the others). Quality assurance is next most open (14% entry level).
-- **"Other computer roles" (2,130 listings) is 86% IT project managers (1,832),** half of them manager-level, plus GIS technologists (163), document management (70) and others (65). No resume bucket matches them, so they have no compass paths yet (decision pending). Credentialed math (119 listings) is too small for its own analysis; its listings stay in the table.
+- **IT project management is the hardest to enter:** 2% entry level and 55% manager or leadership listings, with pay tied for highest ($72.32 an hour). Of its 264 career changers, 190 moved in from another tech role, so it's mostly a later move, not a first step; the compass shows it that way.
+- **"Other computer roles" is down to 298 listings** (GIS technologists 163, document management 70, others 65): no matching career switches, so no separate analysis; its listings stay in the table.
 
 ### 3.7 Blind spots from Part 1
 
@@ -285,6 +284,13 @@ Join it by role bucket to Profiles' three path tables, so every path shows its 2
 - **Tech job before → after the move** (4a.3a), with the sideways-or-up split: the compass for moving across or up within tech.
 
 Every path carries its people count, and paths under about 10 people are marked thin. Growth sits next to the entry-level share, since projections cover the whole occupation. Aggregates only; this table feeds the app's Retraining compass and the deck (`DIFFERENTIATORS.md`).
+
+**What the data shows**
+- **The 2026 market by bucket:** software development is the largest (1,175 open at the snapshot, about 174 new a week), then networks and systems (676; 103), IT project management (432; 70) and data and analytics (431; 66); quality assurance (148) and IT support (129) are the smallest. Pay is highest in software and IT project management ($72 an hour) and lowest in IT support ($32).
+- **Openness varies most by bucket:** 44% of IT support listings show a sign of openness to career changers vs. 9% of IT project management; remote work is similar everywhere (17–23%, data and analytics highest).
+- **The strongest paths are within tech:** IT support → networks and systems (279 people), networks and systems → IT support (199), IT support → security (163), developers → databases (142) and → data and analytics (137). From outside tech, the largest are business → networks and systems (31), arts and media → software (30), and computer science → software (75) by training.
+- **Most paths are thin:** 78% of prior-career paths, 67% of training paths and 43% of within-tech paths rest on fewer than 10 people. The compass shows every count and marks thin paths, and `ML_Fit` should fall back to the bucket-level pattern when a user's exact path is thin.
+- **Expected growth is still empty:** it fills once the official occupational projections are downloaded (queued). Saved for `ML_Fit`: `role_market.pkl` (8 buckets) and `compass_paths_2026.pkl` (223 paths).
 
 ## 4. EDA_SDA_2 final table
 
