@@ -88,9 +88,19 @@ All 12 profiles exclude listings whose source status is explicitly `closed` (163
 2. Edit the draft "desired roles" on the two real profiles if they are wrong.
 3. ~~Analyze labels~~ Dropped (no time). The demo ranker is RRF by default and is unvalidated.
 4. ~~Connect the frontend to the backend~~ Done. Still to do: a short end-to-end rehearsal on your own profile, and a deployment or recording plan.
-5. Live test of grounded explanations on your own resumes, only with your explicit agreement to send resume text to the provider and a new budget decision.
+5. ~~Live test of the AI skills gap analysis~~ Done by Jesse 2026-10-10 (works). Still to record: cost and time for 10 and 20 jobs. Anything that sends resume text to a provider still needs consent and a budget decision.
 6. Clean notebook for the final path; demo recording.
-7. Nice to have, decision pending (2026-10-09): per-user "Refine my matches" button trained on a user's own 👍/👎 ratings (plan, thresholds and risks in `roadmap.md`, section 6). Not started; revisit after the core demo and write-up.
+7. Collect ratings: the team uses Discover normally and rates jobs (with a reason on each 👎); then run `python code/feedback_report.py` for the first measured number (share of 👍 in the top 10, and per source for the exploration listings).
+8. Nice to have, decision pending (2026-10-09): per-user "Refine my matches" button trained on a user's own 👍/👎 ratings (plan, thresholds and risks in `roadmap.md`, section 6). Not started; revisit after the core demo and write-up.
+
+## Added 2026-10-10 (the journal, entry 16, has the full list)
+
+| Piece | Where | State |
+|---|---|---|
+| AI skills gap analysis (GenAI feature 2) | `code/grounded_match_explanations.py` (`explain_matches`), `POST /api/v1/profiles/{id}/compass/gap-analysis`, `frontend/src/components/compass/GapSection.tsx`; start the backend with `-Assess` | One request for all picked jobs; every cited line must exist; per-job checks. Live-tested by Jesse, works. |
+| Feedback log and report | `backend/events.py`, hooks in `backend/api.py`, `code/feedback_report.py`, [docs/feedback-data.md](docs/feedback-data.md) | Logging on by default in the demo; opt-in switch for production. Records ranked lists, ratings with rank, saves, Compass runs. |
+| Reasons on 👎 | `frontend/src/components/ReasonPrompt.tsx`, `PUSH_AWAY_REASONS` in `backend/api.py` | Only role-type reasons push the ranker away; "not this company" hides the company. |
+| Exploration on Discover | `RrfRankingBackend.rank(explore=...)`, `explore` in the recommendations request | "Something different" listings where keyword and embedding disagree, plus one random; logged by source. |
 
 ## Run log
 
@@ -99,3 +109,4 @@ All 12 profiles exclude listings whose source status is explicitly `closed` (163
 - 12:21-13:30: GPU embedding (RTX 3070, CUDA build of the same torch version installed under `data/_gpu_libs`, project venv unchanged): text build 1,553 s, encode 2,588 s. Merge step ran out of memory; all 60 chunks had been saved.
 - 14:15-14:27 (after a restart): verified chunks, finished the merge with bounded memory, ranked 12 profiles (TF-IDF fit 359 s on 244,558 jobs), built the review page.
 - 2026-10-09 evening: role-family classifier run (`role_family_classifier_20261009T205400Z`, 94.7% test accuracy, supporting model only). Backend restarted from the ML `.venv` (added fastapi, starlette, httpx there) with the RRF ranker on `ai_ml_serving_v1`; verified with a fictional profile.
+- 2026-10-10: Signals layer, Compass stretch slider, AI skills gap analysis, feedback log, reasons on thumbs-down and exploration built and pushed to `main` (journal entry 16). Start the backend with `.\run_demo_backend.ps1 -ResumeFill -Assess`; the first live gap-analysis run failed on next-step rules and was fixed the same day.
