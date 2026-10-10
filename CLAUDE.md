@@ -1,7 +1,7 @@
 # Project context for Claude Code
 
 ## Project
-- **Project:** role discovery and job listing prioritization for **career changers** (anyone switching from their current background to a different role or field), targeting computer and mathematical roles in the US. Suggest the roles a career changer's skills transfer to, hide listings they can't get, and rank the rest with an ML model. Source backgrounds are the team's own. The career-changer focus is part of the project description. Overview in `PROJECT_OUTLINE.md`.
+- **Project:** role discovery and job listing prioritization for **career changers** (anyone switching from their current background to a different role or field), targeting computer and mathematical roles in the US. Suggest the roles a career changer's skills transfer to, hide listings they can't get, and rank the rest with an ML model. The **retraining compass** is the foundation (`DIFFERENTIATORS.md`): prior career → training → first tech job → that role's 2026 openings, pay, closing speed and expected growth, for changing careers and for moving across or up within tech. Source backgrounds are the team's own. The career-changer focus is part of the project description. Overview in `PROJECT_OUTLINE.md`.
 - **Deliverables:** prioritization model, analysis notebooks, web app (`APPLICATION.md`), final pitch. Deadline: TBD.
 - **Standard:** the TripleTen course templates (`~/Desktop/TripleTen/Templates`) are the baseline for every notebook; go further with advanced methods.
 
@@ -29,6 +29,6 @@ AI tools are allowed for coding, brainstorming, and debugging. **Do not upload o
 - Clear notebook outputs before committing.
 
 ## Before every commit
-- Notebook outputs cleared, including the tagged `data-rows` preview cell.
+- Notebook outputs cleared, including every cell tagged `data-rows` (row previews).
 - Nothing from `data/`, `.env`, credentials or venvs staged; no data values, file paths or bucket names in staged files.
 - Code changes leak nothing from the future into features (see the leakage rules in `HOW_WE_WORK.md`).

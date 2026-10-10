@@ -52,6 +52,10 @@ For a given **career changer** (anyone switching from their current background t
 ### Leakage rules
 
 - **Features may only use what's known when a listing first appears:** its text (including the career-change flags), seniority, source, company, pay, `first_seen_at`, and repost history from *earlier* copies. Never use `last_seen_at`, `status`, days open, or whether a listing is reposted *later* as a feature for predicting timing.
+- **Counts over time use only earlier listings:** company hiring volume and reposts count only listings first seen before the listing (or before the chosen date). Whole-window counts are descriptive only; EDA_SDA_1's company-volume finding (14 vs. 32 days) used them and is rechecked in EDA_SDA_2.
+- **Date picker (as-of date):** a listing is shown on a date if it was first seen on or before it and last seen on or after it. Its features are computed as of that date; `last_seen_at` only decides which listings were live and never feeds a score. The model that scores a date is trained only on what was known by then: listings still open that day are censored at that day. Dates before the test period need a model retrained as of that date.
+- **Career-switch counts during evaluation:** compass and path counts used as features are built from the training people only, so a test person never counts toward their own answer.
+- **Job growth expectations** are published projections, the same for every listing in a role; they come from outside the listing data, so they don't leak listing outcomes.
 - **Never tune on the test period**, and use the test set once, at the end.
 - **Applicant profiles:** each synthetic profile stays in the same fold as the real profile it came from, and final results are reported on real profiles only.
 
@@ -67,7 +71,7 @@ For a given **career changer** (anyone switching from their current background t
 - **English-language listings in the United States, first seen April–September 2026** (decisions and reasons in `docs/decisions.md`).
 - **Applicants are career changers:** anyone switching from their current background to a different role or field. Source backgrounds are the team's own. Listings a career changer can't get are hidden; the model weighs everything else.
 - **Target: computer and mathematical (US).** EDA_SDA_2 splits it into role buckets shared with the career-switch profiles (not one role, since role discovery needs several), keeping buckets with enough data on both sides once unreachable listings are hidden.
-- **Transferable fit and role discovery** learn from real career switches in a public resume dataset (`notebooks/Profiles.ipynb`: 2,539 career changers under rules v8, spot-check in progress). Volunteer profiles, collected with consent once the advisor approves, are a recent test set. Approach: [`docs/fit_analysis.md`](docs/fit_analysis.md).
+- **Transferable fit and role discovery** learn from real career switches in a public resume dataset (`notebooks/Profiles.ipynb`: 2,554 career changers: 706 who retrained from another field and 1,848 who moved between tech roles, sideways or up; spot-check in progress). Volunteer profiles, collected with consent once the advisor approves, are a recent test set. Approach: [`docs/fit_analysis.md`](docs/fit_analysis.md).
 
 **How to describe the machine learning:** survival and time series analysis of listing activity, plus supervised learning (classification, survival and learning-to-rank models) on listing features and text, including career-change accessibility, validated on later months.
 

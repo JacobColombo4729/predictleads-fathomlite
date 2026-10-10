@@ -34,7 +34,7 @@ Each notebook hands its final table to the next. The TripleTen course templates 
 
 | Finding | Evidence | What it means for a career changer |
 |:--|:--|:--|
-| **Company hiring volume is the strongest signal** | Listings at companies with 20+ openings close in a median **14 days** vs. **32** for one-off listings | High-volume employers' listings need action first |
+| **Company hiring volume is the strongest signal** (to recheck) | Listings at companies with 20+ openings close in a median **14 days** vs. **32** for one-off listings. Volume here counts all six months, including later listings; EDA_SDA_2 rechecks it with earlier listings only | High-volume employers' listings need action first |
 | **The window is short** | **28%** of listings are gone within a week; the median within about **22 days** | Apply before feeling fully qualified |
 | **Source matters** | **15–19 days** (SmartRecruiters, LinkedIn, company sites) vs. **28–37** on several platforms | Source adjusts urgency |
 | **Some listing traits carry signal; keyword flags don't** | Disclosed pay, long descriptions and hiring platforms: **11–16 points** more still open after a week; urgency and remote wording: **no gap** | Model the traits; test richer NLP than keyword flags |
@@ -258,7 +258,7 @@ Which hiring platforms, job boards or company sites host listings, and whether a
 Whether a few companies post most listings (a short watch list for an applicant), and whether listings from high-volume companies close faster or slower.
 
 **What the data shows**
-- **The strongest single signal:** listings from companies with 20+ openings stay open a median 14 days vs. 32 for one-off listings.
+- **The strongest single signal:** listings from companies with 20+ openings stay open a median 14 days vs. 32 for one-off listings. **Descriptive only:** volume counts each company's listings over all six months, including ones posted later, so EDA_SDA_2 rechecks the gap with volume counted from earlier listings only (the way the model will see it) before it's used as a finding.
 - **High-volume employers post 42% of all listings;** in every group the top 10% of companies post 39–60% (healthcare practitioners is the most concentrated).
 - **Watching about 300–1,100 companies per group** (those with 5+ listings) covers a large share of openings. Reposts are more common there too (3% vs. 1%).
 
@@ -339,7 +339,7 @@ Fields the project may use later: language (for an English-only corpus), status 
 
 | Factor | Evidence | Verdict |
 |---|---|---|
-| Competition: company hiring volume | 14 vs. 32 median days open (20+ openings vs. one-off); these companies post 42% of listings | **Strongest factor:** model it first |
+| Competition: company hiring volume | 14 vs. 32 median days open (20+ openings vs. one-off); these companies post 42% of listings | **Strongest factor** (whole-window count; rechecked in EDA_SDA_2): model it first |
 | Source | 15 (SmartRecruiters), 17 (LinkedIn), 19 (company sites) to 37 (BambooHR) median days; 66% vs. 82–89% open after a week | **Strong:** model it with company volume, since the two overlap |
 | Still open / apply-by | 28% gone in 7 days, median about 22 days; 22–34% in the first week by group | **Strong:** the basis for apply-by estimates; group-specific |
 | Employer intent (text) | Long descriptions go with longer windows (81% vs. 69% open at 7 days); urgency and remote wording show no gap | **Mixed:** test description length and richer NLP; keyword flags alone carry little |

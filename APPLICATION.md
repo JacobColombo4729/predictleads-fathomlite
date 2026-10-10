@@ -11,7 +11,7 @@
 
 A career changer has limited time, a limited number of applications, and a background most listings in their new field don't ask for. The app shows them **where an application is most worth spending**: live postings in the field they're moving into, in a searchable list, ranked by a priority model we tune ourselves, with the reasons shown. Every listing answers two questions: **can I realistically get it** (how open it is to someone new to the field, and which of their skills carry over) and **is it worth applying now**.
 
-**The user** is a career changer (anyone switching from their current background to a different role or field) moving into computer and mathematical roles, from one of the team's backgrounds: a teammate with their own profile, or a synthetic career changer. The app does two things: **role discovery** (which roles fit them) and the **priority queue** (which listings in those roles to apply to first). Listings they can't get are hidden.
+**The user** is a career changer (anyone switching from their current background to a different role or field) moving into computer and mathematical roles, from one of the team's backgrounds, or a teammate with their own profile. The app does two things, with the **retraining compass** at the center: **role discovery** (which roles fit them, which paths lead there, and what to build next) and the **priority queue** (which listings in those roles to apply to first). Listings they can't get are hidden. Someone already in tech or math gets the same tools for **moving up the career ladder** into a different role.
 
 The priority model isn't guesswork. It's built from the full analysis, starting with the EDA in `notebooks/EDA_SDA_1.ipynb`. Every number the app shows (openness to career changers, apply-by date, chance still open, transferable fit, competition, pay) comes from a target we studied and validated there.
 
@@ -23,7 +23,8 @@ The core of the app is the **priority queue**: listings ranked for this career c
 | Career-change accessibility | Listings a career changer can't get are hidden; the rest show what they ask of a newcomer: years asked, degree or equivalent experience, training offered |
 | Still open / apply-by | An estimated apply-by date on every listing, and an apply-by filter |
 | Source and arrival cadence | Check schedule: which sources and companies to watch, and how often; alerts for new listings |
-| Seasonal context | Market panel: is this a busy or quiet month for the field, compared with a normal year |
+| Job growth expectations | Expected growth of each role (time frame to be decided), shown in role discovery and the compass |
+| Listing activity over time | A date picker: the queue as it stood on any date in the data |
 
 ---
 
@@ -31,6 +32,7 @@ The core of the app is the **priority queue**: listings ranked for this career c
 
 ### List view (home)
 
+- **Date picker ("as of"):** shows the queue as it stood on a chosen date, for example June 1 vs. August 1, 2026. See [Pick a date](#pick-a-date-as-of-view).
 - **Live search:** the list narrows with every letter typed. It matches titles, companies and, optionally, description text.
 - **Sort:** priority (default), openness to career changers, apply-by date, transferable fit, pay, freshness.
 - **Filters:** they combine, and each one shows how many postings match:
@@ -76,9 +78,39 @@ Opens full screen on tap or click:
 
 ### Retraining compass
 
+- **Two uses:** changing careers (retraining into a new field) and **moving up** (training that helps someone reach senior or manager roles in their own field, for example a master's or a certification before a senior or lead role).
+- Starts from the user's **prior career**: where people from that career landed (Profiles 4a.2b).
 - For the user's background, lists the **training options** people like them took (degrees, certificates, bootcamps), grouped by field.
-- For each one: the **tech roles it led to** (from real career switches, with how many people), and for each role its **2026 openings, median pay and how fast listings close**.
-- Picking a role sets what the priority queue ranks. Worded as "people like you got there through this training", never "this training gets you hired".
+- For each one: the **tech roles it led to** (from real career switches, with how many people), and for each role its **2026 openings, median pay, how fast listings close and its expected job growth**.
+- Picking a role sets what the priority queue ranks. Worded as "people like you got there through this training", never "this training gets you hired" or "your odds are X%": the resumes show only people who made a switch.
+- **Every path shows how many people it rests on** ("based on N people"); paths under about 10 people are marked as thin.
+- **Job growth carries a caveat:** it's for the whole occupation, so it sits next to the role's entry-level share from our listings.
+- **Questions about which path to take**, answered from the resume data (the Coach agent explains them):
+  - Should I retrain for the role directly, or take a first tech role and move from there? (Data and analytics: 216 career changers moved in from another tech role, only 22 retrained straight into it.)
+  - Which training led people like me to this role, and how many people is that based on?
+  - How long did it take? (People who retrained after working took a median of 14 months from their last old-field job to their first tech job.)
+- **Compass ideas** (from the team meeting; to try, not decided). Every number is labelled an estimate, worded as "people like you" and "expected", never a promise, and the résumé stays local:
+  - **"Based on your current résumé, we think you should build these skills":** skills that listings in the suggested roles ask for and the résumé doesn't show (listing text from EDA_SDA_3, O*NET skills), most-asked first.
+  - **"Here's what your career options could look like down the line":** the roles people with a similar background reached, and how long it took them (Profiles), with each role's 2026 openings.
+  - **"Here's your salary increase":** median 2026 listing pay in each option vs. the user's current role (from listings in their current occupation, or a salary they enter).
+  - **"Here's the job growth we expect in your career":** expected employment growth (%) for each option.
+  - **Stepping-stone roles:** a role that bridges two functions on the way to a bigger move (for example engineer → pre-sales engineer → director, picking up business experience). The resume rules already record the level at the switch (senior, manager or above), so the compass can show which roles people passed through.
+
+### Moving across and up (already in tech or math)
+
+- For a user already in a computer and mathematical role: the **roles people in that role moved into** (1,848 people in the resumes changed role buckets within tech after at least 12 months), with how many people, and each role's 2026 openings, pay, closing speed and expected growth.
+- Examples from the data: IT support → networks and systems or security; developers → databases or data and analytics.
+- Each move shows whether people moved sideways or up (into a senior or manager role), from Profiles 4a.3.
+- Picking a role sets what the priority queue ranks, like role discovery.
+
+### Pick a date (as-of view)
+
+- The user picks a date; the queue shows the listings **live on that day** and ranks them with **only what was known that day**. Comparing June with August shows how the best options change.
+- **What the dates mean:** `first_seen_at` is the first day PredictLeads' crawler found a listing (a median of 1.5 days after the employer posted it); `last_seen_at` is the last day the crawler still found it. A listing is live on a date when it was first seen on or before it and last seen on or after it.
+- **No hindsight in the scores:** listing age is counted up to the chosen date; reposts and company hiring volume only from listings first seen before it; and `last_seen_at` only decides which listings were live, never a score.
+- **No hindsight in the model:** the model that scores a date is trained only on what was known by that date; a listing still open on that date counts as still open in training, even though we later know when it closed. The simple version for the demo offers only dates in the test period (September), which the main model never learned from; any earlier date needs a model retrained as of that date.
+- **A built-in check:** for past dates we know which listings actually closed and when, so the app can show how good its apply-by estimates were.
+- Dates before June miss long-open listings first seen before 2026-03-30 (the data's six-month window).
 
 ### Background profile (for transferable fit)
 
@@ -89,7 +121,7 @@ Opens full screen on tap or click:
 
 ### Market panel and check schedule
 
-- **Market:** this month's new-posting volume for the field vs. its usual level, with the seasonal outlook.
+- **Market:** this month's new-posting volume for the field, and each role's expected job growth.
 - **Check schedule:** "check Greenhouse and these 5 companies every 3 days," based on how fast new listings arrive and close.
 
 ---
@@ -105,7 +137,7 @@ The priority score ranks postings by how much an application is worth. It combin
 | **Career-change accessibility** | How open the posting is to someone new to the field | Seniority and listing text: years required, degree or equivalent experience, training, career-changer wording |
 | **Transferable fit** | How well the skills from the user's old field match the posting | TF-IDF or local embeddings, with O*NET skills |
 | **Competition** | Lower is better | Reposts, company hiring volume, similar open postings, external market tightness |
-| **Pay** | Annual salary, where disclosed | Cleaned salary data, compared with market benchmarks |
+| **Pay** | Annual salary, where disclosed | Cleaned salary data, compared with listings in the same role |
 | **Freshness** | Days since first seen | `first_seen_at` |
 
 **How it's tuned:** the analysis decides which factors carry real signal and how strongly. The weights start from those findings and are checked against a newest-first baseline on a later time period. Users can adjust the weights with sliders, for example "reachability matters more to me than pay."
@@ -132,7 +164,7 @@ Each MCP server wraps one capability we build anyway: postings, timing, fit, mar
 | `timing` | Chance still open; apply-by date; check schedule | Our survival and arrival models |
 | `fit` | Suggest roles from a background profile; score it against postings; explain which skills transfer; list gaps | Local TF-IDF or embeddings, O*NET skills |
 | `priority` | Score and rank postings with the tuned model and the user's weights | Outputs of `timing`, `fit` and competition signals |
-| `market` | Seasonal outlook; wage benchmarks; market tightness | External public data |
+| `market` | Job growth expectations by role; listing volume by month | Job growth expectations; our listings |
 | `tracker` | Star, set status, list starred postings, reminders | The user's own data |
 
 ### Agents
@@ -142,7 +174,7 @@ Each MCP server wraps one capability we build anyway: postings, timing, fit, mar
 | **Background** | Reads the career changer's profile and extracts past roles, skills and target fields | `fit` |
 | **Scout** | Follows the check schedule and finds new postings that match the user | `postings`, `timing` |
 | **Ranker** | Scores and ranks postings into the priority queue | `priority`, `timing`, `fit` |
-| **Coach** | Explains the queue, the retraining compass and the strategy in plain language; turns questions into filters ("what should I apply to this week?") | All, read-only |
+| **Coach** | Explains the queue, the retraining compass and the strategy in plain language; answers questions about which path to take; turns questions into filters ("what should I apply to this week?") | All, read-only |
 | **Bridge** | Compares the career changer's profile with a posting's requirements, and suggests what to emphasize from their old field and what to learn | `fit` |
 | **Reminder** | Flags starred postings whose apply-by date is close, and new high-priority matches | `tracker`, `timing` |
 | **Orchestrator** | Decides which agent runs when, and combines their answers | All |
@@ -166,11 +198,8 @@ All public. Each would need its terms of use checked.
 
 | Dataset | What it adds | Used in |
 |---|---|---|
-| BLS JOLTS (job openings, hires, quits) | National hiring seasonality and openings per hire, a measure of competition | Market panel, competition, and a check on our own seasonal findings |
-| BLS Occupational Employment and Wage Statistics | Wage benchmarks by occupation and area | Pay vs. market in the priority score |
-| O*NET skills, abilities and related occupations | The skills each occupation needs, and which occupations are close | Transferable fit; suggesting target fields from a background; gap explanations |
-| BLS unemployment by occupation or industry | How many job seekers compete for the same roles | Competition |
-| Public holiday and fiscal calendars | Explains seasonal dips and spikes | Market panel |
+| Job growth expectations (official occupational employment projections, e.g. BLS) | Expected employment growth by occupation; published for 10 years and converted to the time frame we choose at the same yearly rate | Role discovery, retraining compass, market panel. Joins directly on occupation code |
+| O*NET skills, abilities and related occupations | The skills each occupation needs, and which occupations are close | Transferable fit; suggesting target fields from a background; skills to build (compass) |
 
 ---
 
@@ -180,11 +209,11 @@ Each stage is usable on its own, so we always have something to demo.
 
 | Stage | What | Depends on |
 |---|---|---|
-| **1. MVP** | List view with live search, sort and filters; detail view with apply link; stars and Starred tab; unreachable listings hidden, with what each listing asks of a newcomer; apply-by, chance still open, pay, freshness | Still open / apply-by and the EDA's chosen factors |
-| **2. Transferable fit and role discovery** | Background profile; suggested roles; retraining compass; transferable-fit score and filter; skills that carry over, and gaps | TF-IDF or local embeddings; O*NET skills |
+| **1. MVP** | List view with live search, sort and filters; date picker; detail view with apply link; stars and Starred tab; unreachable listings hidden, with what each listing asks of a newcomer; apply-by, chance still open, pay, freshness | Still open / apply-by and the EDA's chosen factors |
+| **2. Transferable fit and role discovery** | Background profile; suggested roles; retraining compass; compass ideas; moving across and up within tech; job growth expectations; transferable-fit score and filter; skills that carry over, and gaps | TF-IDF or local embeddings; O*NET skills; job growth expectations |
 | **3. Priority model** | Tuned priority score with adjustable weights | Full analysis |
 | **4. Agents** | MCP servers, then the agents, starting with Ranker, Coach and Reminder | Stages 1–3; the advisors' answer |
-| **5. External data** | Market panel, wage benchmarks, market tightness | Stage 1 |
+| **5. Market panel** | Listing volume by month, with each role's expected growth | Stage 1 |
 
 ---
 
@@ -207,7 +236,8 @@ Each stage is usable on its own, so we always have something to demo.
 - **Course requirements:** what's required for the web app and the multi-agent part (rubric, must-haves), or is it open-ended?
 - **Agent ambition:** are agents the centerpiece of the app, or a layer on top of a solid queue? This decides how much of week 3 goes to them.
 - **Team split:** who is best suited to own the app (front end, MCP servers), so the analysis isn't starved?
-- **Queue fields:** is anything missing, such as a skills-gap column, salary vs. market benchmark, or company information?
+- **Queue fields:** is anything missing, such as a skills-gap column or company information?
+- **Time frames:** how far ahead the compass looks for career options and job growth (not decided yet).
 - **Advisors:** may an agent backed by an outside LLM see posting text, or only aggregates and model outputs?
 - **External data:** which datasets are allowed, and do we need permission to combine them with PredictLeads data?
 - **Hosting:** does the app need to be hosted, or is a local demo enough?

@@ -1,17 +1,16 @@
 """Find career changers into computer and mathematical roles in the public structured resume dataset
 (Kaggle: suriyaganesh/resume-dataset-structured, MIT license, version 2 of 2024-11-14).
 
-Nobody who reached a computer and mathematical job is thrown away (rules version 6): each person gets labels (origin,
+Nobody who reached a computer and mathematical job is thrown away: each person gets labels (origin,
 retrained, first_level, roles_reached), and `status` names the main one. Career changers are a view: the "candidate: ..." statuses,
 in three pools: retrained after working in another field, retrained as a new grad from another field (another-field
-origin, then a tech or math program, then the tech job), and changed roles within tech (rules version 8).
+origin, then a tech or math program, then the tech job), and changed roles within tech.
 
 Each person's resume is read as one timeline: jobs and education in date order, each labelled tech/math, other field,
 unclear, or skip. Their original background is everything before their first tech or math entry. They're a career
 changer if that background includes another field, however they got into tech (changed jobs, new grad, or retrained).
 
-Every rule lives in RULES, so each review round changes one place. Bump RULES_VERSION whenever a rule changes,
-and record the change in the rules log in notebooks/Profiles.ipynb. Nothing here prints rows.
+Every rule lives in RULES, so each review round changes one place. Nothing here prints rows.
 """
 import hashlib
 import re
@@ -19,7 +18,6 @@ import re
 import numpy as np
 import pandas as pd
 
-RULES_VERSION = 8
 
 RULES = {
     # "Present" / "Current" end dates mean the month the dataset was last updated
@@ -86,20 +84,6 @@ RULES = {
     "min_months_in_first_bucket": 12,
 }
 
-REASONS = {  # review reason codes; "good" means a real career change into a computer and mathematical role
-    "good": "A real career change into a computer and mathematical role",
-    "not_a_switch": "Same kind of work under a new title",
-    "already_in_tech": "The background was already tech work",
-    "student_or_intern": "The background is school, an internship or volunteering",
-    "wrong_target": "The new role isn't really computer and mathematical",
-    "too_senior": "The new role is too senior for a newcomer",
-    "studied_tech": "Their original background was tech or math study, so it isn't a change of background",
-    "field_unclear": "Can't tell what they studied",
-    "garbled": "OCR or extraction errors make it unreadable",
-    "dates_wrong": "Dates are missing, impossible or out of order",
-    "other": "Anything else (explain in the note)",
-}
-
 _MONTH = re.compile(r"^\s*(\d{1,2})\s*[/-]\s*(\d{4})\s*/?\s*$")             # 06/2015
 _MONTH_YY = re.compile(r"^\s*(\d{1,2})\s*[/-]\s*(\d{2})\s*/?\s*$")         # 06/15 (month / 2-digit year)
 _YEAR_MONTH = re.compile(r"^\s*(\d{4})\s*[/-]\s*(\d{1,2})\s*/?\s*$")       # 2015/06, 2015/06/
@@ -123,7 +107,8 @@ def _year(two_or_four, as_of):
 
 def parse_month(value, as_of):
     """A start or end date to a monthly Period; 'Present' and similar to as_of; anything unreadable to NaT.
-    Reads MM/YYYY, MM/YY, YYYY/MM, MM/DD/YYYY, YYYY, and month names ("June 2015"). A month above 12 stays unreadable."""
+    Reads MM/YYYY, MM/YY, YYYY/MM, MM/DD/YYYY, YYYY, and month names ("June 2015"). An impossible month after a 4-digit
+    year keeps the year; elsewhere it stays unreadable (a first number above 12 can't be a month)."""
     if not isinstance(value, str):
         return pd.NaT
     if _NOW.match(value):
@@ -133,6 +118,8 @@ def parse_month(value, as_of):
         if m:
             month = int(m.group(month_group))
             if not 1 <= month <= 12:
+                if pattern is _YEAR_MONTH:  # "2015/00", "2015/13": keep the year, as for a bare year
+                    return pd.Period(year=int(m.group(1)), month=1, freq="M")
                 return pd.NaT
             return pd.Period(year=_year(m.group(year_group), as_of), month=month, freq="M")
     m = _YEAR.match(value)
@@ -216,10 +203,10 @@ def person_timeline(jobs_p, edu_p, switch, rules=RULES):
 def _one_person(g, edu, rules):
     """Labels for one person. Everyone who reached a computer and mathematical job gets every label; `status` is the
     main one, so tables can count people by it. Career changers have a 'candidate: retrained ...' status."""
-    out = {"status": None, "origin": None, "origin_type": None, "first_level": None, "roles_reached": None, "from_bucket": None,
+    out = {"status": None, "origin": None, "origin_type": None, "first_level": None, "from_level": None, "roles_reached": None, "from_bucket": None,
            "reached_data": False, "switch_month": pd.NaT, "target_title": None, "target_bucket": None,
            "source_title": None, "last_source_title": None, "source_study": None, "retrained": False,
-           "retrain_study": None, "study_undated": False, "background_months": 0, "gap_months": np.nan,
+           "retrain_study": None, "study_undated": False, "study_level_before": np.nan, "background_months": 0, "gap_months": np.nan,
            "n_jobs": int(g.start.notna().sum()), "n_jobs_before": 0}
     g = g.dropna(subset=["start"]).sort_values("start")
     if g.empty:
@@ -237,6 +224,9 @@ def _one_person(g, edu, rules):
     before = tl[tl.key < first.start.ordinal]
     out["n_jobs_before"] = int((before.kind == "job").sum())
     out["study_undated"] = bool(((before.kind == "study") & ~before.dated).any())
+    studies = before[before.kind == "study"]
+    out["study_level_before"] = max((0 if lab == "skip" else _study_level(txt, rules) for txt, lab in zip(studies.text, studies.label)),
+                                    default=np.nan)  # 0 high school, 1 associate, 2 bachelor's, 3 master's or certificate, 4 doctorate
     tech_keys = before.key[before.label == "tech"]
     first_tech = tech_keys.min() if len(tech_keys) else float(first.start.ordinal)
     origin = before[(before.key < first_tech) & (before.label != "skip")]
@@ -304,6 +294,8 @@ def _within_tech(out, cm, rules):
     return {**out, "status": "candidate: changed roles within tech", "from_bucket": first_bucket,
             "switch_month": new.start, "target_title": new.title, "target_bucket": new.cm_bucket,
             "first_level": "manager or above" if new.manager_plus else "senior" if new.senior else "other",
+            # highest level held in the first role, so moves can be split into sideways and up (descriptive only)
+            "from_level": "manager or above" if earlier.manager_plus.any() else "senior" if earlier.senior.any() else "other",
             "background_months": months, "source_title": earlier.title.iloc[int(np.argmax([_months(s, e) for s, e in zip(earlier.start, ends)]))],
             "last_source_title": earlier.title.iloc[-1]}
 
@@ -324,7 +316,6 @@ def find_switches(jobs, education=None, rules=RULES):
     out.index.name = "person_id"
     out["retrain_field"] = out.retrain_study.map(training_field)
     out["switch_period"] = out.switch_month.map(switch_period)
-    out["rules_version"] = RULES_VERSION
     return out
 
 
@@ -380,22 +371,26 @@ def role_bucket(onet_code):
 
 
 # Broad areas for describing where career changers come from (analysis only: changing these never changes who is a
-# candidate, so no RULES_VERSION bump). Applied to the main background job title, or the field studied. First match wins.
+# candidate). Applied to the main background job title, or the field studied. First match wins.
 BACKGROUND_AREAS = {
+    "self-employed and small business": r"\bowner\b|self[- ]employed|freelanc|entrepreneur|\bfounder\b",
+    "legal": r"\blaw\b|\blegal\b|attorney|lawyer|paralegal|\bllb\b|\bjuris",
     "customer service and support": r"customer (?:service|support|care|success)|call cent|client (?:service|support)|help line",
     "education": r"teach|tutor|instructor|professor|educat|school|lecturer|curriculum",
     "healthcare": r"nurs|medical|health|clinic|pharma|patient|dental|therap|caregiver|physician|hospital",
     "food and hospitality": r"server|barista|cook|chef|restaurant|hospitality|hotel|bartend|food|waiter|waitress|kitchen",
     "sales and retail": r"sales|retail|cashier|store|merchandis|account executive|shop",
-    "finance and accounting": r"account|financ|bank|audit|tax|bookkeep|econom|insurance|actuar|loan|credit",
+    "finance and accounting": r"account|financ|bank|audit|tax|bookkeep|econom|insurance|actuar|loan|credit|commerce|\bb\.?\s?com\b|\bca\b|chartered",
     "administration and office": r"admin|office|clerk|reception|secretar|assistant|data entry|coordinator",
+    "agriculture and environment": r"agricultur|farm|forestry|horticult|veterinar|fisher",
     "business, marketing and management": r"business|marketing|manag|operations|mba|project|consult|human resources|\bhr\b|recruit",
     "science and research": r"research|scientist|lab|physics|chemi|biolog|geolog|environment",
     "engineering (not software)": r"engineer|mechanical|civil|industrial|architect|drafting",
+    "humanities and social sciences": r"english|history|philosoph|psycholog|sociolog|politic|literature|language|anthropolog|social|humanities|liberal arts|geograph",
     "arts, media and communications": r"design|\bart|music|writ|journalis|media|communicat|editor|photograph|film|graphic",
-    "humanities and social sciences": r"english|history|philosoph|psycholog|sociolog|politic|literature|language|anthropolog|social",
     "military and public service": r"army|navy|military|air force|marine|police|government|public|officer|security guard",
     "logistics and trades": r"warehouse|driver|logistic|supply|mechanic|electrician|construction|technician|maintenance|install",
+    "manufacturing and production": r"manufactur|production|assembl|operator|machin|factory|plant|quality control",
 }
 
 
@@ -430,6 +425,29 @@ def training_field(text):
     return next((f for f, pattern in TRAINING_FIELDS.items() if re.search(pattern, low)), "other tech or math")
 
 
+# One order for training fields and tech roles, from infrastructure to code to data, so related fields and roles sit
+# near each other and the people in path tables form a band down the diagonal.
+ROLE_ORDER = ["it support", "networks and systems", "security", "database", "software development", "quality assurance",
+              "data and analytics"]
+FIELD_ORDER = ["networking", "cybersecurity", "information technology and systems", "computer engineering and electronics",
+               "computer applications (BCA / MCA)", "computer science", "software and web development",
+               "data science and analytics", "mathematics and statistics", "tech degree, field not named"]
+
+
+def path_table(df, row, col, row_order, row_label, col_label, total_label):
+    """Where people went: % of everyone in df (one decimal, 0 where nobody did) by row × col, both in the given
+    order; every role is a column, a `people` column gives each row's size and a total row each column's share."""
+    counts = pd.crosstab(df[row], df[col])
+    rows = [r for r in row_order if r in counts.index] + [r for r in counts.index if r not in row_order]
+    cols = ROLE_ORDER + [c for c in counts.columns if c not in ROLE_ORDER]
+    counts = counts.reindex(index=rows, columns=cols, fill_value=0)
+    n = int(counts.values.sum())
+    table = (100 * counts / n).round(1)
+    table.loc[total_label] = (100 * counts.sum() / n).round(1)
+    table["people"] = counts.sum(axis=1).tolist() + [n]
+    return table.rename_axis(index=row_label, columns=col_label)
+
+
 SWITCH_PERIODS = [(1999, "before 2000"), (2004, "2000-2004"), (2009, "2005-2009"), (2014, "2010-2014"), (2019, "2015-2019")]
 
 
@@ -454,15 +472,3 @@ def fingerprints(experience, education=None):
     items = items[items.person_id.isin(experience.person_id)]
     joined = items.groupby("person_id").item.agg(lambda v: "\n".join(sorted(v)))
     return joined.map(lambda s: hashlib.md5(s.encode()).hexdigest())
-
-
-def review_summary(reviews):
-    """Counts and precision from review files: aggregates only, safe to share. Notes are never included."""
-    r = reviews.assign(good=reviews.verdict.eq("good"), bad=reviews.verdict.eq("bad"))
-    by = r.groupby(["round", "rules_version", "pool"]).agg(
-        reviewed=("verdict", lambda v: v.isin(["good", "bad", "unsure"]).sum()),
-        good=("good", "sum"), bad=("bad", "sum"), unsure=("verdict", lambda v: v.eq("unsure").sum()))
-    by["precision"] = (by.good / (by.good + by.bad)).round(2)
-    reasons = (r[r.verdict.eq("bad")].groupby(["round", "pool"]).reason.value_counts()
-               .rename("bad candidates").reset_index())
-    return by, reasons

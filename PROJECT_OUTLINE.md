@@ -25,8 +25,10 @@ We can't see applications or hires, so the ranking rests on what PredictLeads' d
 ## What makes this different
 
 - **Paths real people took:** which training led people like the user into which tech roles, learned from real career switches.
-- **A retraining compass:** training → the roles it led to → each role's 2026 openings, pay and closing speed.
+- **A retraining compass (the foundation):** prior career → the training people took → their first tech job → that role's 2026 openings, pay, closing speed and expected job growth. It serves two moves: **changing careers** (retraining into a new field) and **moving up** (training to reach senior or manager roles in the user's own field). Ideas to try: skills to build from the user's résumé, career options down the line, the pay increase, and stepping-stone roles.
+- **Moving across tech roles:** people already in tech or math who moved into a different role (1,848 in the resumes, for example IT support → networks or security, developers → databases or data), so the tool also serves someone changing direction within tech. Moving *up* (to senior or manager roles) is counted separately in Profiles 4a.3.
 - **How fast to move:** an apply-by estimate on every listing; and listings a career changer can't get are hidden.
+- **Pick a date:** the priority list as it stood on any date in the data (for example June vs. August 2026), to show how the best options change over time.
 
 Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
 
@@ -35,21 +37,22 @@ Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
 - **Source:** PredictLeads job openings and companies datasets, snapshot of 2026-09-30.
 - **Analyzed so far:** 200,000 job listings from 51,006 companies, first seen 2026-03-30 to 2026-09-30.
 - **Analysis table after cleaning and scoping:** 182,367 English-language listings from 46,810 companies, April–September 2026 (US, plus flagged listings with no country); 41,825 still open at the snapshot.
-- **Career switches:** the public Kaggle structured resume dataset (MIT license): 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; 99.7% with readable job dates) → **2,539 career changers** under rules version 8: 1,836 changed roles within tech, 364 retrained after working in another field, 339 retrained as new grads from another field. Career paths from real switches spanning two decades; the 2026 listings supply today's openings, pay and timing. Built in `notebooks/Profiles.ipynb`.
+- **Career switches:** the public Kaggle structured resume dataset (MIT license): 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; almost all with readable job dates) → **2,554 career changers**: 1,848 changed roles within tech, 369 retrained after working in another field, 337 retrained as new grads from another field. Career paths from real switches spanning two decades; the 2026 listings supply today's openings, pay and timing. Built in `notebooks/Profiles.ipynb`.
+- **Job growth expectations:** expected employment growth by occupation, from official occupational projections (time frame to be decided). They're published by occupation code, so they plug straight into the O*NET codes on listings and role buckets.
 - **Data handling:** stays local; nothing is shared with outside AI services; only aggregates are reported.
 
 ## What we've found so far
 
 | Finding | Evidence | What it means for a career changer |
 |:--|:--|:--|
-| **Company hiring volume is the strongest signal** | Listings at companies with 20+ openings close in a median **14 days**, vs. **32** for one-off listings | Listings from high-volume employers need fast action |
+| **Company hiring volume is the strongest signal** (being rechecked) | Listings at companies with 20+ openings close in a median **14 days**, vs. **32** for one-off listings. Volume was counted over all six months, which includes later listings; EDA_SDA_2 rechecks it with earlier listings only | Listings from high-volume employers need fast action |
 | **The application window is short** | **28%** of listings are gone within a week; the median within about **22 days** | "Still open / apply-by" is a core factor |
 | **Source matters** | Company sites and LinkedIn: **17–19 days**; several hiring platforms: **28–37 days** | Source adjusts urgency |
 | **Some listing traits carry signal; keyword flags don't** | Disclosed pay, long descriptions and hiring platforms: 11–16 points more still open after a week; urgency and remote wording: no gap | Model the traits; test richer NLP |
 | **Factors differ by field** | Remote **2–35%**, reposts **0.9–9%**, median pay **$38k–$137.5k** by occupation group | Build the model for one target field |
 | **The best-paid field is the hardest to enter** | Computer and mathematical: **9%** junior, **77%** mid/senior; sales and food preparation are junior-heavy but pay less | We target it anyway (pay, text, the team's backgrounds) and hide what a career changer can't get |
 | **How open listings are to career changers** | Entry level ranges from **3%** (management) to **70%** (food preparation); **22%** of computer and mathematical listings show any sign of openness | Becomes its own ranking factor |
-| **Real career switches exist in public resumes** | 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; 99.7% with readable job dates) → **2,539 career changers** under rules version 8: 1,836 changed roles within tech, 364 retrained after working in another field, 339 retrained as new grads from another field | Training data for role discovery and fit. Tighter rules (version 5) and a spot-check are in progress |
+| **Real career switches exist in public resumes** | 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; almost all with readable job dates) → **2,554 career changers**: 1,848 changed roles within tech, 369 retrained after working in another field, 337 retrained as new grads from another field | Training data for role discovery and fit. A spot-check of the rules is in progress |
 
 The listing itself matters more than the job title: two listings in the same field can differ more than two different fields do.
 
@@ -66,6 +69,7 @@ The listing itself matters more than the job title: two listings in the same fie
 | Employer intent | Listing text: urgency, remote, description length, evergreen wording |
 | Source | Hiring platform, job board, or company site |
 | Occupation group | O*NET occupation group; also for showing related jobs |
+| Job growth expected | Expected employment growth for the listing's role. The same for every listing in a role, so it ranks roles (role discovery, compass) more than listings |
 | Transferable fit | Listing text vs. the career changer's profile, with O*NET skills connecting the old and new occupations (learned from real career switches in `Profiles.ipynb`; volunteer profiles later as a recent test set) |
 
 ## How we're doing it: six notebooks
@@ -80,7 +84,7 @@ Each notebook answers one question and hands its final table to the next. The Tr
 | 4 | **EDA_SDA_4** | Which features hold up? | Pearson + Spearman correlation, multicollinearity (VIF), hypothesis tests with effect sizes, confounding and company-clustering checks, competing risks | Planned |
 | 5 | **TimeSeries** | When do listings appear and close? | Decomposition, stationarity tests, lag features, ARIMA / SARIMA, survival by month | Planned |
 | 6 | **ML** | Which roles fit a career changer, and how should listings be ranked? | Baselines; logistic regression, random forest, LightGBM, CatBoost, XGBoost; survival and learning-to-rank models; ROC-AUC, C-index, NDCG; SHAP explanations | Planned |
-| side | **Profiles** | Who really retrained into tech or math? | Public resume dataset; duplicate removal; whole-timeline rules (`src/career_switch.py`); random spot-checks | **Built**; rules v6 (labels everyone, career changers are a view); spot-check in progress |
+| side | **Profiles** | Who really changed into or within tech or math, and how? | Public resume dataset; duplicate removal; whole-timeline rules (`src/career_switch.py`); random spot-checks | **Built**; labels everyone, career changers are a view; spot-check in progress |
 
 ## Key decisions so far
 
@@ -94,7 +98,9 @@ Each notebook answers one question and hands its final table to the next. The Tr
 - **Target: computer and mathematical (US),** for its pay, remote share, rich text and the team's backgrounds. Only 9% of its listings are junior, so listings a career changer can't get are hidden. EDA_SDA_2 splits it into role buckets (data and analytics, IT support, software development, …) aligned with the career-switch profiles, and drops only buckets too thin on both sides.
 - **Source backgrounds: the team's own.**
 - **Hide what a career changer can't get:** validated text blockers (EDA_SDA_3), and per-applicant blockers in the app: a missing degree or license, or manager-level roles for applicants without management experience. Every other factor is weighted by the model during ML training.
-- **Two supervised models, combined by a formula:** listings → how long they stay open (PredictLeads), and career changers → the role bucket they moved into (the 2,539 career changers). No data links a person to a listing, so the role buckets connect the two. Volunteer profiles, once the advisor approves, are a recent test set. See [`docs/fit_analysis.md`](docs/fit_analysis.md).
+- **Job growth expectations replace the wider external-data list:** one number per role (time frame to be decided), from official projections that join on occupation code.
+- **Pick a date (as-of date):** the queue can be shown as it stood on any date in the data: listings live that day (first seen on or before it, last seen on or after it), scored, and its model trained, only with what was known that day.
+- **Two supervised models, combined by a formula:** listings → how long they stay open (PredictLeads), and career changers → the role bucket they moved into (the 2,554 career changers). No data links a person to a listing, so the role buckets connect the two. Volunteer profiles, once the advisor approves, are a recent test set. See [`docs/fit_analysis.md`](docs/fit_analysis.md).
 
 ## Honest limits
 
@@ -103,7 +109,11 @@ Each notebook answers one question and hands its final table to the next. The Tr
 - Six months of data rules out seasonal advice.
 - We can't see who gets hired, so we can't tell whether employers actually hire career changers. Accessibility is read from what listings *ask for*.
 - The career-change flags are keyword rules until EDA_SDA_3 validates them. Hiding listings on an unvalidated rule could hide listings a career changer could get, so rules hide nothing until they're validated.
-- The career-switch profiles aren't reviewed yet (a spot-check is in progress), and most switches are from 2008–2016, so the resumes teach career paths while the 2026 listings supply the market. O*NET's current Career Changers Matrix checks that the paths still hold.
+- The career-switch profiles aren't reviewed yet (a spot-check is in progress), and most switches are from 2010–2019 (median 2014), so the resumes teach career paths while the 2026 listings supply the market. O*NET's current Career Changers Matrix checks that the paths still hold.
+
+- Job growth figures are projections, not forecasts we make or check, and they're national, by occupation. A growing occupation doesn't mean more entry-level openings; our listings measure those.
+- The resumes only show people who made a switch, not those who tried and didn't, so paths show where switchers went, never how likely a switch is to work.
+- Early dates in the date picker miss long-open listings first seen before 2026-03-30 (the six-month window), so June onward gives fairer comparisons.
 
 ## Questions for PredictLeads
 

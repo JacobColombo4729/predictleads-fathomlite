@@ -27,9 +27,9 @@ How we measure how well a **career changer's** background fits a job listing and
 
 > **Started first: real career switches from a public resume dataset.** `notebooks/Profiles.ipynb` finds people in the Kaggle structured resume dataset (about 54,000 resumes, MIT license) whose job history shows a move into a computer and mathematical role. Its rules (`src/career_switch.py`) are tuned in review rounds until the candidates are right. These give real pre-switch profiles and real labels without waiting for the advisor. The volunteer profiles below add career changers from the team's own backgrounds, in more detail.
 >
-> **Result so far:** 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; 99.7% with readable job dates) → **2,539 career changers** under rules version 8: 1,836 changed roles within tech, 364 retrained after working in another field, 339 retrained as new grads from another field. A random spot-check (Profiles 4c) is in progress. The volunteer profiles below are now a recent test set, not the main source.
+> **Result so far:** 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; almost all with readable job dates) → **2,554 career changers**: 1,848 changed roles within tech, 369 retrained after working in another field, 337 retrained as new grads from another field. A random spot-check (Profiles 4c) is in progress. The volunteer profiles below are now a recent test set, not the main source.
 >
-> **Rules version 6 labels instead of rejecting:** everyone who reached a computer and mathematical job is kept with labels (origin, retrained, first tech job level, every tech role reached). The role model trains on everyone, with origin as a feature, and its results are reported on career changers (retrained from another field, or changed roles within tech; any job level). A check compares training on everyone with training on career changers only.
+> **The rules label instead of rejecting:** everyone who reached a computer and mathematical job is kept with labels (origin, retrained, first tech job level, every tech role reached). The role model trains on everyone, with origin as a feature, and its results are reported on career changers (retrained from another field, or changed roles within tech; any job level). A check compares training on everyone with training on career changers only.
 >
 > **Download** (once, about 136 MB unzipped; no Kaggle login needed). From the project folder:
 >
@@ -103,7 +103,7 @@ The collecting teammate does this locally:
 
 ### Step 4: synthetic profiles, only to balance small roles
 
-**The 1,000-profile plan is dropped (2026-10-09):** it assumed about 50 real profiles, and there are now 2,539 real career changers. Roles are uneven (data and analytics is the smallest), so:
+**The 1,000-profile plan is dropped (2026-10-09):** it assumed about 50 real profiles, and there are now 2,554 real career changers. Roles are uneven (data and analytics is small: 238 people, only 22 of them retrained into it), so:
 
 - **The compass and every reported share use real people only.** "30% of developers who changed roles moved into data" is a fact; balancing would make every role look equally common.
 - **The model handles imbalance in training:** class weights first (`class_weight="balanced"`), with per-role scores so a small role isn't hidden in an average.
@@ -136,8 +136,8 @@ A synthetic person (only for small roles, inside training folds) takes its seed'
 
 ## 5. Validation rules
 
-- **Group folds by `seed_id`** (`GroupKFold`): a real profile and its 19 variations always sit in the same fold. Otherwise the model sees near-copies of the test profiles during training.
-- **Report final results on the 50 real profiles only.** Synthetic profiles are for training and stress tests.
+- **Group folds by `seed_id`** (`GroupKFold`): a real person and any synthetic variations of them always sit in the same fold. Otherwise the model sees near-copies of the test profiles during training.
+- **Report final results on real people only:** the career changers from `Profiles.ipynb`, and volunteer profiles as a later test set. Synthetic profiles are only for small roles in training and for stress tests.
 - **Compare against Option A** and a title keyword search: NDCG@10 and precision@10, as mean ± std across applicants.
 - **Role discovery:** for each real switcher, is the role they actually moved into among the top 3 and top 5 suggested roles? Compare with a title-keyword baseline.
 - **Rate only visible listings:** listings hidden as unreachable are left out of labels and metrics, because the user never sees them.

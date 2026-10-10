@@ -9,22 +9,24 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 ## What only this project has
 
 - **Live 2026 listings with timing:** when each listing appeared and when it closed (PredictLeads), so we can say how fast to act, not only what fits.
-- **Real career switches:** people who retrained into computer and mathematical roles, found in a public resume dataset (`notebooks/Profiles.ipynb`): 17,952 unique people, 2,539 career changers under rules version 8.
+- **Real career switches:** people who retrained into computer and mathematical roles, found in a public resume dataset (`notebooks/Profiles.ipynb`): 17,952 unique people, 2,554 career changers.
 - **Role buckets that connect the two:** the same buckets on listings (O*NET codes) and on career switches (job titles).
+- **Job growth expectations per role:** expected growth from official occupational projections, joined on the same occupation codes.
 
-## Five angles
+## Angles
 
 | Angle | What it means | Evidence we already have |
 |:--|:--|:--|
 | **1. How fast to move** | Every listing gets an apply-by estimate and urgency, not just a fit score | 28% of listings are gone within a week; employer hiring volume and source change the window 2.3–2.5× |
 | **2. Honest reachability** | Listings a career changer can't get are hidden; the rest show what they ask of a newcomer | Entry level ranges from 3% to 70% of listings by field; only 9% of computer and mathematical listings are junior |
-| **3. Paths real people took** | "People from your background who trained in X moved into these roles," learned from real switches, not guessed | Retrained career changers with their original background, training field and first tech role |
-| **4. Retraining compass** | Training → the roles it led to → each role's 2026 openings, pay and closing speed | Training-field groups and role buckets in Profiles; listing counts, pay and windows by bucket (EDA_SDA_2) |
-| **5. Where and when to look** | A watch list of employers hiring at volume or posting entry-level roles, plus a check-every-N-days cadence | High-volume employers post 42% of listings; 300–1,100 companies per field cover most openings |
+| **3. Paths real people took** | "People from your background who trained in X moved into these roles," learned from real switches, not guessed. Includes **moving across tech roles** within tech or math, and moving up to senior or manager roles | 706 retrained career changers with their prior career, training field and first tech role; 1,848 people who moved between tech roles (Profiles 4a.3 splits sideways moves from moves up) |
+| **4. Retraining compass** | Prior career → the training people took → their first tech job → that role's 2026 openings, pay, closing speed and expected job growth. For changing careers (retraining into a new field) and for moving up (training to reach senior or manager roles in the user's own field). Answers "which path should I take?", including whether to retrain directly or step through another tech role | Prior career × first tech job and training × first tech job (Profiles 4a.2b); data and analytics is reached mostly from other tech roles (216) rather than by retraining (22); listing counts, pay and windows by bucket (EDA_SDA_2) |
+| **5. Where and when to look** | A watch list of employers hiring at volume or posting entry-level roles, plus a check-every-N-days cadence; a date picker shows how the list changed (June vs. August 2026) | High-volume employers post 42% of listings; 300–1,100 companies per field cover most openings; every listing has first-seen and last-seen dates |
+| **6. Compass ideas** | From the résumé: skills to build, career options down the line, the pay increase, expected job growth, and stepping-stone roles (to try) | Profiles (time to switch, paths, level at the switch), 2026 listing pay by role, job growth expectations |
 
 ## What we lead with
 
-**Angles 3 and 4 are the story, angle 1 is the hook.** Angle 2 is built into every view. Angle 5 is a supporting feature.
+**Angles 3 and 4 are the story (the compass leads), angle 1 is the hook.** Angle 2 is built into every view. Angle 6 extends the compass into a personal outlook; angle 5 is a supporting feature.
 
 > **Pitch:** "Everyone tells career changers what they match. We tell them what's realistically reachable, which training actually got people like them there, and how fast they have to move, using real career switches and live 2026 listings."
 
@@ -43,6 +45,8 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 
 - **Not causation:** "people like you got there through this training", never "this training gets you hired".
 - **Not hires:** listings appear and close; we don't see who got the job, so we never say "you'll get this job".
+- **Not success rates:** the resumes only show people who made a switch, not those who tried and didn't. The compass shows where switchers went, never the odds that a switch works.
+- **Not entry-level growth:** job growth projections cover a whole occupation; entry-level openings come from our listings.
 
 ## Changes made (2026-10-09)
 
@@ -50,9 +54,9 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 |:--|:--|
 | `PROJECT_OUTLINE.md` | The pitch line under "The idea", and a short "What makes this different" section |
 | `APPLICATION.md` | A **Retraining compass** view next to role discovery: training options → roles people like the user moved into (with counts) → each role's 2026 openings, median pay and closing speed; picking a role feeds the priority queue. The Coach agent explains it; part of build stage 2 |
-| `notebooks/Profiles.ipynb` | A training field × first tech role table (4a.2b), as shares of people, hiding cells with fewer than 5 people |
+| `notebooks/Profiles.ipynb` | A prior career × first tech job table, then a training field × first tech role table (4a.2b), as percents of all retrained people, fields and roles ordered infrastructure → code → data, with the people count and an "all retrained" row; the within-tech table (4a.3) uses the same layout |
 | `notebooks/EDA_SDA_2.ipynb` | A new section, 3.12: each role bucket's 2026 open listings, median pay, median days open and entry-level share; joined to the Profiles table by role bucket |
 | `notebooks/ML.ipynb` | Check whether knowing the training field predicts the first tech role better than the background alone |
 | Deck | The pitch on the title slide; a new "What makes this different" slide (reachable, real paths, how fast to move); slide 11 shows the training → role → 2026 openings chain; the two-decades framing replaces the date range |
 
-The Profiles table and EDA_SDA_2's 3.12 are written and need a run; the app view is a design only.
+Added after the team meeting: moving across and up within tech, path questions, job growth expectations, the date picker and compass ideas (in `APPLICATION.md` and `PROJECT_OUTLINE.md`). EDA_SDA_2's 3.12 is written and needs a run; the app views are a design only.
