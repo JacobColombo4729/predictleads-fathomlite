@@ -74,6 +74,7 @@ Every project decision, with its reasoning. Newest at the bottom. Record team de
 | 2026-10-09 | **Within-tech moves split into sideways and up** (`from_level`: highest level in the first role, vs. the level of the new job; rules unchanged). `from_level` is also a model feature: it's known before the move | "Moving up" needs evidence; many within-tech moves are sideways | Adopted; needs a Profiles run |
 | 2026-10-09 | **Niche role buckets need 30+ career changers across all three pools** (EDA_SDA_2 3.6), not 30+ retrained | The threshold was set before the within-tech pool existed; retrained-only would drop data and analytics (22 retrained, 238 in all), which the compass shows is reached through other tech roles | Adopted |
 | 2026-10-09 | **Role-model results are reported per pool** as well as overall (ML) | Within-tech moves are 72% of career changers, so an overall score would hide how well the retrained paths behind the compass are predicted | Adopted |
+| 2026-10-09 | **Career-switch rules spot-checked** (Profiles 4b/4c, random samples with the per-pool checklist): the samples looked right, so the rules stand unchanged | Confirms the counts behind the compass, the deck and the modeling table; it's a sample check, so the limits say so | Adopted |
 | | Final prioritization factors | | TBD in EDA_SDA_4 |
 | | Tool for processing the full job openings file | | TBD |
 | | Virtual environment name: README says `.venv`, Jacob uses `PL` | Consistent setup across the team | TBD |

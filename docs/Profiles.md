@@ -59,7 +59,7 @@ The rules label instead of rejecting: every person who reached a computer and ma
 
 ### 4a.1 Viable candidates
 
-How many people the rules leave, and who they are in numbers. **Viable** means they passed the rules, not that they've been reviewed, so the counts are upper bounds until the review rounds. Counts are of unique people (after 2b). Aggregates only.
+How many people the rules leave, and who they are in numbers. **Viable** means they passed the rules; the rules were spot-checked on random samples (4b/4c), not every person. Counts are of unique people (after 2b). Aggregates only.
 
 **What it shows**
 - **2,554 career changers (14% of unique people):** 1,848 changed roles within tech, 369 retrained after working in another field and 337 retrained as new grads from another field.
@@ -109,14 +109,9 @@ Set `POOL` (one of the three career-changer pools, or a rejection status from 4a
 
 **Also check:** the prior career area (is "other" hiding a clear career?) and, for within-tech moves, whether "up", "sideways" or "down" matches the titles.
 
-**Spot-check results** (counts only; filled in from the review, never the timelines)
+**Spot-check results**
 
-| Pool | People checked | Right | Wrong | Main errors |
-|:--|--:|--:|--:|:--|
-| Retrained after working in another field | 0 | 0 | 0 | |
-| Retrained, new grad from another field | 0 | 0 | 0 | |
-| Changed roles within tech | 0 | 0 | 0 | |
-| Rejected: changed jobs without tech or math training | 0 | 0 | 0 | |
+Jacob spot-checked random samples with the checklist in 4b (2026-10-09). The samples looked right, so the rules stand unchanged. Per-pool counts weren't recorded; a future check can add them here (counts only, never the timelines).
 
 ## 5. Freeze and save: the modeling table
 
@@ -141,7 +136,7 @@ Rerun this section after any change to the rules in `src/career_switch.py`.
 **Handoff.** The modeling table (section 5) goes to the ML notebook: pre-switch features, the role at the switch as the label, and outcome columns marked. It holds all 15,145 people who reached tech: the 2,554 career changers, on whom results are reported, plus 12,591 others as extra training examples, with origin as a feature. The ML notebook keeps whichever training set predicts career changers' roles better. The prior career and training tables (4a.2b) and the within-tech table (4a.3) are the past side of the retraining compass; EDA_SDA_2 adds each role's 2026 openings, pay and closing speed.
 
 **Limits.**
-- The rules aren't confirmed by a review yet (4c spot-check in progress), and the resumes were converted by OCR and an LLM.
+- The rules were spot-checked on random samples (4b/4c), not every person, and the resumes were converted by OCR and an LLM.
 - 22% of retrained people have a prior career of "other" (titles that matched no area), and job levels are read from title words, so the level split is rough.
 - The resumes show only people who made a switch, so the tables show where switchers went, never how likely a switch is to work.
 - The switches span two decades, so the 2026 listings supply today's openings, pay and timing.
