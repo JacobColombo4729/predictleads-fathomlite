@@ -206,6 +206,12 @@ The listing side is `role_bucket(onet_code)` (`ONET_DETAILED_BUCKETS` for detail
 
 **Related groups:** the team's source-background groups are cut with the rest (1d); they live on as rows of the 1c occupation summary (pay, timing, openness) and through O*NET skills and the Career Changers Matrix for role discovery.
 
+**What the data shows**
+- **Seven buckets get their own analysis and compass paths:** software development (4,572 listings, 473 career changers), networks and systems (2,724; 675), data and analytics (1,739; 238), security (744; 351), IT support (711; 383), database (698; 394) and quality assurance (546; 40, just over the 30 needed).
+- **No bucket supports month × source type:** software development, networks and systems and "other" can be split by month; the rest are analyzed as a whole bucket. Section 3's checks use each bucket's finest deep-enough split.
+- **IT support is the clearest entry door:** the most entry-level listings (22%) and the fastest closing (median 18.3 days), but by far the lowest pay ($32.23 an hour vs. $61–72 for the others). Quality assurance is next most open (14% entry level).
+- **"Other computer roles" (2,130 listings) is 86% IT project managers (1,832),** half of them manager-level, plus GIS technologists (163), document management (70) and others (65). No resume bucket matches them, so they have no compass paths yet (decision pending). Credentialed math (119 listings) is too small for its own analysis; its listings stay in the table.
+
 ### 3.7 Blind spots from Part 1
 
 | Blind spot | Check or fix |
