@@ -19,7 +19,7 @@ from typing import Any, Mapping, Sequence
 import tiktoken
 from dotenv import load_dotenv
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 load_dotenv(dotenv_path=PROJECT_ROOT / ".env", override=False)
 EXPERIMENT_ID = "bge_transition_20261008T142818Z"
 EXPERIMENT_DIR = PROJECT_ROOT / "data" / "matching" / EXPERIMENT_ID

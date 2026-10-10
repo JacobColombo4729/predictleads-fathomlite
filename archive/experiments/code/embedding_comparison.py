@@ -21,7 +21,7 @@ import numpy as np
 
 import job_matching_engine as engine
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_SAMPLE = PROJECT_ROOT / engine.DEFAULT_SAMPLE
 DEFAULT_PROFILES = Path(__file__).with_name("embedding_comparison_profiles.json")
 SPLIT_SEED = 20261007
