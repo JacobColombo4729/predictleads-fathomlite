@@ -116,9 +116,17 @@ def typed_rows(flat):
     """EDA_SDA_1's cleaned row (lean_part) for every English (or unlabeled) US (or no-country) listing, typed for Parquet."""
     from src.listing_rows import lean_part
     out = lean_part(flat)
+    col = lambda c: flat.reindex(columns=[c])[c]
+    # Raw fields EDA_SDA_1 doesn't use yet, for the feature screening (EDA_SDA_2). Recruiter names and contacts are
+    # personal data: only a yes/no flag is kept. last_processed_at likely moves with last_seen: leakage audit before use.
+    out["normalized_title"] = col("attributes.normalized_title")
+    out["has_recruiter"] = col("attributes.recruiter_data.name").notna() | col("attributes.recruiter_data.contact").notna()
+    out["last_processed"] = col("attributes.last_processed_at")
+    out["salary_currency"] = col("attributes.salary_data.salary_currency")
+    out["was_translated"] = col("attributes.translated_title").notna()
     keep = (out.language.eq("en") | out.language.isna()) & (out.country.eq("United States") | out.country.isna())
     out = out[keep].copy()
-    for c in ["first_seen", "last_seen", "posted"]:
+    for c in ["first_seen", "last_seen", "posted", "last_processed"]:
         out[c] = pd.to_datetime(out[c], utc=True, errors="coerce")
     for c in ["salary_low_usd", "salary_high_usd", "years_required"]:
         out[c] = pd.to_numeric(out[c], errors="coerce").astype("float32")
@@ -127,7 +135,7 @@ def typed_rows(flat):
     for c in LIST_COLS:  # one consistent type for Parquet: a list of strings, or empty
         out[c] = out[c].map(lambda v: [str(x) for x in v] if isinstance(v, (list, tuple)) else [])
     for c in ["id", "company_id", "title", "status", "seniority", "language", "onet_code", "occupation_group", "occupation",
-              "salary_unit", "desc_hash", "country", "source_type", "platform"]:
+              "salary_unit", "desc_hash", "country", "source_type", "platform", "normalized_title", "salary_currency"]:
         out[c] = out[c].astype("string")
     return out
 
