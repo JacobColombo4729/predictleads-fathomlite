@@ -233,3 +233,6 @@ reports/
 
 # Setup test script (README section 9): each person makes their own
 notebooks/scratch.py
+
+# Claude Code personal settings (not shared)
+.claude/settings.local.json
