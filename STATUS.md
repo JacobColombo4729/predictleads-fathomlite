@@ -90,8 +90,9 @@ All 12 profiles exclude listings whose source status is explicitly `closed` (163
 4. ~~Connect the frontend to the backend~~ Done. Still to do: a short end-to-end rehearsal on your own profile, and a deployment or recording plan.
 5. ~~Live test of the AI skills gap analysis~~ Done by Jesse 2026-10-10 (works). Still to record: cost and time for 10 and 20 jobs. Anything that sends resume text to a provider still needs consent and a budget decision.
 6. Clean notebook for the final path; demo recording.
-7. Collect ratings: the team uses Discover normally and rates jobs (with a reason on each 👎); then run `python code/feedback_report.py` for the first measured number (share of 👍 in the top 10, and per source for the exploration listings).
-8. Nice to have, decision pending (2026-10-09): per-user "Refine my matches" button trained on a user's own 👍/👎 ratings (plan, thresholds and risks in `roadmap.md`, section 6). Not started; revisit after the core demo and write-up.
+7. **Jesse to test Ask the market** on the Signals tab (typed questions, the example chips, **Talk** with a real microphone, **Research this company**). Not yet tried by a person; the Talk button was only tested with a synthetic voice.
+8. Collect ratings: the team uses Discover normally and rates jobs (with a reason on each 👎); then run `python code/feedback_report.py` for the first measured number (share of 👍 in the top 10, and per source for the exploration listings).
+9. Nice to have, decision pending (2026-10-09): per-user "Refine my matches" button trained on a user's own 👍/👎 ratings (plan, thresholds and risks in `roadmap.md`, section 6). Not started; revisit after the core demo and write-up.
 
 ## Added 2026-10-10 (the journal, entry 16, has the full list)
 
