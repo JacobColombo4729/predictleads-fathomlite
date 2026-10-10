@@ -89,4 +89,4 @@ A separate tab built on the compass: a personal outlook from the user's résumé
 - **Time frames** for career options and job growth (team), **with growth capped at 5 years**.
 - **A separate `Compass.ipynb`** that assembles everything that doesn't need ML now, with `ML_Fit` adding personal suggestions later, instead of assembling at the end of `ML_Fit`.
 - **The "moved up in the same role" pool** (would reopen Profiles).
-- **Job growth extensions** (proposed, `docs/job_growth.md` section 4): an error band from BLS's own track record, interest-rate scenarios for years 1–2, and listing momentum shown next to growth. Each would reopen part of the 2026-10-09 external-data decision.
+- **Job growth extensions** (proposed, `docs/job_growth.md` section 4): an error band from BLS's own track record, interest-rate scenarios for years 1–2, listing momentum shown next to growth, a full horizon-weighted blend, and state-level projections. Each would reopen part of the 2026-10-09 external-data decision.
