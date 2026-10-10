@@ -15,6 +15,8 @@ Daily snapshots in S3, laid out as `YYYY/MM/DD/`. We work from the **2026-09-30*
 
 **Local cache.** `notebooks/EDA_SDA_1.ipynb` caches raw data as Parquet in `data/` (git-ignored), flattens tables in resumable parts under `data/flat/`, and saves cleaned tables under `data/clean/`.
 
+**Full file (streamed 2026-10-10, `src/stream_full.py`):** 13,415,388 job-opening documents, one listing each (the same count as the hackathon app's full scan). Kept: **1,019,346 scope listings** (English or unlabeled, US or no country, computer and mathematical by occupation group or a 15- O*NET code; all columns, `data/flat/job_openings_full/`), their related objects, and a lean all-fields table of 13,017,464 English US listings (typed Parquet, no text, `data/flat/all_fields_lean_full/`). 5.8 GB on disk; 51 minutes.
+
 ## External data: structured resumes
 
 | Dataset | Local folder | License | Notes |
