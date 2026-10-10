@@ -64,7 +64,7 @@ All data routes except session creation, reset, `healthz` and the snapshot descr
 | `POST /api/v1/profiles/{profile_id}/jobs/{job_id}/assessment` | One grounded assessment; returns `assessment_state: unavailable` while the provider is off. |
 | `GET/POST /api/v1/saved-jobs`, `PATCH`/`DELETE /api/v1/saved-jobs/{snapshot_id}/{job_id}` | Saved jobs with workflow `stage` and `note`. |
 | `GET /api/v1/signals/overview` | Pattern counts, week labels and the backtest carry-over per pattern. `503 signals_unavailable` if no signals folder is built. |
-| `GET /api/v1/signals/patterns` | Map of company id to `burst` / `sustained` (used for the badge on job cards). |
+| `GET /api/v1/signals/patterns` | Map of company id to `burst` / `sustained` / `cooling` (used for the badge on job cards). |
 | `GET /api/v1/signals/companies` | Leaderboard. Query: `pattern`, `family` (`ai_ml`, `data`, `technical_sales`), `q`, `sort` (`new_30`, `active`, `surge_z`), `limit` (max 100), `offset`. |
 | `GET /api/v1/signals/companies/{company_id}` | One company with example openings and technologies. |
 | `POST /api/v1/profiles/{profile_id}/compass` | Compass analysis. Body: `snapshot_id`, `profile_version`, `job_ids` (2-20). Needs the embedding (RRF) ranker, else `409 compass_unavailable`. About 4 seconds on CPU. |

@@ -35,6 +35,7 @@ class SignalsApiTests(unittest.TestCase):
             company(1, "c-burst", "Alpha", "burst", 30, ai=25),
             company(2, "c-steady", "Beta", "sustained", 12, sales=9),
             company(3, "c-quiet", "Gamma", "quiet", 1),
+            company(4, "c-cool", "Delta", "cooling", 0),
         ], columns=COLS).to_csv(sig / "company_signals.csv", index=False)
         pd.DataFrame({"company_code": [1, 1, 2], "week_end": [97, 104, 97], "new": [4, 9, 3], "gone": [0, 0, 0], "active": [1, 2, 3],
                       "company_id": ["c-burst", "c-burst", "c-steady"], "company_name": ["Alpha", "Alpha", "Beta"], "domain": ["a", "a", "b"]}
@@ -56,13 +57,13 @@ class SignalsApiTests(unittest.TestCase):
 
     def test_overview_counts_and_carry_over(self) -> None:
         body = self.client.get("/api/v1/signals/overview").json()
-        self.assertEqual(body["pattern_counts"], {"burst": 1, "sustained": 1, "cooling": 0, "quiet": 1})
+        self.assertEqual(body["pattern_counts"], {"burst": 1, "sustained": 1, "cooling": 1, "quiet": 1})
         self.assertEqual(body["carry_over"][0]["next_as_share_of_this_month"], 0.63)
         self.assertEqual(body["week_ends"][0], "2026-04-08")
 
     def test_leaderboard_filters_and_sorts(self) -> None:
         everyone = self.client.get("/api/v1/signals/companies").json()
-        self.assertEqual([c["name"] for c in everyone["companies"]], ["Alpha", "Beta", "Gamma"])
+        self.assertEqual([c["name"] for c in everyone["companies"]], ["Alpha", "Beta", "Gamma", "Delta"])
         self.assertEqual(self.client.get("/api/v1/signals/companies?pattern=sustained").json()["total"], 1)
         sales = self.client.get("/api/v1/signals/companies?family=technical_sales").json()
         self.assertEqual([c["name"] for c in sales["companies"]], ["Beta"])
@@ -78,8 +79,8 @@ class SignalsApiTests(unittest.TestCase):
         self.assertEqual(body["technologies"][0]["technology"], "Python")
         self.assertEqual(self.client.get("/api/v1/signals/companies/nope").status_code, 404)
 
-    def test_patterns_map_only_burst_and_sustained(self) -> None:
-        self.assertEqual(self.client.get("/api/v1/signals/patterns").json()["patterns"], {"c-burst": "burst", "c-steady": "sustained"})
+    def test_patterns_map_leaves_out_quiet_companies(self) -> None:
+        self.assertEqual(self.client.get("/api/v1/signals/patterns").json()["patterns"], {"c-burst": "burst", "c-steady": "sustained", "c-cool": "cooling"})
 
     def test_requires_a_session(self) -> None:
         self.client.cookies.clear()

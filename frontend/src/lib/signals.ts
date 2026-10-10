@@ -11,7 +11,7 @@ export const PATTERN_HELP: Record<SignalPattern, string> = {
 };
 export const FAMILY_LABEL: Record<SignalFamily, string> = { ai_ml: "AI / ML", data: "Data", technical_sales: "Technical sales" };
 
-/** company id -> pattern, for the companies worth a badge (burst or sustained). Empty when signals are unavailable. */
+/** company id -> pattern, for the companies worth a badge (burst, sustained or cooling). Empty when signals are unavailable. */
 export const SignalPatternsContext = createContext<Record<string, SignalPattern>>({});
 export const useSignalPattern = (companyId: string | null | undefined): SignalPattern | null =>
   useContext(SignalPatternsContext)[companyId ?? ""] ?? null;
