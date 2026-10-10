@@ -10,6 +10,8 @@ import TierBoard from "../components/compass/TierBoard";
 import RequirementBars from "../components/compass/RequirementBars";
 import NextSteps from "../components/compass/NextSteps";
 import Suggestions from "../components/compass/Suggestions";
+import GapSection from "../components/compass/GapSection";
+import type { GapBatch } from "../state/useGapBatch";
 import { themeColor } from "../lib/compass";
 
 interface Props {
@@ -18,6 +20,8 @@ interface Props {
   savedIds: Set<string>;
   onSave: (job: Job) => void;
   onRerun: () => void;
+  gap: GapBatch;
+  snapshotReady: boolean;
 }
 
 function defaultSelection(result: CompassResult): string | null {
@@ -25,7 +29,7 @@ function defaultSelection(result: CompassResult): string | null {
   return picks[0]?.job.id ?? result.jobs[0]?.job.id ?? null;
 }
 
-export default function CompassPage({ state, currentProfileVersion, savedIds, onSave, onRerun }: Props) {
+export default function CompassPage({ state, currentProfileVersion, savedIds, onSave, onRerun, gap, snapshotReady }: Props) {
   // If an analysis already exists when the page opens, skip the reveal; a fresh run plays it.
   const [revealDone, setRevealDone] = useState(state.status === "ready");
   const [shown, setShown] = useState(0);
@@ -182,6 +186,10 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
               </header>
               <RequirementBars requirements={result.requirements} picks={picks} />
             </div>
+          </section>
+
+          <section className="cp-block">
+            <GapSection picks={result.jobs.filter((j) => j.pick)} gap={gap} snapshotReady={snapshotReady} />
           </section>
 
           <section className="cp-block">

@@ -226,12 +226,13 @@ export interface SignalsQuery {
   offset: number;
 }
 
-/* ---------- AI gap analysis (one job against the saved profile) ---------- */
+/* ---------- AI skills gap analysis (all Compass picks, one request) ---------- */
 
 export type QualificationStatus = "supported" | "explicit_gap" | "unknown";
 
 export interface GapEvidence { evidence_id: string; source: string; text: string }
 
+/** One job's result. `evidence_catalog` holds that job's own lines; the profile's lines come once in the batch. */
 export interface GapAssessment {
   evidence_sufficiency: "sufficient" | "insufficient";
   insufficiency_reason: string | null;
@@ -244,4 +245,8 @@ export interface GapAssessment {
   evidence_catalog: GapEvidence[];
 }
 
-export type GapResult = { state: "unavailable" } | { state: "completed"; assessment: GapAssessment };
+export type GapJobResult = { state: "completed"; assessment: GapAssessment } | { state: "failed"; reason: string };
+
+export type GapBatchResult =
+  | { state: "unavailable" }
+  | { state: "completed"; candidateEvidence: GapEvidence[]; jobs: Record<string, GapJobResult>; failed: number };
