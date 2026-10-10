@@ -67,7 +67,7 @@ project_leads/
 ├── .gitignore
 ├── .env.example
 ├── .vscode/settings.json
-├── README.md, PROJECT_OUTLINE.md, STANDARDS.md, DIFFERENTIATORS.md, COMPASS.md, APPLICATION.md, PRIORITY_QUEUE.md, CLAUDE.md
+├── README.md and the project docs (what each one is for: the table at the top of STANDARDS.md)
 ├── requirements.txt
 ├── docs/          (decision log, data reference, job growth plan, notebook text exports)
 ├── notebooks/
@@ -82,8 +82,8 @@ Everyone uses the **same name (`.venv`)** and **same Python version (3.11)**.
 
 **Mac / Linux**
 ```bash
-python3.11 -m venv .venv # I replaced .venv to 'PL' for my venv name
-source .venv/bin/activate # PL/bin/activate for me
+python3.11 -m venv .venv
+source .venv/bin/activate
 ```
 
 **Windows (PowerShell)**
@@ -94,7 +94,7 @@ py -3.11 -m venv .venv
 
 Your prompt should now start with `(.venv)`. **Activate it every time you open a new terminal** for this project.
 
-> `.venv/` is already in `.gitignore`. Never commit it.
+> `.venv/` is already in `.gitignore`. Never commit it. An existing venv with another name works too (one teammate's is `PL/`, also ignored): use its name in place of `.venv` in the commands below.
 
 ---
 

@@ -59,7 +59,7 @@ Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
 | **Ghost listings can be told apart** | Only 44% of stale listings come from a company still posting, vs. 92% of younger ones; **371 likely ghosts** are hidden (EDA_SDA_2 3.1) | Fewer dead ends in the queue |
 | **What a career changer can reach** | The rules in force hide **22%** of open niche listings (likely ghosts, manager level, document management); reachable listings pay **$11–37 an hour less** in every role bucket (EDA_SDA_2 3.11) | The app shows the pay trade-off instead of hiding it |
 | **Entry doors and later moves** | IT support: 22% entry level, 44% open to career changers, $32 an hour; IT project management: 2% entry level, 9% open, $72, mostly reached from another tech role (EDA_SDA_2 3.6, 3.12) | IT support is a first step; IT project management a later move |
-| **Real career switches exist in public resumes** | 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; almost all with readable job dates) → **2,813 career changers**: 2,049 changed roles within tech, 407 retrained after working in another field, 357 retrained as new grads from another field | Training data for role discovery and fit. Rules spot-checked on random samples |
+| **Real career switches exist in public resumes** | **2,813 career changers** (funnel in the Data section above) | Training data for role discovery and fit. Rules spot-checked on random samples |
 
 The listing itself matters more than the job title: two listings in the same field can differ more than two different fields do.
 

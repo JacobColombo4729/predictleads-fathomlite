@@ -230,3 +230,6 @@ data/
 
 # Notebook exports with outputs (tables, charts): local only, never committed
 reports/
+
+# Setup test script (README section 9): each person makes their own
+notebooks/scratch.py

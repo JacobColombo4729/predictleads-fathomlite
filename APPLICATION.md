@@ -86,39 +86,14 @@ Opens full screen on tap or click:
 - Picking roles sets the queue's occupation filter, which the user can widen or narrow like any other filter.
 - **IT project management is a later move** (decided 2026-10-10): only 9% of its listings show openness to career changers and 2% are entry level. It isn't suggested as a first tech job and isn't in a newcomer's default occupation filter (the user can add it), unless their prior career has a real path straight into it (business: 17% of retrained business people), in which case it's shown with its low openness. Users already in tech see it under moving across and up.
 
-### Retraining compass
+### Retraining compass, moving across and up, and the Ideas tab
 
-*All compass ideas, with status and where each is built: [`COMPASS.md`](COMPASS.md).*
+*What each shows, the path questions, the Ideas tab's ideas and the honesty rules are in [`COMPASS.md`](COMPASS.md); this section covers only the screens.*
 
-
-- **Two uses:** changing careers (retraining into a new field) and **moving up** (training that helps someone reach senior or manager roles in their own field, for example a master's or a certification before a senior or lead role).
-- Starts from the user's **prior career**: where people from that career landed (Profiles 4a.2b).
-- For the user's background, lists the **training options** people like them took (degrees, certificates, bootcamps), grouped by field.
-- For each one: the **tech roles it led to** (from real career switches, with how many people), and for each role its **2026 openings, median pay, how fast listings close and its expected job growth**.
-- Picking a role sets what the priority queue ranks. Worded as "people like you got there through this training", never "this training gets you hired" or "your odds are X%": the resumes show only people who made a switch.
-- **Every path shows how many people it rests on** ("based on N people"); paths under about 10 people are marked as thin.
-- **Job growth carries a caveat:** it's for the whole occupation, so it sits next to the role's entry-level share from our listings.
-- **Questions about which path to take**, answered from the resume data (the Coach agent explains them):
-  - Should I retrain for the role directly, or take a first tech role and move from there? (Data and analytics: 218 career changers moved in from another tech role, only 19 retrained straight into it.)
-  - Which training led people like me to this role, and how many people is that based on?
-  - How long did it take? (People who retrained after working took a median of 15 months from their last old-field job to their first tech job.)
-- The **Ideas tab** (below) turns these paths into a personal outlook: skills to build, options, pay increase and expected growth.
-### Moving across and up (already in tech or math)
-
-- For a user already in a computer and mathematical role: the **roles people in that role moved into** (2,049 people in the resumes changed role buckets within tech after at least 12 months), with how many people, and each role's 2026 openings, pay, closing speed and expected growth.
-- Examples from the data: IT support → networks and systems or security; developers → databases or data and analytics; and IT project management, where 190 of its 264 career changers came from another tech role.
-- Each move shows whether people moved sideways or up (into a senior or manager role), from Profiles 4a.3.
-- Picking a role sets what the priority queue ranks, like role discovery.
-
-### Ideas tab
-
-A separate tab: a personal outlook built from the user's résumé, with the compass as its source. Ideas from the team meeting, to try, not decided. **Time frames are kept vague for now** ("down the line", "in the coming years") until the team picks them. Every number is labelled an estimate, worded as "people like you" and "expected", never a promise, and the résumé stays local.
-- **"Based on your current résumé, we think you should build these skills":** skills that listings in the suggested roles ask for and the résumé doesn't show (EDA_SDA_3's skills mapped to O*NET, compared in `ML_Fit`), most-asked first.
-- **"Here's what your career options could look like down the line":** the roles people with a similar background reached and how long it took them (Profiles; for example a median of 15 months from leaving the old job to the first tech job), with each role's 2026 openings.
-- **"Here's your pay increase":** median hourly pay in each option (EDA_SDA_2 3.12) vs. the user's current field (EDA_SDA_2's occupation summary, 1c), or a rate they enter.
-- **"Here's the job growth we expect in your career":** expected employment growth (%) for each option, from official projections (BLS plugs in directly by occupation code), next to the role's entry-level share. Shown as a range if the team adopts the error band (`docs/job_growth.md` 4a); IT project management's figure is a proxy (the 15-1299 catch-all), and says so.
-- **Stepping-stone roles:** a role that bridges two functions on the way to a bigger move (for example engineer → pre-sales engineer → director). The resume rules record the level at each move, so the tab can show roles people passed through.
-- **Where it comes from:** the compass tables assembled in `ML_Fit`'s last section.
+- **Retraining compass view:** starts from the user's prior career (or current tech role, for moving across and up). It shows the training people like them took, the roles it led to, and each role's 2026 openings, pay, closing speed and expected growth. Every path shows "based on N people".
+- **Moving across and up:** the same view for users already in tech, with each move marked sideways or up. IT project management appears here as a step up.
+- **Ideas tab:** a separate tab built from the résumé on the compass (skills to build, career options, pay increase, expected growth, stepping-stone roles); to try, with time frames kept vague.
+- Picking a role in any of these sets what the priority queue ranks. The Coach explains the paths in plain language. Everything comes from the compass tables assembled in `ML_Fit`'s last section.
 
 ### Pick a date (as-of view)
 
