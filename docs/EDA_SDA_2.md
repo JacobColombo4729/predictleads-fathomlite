@@ -266,6 +266,7 @@ Boxplots and IQR rules for days open, words per description, hourly pay, times l
 | Seniority, per applicant | Manager level and above (`manager`, `head`, `director`, `vice_president`, `president`, `c_level`, `partner`, `founder`; from EDA_SDA_1 Q3b) for applicants without management or senior experience | The app, per profile; this notebook's table keeps them, labelled |
 | Text, for everyone | Too many years of experience asked; a required license | EDA_SDA_3's final table, after the rules are validated |
 | Text, per applicant | A degree or certification this applicant doesn't have | The app, per profile |
+| Occupation, for everyone | Document management specialists (O*NET 15-1299.03): records work, not a tech path (decided 2026-10-10) | The app; flagged `hidden_occupation` in 3.0 and kept in the table |
 
 Report how many listings each rule hides. Then check:
 

@@ -39,7 +39,7 @@ The core of the app is the **priority queue**: listings ranked for this career c
   - **Occupation:** one or more role buckets (data and analytics, software development, IT support, …; built in EDA_SDA_2 3.6), and within them specific O*NET occupations. Picking roles in role discovery or the compass sets this filter
   - **Priority:** minimum score, or top N
   - **Apply-by:** closing within N days, or before a date
-  - **Hidden automatically:** listings a career changer can't get (too many years asked, a degree or license this user lacks, or manager-level roles if the user has no management experience), and listings more than **90 days old** on the date being viewed (likely stale; the threshold is checked in EDA_SDA_2 3.1). A note shows how many were hidden, and why. Hidden listings are never deleted: a "show hidden" toggle brings them back
+  - **Hidden automatically:** listings a career changer can't get (too many years asked, a degree or license this user lacks, or manager-level roles if the user has no management experience), listings for occupations that aren't a tech path (document management specialists), and listings more than **90 days old** on the date being viewed (likely stale; the threshold is checked in EDA_SDA_2 3.1). A note shows how many were hidden, and why. Hidden listings are never deleted: a "show hidden" toggle brings them back
   - **Training offered:** only listings that offer training or welcome career changers
   - **Transferable fit:** minimum score (needs the user's background profile)
   - **Pay:** minimum hourly rate; pay disclosed only
