@@ -55,6 +55,7 @@ What separates a listing worth applying to today is mostly **the listing itself*
 - **We see listings appear and disappear, not hires.** Openness to career changers is what listings *ask for*, not who gets hired.
 - **The text flags are keyword rules** with likely false positives ("urgent care") until EDA_SDA_3 validates them.
 - **The six-month window misses older listings:** listings first seen before 2026-03-30 aren't in the data, so the earliest dates undercount what was open; the app's date picker starts at July 1 (8b).
+- **The gaps here are descriptive, not significance tests.** Kaplan–Meier medians and shares show how big each gap is; whether it's statistically significant is tested in **EDA_SDA_4, section 5**: Mann–Whitney (Wilcoxon rank-sum) for skewed measures, log-rank for survival curves, with effect sizes and Benjamini–Hochberg correction.
 - **High-volume posters include staffing agencies,** which can inflate company volume; EDA_SDA_2 (2b) flags them.
 
 Detailed findings: section 9. Every decision with its evidence: section 10.
