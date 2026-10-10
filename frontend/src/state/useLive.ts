@@ -200,7 +200,7 @@ export function useLive(filters: Filters) {
   }, [ratings]);
 
   return {
-    boot, retry: bootstrap, snapshot, profile, saveProfile, startOver, profileReady: profileId !== null,
+    boot, retry: bootstrap, snapshot, profile, saveProfile, startOver, profileReady: profileId !== null, profileId, profileVersion,
     recs, recsLoading, recsError, ranker, feedbackApplied, refresh,
     ratings, ratingCounts: counts, rate, unrate, clearRatings,
     tracker, all, save, remove, restore, update,
