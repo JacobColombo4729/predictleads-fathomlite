@@ -72,9 +72,35 @@
 .cp-mapwrap { position: relative; }
 .cp-map { width: 100%; height: auto; display: block; max-height: 640px; }
 .cp-map__small { fill: var(--text-muted); font-size: 11px; }
-.cp-map__theme { fill: var(--cp-ink-2); font-size: 12px; font-weight: 600; }
+.cp-map__role { fill: var(--cp-ink-2); font-size: 12px; font-weight: 600; cursor: pointer; user-select: none; touch-action: none; }
+.cp-map__role.is-empty { fill: var(--text-muted); font-weight: 500; }
+.cp-map__role:hover { fill: var(--text); }
+.cp-map__role.is-in-scope { fill: var(--accent); }
+.cp-scope { fill: var(--accent); fill-opacity: 0.09; stroke: none; pointer-events: none; }
+.cp-facing { margin: 0 0 4px; text-align: center; color: var(--text-muted); font-weight: 400; min-height: 1.4em; transition: opacity 0.28s ease-out; }
+/* out fast so it gets out of the way of the turn; back in a little slower so it settles rather than pops */
+.cp-facing.is-turning { opacity: 0; transition-duration: 0.12s; }
+@media (prefers-reduced-motion: reduce) { .cp-facing { transition: none; } }
+.cp-map__role.is-minor { opacity: 0; pointer-events: none; font-size: 11px; transition: opacity 0.25s; }
+.cp-map__role.is-minor.is-in-scope { opacity: 1; pointer-events: auto; fill: var(--text-muted); }
+.cp-spokehit { stroke: transparent; stroke-width: 14; pointer-events: stroke; cursor: pointer; touch-action: none; }
+.cp-dot.is-out > g { opacity: 0.4; transition: opacity 0.3s; }
+.cp-scopelist { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; max-height: 520px; overflow: auto; }
+.cp-scopelist button { width: 100%; text-align: left; display: grid; gap: 2px; padding: 8px 10px; border: 1px solid var(--cp-grid); border-radius: 10px; background: var(--surface); color: var(--text); cursor: pointer; font: inherit; }
+.cp-scopelist button:hover, .cp-scopelist button:focus-visible { border-color: var(--accent); }
+.cp-scopelist__t { font-weight: 600; }
+.cp-scopelist__t i { color: var(--text-muted); font-style: normal; font-weight: 500; }
+.cp-scopelist__c, .cp-scopelist__fit { color: var(--text-muted); font-size: 13px; }
+.cp-back { background: none; border: 0; padding: 0; margin-bottom: 6px; color: var(--accent); cursor: pointer; font: inherit; font-size: 13px; }
+.cp-key--rings { background: transparent; border: 1px solid var(--cp-axis); box-shadow: inset 0 0 0 2px var(--surface), inset 0 0 0 3px var(--cp-axis); }
+.cp-key--scope { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.cp-map__cardinal { fill: var(--cp-ink-2); font-size: 14px; font-weight: 700; pointer-events: none; }
+.cp-map__cardinal.is-north { fill: var(--accent); }
+.cp-bezel { stroke: transparent; pointer-events: stroke; cursor: grab; touch-action: none; outline: none; }
+.cp-bezel.is-dragging { cursor: grabbing; }
+.cp-bezel:focus-visible { stroke: var(--focus); stroke-opacity: 0.25; }
+.cp-legend__hint { color: var(--text-muted); font-style: italic; }
 .cp-map__you { fill: var(--text); font-size: 12px; font-weight: 700; }
-.cp-themelabel { transition: opacity 0.6s; }
 .cp-dot { cursor: pointer; outline: none; transition: transform 0.95s cubic-bezier(0.2, 0.9, 0.25, 1), opacity 0.5s; }
 .cp-dot .cp-mark { transition: transform 0.2s; transform-box: fill-box; transform-origin: center; }
 .cp-dot:hover .cp-mark, .cp-dot:focus-visible .cp-mark, .cp-dot.is-lit .cp-mark { transform: scale(1.3); }

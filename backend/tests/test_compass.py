@@ -150,12 +150,17 @@ class CompassAnalysisTests(unittest.TestCase):
         self.assertEqual(sum(t["count"] for t in result["themes"]), 6)
         self.assertEqual(result["strongest_theme_id"], result["themes"][0]["id"])
         theme_ids = {t["id"] for t in result["themes"]}
+        roles = {r["name"]: r["angle"] for r in result["roles"]}
+        self.assertLessEqual(len(roles), compass.MAX_ROLE_POLES)
+        slice_half = 180.0 / len(roles)
         for item in result["jobs"]:
             self.assertTrue(0 <= item["fit"] <= 100)
             self.assertIn(item["theme_id"], theme_ids)
-            half = next(t["half_width"] for t in result["themes"] if t["id"] == item["theme_id"])
-            self.assertLessEqual(abs(item["offset"]), half)
+            if item["role"] in roles:  # on its role's spoke; jobs whose role has no spoke lean between spokes
+                gap = abs((item["angle"] - roles[item["role"]] + 180.0) % 360.0 - 180.0)
+                self.assertLess(gap, slice_half)
         self.assertEqual(sum(1 for j in result["jobs"] if j["pick"]), 6)
+        self.assertTrue(0 <= result["scope"]["heading"] < 360)
 
     def test_requirement_groups_count_jobs_and_ground_evidence_in_the_profile(self) -> None:
         result = self.run_analysis(self.PICKS)
@@ -202,6 +207,44 @@ class CompassAnalysisTests(unittest.TestCase):
         long_name = "Sales Representatives of Services, Except Advertising, Insurance, Financial Services, and Travel"
         name = compass._theme_name([{"onet_data": {"occupation_name": long_name}, "title_searchable": "Sales Executive"}])
         self.assertEqual(name, "Sales Representatives of Services")
+
+    def test_scope_points_at_the_good_cluster_and_narrows_over_it(self) -> None:
+        cluster = [(85.0, 90, True), (90.0, 88, True), (95.0, 85, False)]
+        scope = compass._scope(cluster + [(250.0, 30, True)])
+        self.assertLess(abs(scope["heading"] - 90), 6)
+        halves = scope["half_widths"]
+        self.assertEqual(len(halves), 360 // compass.SCOPE_STEP)
+        at = lambda deg: halves[deg // compass.SCOPE_STEP]
+        self.assertLess(at(90), at(250))  # tight good fits narrow it; one weak job leaves it wide
+        self.assertGreater(at(0), compass.SCOPE_MAX_HALF - 1)  # 90 degrees from anything is about as wide as it gets
+        self.assertTrue(all(compass.SCOPE_MIN_HALF <= h <= compass.SCOPE_MAX_HALF for h in halves))
+
+    def test_one_centred_job_does_not_make_the_scope_narrow(self) -> None:
+        def half_at_90(points):
+            return compass._scope(points)["half_widths"][90 // compass.SCOPE_STEP]
+        lone = half_at_90([(90.0, 95, True)])
+        cluster = half_at_90([(85.0, 90, True), (90.0, 88, True), (95.0, 85, True)])
+        bigger = half_at_90([(80.0 + 4 * n, 88, True) for n in range(6)])
+        self.assertGreater(lone, cluster + 8)
+        self.assertGreater(lone, 35)
+        self.assertLessEqual(bigger, cluster + 1)  # more good fits in the same place keep it narrow
+
+    def test_scope_is_tightest_on_the_strongest_cluster(self) -> None:
+        strong = [(85.0, 90, True), (90.0, 88, True), (95.0, 85, True)]
+        weaker = [(265.0, 70, True), (275.0, 70, True)]
+        halves = compass._scope(strong + weaker)["half_widths"]
+        self.assertLess(halves[90 // compass.SCOPE_STEP], halves[270 // compass.SCOPE_STEP])
+
+    def test_opposite_roles_share_an_axis_and_alike_roles_are_neighbours(self) -> None:
+        e = np.eye(4, dtype=np.float32)
+        centroids = {"a": e[0], "a2": compass._normalize(e[0] + 0.3 * e[1]), "b": e[2], "b2": compass._normalize(e[2] + 0.3 * e[3])}
+        angles = compass._pole_layout(["a", "a2", "b", "b2"], centroids)
+        self.assertEqual(angles["a"], 0.0)  # the first role points north
+        self.assertEqual(sorted(angles.values()), [0.0, 90.0, 180.0, 270.0])
+        opposite = {r: next(o for o in angles if abs((angles[o] - angles[r]) % 360 - 180) < 1e-6) for r in angles}
+        self.assertIn(opposite["a"], {"b", "b2"})  # a faces a "b" role, never its look-alike a2
+        self.assertIn(opposite["a2"], {"b", "b2"})
+        self.assertEqual(compass._pole_layout(["a"], centroids), {"a": 0.0})
 
     def test_boilerplate_never_becomes_a_requirement(self) -> None:
         result = self.run_analysis(self.PICKS)
