@@ -53,7 +53,8 @@
   - Build each career changer's pre-switch text from the Profiles timeline (titles and programs before the switch; no undated skills).
   - The ladder: keyword overlap → TF-IDF cosine → BGE embeddings (small or base, local) → RRF hybrid → skills-based matching on O*NET skills → a trained layer (Option B) on real career moves.
   - Score each step on hit rate@3/@5 for the role people actually moved into, per pool and overall, against a title-keyword baseline; measure old-field bias; exclude the current role for within-tech moves; folds grouped by person.
-  - SHAP; the compass outputs (paths with people counts, skills to build per role); hand fit scores to `ML_Rank`.
+  - SHAP; hand fit scores to `ML_Rank`.
+  - **Assemble the compass (last section):** Profiles' paths with people counts, each role's 2026 market and growth (EDA_SDA_2 3.12), and the Ideas tab's inputs (skills to build, options and time to switch, pay increase vs. the current field from 1c, growth); save the compass tables for the app.
 - **ML_Rank (the priority queue):**
   - Write the hypotheses with thresholds **before** any modeling.
   - Targets: closes within N days, days open, and the survival target.
@@ -65,7 +66,7 @@
   - Evaluation (ROC-AUC, F1, C-index, precision@k, NDCG); the queue against newest-first: of each top 10, how many stay open long enough, are reachable and are in the role the person actually moved into; SHAP, sensitivity checks, solution report.
 - **Job growth expectations:** check the terms of use, download the official 10-year occupational projections into `data/external/`, map them to role buckets by occupation code, and convert to the time frame the team picks. Add an expected-growth column to the compass (EDA_SDA_2 3.12).
 - **Date picker (as-of date):** a helper in `src/` that returns the listings live on a date with features computed as of that date; check it on July 1 vs. September 1, 2026 (counts only; EDA_SDA_1 8b shows dates before July are skewed young). The model for a date is trained only on what was known by then; the demo can start with test-period dates.
-- **Compass ideas** (`APPLICATION.md`): skills to build (EDA_SDA_3 skills vs. a résumé), career options and time to switch (Profiles), pay increase (2026 listing pay by occupation), expected growth, and stepping-stone roles (level at the switch in Profiles).
+- **Ideas tab** (`APPLICATION.md`, a separate tab): skills to build (EDA_SDA_3 skills vs. a résumé, in `ML_Fit`), career options and time to switch (Profiles), pay increase (EDA_SDA_2 1c current-field pay vs. 3.12 role pay, hourly), expected growth, and stepping-stone roles; built from `ML_Fit`'s compass tables. Time frames stay vague until the team decides.
 - **Decide the time frames** for career options and job growth in the compass (team).
 - **O*NET (in scope, small):** check the terms of use, then download only the **Career Changers Matrix** (latest release) and the **skills** for computer and mathematical occupations plus the team's background occupations. Listings already carry O*NET codes, so they join directly.
 - **Retraining compass app view** (`APPLICATION.md`), after EDA_SDA_2 3.12.

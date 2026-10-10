@@ -25,7 +25,8 @@ We can't see applications or hires, so the ranking rests on what PredictLeads' d
 ## What makes this different
 
 - **Paths real people took:** which training led people like the user into which tech roles, learned from real career switches.
-- **A retraining compass (the foundation):** prior career → the training people took → their first tech job → that role's 2026 openings, pay, closing speed and expected job growth. It serves two moves: **changing careers** (retraining into a new field) and **moving up** (training to reach senior or manager roles in the user's own field). Ideas to try: skills to build from the user's résumé, career options down the line, the pay increase, and stepping-stone roles.
+- **A retraining compass (the foundation):** prior career → the training people took → their first tech job → that role's 2026 openings, pay, closing speed and expected job growth. It serves two moves: **changing careers** (retraining into a new field) and **moving up** (training to reach senior or manager roles in the user's own field).
+- **An Ideas tab (to try):** a separate tab built on the compass, from the user's résumé: skills to build, career options down the line, the pay increase, expected job growth and stepping-stone roles. Time frames are kept vague until the team decides.
 - **Moving across tech roles:** people already in tech or math who moved into a different role (1,848 in the resumes, for example IT support → networks or security, developers → databases or data), so the tool also serves someone changing direction within tech. Moving *up* (to senior or manager roles) is counted separately in Profiles 4a.3.
 - **How fast to move:** an apply-by estimate on every listing; and listings a career changer can't get are hidden.
 - **Pick a date:** the priority list as it stood on any date in the data (for example July vs. September 2026), to show how the best options change over time.

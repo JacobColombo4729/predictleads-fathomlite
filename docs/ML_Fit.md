@@ -6,7 +6,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 ## 0. Purpose
 
-**Which roles and listings fit a career changer?** This notebook builds the **fit model**: from a career changer's pre-switch background, it suggests the role buckets their skills transfer to (**role discovery**), scores how well each listing fits them, and feeds the **retraining compass** (the paths, and the skills to build). `ML_Rank` combines its fit scores with the listing model into the priority queue.
+**Which roles and listings fit a career changer?** This notebook builds the **fit model**: from a career changer's pre-switch background, it suggests the role buckets their skills transfer to (**role discovery**), scores how well each listing fits them, and **assembles the retraining compass** and the **Ideas tab's** inputs in its last section: the one place the pieces from Profiles, EDA_SDA_2, EDA_SDA_3 and this notebook come together for the app. `ML_Rank` combines its fit scores with the listing model into the priority queue.
 
 **Inputs:** the **Profiles modeling table** (`data/profiles/modeling_table.pkl`: `feature` columns only, `outcome` columns never), each career changer's **pre-switch text** (job titles and programs before the switch, from the Profiles timeline), EDA_SDA_3's cleaned descriptions and **skills mapped to O*NET**, and O*NET's skills and Career Changers Matrix.
 
@@ -65,7 +65,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 | 5. The trained layer | Logistic regression, random forest, LightGBM / CatBoost / XGBoost with `GridSearchCV`, `class_weight`, `Pipeline` + `ColumnTransformer` | LightGBM LambdaRank for listing order |
 | 6. Evaluation | Accuracy, F1, confusion matrix on held-out people | Hit rate@3 / @5 per pool; old-field bias; NDCG@10 on teammates' ratings |
 | 7. Interpretation | Feature importance | SHAP, for "why this role" in the app |
-| 8. The compass | | Paths with people counts; skills to build per suggested role |
+| 8. **The compass, assembled** | | The single place the compass is put together for the app: Profiles' paths (prior career → training → first tech job; within-tech moves, sideways or up) with people counts and thin paths marked; each role's 2026 openings, hourly pay, closing speed, entry-level share and expected growth (EDA_SDA_2 3.12); the Ideas tab's inputs: skills to build per suggested role, options and time to switch, pay increase against the current field (EDA_SDA_2 1c) and growth. Saved as compass tables under `data/clean/` |
 | 9. Solution report | Steps, difficulties, final model and score | Hand-off of fit scores to `ML_Rank` |
 
 ## 2.–9.
