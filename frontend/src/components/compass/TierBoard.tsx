@@ -1,3 +1,4 @@
+import CompanyHiringBadge from "../signals/CompanyHiringBadge";
 import { useLayoutEffect, useRef } from "react";
 import type { CompassJob } from "../../types";
 import { TIER_NAME, tierOf, type Tier } from "../../lib/compass";
@@ -65,6 +66,7 @@ export default function TierBoard({ jobs, themeFilter, stretch, selectedId, onSe
             >
               <div className="cp-jcard__t">{j.job.title}</div>
               <div className="cp-jcard__c">{j.job.company.name}</div>
+              <CompanyHiringBadge companyId={j.job.company.id} />
               <div className="cp-jcard__row">
                 <div className="cp-meter"><i style={{ width: `${j.fit}%` }} /></div>
                 <span>{j.fit}%</span>
