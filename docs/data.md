@@ -21,11 +21,11 @@ Daily snapshots in S3, laid out as `YYYY/MM/DD/`. We work from the **2026-09-30*
 |---|---|---|---|
 | Kaggle `suriyaganesh/resume-dataset-structured`, version 2 (2024-11-14) | `data/external/resume_structured/` | MIT | About 54,000 resumes, OCR'd and LLM-structured from public resume collections. Files are numbered (`01_people.csv` … `06_skills.csv`). Tables: `people` (never loaded: names and contact details), `experience` (title, firm, start/end MM/YYYY, location; only title and dates are loaded), `education`, `person_skills`, `skills`, `abilities`. Skills are undated. Used by `notebooks/Profiles.ipynb` |
 
-**What it gives us:** 54,933 resume records → 17,952 unique people (each resume appeared about 3 times) → 15,145 who held a computer and mathematical job → **2,554 career changers**: 1,848 moved between tech roles (sideways or up; Profiles 4a.3 splits them), 369 retrained after working in another field, 337 retrained as new grads. For each: background, training field, first tech role, the switch date and the time it took. Most switches are from 2010–2019, so the dataset supplies career paths; the 2026 listings supply openings, pay and timing.
+**What it gives us:** 54,933 resume records → 17,952 unique people (each resume appeared about 3 times) → 16,237 who held a computer and mathematical job → **2,813 career changers**: 2,049 moved between tech roles (sideways or up; Profiles 4a.3 splits them), 407 retrained after working in another field, 357 retrained as new grads. For each: background, training field, first tech role, the switch date and the time it took. Most switches are from 2010–2019, so the dataset supplies career paths; the 2026 listings supply openings, pay and timing.
 
 **Saved by `notebooks/Profiles.ipynb`** (git-ignored, under `data/profiles/`; rerun after any change to the rules):
-- `modeling_table.pkl` (section 5): the final Profiles table for the ML notebook. All 15,145 people who reached a computer and mathematical job, one row each: pre-switch features, the role at the switch as the label, outcome columns (never features), and the `career_changer` flag marking the 2,554 career changers that results are reported on.
-- `retrained_candidates.csv` (4a.2a): the 706 retrained career changers, for browsing locally.
+- `modeling_table.pkl` (section 5): the final Profiles table for the ML notebook. All 16,237 people who reached a computer and mathematical job, one row each: pre-switch features, the role at the switch as the label, outcome columns (never features), and the `career_changer` flag marking the 2,813 career changers that results are reported on.
+- `retrained_candidates.csv` (4a.2a): the 764 retrained career changers, for browsing locally.
 
 ## External data: job growth expectations
 

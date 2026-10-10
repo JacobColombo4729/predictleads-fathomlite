@@ -90,13 +90,13 @@ Opens full screen on tap or click:
 - **Every path shows how many people it rests on** ("based on N people"); paths under about 10 people are marked as thin.
 - **Job growth carries a caveat:** it's for the whole occupation, so it sits next to the role's entry-level share from our listings.
 - **Questions about which path to take**, answered from the resume data (the Coach agent explains them):
-  - Should I retrain for the role directly, or take a first tech role and move from there? (Data and analytics: 216 career changers moved in from another tech role, only 22 retrained straight into it.)
+  - Should I retrain for the role directly, or take a first tech role and move from there? (Data and analytics: 218 career changers moved in from another tech role, only 19 retrained straight into it.)
   - Which training led people like me to this role, and how many people is that based on?
-  - How long did it take? (People who retrained after working took a median of 14 months from their last old-field job to their first tech job.)
+  - How long did it take? (People who retrained after working took a median of 15 months from their last old-field job to their first tech job.)
 - The **Ideas tab** (below) turns these paths into a personal outlook: skills to build, options, pay increase and expected growth.
 ### Moving across and up (already in tech or math)
 
-- For a user already in a computer and mathematical role: the **roles people in that role moved into** (1,848 people in the resumes changed role buckets within tech after at least 12 months), with how many people, and each role's 2026 openings, pay, closing speed and expected growth.
+- For a user already in a computer and mathematical role: the **roles people in that role moved into** (2,049 people in the resumes changed role buckets within tech after at least 12 months), with how many people, and each role's 2026 openings, pay, closing speed and expected growth.
 - Examples from the data: IT support → networks and systems or security; developers → databases or data and analytics.
 - Each move shows whether people moved sideways or up (into a senior or manager role), from Profiles 4a.3.
 - Picking a role sets what the priority queue ranks, like role discovery.
@@ -105,7 +105,7 @@ Opens full screen on tap or click:
 
 A separate tab: a personal outlook built from the user's résumé, with the compass as its source. Ideas from the team meeting, to try, not decided. **Time frames are kept vague for now** ("down the line", "in the coming years") until the team picks them. Every number is labelled an estimate, worded as "people like you" and "expected", never a promise, and the résumé stays local.
 - **"Based on your current résumé, we think you should build these skills":** skills that listings in the suggested roles ask for and the résumé doesn't show (EDA_SDA_3's skills mapped to O*NET, compared in `ML_Fit`), most-asked first.
-- **"Here's what your career options could look like down the line":** the roles people with a similar background reached and how long it took them (Profiles; for example a median of 14 months from leaving the old job to the first tech job), with each role's 2026 openings.
+- **"Here's what your career options could look like down the line":** the roles people with a similar background reached and how long it took them (Profiles; for example a median of 15 months from leaving the old job to the first tech job), with each role's 2026 openings.
 - **"Here's your pay increase":** median hourly pay in each option (EDA_SDA_2 3.12) vs. the user's current field (EDA_SDA_2's occupation summary, 1c), or a rate they enter.
 - **"Here's the job growth we expect in your career":** expected employment growth (%) for each option, from official projections (BLS plugs in directly by occupation code), next to the role's entry-level share.
 - **Stepping-stone roles:** a role that bridges two functions on the way to a bigger move (for example engineer → pre-sales engineer → director). The resume rules record the level at each move, so the tab can show roles people passed through.

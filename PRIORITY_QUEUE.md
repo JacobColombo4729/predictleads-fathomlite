@@ -8,7 +8,7 @@
 ## Now
 
 - **Tomorrow (2026-10-10), Jacob:** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
-- **Rerun Profiles, then EDA_SDA_2 (IT project management bucket):** Profiles from the top (rules changed: new bucket, project managers no longer "manager or above"), save; then EDA_SDA_2 from the top through 3.12. Claude updates every Profiles count (2,554 career changers and the rest) in the notebook, docs and deck, and refreezes Profiles.
+- **Rerun EDA_SDA_2 from 3.6c to the end** (it reads the new Profiles table: 2,813 career changers, with IT project management). Then Claude fills in the 1d, 3.6 and 3.12 notes.
 - **EDA_SDA_2 (non-text), the next notebook:**
   - **Setup: done** (2026-10-10): 14,139 computer and mathematical listings from 6,723 companies; occupation summary saved (`data/clean/occupation_summary.pkl`, 1,008 occupations).
   - **2b Additional cleaning: done** (2026-10-10); the staffing flags were checked in the 2b.1 review.
