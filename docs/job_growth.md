@@ -41,6 +41,7 @@ The core needs only BLS Employment Projections. The rest serve the proposed exte
 1. **Download** the occupation table from the 2025–2035 projections into `data/external/` once the terms of use are checked.
 2. **Join** on the 6-digit occupation code: the first part of `onet_code` on listings (for example `15-2051`) matches BLS's code.
 3. **Roll up to role buckets** with `ONET_ROLE_BUCKETS`, weighting each occupation by its 2025 employment.
+   - **Catch-all code:** BLS projects only 6-digit codes, so the detailed codes inside 15-1299 ("computer occupations, all other") that `ONET_DETAILED_BUCKETS` maps to their own buckets have no projection of their own. **IT project management (15-1299.09) gets 15-1299's growth as a proxy, flagged as such**; for security and networks and systems, whose 15-1299 parts are small, the 6-digit rollup is used as is.
 4. **Convert to the chosen horizon** at the same yearly rate:
    - Yearly rate: (1 + 10-year growth)^(1/10) − 1
    - Growth over *n* years: (1 + 10-year growth)^(*n*/10) − 1, with *n* ≤ 5

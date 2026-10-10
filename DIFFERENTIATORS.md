@@ -49,6 +49,7 @@ Every compass idea, with status and where it's built: [`COMPASS.md`](COMPASS.md)
 - **Not hires:** listings appear and close; we don't see who got the job, so we never say "you'll get this job".
 - **Not success rates:** the resumes only show people who made a switch, not those who tried and didn't. The compass shows where switchers went, never the odds that a switch works.
 - **Not entry-level growth:** job growth projections cover a whole occupation; entry-level openings come from our listings.
+- **Not a certain future:** growth is "expected (official projections)", never "will grow", with its accuracy stated (moderate for years 1–2, low to moderate for 3–5) and a range if the error band is adopted.
 
 ## Changes made (2026-10-09)
 
