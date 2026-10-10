@@ -8,8 +8,7 @@
 ## Now
 
 - **Jacob (from 2026-10-10):** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
-- **EDA_SDA_2 (non-text), in progress.** Done (2026-10-10): setup and the niche cut (14,019 listings), 2b cleaning and filter fields, 3.1 ghosts and the 90-day line, 3.2 source, 3.3 freshness and crawl timing, 3.4 pay disclosure, 3.7 blind spots and state, 3.5 company volume and copies, 3.6 role buckets, 3.8 company facts and no-country listings, 3.12 the compass's 2026 side. Ten charts, matching EDA_SDA_1. Still to write:
-  - **3.9 Missing data:** run once; checks added (merged missing patterns, days open with a description only, no-description share by company type). Rerun 3.9a–e, then notes.
+- **EDA_SDA_2 (non-text), in progress.** Done (2026-10-10): setup and the niche cut (14,019 listings), 2b cleaning and filter fields, 3.1 ghosts and the 90-day line, 3.2 source, 3.3 freshness and crawl timing, 3.4 pay disclosure, 3.7 blind spots and state, 3.5 company volume and copies, 3.6 role buckets, 3.8 company facts and no-country listings, 3.9 missing data, 3.12 the compass's 2026 side. Eleven charts, matching EDA_SDA_1. Still to write:
   - **3.10 Outliers:** IQR and boxplots for days open, words, hourly pay, times listed.
   - **3.11 Hide what a career changer can't get:** manager-level listings per applicant, text blockers after EDA_SDA_3; report what each rule hides.
   - **4 Final table:** defend each decision, apply them at the end, save for EDA_SDA_3. **5 Conclusion.**
@@ -27,7 +26,7 @@
 - **EDA_SDA_4 (statistics):**
   - Descriptive statistics by group; Pearson + Spearman, Cramér's V, point-biserial; VIF.
   - Group interactions, including by role bucket, and checks for confounding (Simpson's paradox).
-  - Adjusted check: a Cox survival regression with every standard confounder (company volume, source and platform, staffing agency, role bucket, seniority, month), company-clustered errors, hazard ratios with 95% intervals and a proportional-hazards check.
+  - Adjusted check: a Cox survival regression with every standard confounder (company volume, source and platform, staffing agency, role bucket, seniority, month, company type, has a description), company-clustered errors, hazard ratios with 95% intervals and a proportional-hazards check.
   - Welch's t-test plus Mann–Whitney (Wilcoxon rank-sum), chi-square and log-rank, with effect sizes and Benjamini–Hochberg; this is where EDA_SDA_1's and EDA_SDA_2's descriptive gaps get significance tests.
   - Company-clustered bootstrap intervals; survival checks (censoring, left truncation, competing risks).
   - Record each feature kept, dropped or combined; save the modeling-ready table.
@@ -49,7 +48,7 @@
   - Split by time (train April–July, validate August, test September), folds grouped by company; test used once.
   - Baselines: `DummyClassifier`, newest first, title keyword search.
   - Models: logistic regression, trees, random forest, LightGBM, CatBoost, XGBoost; Cox and survival models; LambdaRank.
-  - Leakage: counts from earlier listings only; a date-picker model trained only on what was known by its date.
+  - Leakage: counts from earlier listings only; a date-picker model trained only on what was known by its date; check that `has_desc` and the text flags are known at first sighting (EDA_SDA_2 3.9) before using them.
   - **The priority queue:** combine the fit score, chance still open and apply-by, accessibility and pay in one formula; weights start from EDA_SDA_4's adjusted model and are tuned on the validation month; only features that survived EDA_SDA_4.
   - Evaluation (ROC-AUC, F1, C-index, precision@k, NDCG); the queue against newest-first: of each top 10, how many stay open long enough, are reachable and are in the role the person actually moved into; SHAP, sensitivity checks, solution report.
 - **Job growth expectations:** check the terms of use, download the official 10-year occupational projections into `data/external/`, map them to role buckets by occupation code, and convert to the time frame the team picks (at most 5 years). Add an expected-growth column to the compass (EDA_SDA_2 3.12).
