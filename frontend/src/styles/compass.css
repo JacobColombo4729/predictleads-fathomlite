@@ -249,3 +249,7 @@ tr.row--picked { background: var(--accent-soft); }
 .cp-save.is-saved { color: var(--accent-strong); background: var(--accent-soft); border-color: var(--accent-border); cursor: default; }
 .cp-sug, .cp-jcard { position: relative; }
 .cp-toast a.cp-toast__btn { text-decoration: none; }
+
+/* Suggested roles must stay easy to see: a bright outline, and only a slight fade when outside the scope wedge. */
+.cp-dot.is-sug.is-out > g { opacity: 0.85; }
+.cp-mark--sug { stroke-width: 1.5px; }

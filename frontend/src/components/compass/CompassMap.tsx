@@ -414,7 +414,7 @@ export default function CompassMap({ result, themeFilter, selectedId, highlightI
           return (
             <g
               key={j.job.id}
-              className={`cp-dot${dim ? " is-dim" : ""}${lit ? " is-lit" : ""}${scopeJobs.has(j.job.id) ? "" : " is-out"}`}
+              className={`cp-dot${dim ? " is-dim" : ""}${lit ? " is-lit" : ""}${scopeJobs.has(j.job.id) ? "" : " is-out"}${j.pick ? "" : " is-sug"}`}
               tabIndex={visible ? 0 : -1}
               role="button"
               aria-label={`${j.job.title} at ${j.job.company.name}, ${j.role}, ${theme.name}, fit ${j.fit} percent, ${TIER_NAME[tierOf(j.fit, stretch)]}${j.pick ? "" : ", suggested"}`}
@@ -437,8 +437,8 @@ export default function CompassMap({ result, themeFilter, selectedId, highlightI
                 <circle className="cp-mark" r={8} strokeWidth={selected ? 3 : 2} style={{ fill: color, stroke: selected ? "var(--text)" : "var(--surface)" }} />
               ) : (
                 <>
-                  <circle className="cp-halo" r={9} style={{ fill: color, opacity: 0.35 }} />
-                  <rect className="cp-mark" x={-7} y={-7} width={14} height={14} rx={2} transform="rotate(45)" strokeWidth={selected ? 3 : 2} style={{ fill: color, stroke: selected ? "var(--text)" : "var(--surface)" }} />
+                  <circle className="cp-halo" r={13} style={{ fill: color, opacity: 0.4 }} />
+                  <rect className="cp-mark cp-mark--sug" x={-9} y={-9} width={18} height={18} rx={3} transform="rotate(45)" strokeWidth={selected ? 3 : 2} style={{ fill: color, stroke: "var(--text)" }} />
                 </>
               )}
               </g>
@@ -461,7 +461,7 @@ export default function CompassMap({ result, themeFilter, selectedId, highlightI
           <span key={t.id}><i className="cp-key" style={{ background: themeColor(t.id) }} />{t.name}</span>
         ))}
         <span><i className="cp-key" style={{ background: "var(--text-muted)" }} />A job you picked</span>
-        <span><i className="cp-key cp-key--diamond" style={{ background: "var(--text-muted)" }} />A suggestion</span>
+        <span><i className="cp-key cp-key--diamond" style={{ background: "var(--text-muted)" }} />A suggested role ({result.jobs.filter((j) => !j.pick).length})</span>
         <span><i className="cp-key cp-key--scope" />Scope: what faces north (narrower means a tighter set of good fits)</span>
         <span><i className="cp-key cp-key--rings" />Rings, inside out: {TIER_NAME.best}, {TIER_NAME.reach}, {TIER_NAME.stretch}</span>
         <span className="cp-legend__hint">Drag the outer ring to turn it, or click a role to face it</span>
