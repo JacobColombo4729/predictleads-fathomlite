@@ -29,7 +29,7 @@ Daily snapshots in S3, laid out as `YYYY/MM/DD/`. We work from the **2026-09-30*
 
 ## External data: job growth expectations
 
-Official occupational employment projections (for example BLS's 10-year projections): expected employment change by occupation code. They join to listings and role buckets through the occupation part of `onet_code`. **Purpose:** recommendations based on future estimates, never more than **5 years** out (the exact horizon within that is the team's call). The 10-year rate converts to any shorter one at the same yearly rate: growth over *n* years = (1 + 10-year growth)^(*n*/10) − 1. To download into `data/external/` once the terms of use are checked.
+Official occupational employment projections (for example BLS's 10-year projections): expected employment change by occupation code. They join to listings and role buckets through the occupation part of `onet_code`. **Purpose:** recommendations based on future estimates, never more than **5 years** out (the exact horizon within that is the team's call). The 10-year rate converts to any shorter one at the same yearly rate: growth over *n* years = (1 + 10-year growth)^(*n*/10) − 1. To download into `data/external/` once the terms of use are checked and PredictLeads consents in writing to combining their data with it (agreement 4.3). **Current release: BLS Employment Projections 2025–2035** ([data tables](https://www.bls.gov/emp/data.htm)). Full plan: [`docs/job_growth.md`](job_growth.md).
 
 ## Fields the project depends on
 

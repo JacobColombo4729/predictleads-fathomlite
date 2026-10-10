@@ -20,7 +20,7 @@ It's built from **2,813 real career switches** in a public resume dataset (`note
 | **Field trained in → first tech job** | Where each kind of training led | Profiles 4a.2b | Built |
 | **Moves within tech** | Which roles people in the user's tech role moved into, sideways or up | Profiles 4a.3 | Built |
 | **Each role's 2026 market** | Open listings, new per week, hourly pay, how fast listings close, entry-level share, openness to career changers, remote share | EDA_SDA_2 3.12 | Built (needs a rerun after each change) |
-| **Expected job growth** | Growth for each role over **at most the next 5 years**, from official occupational projections (BLS plugs in by occupation code); it drives forward-looking recommendations (section 2b) | EDA_SDA_2 3.12; used in `ML_Fit` | Column ready; download queued |
+| **Expected job growth** | Growth for each role over **at most the next 5 years**, from official occupational projections (BLS plugs in by occupation code); it drives forward-looking recommendations (section 2b) | EDA_SDA_2 3.12; used in `ML_Fit` | Column ready; BLS 2025–2035 projections released; plan in [`docs/job_growth.md`](docs/job_growth.md) |
 | **People behind each path** | "Based on N people"; paths under 10 people marked thin | EDA_SDA_2 3.12 | Built |
 | **Suggested roles for this user** | Roles the user's background transfers to | `ML_Fit` | Planned |
 
@@ -89,3 +89,4 @@ A separate tab built on the compass: a personal outlook from the user's résumé
 - **Time frames** for career options and job growth (team), **with growth capped at 5 years**.
 - **A separate `Compass.ipynb`** that assembles everything that doesn't need ML now, with `ML_Fit` adding personal suggestions later, instead of assembling at the end of `ML_Fit`.
 - **The "moved up in the same role" pool** (would reopen Profiles).
+- **Job growth extensions** (proposed, `docs/job_growth.md` section 4): an error band from BLS's own track record, interest-rate scenarios for years 1–2, and listing momentum shown next to growth. Each would reopen part of the 2026-10-09 external-data decision.

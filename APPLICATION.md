@@ -210,7 +210,7 @@ All public. Each would need its terms of use checked.
 
 | Dataset | What it adds | Used in |
 |---|---|---|
-| Job growth expectations (official occupational employment projections, e.g. BLS) | Expected employment growth by occupation; published for 10 years and converted to the chosen horizon (at most 5 years) at the same yearly rate | Role discovery, retraining compass, market panel. Joins directly on occupation code |
+| Job growth expectations (BLS Employment Projections 2025–2035; plan in `docs/job_growth.md`) | Expected employment growth by occupation; published for 10 years, rolled up to role buckets weighted by 2025 employment and converted to the chosen horizon (at most 5 years) at the same yearly rate. Joined only after PredictLeads' written consent (agreement 4.3) | Role discovery, retraining compass, market panel. Joins directly on occupation code |
 | O*NET skills, abilities and related occupations | The skills each occupation needs, and which occupations are close | Transferable fit; suggesting target fields from a background; skills to build (compass) |
 
 ---
@@ -250,6 +250,7 @@ Each stage is usable on its own, so we always have something to demo.
 - **Team split:** who is best suited to own the app (front end, MCP servers), so the analysis isn't starved?
 - **Queue fields:** is anything missing, such as a skills-gap column or company information?
 - **Time frames:** how far ahead the compass looks for career options and job growth (not decided yet; growth at most 5 years).
+- **Growth as a range:** show expected growth as one number or with an error band from BLS's past accuracy (proposed in `docs/job_growth.md` 4a)?
 - **Advisors:** may an agent backed by an outside LLM see posting text, or only aggregates and model outputs?
 - **External data:** which datasets are allowed, and do we need permission to combine them with PredictLeads data?
 - **Hosting:** does the app need to be hosted, or is a local demo enough?
