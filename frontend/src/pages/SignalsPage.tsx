@@ -5,6 +5,7 @@ import { FAMILY_LABEL, PATTERN_HELP, PATTERN_LABEL, pct, shortDate } from "../li
 import PatternBadge from "../components/signals/PatternBadge";
 import Sparkline from "../components/signals/Sparkline";
 import SignalDetail from "../components/signals/SignalDetail";
+import AskMarket from "../components/signals/AskMarket";
 
 const PAGE = 25;
 const PATTERNS: SignalPattern[] = ["burst", "sustained", "cooling"];
@@ -69,6 +70,8 @@ export default function SignalsPage() {
           </p>
         </div>
       </header>
+
+      <AskMarket />
 
       <section className="cp-card sg-explain" aria-label="What the patterns mean">
         {PATTERNS.slice(0, 2).map((p) => {

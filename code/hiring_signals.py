@@ -88,6 +88,17 @@ def _dedupe_key(company: str, title: str, description: str | None, location: str
 
 # --------------------------------------------------------------------------- loading
 
+def _place(location_data: Any) -> tuple[str | None, str | None, str | None]:
+    """(city, state, country) of the first stated location of an opening, or Nones."""
+    first = location_data[0] if isinstance(location_data, list) and location_data and isinstance(location_data[0], Mapping) else {}
+    return tuple((str(first.get(key)).strip() or None) if first.get(key) else None for key in ("city", "state", "country"))  # type: ignore[return-value]
+
+
+def _number(source: Any, key: str) -> float | None:
+    value = source.get(key) if isinstance(source, Mapping) else None
+    return float(value) if isinstance(value, (int, float)) and not isinstance(value, bool) else None
+
+
 def load_listings(pool_path: Path, limit: int | None = None) -> pd.DataFrame:
     """Stream the pool into a slim table. Reposts (same company, title and description) become one opening that runs from
     its earliest first sighting to its latest last sighting, with `reposts` counting the extra copies."""
@@ -115,6 +126,7 @@ def load_listings(pool_path: Path, limit: int | None = None) -> pd.DataFrame:
                 existing["reposts"] += 1
                 continue
             salary = record.get("salary_data_raw") or {}
+            place = _place(record.get("location_data_raw"))
             rows[key] = {
                 "job_id": record.get("job_id"), "company_id": company,
                 "company_name": record.get("company_name_included"), "domain": record.get("company_domain_included"),
@@ -123,6 +135,9 @@ def load_listings(pool_path: Path, limit: int | None = None) -> pd.DataFrame:
                 "seniority": record.get("seniority"),
                 "has_salary": bool(isinstance(salary, Mapping) and (salary.get("salary_low") or salary.get("salary_high"))),
                 "tags": tags,
+                "city": place[0], "state": place[1], "country": place[2],
+                "salary_low_usd": _number(salary, "salary_low_usd"), "salary_high_usd": _number(salary, "salary_high_usd"),
+                "salary_unit": salary.get("salary_time_unit") if isinstance(salary, Mapping) else None,
             }
     frame = pd.DataFrame(list(rows.values()))
     if frame.empty:
@@ -422,6 +437,31 @@ def _permutation(model: Any, X: pd.DataFrame, y: np.ndarray, repeats: int = 3) -
     return scores
 
 
+# --------------------------------------------------------------------------- market table
+
+MARKET_COLUMNS = ["job_id", "company_id", "company_name", "domain", "title", "family", "first_day", "last_day", "closed", "batch_start",
+                  "seniority", "city", "state", "country", "salary_low_usd", "salary_high_usd", "salary_unit", "tags"]
+
+
+def market_table(frame: pd.DataFrame, cutoff: int) -> pd.DataFrame:
+    """One row per opening (reposts merged) with what questions about the market need: place, pay, tools, seniority and
+    whether the opening was first seen on a bulk-import day (those never count as new hiring)."""
+    flagged = flag_artifacts(frame, upto=cutoff)
+    table = flagged.assign(tags=flagged["tags"].map(lambda t: "|".join(t)))
+    for column in MARKET_COLUMNS:
+        if column not in table:
+            table[column] = None
+    return table[MARKET_COLUMNS]
+
+
+def write_market_table(pool_path: Path, out_file: Path, snapshot: str = "2026-09-30", limit: int | None = None) -> int:
+    frame = load_listings(pool_path, limit=limit)
+    table = market_table(frame, day_number(snapshot))
+    out_file.parent.mkdir(parents=True, exist_ok=True)
+    table.to_csv(out_file, index=False, compression="gzip")
+    return int(len(table))
+
+
 # --------------------------------------------------------------------------- run everything
 
 def build(pool_path: Path, out_dir: Path, snapshot: str = "2026-09-30", limit: int | None = None) -> dict[str, Any]:
@@ -442,6 +482,7 @@ def build(pool_path: Path, out_dir: Path, snapshot: str = "2026-09-30", limit: i
                    evidence=intents["evidence"].map(json.dumps) if len(intents) else None).to_csv(out_dir / "intent_signals.csv", index=False)
     technology_leads(frame, cutoff).to_csv(out_dir / "technology_leads.csv", index=False)
     weekly_series(frame, cutoff).merge(names, left_on="company_code", right_index=True).to_csv(out_dir / "company_weekly.csv", index=False)
+    market_table(frame, cutoff).to_csv(out_dir / "market_listings.csv.gz", index=False, compression="gzip")
     summary = {
         "snapshot": snapshot, "pool": str(pool_path), "listings_after_merging_reposts": int(len(frame)),
         "reposts_merged": int(frame["reposts"].sum()), "companies": int(frame["company_code"].nunique()),
@@ -463,6 +504,11 @@ if __name__ == "__main__":  # pragma: no cover
     b.add_argument("--out", type=Path, required=True)
     b.add_argument("--snapshot", default="2026-09-30")
     b.add_argument("--limit", type=int, default=None)
+    m = sub.add_parser("market", help="write only the per-listing market table (market_listings.csv.gz) used by Ask the market")
+    m.add_argument("--pool", type=Path, required=True)
+    m.add_argument("--out", type=Path, required=True, help="the file to write, for example <signals folder>/market_listings.csv.gz")
+    m.add_argument("--snapshot", default="2026-09-30")
+    m.add_argument("--limit", type=int, default=None)
     t = sub.add_parser("backtest", help="temporal backtest of the momentum signals")
     t.add_argument("--pool", type=Path, required=True)
     t.add_argument("--out", type=Path, required=True)
@@ -470,6 +516,8 @@ if __name__ == "__main__":  # pragma: no cover
     args = parser.parse_args()
     if args.command == "build":
         print(json.dumps(build(args.pool, args.out, args.snapshot, args.limit), indent=1))
+    elif args.command == "market":
+        print(f"wrote {write_market_table(args.pool, args.out, args.snapshot, args.limit)} listings to {args.out}")
     else:
         frame = load_listings(args.pool, limit=args.limit)
         test = day_number("2026-08-31")

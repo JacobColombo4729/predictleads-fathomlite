@@ -22,7 +22,7 @@ from typing import Any
 import numpy as np
 
 PARTICIPANT_RE = re.compile(r"^[A-Za-z0-9-]{16,64}$")
-EVENT_TYPES = frozenset({"impression", "rating", "rating_cleared", "save", "unsave", "compass_run"})
+EVENT_TYPES = frozenset({"impression", "rating", "rating_cleared", "save", "unsave", "compass_run", "market_ask", "market_research"})
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS participants (
