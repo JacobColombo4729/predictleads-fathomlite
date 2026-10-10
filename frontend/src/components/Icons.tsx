@@ -20,6 +20,9 @@ function Svg(props: SVGProps<SVGSVGElement>) {
 export const SearchIcon = () => (
   <Svg><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></Svg>
 );
+export const FindIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></Svg>
+);
 export const CompassIcon = (p: SVGProps<SVGSVGElement>) => (
   <Svg {...p}><circle cx="12" cy="12" r="9" /><path d="m15.5 8.5-2 5-5 2 2-5z" /></Svg>
 );
@@ -53,4 +56,10 @@ export const ThumbUpIcon = () => (
 );
 export const ThumbDownIcon = () => (
   <Svg><path d="M17 14V2" /><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z" /></Svg>
+);
+export const SunIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></Svg>
+);
+export const MoonIcon = (p: SVGProps<SVGSVGElement>) => (
+  <Svg {...p}><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" /></Svg>
 );

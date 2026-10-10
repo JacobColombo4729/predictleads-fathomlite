@@ -16,6 +16,17 @@
   --warn-text: #8a4b08;
   --warn-soft: #fdf1e1;
   --focus: #2563eb;
+  --accent-ink: #ffffff;            /* text on an accent-coloured button */
+  --accent-border: #a8dbd6;
+  --info-border: #bfd0f7;
+  --warn-border: #f1d9b5;
+  --violet: #5b3aa8; --violet-soft: #efe9fb; --violet-border: #d3c5f2;
+  --danger: #b42318; --danger-soft: #fdecea; --danger-ink: #7a1c14; --danger-border: #f3b9b3;
+  /* inverse surfaces (toast, send bar, chart tooltip) */
+  --inverse-bg: #17202a; --inverse-fg: #ffffff; --inverse-accent: #7fe0d6; --inverse-quiet: #b6c0cb;
+  --shadow-card: 0 1px 2px rgba(23, 32, 42, 0.05), 0 8px 24px rgba(23, 32, 42, 0.05);
+  --shadow-pop: 0 6px 20px rgba(0, 0, 0, 0.25);
+  color-scheme: light;
 
   /* Type */
   --font: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
@@ -40,4 +51,36 @@
 
   --shadow-sm: 0 1px 2px rgba(23, 32, 42, 0.06);
   --nav-w: 76px;
+}
+
+
+/* Dark theme: near-black surfaces with a green accent. It is the default; the toggle in the side nav switches back. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d0d0d;
+  --surface: #1a1a19;
+  --surface-muted: #222221;
+  --border: #2c2c2a;
+  --border-strong: #454542;
+  --text: #f2f2ee;
+  --text-muted: #a3a299;
+  --accent: #34b3a6;
+  --accent-strong: #5fd0c4;
+  --accent-soft: #12302d;
+  --info: #7aa8ff;
+  --info-soft: #16233f;
+  --neutral-soft: #262625;
+  --warn-text: #f0b469;
+  --warn-soft: #2e2414;
+  --focus: #6aa3ff;
+  --accent-ink: #06201d;
+  --accent-border: #1d5a54;
+  --info-border: #2c4272;
+  --warn-border: #5a4426;
+  --violet: #b9a3f5; --violet-soft: #241c3d; --violet-border: #463a78;
+  --danger: #ff8a80; --danger-soft: #33191a; --danger-ink: #ffb4ab; --danger-border: #6b2b2b;
+  --inverse-bg: #f2f2ee; --inverse-fg: #0d0d0d; --inverse-accent: #0f766e; --inverse-quiet: #52514e;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-pop: 0 6px 20px rgba(0, 0, 0, 0.55);
 }

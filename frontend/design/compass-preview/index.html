@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compass preview</title>
+<style>
+  /* ---------- tokens: light by default, dark by OS setting or the toggle ---------- */
+  :root {
+    color-scheme: light;
+    --bg: #f9f9f7; --surface: #fcfcfb; --surface-2: #f4f4f1;
+    --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,.10);
+    --accent: #0f766e; --accent-ink: #ffffff; --accent-soft: #e3f4f2;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a;      /* categorical slots 1-3 (validated all-pairs) */
+    --seq: #2a78d6;                                    /* single-hue magnitude */
+    --good: #0ca30c; --good-ink: #006300; --warn: #fab219;
+    --shadow: 0 1px 2px rgba(11,11,11,.06), 0 8px 24px rgba(11,11,11,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --bg: #0d0d0d; --surface: #1a1a19; --surface-2: #222221;
+      --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+      --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
+      --accent: #34b3a6; --accent-ink: #06201d; --accent-soft: #12302d;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --seq: #3987e5;
+      --good-ink: #0ca30c;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0d0d0d; --surface: #1a1a19; --surface-2: #222221;
+    --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
+    --accent: #34b3a6; --accent-ink: #06201d; --accent-soft: #12302d;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --seq: #3987e5;
+    --good-ink: #0ca30c;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--ink); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  h1, h2, h3, p { margin: 0; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+  /* ---------- shell ---------- */
+  .shell { display: grid; grid-template-columns: 76px 1fr; min-height: 100vh; }
+  .nav { position: sticky; top: 0; height: 100vh; background: var(--surface); border-right: 1px solid var(--grid);
+         display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 0; }
+  .logo { width: 38px; height: 38px; border-radius: 10px; background: var(--accent); color: var(--accent-ink);
+          display: grid; place-items: center; font-weight: 700; font-size: 13px; margin-bottom: 14px; }
+  .nav button { width: 64px; padding: 8px 0; border: 0; background: none; border-radius: 12px; color: var(--ink-2);
+                display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; transition: background .2s, color .2s; }
+  .nav button:hover { background: var(--surface-2); }
+  .nav button[aria-current="page"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .nav svg { width: 22px; height: 22px; }
+  main { padding: 0 28px 64px; max-width: 1280px; width: 100%; }
+  .banner { margin: 0 -28px 22px; padding: 8px 28px; background: var(--surface-2); border-bottom: 1px solid var(--grid);
+            font-size: 12.5px; color: var(--ink-2); display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .banner strong { color: var(--ink); }
+  .banner .spacer { flex: 1; }
+  .pill-btn { border: 1px solid var(--grid); background: var(--surface); border-radius: 999px; padding: 4px 12px; font-size: 12px; transition: border-color .2s, background .2s; }
+  .pill-btn:hover { border-color: var(--axis); background: var(--surface-2); }
+
+  /* ---------- generic ---------- */
+  .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 16px; box-shadow: var(--shadow); padding: 22px; }
+  .eyebrow { font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  .page-head h1 { font-size: 26px; letter-spacing: -.01em; }
+  .page-head p { color: var(--ink-2); margin-top: 2px; }
+  .btn { border: 1px solid transparent; background: var(--accent); color: var(--accent-ink); padding: 9px 16px; border-radius: 10px; font-weight: 600; transition: filter .2s, transform .15s; }
+  .btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
+  .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; filter: none; }
+  .btn.ghost { background: transparent; color: var(--ink); border-color: var(--grid); }
+  .btn.ghost:hover { background: var(--surface-2); }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; border-radius: 999px; font-size: 12px; border: 1px solid var(--grid); background: var(--surface-2); color: var(--ink-2); white-space: nowrap; }
+  .dotkey { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+  .muted { color: var(--muted); }
+  .grid-2 { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr); gap: 18px; align-items: start; }
+  .stack { display: grid; gap: 18px; }
+  section.block { margin-top: 18px; }
+  section.block > .card > header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  section.block h2 { font-size: 17px; letter-spacing: -.005em; }
+  .sub { color: var(--ink-2); font-size: 13px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .filters button { border: 1px solid var(--grid); background: var(--surface); border-radius: 999px; padding: 4px 12px; font-size: 12.5px; transition: all .2s; }
+  .filters button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .filters button:hover { border-color: var(--axis); }
+
+  /* ---------- Saved view ---------- */
+  .saved-list { display: grid; gap: 8px; }
+  .saved-row { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--ring);
+               border-radius: 12px; background: var(--surface); transition: border-color .2s, background .2s, transform .15s; cursor: pointer; }
+  .saved-row:hover { border-color: var(--axis); transform: translateY(-1px); }
+  .saved-row.sel { border-color: var(--accent); background: var(--accent-soft); }
+  .saved-row input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .saved-row .t { font-weight: 600; } .saved-row .c { color: var(--ink-2); font-size: 13px; }
+  .sendbar { position: sticky; bottom: 16px; margin-top: 16px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+             background: var(--ink); color: var(--bg); border-radius: 14px; padding: 12px 16px; box-shadow: var(--shadow); }
+  .sendbar .btn { background: var(--accent); color: var(--accent-ink); }
+  .sendbar .ghost { color: var(--bg); border-color: rgba(255,255,255,.3); }
+
+  /* ---------- reveal ---------- */
+  .reveal { display: grid; grid-template-columns: 120px 1fr; gap: 22px; align-items: center; overflow: hidden; }
+  .reveal .needle-wrap { width: 120px; height: 120px; }
+  .steps { display: grid; gap: 9px; margin: 12px 0 14px; padding: 0; list-style: none; }
+  .steps li { display: flex; align-items: center; gap: 10px; color: var(--muted); transition: color .3s; }
+  .steps li.on { color: var(--ink); } .steps li.done { color: var(--ink-2); }
+  .steps .ico { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--axis); display: grid; place-items: center; flex: none; transition: all .3s; }
+  .steps li.on .ico { border-color: var(--accent); border-top-color: transparent; animation: spin .8s linear infinite; }
+  .steps li.done .ico { background: var(--accent); border-color: var(--accent); animation: none; }
+  .steps li.done .ico::after { content: ""; width: 5px; height: 9px; border: solid var(--accent-ink); border-width: 0 2px 2px 0; transform: rotate(45deg) translate(-1px,-1px); }
+  .progress { height: 6px; background: var(--grid); border-radius: 999px; overflow: hidden; }
+  .progress > i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width .6s cubic-bezier(.3,.8,.3,1); }
+  .tiles { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; }
+  .tile { background: var(--surface-2); border-radius: 12px; padding: 12px 14px; }
+  .tile b { display: block; font-size: 26px; letter-spacing: -.02em; line-height: 1.1; }
+  .tile span { font-size: 12.5px; color: var(--ink-2); }
+  .swing { transform-origin: 60px 60px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0% { transform: scale(.7); opacity: .55; } 100% { transform: scale(2.1); opacity: 0; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .fade-in > * { animation: fadeUp .6s cubic-bezier(.2,.8,.2,1) both; }
+  .fade-in > *:nth-child(2) { animation-delay: .08s; } .fade-in > *:nth-child(3) { animation-delay: .16s; }
+  .fade-in > *:nth-child(4) { animation-delay: .24s; } .fade-in > *:nth-child(5) { animation-delay: .32s; }
+
+  /* ---------- compass ---------- */
+  .mapwrap { position: relative; }
+  .mapwrap svg { width: 100%; height: auto; display: block; max-height: 640px; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--ink-2); margin-top: 10px; align-items: center; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { cursor: pointer; transition: transform .95s cubic-bezier(.2,.9,.25,1), opacity .5s; outline: none; }
+  .dot .mark { transition: transform .2s; transform-box: fill-box; transform-origin: center; }
+  .dot:hover .mark, .dot:focus-visible .mark, .dot.hl .mark { transform: scale(1.3); }
+  .dot.dim { opacity: .28; }
+  .halo { transform-box: fill-box; transform-origin: center; animation: pulse 2.6s ease-out infinite; }
+  .tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); border-radius: 10px; padding: 8px 11px; font-size: 12.5px;
+         max-width: 240px; box-shadow: var(--shadow); opacity: 0; transition: opacity .12s; z-index: 5; }
+  .tip.show { opacity: 1; } .tip b { display: block; font-size: 13.5px; } .tip i { font-style: normal; opacity: .75; }
+  table.data { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.data th, table.data td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  table.data th { color: var(--ink-2); font-weight: 600; }
+
+  .detail h3 { font-size: 18px; letter-spacing: -.01em; margin: 6px 0 2px; }
+  .detail ul { margin: 6px 0 12px; padding-left: 18px; color: var(--ink-2); }
+  .detail .meta { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 12px; }
+  .meter { height: 8px; background: var(--grid); border-radius: 0 999px 999px 0; position: relative; overflow: hidden; border-radius: 999px; }
+  .meter > i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--seq); border-radius: 0 4px 4px 0; transition: width .7s cubic-bezier(.3,.8,.3,1); }
+  .empty { color: var(--ink-2); padding: 18px; text-align: center; border: 1px dashed var(--axis); border-radius: 12px; }
+
+  /* ---------- fit tiers board ---------- */
+  .range { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; font-size: 13px; color: var(--ink-2); }
+  .range input[type=range] { width: min(320px, 60vw); accent-color: var(--accent); }
+  .board { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 14px; }
+  .col { background: var(--surface-2); border-radius: 14px; padding: 12px; min-height: 120px; }
+  .col h3 { font-size: 13.5px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .col h3 small { color: var(--muted); font-weight: 500; }
+  .tiermark { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 7px; vertical-align: -1px; border: 2px solid var(--seq); }
+  .tiermark.best { background: var(--seq); } .tiermark.reach { background: linear-gradient(90deg, var(--seq) 50%, transparent 50%); } .tiermark.stretch { background: transparent; }
+  .jcard { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer;
+           transition: border-color .2s, box-shadow .2s; }
+  .jcard:hover { border-color: var(--axis); box-shadow: var(--shadow); }
+  .jcard.sel { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .jcard .t { font-weight: 600; font-size: 13.5px; } .jcard .c { color: var(--ink-2); font-size: 12.5px; margin-bottom: 7px; }
+  .jcard .row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-2); }
+  .jcard .row .meter { flex: 1; }
+
+  /* ---------- gap bars ---------- */
+  .req { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr); gap: 18px; padding: 14px 0; border-top: 1px solid var(--grid); align-items: center; }
+  .req:first-of-type { border-top: 0; }
+  .req .name { font-weight: 600; } .req .ev { color: var(--ink-2); font-size: 12.5px; margin-top: 3px; }
+  .req .lab { font-size: 12px; color: var(--ink-2); margin-bottom: 5px; display: flex; justify-content: space-between; gap: 8px; }
+  .req .lab b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .bar { height: 8px; background: var(--grid); border-radius: 999px; overflow: hidden; position: relative; }
+  .bar > i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 0 4px 4px 0; transition: width 1s cubic-bezier(.25,.8,.25,1); }
+  .bar.freq > i { background: var(--ink-2); opacity: .55; } .bar.cov > i { background: var(--seq); }
+  .status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; margin-top: 8px; color: var(--ink-2); }
+  .status svg { width: 15px; height: 15px; flex: none; }
+  .status.supported { color: var(--good-ink); }
+  .status .note { color: var(--muted); }
+
+  /* ---------- path + suggestions ---------- */
+  .path { display: grid; gap: 10px; counter-reset: p; padding: 0; margin: 0; list-style: none; }
+  .path li { display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--ring); border-radius: 12px; background: var(--surface); }
+  .path li::before { counter-increment: p; content: counter(p); width: 26px; height: 26px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; font-weight: 600; font-size: 12.5px; color: var(--ink-2); }
+  .path .t { font-weight: 600; } .path .d { color: var(--ink-2); font-size: 12.5px; }
+  .stbtn { border: 1px solid var(--grid); background: var(--surface); border-radius: 999px; padding: 3px 11px; font-size: 12px; min-width: 96px; transition: all .2s; }
+  .stbtn[data-s="Current"] { border-color: var(--seq); color: var(--seq); font-weight: 600; }
+  .stbtn[data-s="Done"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .stbtn[data-s="Skipped"] { color: var(--muted); text-decoration: line-through; }
+  .sugs { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .sug { border: 1px solid var(--ring); border-radius: 14px; padding: 14px; background: var(--surface); transition: border-color .2s, transform .2s, box-shadow .2s; cursor: pointer; }
+  .sug:hover, .sug.sel { border-color: var(--axis); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .sug .badge { display: inline-flex; gap: 5px; align-items: center; font-size: 11.5px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 2px 9px; }
+  .sug .t { font-weight: 600; margin: 8px 0 1px; } .sug .c { color: var(--ink-2); font-size: 12.5px; }
+  .sug p { color: var(--ink-2); font-size: 12.5px; margin-top: 8px; }
+  .sug .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .foot { margin-top: 26px; color: var(--muted); font-size: 12.5px; max-width: 760px; }
+
+  .view { display: none; } .view.active { display: block; }
+  @media (max-width: 980px) {
+    .shell { grid-template-columns: 1fr; } .nav { position: static; height: auto; flex-direction: row; justify-content: center; border-right: 0; border-bottom: 1px solid var(--grid); padding: 8px; }
+    .logo { display: none; } main { padding: 0 16px 48px; } .banner { margin: 0 -16px 18px; padding: 8px 16px; }
+    .grid-2 { grid-template-columns: 1fr; } .board { grid-template-columns: 1fr; } .tiles { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .req { grid-template-columns: 1fr; gap: 10px; } .reveal { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="nav" aria-label="Main">
+    <div class="logo">PL</div>
+    <button data-view="discover" title="Discover (not part of this preview)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>Discover</button>
+    <button data-view="saved" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4h10a1 1 0 011 1v15l-6-4-6 4V5a1 1 0 011-1z"/></svg>Saved</button>
+    <button data-view="compass">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/><path d="M14.8 9.2l-1.6 4-4 1.6 1.6-4z" fill="currentColor" stroke="none"/></svg>Compass</button>
+    <button data-view="profile" title="Profile (not part of this preview)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Profile</button>
+  </nav>
+
+  <main>
+    <div class="banner">
+      <strong>Design preview</strong> <span>Fictional data and companies. Nothing here is connected to the real app yet.</span>
+      <span class="spacer"></span>
+      <button class="pill-btn" id="themeBtn" type="button">Dark mode</button>
+    </div>
+
+    <!-- ============ SAVED (select and send) ============ -->
+    <div class="view active" id="view-saved">
+      <div class="page-head">
+        <div><div class="eyebrow">Saved</div><h1>Saved jobs</h1><p>Tick the jobs that feel like “me”, then send them to the Compass. Button wording is still open.</p></div>
+        <div class="filters" style="margin:0"><button type="button" id="selAll">Select all</button><button type="button" id="selNone">Clear</button></div>
+      </div>
+      <div class="saved-list" id="savedList"></div>
+      <div class="sendbar">
+        <div><b id="selCount">12 selected</b> <span style="opacity:.75">· up to 20 work well</span></div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span style="opacity:.75;font-size:12.5px">Wording ideas: Send to Compass · Analyze my picks · Chart my course</span>
+          <button class="btn" id="sendBtn" type="button">Send to Compass</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ COMPASS ============ -->
+    <div class="view" id="view-compass">
+      <div class="page-head">
+        <div><div class="eyebrow">Compass</div><h1>Your career compass</h1><p id="headSub">Based on the 12 jobs you sent from Saved.</p></div>
+        <div style="display:flex;gap:10px"><button class="btn ghost" id="replayBtn" type="button">Replay analysis</button></div>
+      </div>
+
+      <div class="card reveal" id="reveal">
+        <div class="needle-wrap">
+          <svg viewBox="0 0 120 120" width="120" height="120" aria-hidden="true">
+            <circle cx="60" cy="60" r="54" fill="none" stroke="var(--grid)" stroke-width="2"/>
+            <circle cx="60" cy="60" r="40" fill="none" stroke="var(--grid)" stroke-width="1"/>
+            <g stroke="var(--axis)" stroke-width="2"><path d="M60 6v8M60 106v8M6 60h8M106 60h8"/></g>
+            <g class="swing" id="swing"><path d="M60 16l8 44H52z" fill="var(--accent)"/><path d="M60 104l-8-44h16z" fill="var(--axis)"/><circle cx="60" cy="60" r="5" fill="var(--surface)" stroke="var(--ink-2)" stroke-width="2"/></g>
+          </svg>
+        </div>
+        <div id="revealBody">
+          <div class="eyebrow">Analyzing your picks</div>
+          <ul class="steps" id="steps">
+            <li><span class="ico"></span>Reading 12 job descriptions</li>
+            <li><span class="ico"></span>Grouping 143 requirement sentences into 12 themes</li>
+            <li><span class="ico"></span>Matching them to your profile and resume</li>
+            <li><span class="ico"></span>Charting your options</li>
+          </ul>
+          <div class="progress"><i id="prog"></i></div>
+        </div>
+      </div>
+
+      <div id="results" hidden>
+        <div class="tiles fade-in" id="tiles" style="margin-top:18px"></div>
+
+        <section class="block">
+          <div class="grid-2">
+            <div class="card">
+              <header style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+                <div><h2>Where your picks sit</h2><p class="sub">Closer to the center means a closer fit to your resume. Angle groups jobs by theme.</p></div>
+                <button class="pill-btn" id="tableBtn" type="button" aria-pressed="false">View as table</button>
+              </header>
+              <div class="filters" id="themeFilters" role="group" aria-label="Filter by theme"></div>
+              <div class="mapwrap" id="mapwrap">
+                <svg id="map" viewBox="0 0 640 640" role="img" aria-label="Compass map of your picked jobs and suggested jobs. Use the table view for the same information as a list."></svg>
+                <div class="tip" id="tip" role="status"></div>
+                <div id="tableView" hidden></div>
+              </div>
+              <div class="legend" id="legend"></div>
+            </div>
+            <div class="stack">
+              <div class="card detail" id="detail"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="block"><div class="card">
+          <header><div><h2>Your fit, in tiers</h2><p class="sub">Slide to decide how much stretch you’re open to. Cards move between tiers.</p></div></header>
+          <div class="range"><span>Stay close to my experience</span><input type="range" id="stretch" min="0" max="100" value="50" aria-label="How much stretch are you open to"><span>Open to a stretch</span></div>
+          <div class="board" id="board"></div>
+        </div></section>
+
+        <section class="block"><div class="card">
+          <header><div><h2>What your picks ask for</h2><p class="sub">Requirement groups across the 12 jobs, and the evidence in your profile.</p></div></header>
+          <div class="filters" id="reqFilters" role="group" aria-label="Filter requirements"></div>
+          <div id="reqs"></div>
+        </div></section>
+
+        <section class="block"><div class="card">
+          <header><div><h2>Suggested next steps</h2><p class="sub">Ordered by how often a skill appears in your picks and how little your profile shows it. Tap a status to update it.</p></div></header>
+          <ol class="path" id="path"></ol>
+        </div></section>
+
+        <section class="block"><div class="card">
+          <header><div><h2>Roles you didn’t pick but might fit</h2><p class="sub">Different titles, similar work. Hover a card to find it on the compass.</p></div></header>
+          <div class="sugs" id="sugs"></div>
+        </div></section>
+
+        <p class="foot">The map shows similarity between your resume and each listing; it is not a prediction of hiring outcomes. “Not mentioned” means your profile doesn’t say, which is unknown, not a verdict. Listings are historical records from a past snapshot, not verified openings.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  const RM = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const $ = (s, r) => (r || document).querySelector(s);
+  const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  const svgEl = (tag, attrs) => { const n = document.createElementNS("http://www.w3.org/2000/svg", tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
+  const sleep = (ms) => new Promise((r) => setTimeout(r, RM ? 0 : ms));
+
+  /* ---------- fictional data ---------- */
+  const THEMES = {
+    sales: { name: "Sales engineering", color: "var(--s1)", angle: 40 },
+    data:  { name: "Data & analytics",  color: "var(--s2)", angle: 160 },
+    ml:    { name: "ML & AI",           color: "var(--s3)", angle: 280 }
+  };
+  const JOBS = [
+    { id: "p1",  pick: true,  theme: "sales", title: "Solutions Engineer",         co: "Brightfield Systems",   fit: 88, off: -8,  why: ["Demos and discovery calls match your sales experience", "Customer-facing technical conversations"], stretch: ["api", "cloud"] },
+    { id: "p2",  pick: true,  theme: "sales", title: "Pre-Sales Engineer",         co: "Kestrel Data",          fit: 82, off: 14,  why: ["Translating needs into requirements is a strength", "Strong match on stakeholder communication"], stretch: ["sql", "api"] },
+    { id: "p3",  pick: true,  theme: "sales", title: "Technical Account Manager",  co: "Orchard Cloud",         fit: 74, off: -28, why: ["Account ownership mirrors your CRM-heavy work"], stretch: ["cloud", "api"] },
+    { id: "p4",  pick: true,  theme: "sales", title: "Customer Success Engineer",  co: "Lumen Harbor",          fit: 79, off: 30,  why: ["Onboarding and documentation experience lines up"], stretch: ["api"] },
+    { id: "p5",  pick: true,  theme: "sales", title: "Sales Engineer, Data Platform", co: "Juniper & Vale",     fit: 77, off: 0,   why: ["Demo experience carries over directly"], stretch: ["sql", "cloud"] },
+    { id: "p6",  pick: true,  theme: "data",  title: "Data Analyst",               co: "Fernhill Labs",         fit: 71, off: -24, why: ["Reporting work and a data certificate"], stretch: ["sql", "python"] },
+    { id: "p7",  pick: true,  theme: "data",  title: "BI Analyst",                 co: "Stonebridge Software",  fit: 66, off: -2,  why: ["Dashboard capstone supports this"], stretch: ["bi", "sql"] },
+    { id: "p8",  pick: true,  theme: "data",  title: "Analytics Engineer",         co: "Tidewater Cloud",       fit: 48, off: 20,  why: ["SQL basics are a start"], stretch: ["python", "cloud", "sql"] },
+    { id: "p9",  pick: true,  theme: "ml",    title: "AI Solutions Specialist",    co: "Marlowe AI",            fit: 69, off: 8,   why: ["Customer-facing role with an AI product"], stretch: ["ml", "python"] },
+    { id: "p10", pick: true,  theme: "ml",    title: "Applied ML Analyst",         co: "Parallax Retail Tech",  fit: 52, off: -2,  why: ["Analytics background helps"], stretch: ["ml", "python", "ab"] },
+    { id: "p11", pick: true,  theme: "ml",    title: "LLM Application Developer",  co: "Cobalt Meadow",         fit: 41, off: 26,  why: ["Little direct evidence yet"], stretch: ["python", "api", "ml"] },
+    { id: "p12", pick: true,  theme: "ml",    title: "Machine Learning Engineer",  co: "Quillmark",             fit: 34, off: -18, why: ["Mostly a stretch from your current evidence"], stretch: ["ml", "python", "cloud"] },
+    { id: "s1",  pick: false, theme: "sales", title: "Implementation Consultant",  co: "Willowbrook Software",  fit: 80, off: -44, why: "Onboarding customers and writing guides is the same work you’ve done, under a title you didn’t search for.", builds: ["APIs", "Cloud basics"] },
+    { id: "s2",  pick: false, theme: "sales", title: "Technical Support Engineer II", co: "Harbor & Pine",      fit: 84, off: 44,  why: "Escalated-ticket experience maps directly; a common route into solutions engineering.", builds: ["SQL", "APIs"] },
+    { id: "s3",  pick: false, theme: "data",  title: "Revenue Operations Analyst", co: "Copperline",            fit: 70, off: -40, why: "CRM and reporting strengths, with room to grow into SQL and dashboards.", builds: ["SQL", "BI tools"] },
+    { id: "s4",  pick: false, theme: "data",  title: "Product Operations Analyst", co: "Saltmarsh Digital",     fit: 62, off: 40,  why: "Cross-team communication and documentation are central here.", builds: ["Python", "A/B testing"] },
+    { id: "s5",  pick: false, theme: "ml",    title: "AI Enablement Specialist",   co: "Granite Row",           fit: 67, off: 38,  why: "Training others on tools leans on your enablement background.", builds: ["ML basics"] }
+  ];
+  const SAVED_EXTRA = [
+    { title: "Field Service Coordinator", co: "Meridian Works" }, { title: "Inside Sales Lead", co: "Peakline Software" },
+    { title: "Operations Associate", co: "Daybreak Logistics" }, { title: "Marketing Analyst", co: "Foxglove Media" }
+  ];
+  const REQS = [
+    { id: "demo",   text: "Run technical product demos",                  n: 10, cov: 88, ev: "Ran weekly demos of a B2B analytics product for prospects", src: "Experience · Inside Sales Representative" },
+    { id: "comm",   text: "Stakeholder and executive communication",      n: 9,  cov: 92, ev: "Presented quarterly account summaries to customer leadership", src: "Experience · Tier 2 Support Specialist" },
+    { id: "needs",  text: "Turn customer needs into technical requirements", n: 9, cov: 74, ev: "Filed reproducible bug reports with engineering from customer cases", src: "Experience · Tier 2 Support Specialist" },
+    { id: "sql",    text: "SQL and data querying",                        n: 8,  cov: 44, ev: "Wrote queries to pull account data for reporting", src: "Skills · SQL" },
+    { id: "crm",    text: "CRM and pipeline tools",                       n: 7,  cov: 90, ev: "Managed a 40-account pipeline in a CRM", src: "Experience · Inside Sales Representative" },
+    { id: "python", text: "Python scripting and automation",              n: 7,  cov: 48, ev: "Small automation scripts; no professional development role", src: "Skills · Python" },
+    { id: "cloud",  text: "Cloud platform basics (AWS, Azure)",           n: 6,  cov: 12, ev: null, src: null },
+    { id: "api",    text: "APIs and integrations (REST)",                 n: 6,  cov: 18, ev: null, src: null },
+    { id: "docs",   text: "Technical documentation and enablement",       n: 5,  cov: 80, ev: "Authored help-center articles for new customers", src: "Experience · Tier 2 Support Specialist" },
+    { id: "bi",     text: "Dashboards and BI tools",                      n: 5,  cov: 58, ev: "Built ticket-trend dashboards for a certificate capstone", src: "Education · Data Analytics Certificate" },
+    { id: "ml",     text: "Machine learning fundamentals",                n: 4,  cov: 15, ev: null, src: null },
+    { id: "ab",     text: "Experiment design and A/B testing",            n: 3,  cov: 8,  ev: null, src: null }
+  ];
+  const ACTIONS = {
+    cloud:  "Deploy a tiny app on a free cloud tier and write up the steps.",
+    api:    "Build a small project that calls a public REST API and charts the result.",
+    python: "Automate one real report you currently build by hand, then add it to your profile.",
+    ml:     "Complete a short applied-ML course and train one model on a public dataset.",
+    sql:    "Practice joins and window functions on a sample database; add one query you’re proud of.",
+    bi:     "Publish a dashboard from a public dataset and describe the decisions it supports.",
+    ab:     "Read a primer on A/B testing and design one experiment for a product you know."
+  };
+  const statusOf = (cov) => (cov >= 70 ? "supported" : cov >= 35 ? "partial" : "unknown");
+
+  /* ---------- state ---------- */
+  const state = { view: "saved", theme: "all", reqFilter: "all", selected: "p1", table: false, stretch: 50, selectedSaved: new Set() };
+  const cx = 320, cy = 320;
+  const fitToR = (fit) => 60 + (100 - fit) * 2.3;
+  const thresholds = () => ({ t1: 82 - 0.16 * state.stretch, t2: 64 - 0.2 * state.stretch });
+  const tierOf = (fit) => { const t = thresholds(); return fit >= t.t1 ? "best" : fit >= t.t2 ? "reach" : "stretch"; };
+  const tierName = { best: "Best fit", reach: "Reach", stretch: "Stretch" };
+  const polar = (deg, r) => { const a = (deg * Math.PI) / 180; return [cx + r * Math.sin(a), cy - r * Math.cos(a)]; };
+  const jobAngle = (j) => THEMES[j.theme].angle + j.off;
+  const byId = (id) => JOBS.find((j) => j.id === id);
+  const pickedJobs = () => JOBS.filter((j) => j.pick);
+
+  /* ---------- theme toggle ---------- */
+  const root = document.documentElement;
+  const themeBtn = $("#themeBtn");
+  const isDark = () => (root.dataset.theme ? root.dataset.theme === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const syncThemeBtn = () => { themeBtn.textContent = isDark() ? "Light mode" : "Dark mode"; };
+  themeBtn.addEventListener("click", () => { root.dataset.theme = isDark() ? "light" : "dark"; syncThemeBtn(); });
+  syncThemeBtn();
+
+  /* ---------- views ---------- */
+  function showView(v) {
+    state.view = v;
+    document.querySelectorAll(".view").forEach((n) => n.classList.toggle("active", n.id === "view-" + v));
+    document.querySelectorAll(".nav button[data-view]").forEach((b) => { if (b.dataset.view === v) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
+    window.scrollTo({ top: 0, behavior: RM ? "auto" : "smooth" });
+  }
+  document.querySelectorAll(".nav button[data-view]").forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.view === "saved" || b.dataset.view === "compass") { showView(b.dataset.view); if (b.dataset.view === "compass" && !built) runAnalysis(); }
+  }));
+
+  /* ---------- Saved view ---------- */
+  const savedItems = [...pickedJobs().map((j) => ({ id: j.id, title: j.title, co: j.co })), ...SAVED_EXTRA.map((x, i) => ({ id: "x" + i, title: x.title, co: x.co }))];
+  pickedJobs().forEach((j) => state.selectedSaved.add(j.id));
+  function renderSaved() {
+    const list = $("#savedList"); list.textContent = "";
+    savedItems.forEach((it) => {
+      const row = el("label", "saved-row" + (state.selectedSaved.has(it.id) ? " sel" : ""));
+      const cb = el("input"); cb.type = "checkbox"; cb.checked = state.selectedSaved.has(it.id);
+      const mid = el("div"); mid.append(el("div", "t", it.title), el("div", "c", it.co));
+      row.append(cb, mid, el("span", "chip", "Saved"));
+      cb.addEventListener("change", () => { if (cb.checked) state.selectedSaved.add(it.id); else state.selectedSaved.delete(it.id); renderSaved(); });
+      list.append(row);
+    });
+    const n = state.selectedSaved.size;
+    $("#selCount").textContent = n + " selected";
+    $("#sendBtn").disabled = n < 3;
+    $("#sendBtn").title = n < 3 ? "Pick at least 3 jobs" : "";
+  }
+  $("#selAll").addEventListener("click", () => { savedItems.forEach((i) => state.selectedSaved.add(i.id)); renderSaved(); });
+  $("#selNone").addEventListener("click", () => { state.selectedSaved.clear(); renderSaved(); });
+  $("#sendBtn").addEventListener("click", () => { showView("compass"); runAnalysis(); });
+  renderSaved();
+
+  /* ---------- reveal ---------- */
+  let built = false, running = false;
+  async function runAnalysis() {
+    if (running) return; running = true;
+    const reveal = $("#reveal"), results = $("#results"), steps = [...document.querySelectorAll("#steps li")], prog = $("#prog"), swing = $("#swing");
+    reveal.hidden = false; results.hidden = true;
+    steps.forEach((s) => s.classList.remove("on", "done")); prog.style.width = "0";
+    let angle = 0;
+    const wobble = RM ? null : setInterval(() => { angle = (angle === 0 ? 70 : angle === 70 ? -40 : 0); swing.style.transition = "transform .7s cubic-bezier(.3,.7,.3,1)"; swing.style.transform = "rotate(" + angle + "deg)"; }, 750);
+    for (let i = 0; i < steps.length; i++) {
+      steps[i].classList.add("on"); prog.style.width = ((i + 0.5) / steps.length) * 100 + "%";
+      await sleep(850); steps[i].classList.remove("on"); steps[i].classList.add("done"); prog.style.width = ((i + 1) / steps.length) * 100 + "%";
+    }
+    if (wobble) clearInterval(wobble);
+    swing.style.transition = "transform 1.1s cubic-bezier(.2,1.4,.3,1)"; swing.style.transform = "rotate(40deg)";
+    await sleep(900);
+    reveal.hidden = true; results.hidden = false;
+    if (!built) { buildAll(); built = true; } else { replayEntrance(); }
+    running = false;
+  }
+  $("#replayBtn").addEventListener("click", () => { if (state.view === "compass") runAnalysis(); });
+
+  /* ---------- tiles ---------- */
+  function renderTiles() {
+    const t = $("#tiles"); t.textContent = "";
+    const covered = REQS.filter((r) => statusOf(r.cov) !== "unknown").length;
+    [["12", "jobs analyzed"], ["3", "themes found"], [covered + " of " + REQS.length, "requirement groups with evidence"], [String(JOBS.filter((j) => !j.pick).length), "roles you didn’t pick"]]
+      .forEach(([b, s]) => { const d = el("div", "tile"); d.append(el("b", null, b), el("span", null, s)); t.append(d); });
+  }
+
+  /* ---------- compass map ---------- */
+  const rings = {}; let dotEls = {};
+  function arcPath(a0, a1, r) { const [x0, y0] = polar(a0, r), [x1, y1] = polar(a1, r); return "M" + cx + " " + cy + " L" + x0 + " " + y0 + " A" + r + " " + r + " 0 0 1 " + x1 + " " + y1 + " Z"; }
+  function buildMap() {
+    const svg = $("#map"); svg.textContent = "";
+    Object.values(THEMES).forEach((t) => {
+      const w = svgEl("path", { d: arcPath(t.angle - 52, t.angle + 52, 292) }); w.style.fill = t.color; w.style.opacity = ".07"; svg.append(w);
+    });
+    ["t1", "t2", "t3"].forEach((k) => { const c = svgEl("circle", { cx, cy, r: 100, fill: "none" }); c.style.stroke = "var(--grid)"; c.style.strokeWidth = "1"; rings[k] = c; svg.append(c); });
+    const outer = svgEl("circle", { cx, cy, r: 292, fill: "none" }); outer.style.stroke = "var(--axis)"; outer.style.strokeWidth = "1"; svg.append(outer);
+    [0, 90, 180, 270].forEach((d) => { const [x0, y0] = polar(d, 292), [x1, y1] = polar(d, 304); const l = svgEl("line", { x1: x0, y1: y0, x2: x1, y2: y1 }); l.style.stroke = "var(--axis)"; l.style.strokeWidth = "2"; svg.append(l); });
+    [["N", 0], ["E", 90], ["S", 180], ["W", 270]].forEach(([t, d]) => { const [x, y] = polar(d, 318); const tx = svgEl("text", { x, y: y + 4, "text-anchor": "middle" }); tx.textContent = t; tx.style.fill = "var(--muted)"; tx.style.fontSize = "11px"; svg.append(tx); });
+    ["best", "reach", "stretch"].forEach((k) => { const tx = svgEl("text", { x: cx + 6, y: 0, "text-anchor": "start" }); tx.textContent = tierName[k]; tx.style.fill = "var(--muted)"; tx.style.fontSize = "11px"; tx.dataset.ring = k; svg.append(tx); });
+    // theme labels
+    Object.values(THEMES).forEach((t) => {
+      const [x, y] = polar(t.angle, 250); const g = svgEl("g", {}); const dk = svgEl("circle", { cx: x - 4, cy: y - 14, r: 4 }); dk.style.fill = t.color;
+      const tx = svgEl("text", { x: x + 4, y: y - 10, "text-anchor": "start" }); tx.textContent = t.name; tx.style.fill = "var(--ink-2)"; tx.style.fontSize = "12px"; tx.style.fontWeight = "600";
+      g.append(dk, tx); g.style.opacity = "0"; g.classList.add("tlabel"); svg.append(g);
+    });
+    // heading arrow (strongest direction)
+    const heading = svgEl("g", { id: "heading" }); heading.style.transformOrigin = cx + "px " + cy + "px"; heading.style.transformBox = "view-box"; heading.style.transition = "transform 1.2s cubic-bezier(.2,1.2,.3,1), opacity .6s";
+    const shaft = svgEl("line", { x1: cx, y1: cy - 18, x2: cx, y2: cy - 150, "stroke-width": 3, "stroke-linecap": "round" }); shaft.style.stroke = "var(--accent)";
+    const head = svgEl("path", { d: "M" + cx + " " + (cy - 168) + " l-9 20 h18 z" }); head.style.fill = "var(--accent)";
+    heading.append(shaft, head); heading.style.opacity = "0"; svg.append(heading);
+    // you
+    const you = svgEl("g", {}); const yc = svgEl("circle", { cx, cy, r: 22 }); yc.style.fill = "var(--surface)"; yc.style.stroke = "var(--accent)"; yc.style.strokeWidth = "3";
+    const yt = svgEl("text", { x: cx, y: cy + 4, "text-anchor": "middle" }); yt.textContent = "You"; yt.style.fill = "var(--ink)"; yt.style.fontSize = "12px"; yt.style.fontWeight = "700"; you.append(yc, yt); svg.append(you);
+    // dots
+    dotEls = {};
+    JOBS.forEach((j) => {
+      const g = svgEl("g", { class: "dot", tabindex: "0", role: "button", "aria-label": j.title + " at " + j.co + ", " + THEMES[j.theme].name + ", fit " + j.fit + " percent" });
+      g.dataset.id = j.id; g.style.transform = "translate(" + cx + "px," + cy + "px)"; g.style.opacity = "0";
+      const hit = svgEl("circle", { r: 16, fill: "transparent" });
+      let mark;
+      if (j.pick) { mark = svgEl("circle", { r: 8, class: "mark", "stroke-width": 2 }); mark.style.fill = THEMES[j.theme].color; mark.style.stroke = "var(--surface)"; }
+      else {
+        const halo = svgEl("circle", { r: 9, class: "halo" }); halo.style.fill = THEMES[j.theme].color; halo.style.opacity = ".35"; g.append(halo);
+        mark = svgEl("rect", { x: -7, y: -7, width: 14, height: 14, rx: 2, class: "mark", transform: "rotate(45)", "stroke-width": 2 }); mark.style.fill = THEMES[j.theme].color; mark.style.stroke = "var(--surface)";
+      }
+      g.append(hit, mark); svg.append(g); dotEls[j.id] = g;
+      g.addEventListener("pointermove", (e) => showTip(j, e)); g.addEventListener("pointerleave", hideTip);
+      g.addEventListener("focus", () => showTip(j)); g.addEventListener("blur", hideTip);
+      g.addEventListener("click", () => select(j.id));
+      g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(j.id); } });
+    });
+    layoutRings(false);
+  }
+  function layoutRings(animate) {
+    const t = thresholds(), targets = { t1: fitToR(t.t1), t2: fitToR(t.t2), t3: fitToR(Math.max(18, t.t2 - 28)) };
+    const names = { t1: "best", t2: "reach", t3: "stretch" };
+    Object.keys(targets).forEach((k) => {
+      const from = parseFloat(rings[k].getAttribute("r")), to = targets[k];
+      const apply = (v) => { rings[k].setAttribute("r", v); const lab = document.querySelector('#map text[data-ring="' + names[k] + '"]'); if (lab) lab.setAttribute("y", cy - v - 6); };
+      if (!animate || RM) { apply(to); return; }
+      const t0 = performance.now(); const step = (now) => { const p = Math.min(1, (now - t0) / 450), e = 1 - Math.pow(1 - p, 3); apply(from + (to - from) * e); if (p < 1) requestAnimationFrame(step); }; requestAnimationFrame(step);
+    });
+  }
+  function placeDots() {
+    JOBS.forEach((j, i) => {
+      const g = dotEls[j.id], [x, y] = polar(jobAngle(j), fitToR(j.fit));
+      setTimeout(() => { g.style.opacity = themeMatch(j) ? "1" : ".12"; g.style.transform = "translate(" + x + "px," + y + "px)"; }, RM ? 0 : 150 + i * 70);
+    });
+    document.querySelectorAll("#map .tlabel").forEach((n, i) => setTimeout(() => (n.style.opacity = "1"), RM ? 0 : 500 + i * 150));
+    const strongest = "sales"; const h = $("#heading"); h.style.transform = "rotate(0deg)";
+    setTimeout(() => { h.style.opacity = "1"; h.style.transform = "rotate(" + THEMES[strongest].angle + "deg)"; }, RM ? 0 : 900);
+  }
+  const themeMatch = (j) => state.theme === "all" || j.theme === state.theme;
+  function applyThemeFilter() { JOBS.forEach((j) => { dotEls[j.id].style.opacity = themeMatch(j) ? "1" : ".12"; dotEls[j.id].style.pointerEvents = themeMatch(j) ? "auto" : "none"; }); }
+  function showTip(j, e) {
+    const tip = $("#tip"); tip.textContent = "";
+    const b = el("b", null, j.title); const sub = el("i", null, j.co + (j.pick ? "" : " · suggested"));
+    tip.append(b, sub, el("div", null, THEMES[j.theme].name + " · " + tierName[tierOf(j.fit)] + " · fit " + j.fit + "%"));
+    tip.classList.add("show");
+    const wrap = $("#mapwrap").getBoundingClientRect();
+    let x, y;
+    if (e) { x = e.clientX - wrap.left + 14; y = e.clientY - wrap.top + 14; }
+    else { const r = dotEls[j.id].getBoundingClientRect(); x = r.left - wrap.left + 20; y = r.top - wrap.top + 20; }
+    tip.style.left = Math.min(x, wrap.width - 250) + "px"; tip.style.top = y + "px";
+  }
+  function hideTip() { $("#tip").classList.remove("show"); }
+
+  function buildLegend() {
+    const lg = $("#legend"); lg.textContent = "";
+    Object.values(THEMES).forEach((t) => { const s = el("span"); const d = el("i", "dotkey"); d.style.background = t.color; s.append(d, document.createTextNode(t.name)); lg.append(s); });
+    const a = el("span"); const c = el("i", "dotkey"); c.style.background = "var(--ink-2)"; a.append(c, document.createTextNode("A job you picked")); lg.append(a);
+    const b = el("span"); const dm = el("i", "dotkey"); dm.style.background = "var(--ink-2)"; dm.style.borderRadius = "2px"; dm.style.transform = "rotate(45deg) scale(.85)"; b.append(dm, document.createTextNode("A suggestion")); lg.append(b);
+    const ar = el("span"); const ai = el("i", "dotkey"); ai.style.background = "var(--accent)"; ar.append(ai, document.createTextNode("Your strongest direction")); lg.append(ar);
+  }
+  function buildThemeFilters() {
+    const box = $("#themeFilters"); box.textContent = "";
+    [["all", "All themes"], ...Object.entries(THEMES).map(([k, v]) => [k, v.name])].forEach(([k, label]) => {
+      const b = el("button", null, label); b.type = "button"; b.setAttribute("aria-pressed", String(state.theme === k));
+      b.addEventListener("click", () => { state.theme = k; buildThemeFilters(); applyThemeFilter(); renderBoard(true); });
+      box.append(b);
+    });
+  }
+  function buildTable() {
+    const tv = $("#tableView"); tv.textContent = "";
+    const t = el("table", "data"); const head = el("tr"); ["Job", "Company", "Theme", "Tier", "Fit", "Type"].forEach((h) => head.append(el("th", null, h))); t.append(head);
+    JOBS.filter(themeMatch).slice().sort((a, b) => b.fit - a.fit).forEach((j) => { const r = el("tr"); [j.title, j.co, THEMES[j.theme].name, tierName[tierOf(j.fit)], j.fit + "%", j.pick ? "Picked" : "Suggested"].forEach((v) => r.append(el("td", null, v))); t.append(r); });
+    tv.append(t);
+  }
+  $("#tableBtn").addEventListener("click", () => {
+    state.table = !state.table; $("#tableBtn").setAttribute("aria-pressed", String(state.table)); $("#tableBtn").textContent = state.table ? "View as map" : "View as table";
+    $("#map").hidden = state.table; $("#tableView").hidden = !state.table; $("#legend").hidden = state.table; if (state.table) buildTable();
+  });
+
+  /* ---------- detail panel ---------- */
+  function statusChip(id) {
+    const r = REQS.find((x) => x.id === id); const s = statusOf(r.cov); const c = el("span", "chip");
+    const d = el("i", "dotkey"); d.style.background = s === "supported" ? "var(--good)" : s === "partial" ? "var(--warn)" : "var(--muted)";
+    c.append(d, document.createTextNode(r.text.split(" (")[0] + " · " + (s === "unknown" ? "not mentioned" : s)));
+    return c;
+  }
+  function renderDetail() {
+    const box = $("#detail"); box.textContent = ""; const j = byId(state.selected);
+    if (!j) { box.append(el("div", "empty", "Select a dot to see why it fits and where you’d stretch.")); return; }
+    box.append(el("div", "eyebrow", j.pick ? "Picked job" : "Suggested job"));
+    box.append(el("h3", null, j.title)); box.append(el("p", "sub", j.co));
+    const meta = el("div", "meta"); const th = el("span", "chip"); const dk = el("i", "dotkey"); dk.style.background = THEMES[j.theme].color; th.append(dk, document.createTextNode(THEMES[j.theme].name));
+    const tier = el("span", "chip", tierName[tierOf(j.fit)]); meta.append(th, tier); box.append(meta);
+    const lab = el("div", "sub", "Fit to your resume"); const m = el("div", "meter"); const mi = el("i"); mi.style.width = "0"; m.append(mi); box.append(lab, m);
+    const fitTxt = el("p", "sub", j.fit + "% similarity to your profile. This is a similarity score, not a chance of being hired."); fitTxt.style.margin = "6px 0 12px"; box.append(fitTxt);
+    requestAnimationFrame(() => requestAnimationFrame(() => (mi.style.width = j.fit + "%")));
+    box.append(el("div", "eyebrow", "Why it fits"));
+    const ul = el("ul"); (Array.isArray(j.why) ? j.why : [j.why]).forEach((w) => ul.append(el("li", null, w))); box.append(ul);
+    if (j.pick) {
+      box.append(el("div", "eyebrow", "Where you’d stretch")); const w = el("div", "meta"); w.style.marginTop = "8px"; j.stretch.forEach((id) => w.append(statusChip(id))); box.append(w);
+    } else {
+      box.append(el("div", "eyebrow", "Builds toward")); const w = el("div", "meta"); w.style.marginTop = "8px"; j.builds.forEach((b) => w.append(el("span", "chip", b))); box.append(w);
+    }
+    const row = el("div"); row.style.cssText = "display:flex;gap:10px;margin-top:6px;flex-wrap:wrap";
+    const v = el("button", "btn ghost", "View details"); v.type = "button"; v.title = "Preview only";
+    const s = el("button", "btn", j.pick ? "Saved" : "Save job"); s.type = "button"; s.disabled = j.pick; row.append(v, s); box.append(row);
+  }
+  function select(id) {
+    state.selected = id; renderDetail(); renderBoardSelection(); document.querySelectorAll(".sug").forEach((n) => n.classList.toggle("sel", n.dataset.id === id));
+    JOBS.forEach((j) => { const g = dotEls[j.id]; g.querySelector(".mark").style.stroke = j.id === id ? "var(--ink)" : "var(--surface)"; g.querySelector(".mark").style.strokeWidth = j.id === id ? "3" : "2"; });
+  }
+
+  /* ---------- fit tiers board (FLIP animation) ---------- */
+  const cards = {}; const cols = {};
+  function buildBoard() {
+    const board = $("#board"); board.textContent = "";
+    ["best", "reach", "stretch"].forEach((k) => {
+      const col = el("div", "col"); const h = el("h3"); const l = el("span"); const mk = el("i", "tiermark " + k); l.append(mk, document.createTextNode(tierName[k])); const cnt = el("small", null, "0"); h.append(l, cnt);
+      col.append(h); col.dataset.tier = k; cols[k] = { col, cnt }; board.append(col);
+    });
+    pickedJobs().forEach((j) => {
+      const c = el("div", "jcard"); c.tabIndex = 0; c.dataset.id = j.id;
+      c.append(el("div", "t", j.title), el("div", "c", j.co));
+      const row = el("div", "row"); const m = el("div", "meter"); const mi = el("i"); mi.style.width = j.fit + "%"; m.append(mi); row.append(m, el("span", null, j.fit + "%")); c.append(row);
+      c.addEventListener("click", () => select(j.id)); c.addEventListener("keydown", (e) => { if (e.key === "Enter") select(j.id); });
+      cards[j.id] = c;
+    });
+    renderBoard(false);
+  }
+  function renderBoard(animate) {
+    const first = {}; if (animate && !RM) Object.keys(cards).forEach((id) => (first[id] = cards[id].getBoundingClientRect()));
+    const order = pickedJobs().filter(themeMatch).sort((a, b) => b.fit - a.fit);
+    const counts = { best: 0, reach: 0, stretch: 0 };
+    Object.keys(cards).forEach((id) => { cards[id].style.display = "none"; });
+    order.forEach((j) => { const k = tierOf(j.fit); cols[k].col.append(cards[j.id]); cards[j.id].style.display = ""; counts[k]++; });
+    Object.keys(cols).forEach((k) => (cols[k].cnt.textContent = String(counts[k])));
+    if (animate && !RM) order.forEach((j) => {
+      const c = cards[j.id], l = c.getBoundingClientRect(), f = first[j.id]; if (!f || (f.width === 0 && f.height === 0)) return;
+      const dx = f.left - l.left, dy = f.top - l.top; if (!dx && !dy) return;
+      c.style.transition = "none"; c.style.transform = "translate(" + dx + "px," + dy + "px)";
+      requestAnimationFrame(() => requestAnimationFrame(() => { c.style.transition = "transform .5s cubic-bezier(.2,.8,.2,1)"; c.style.transform = ""; }));
+    });
+    renderBoardSelection();
+  }
+  function renderBoardSelection() { Object.keys(cards).forEach((id) => cards[id].classList.toggle("sel", id === state.selected)); }
+  $("#stretch").addEventListener("input", (e) => { state.stretch = Number(e.target.value); layoutRings(true); renderBoard(true); renderDetail(); if (state.table) buildTable(); });
+
+  /* ---------- requirement gap bars ---------- */
+  const ICON = {
+    supported: '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="var(--good)"/><path d="M4.6 8.2l2.3 2.3 4.5-4.8" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    partial: '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="var(--warn)" stroke-width="1.6"/><path d="M8 1.5a6.5 6.5 0 010 13z" fill="var(--warn)"/></svg>',
+    unknown: '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="2.4 2"/><path d="M6.2 6.3a1.9 1.9 0 113 1.5c-.7.5-1.2.8-1.2 1.6M8 11.6v.1" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round"/></svg>'
+  };
+  function buildReqFilters() {
+    const box = $("#reqFilters"); box.textContent = "";
+    [["all", "All"], ["supported", "Supported"], ["partial", "Partial"], ["unknown", "Not mentioned"]].forEach(([k, label]) => {
+      const b = el("button", null, label); b.type = "button"; b.setAttribute("aria-pressed", String(state.reqFilter === k));
+      b.addEventListener("click", () => { state.reqFilter = k; buildReqFilters(); renderReqs(); }); box.append(b);
+    });
+  }
+  function renderReqs() {
+    const box = $("#reqs"); box.textContent = "";
+    REQS.filter((r) => state.reqFilter === "all" || statusOf(r.cov) === state.reqFilter).forEach((r) => {
+      const s = statusOf(r.cov); const row = el("div", "req");
+      const a = el("div"); a.append(el("div", "name", r.text)); a.append(el("div", "ev", r.ev ? "“" + r.ev + "” — " + r.src : "Nothing in your profile mentions this yet."));
+      const b = el("div"); const lb = el("div", "lab"); lb.append(el("span", null, "In your picks"), el("b", null, r.n + " of 12")); const f = el("div", "bar freq"); const fi = el("i"); fi.dataset.w = (r.n / 12) * 100; f.append(fi); b.append(lb, f);
+      const c = el("div"); const lc = el("div", "lab"); lc.append(el("span", null, "Your evidence"), el("b", null, r.cov + "%")); const cv = el("div", "bar cov"); const ci = el("i"); ci.dataset.w = r.cov; cv.append(ci); c.append(lc, cv);
+      const st = el("div", "status " + s); st.insertAdjacentHTML("afterbegin", ICON[s]);
+      st.append(el("span", null, s === "supported" ? "Supported" : s === "partial" ? "Partial" : "Not mentioned"));
+      if (s === "unknown") st.append(el("span", "note", "· unknown, not a verdict"));
+      c.append(st); row.append(a, b, c); box.append(row);
+    });
+    requestAnimationFrame(() => requestAnimationFrame(() => box.querySelectorAll(".bar > i").forEach((n) => (n.style.width = n.dataset.w + "%"))));
+  }
+
+  /* ---------- path + suggestions ---------- */
+  function buildPath() {
+    const list = $("#path"); list.textContent = "";
+    REQS.filter((r) => ACTIONS[r.id]).map((r) => ({ r, score: r.n * (1 - r.cov / 100) })).sort((a, b) => b.score - a.score).slice(0, 6).forEach(({ r }) => {
+      const li = el("li"); const m = el("div"); m.append(el("div", "t", r.text.split(" (")[0]), el("div", "d", ACTIONS[r.id] + " (in " + r.n + " of 12 picks)"));
+      const b = el("button", "stbtn", "Not started"); b.type = "button"; b.dataset.s = "Not started";
+      const cycle = ["Not started", "Current", "Done", "Skipped"];
+      b.addEventListener("click", () => { const n = cycle[(cycle.indexOf(b.dataset.s) + 1) % cycle.length]; b.dataset.s = n; b.textContent = n; });
+      li.append(m, b); list.append(li);
+    });
+  }
+  function buildSugs() {
+    const box = $("#sugs"); box.textContent = "";
+    JOBS.filter((j) => !j.pick).forEach((j) => {
+      const c = el("div", "sug"); c.dataset.id = j.id; c.tabIndex = 0;
+      const badge = el("span", "badge", "Hidden fit"); c.append(badge, el("div", "t", j.title), el("div", "c", j.co + " · " + THEMES[j.theme].name), el("p", null, j.why));
+      const chips = el("div", "chips"); chips.append(el("span", "chip", "Fit " + j.fit + "%")); j.builds.forEach((b) => chips.append(el("span", "chip", "Builds " + b))); c.append(chips);
+      const hl = (on) => { JOBS.forEach((o) => { const g = dotEls[o.id]; g.classList.toggle("dim", on && o.id !== j.id); g.classList.toggle("hl", on && o.id === j.id); }); };
+      c.addEventListener("mouseenter", () => hl(true)); c.addEventListener("mouseleave", () => hl(false)); c.addEventListener("focus", () => hl(true)); c.addEventListener("blur", () => hl(false));
+      c.addEventListener("click", () => { select(j.id); $("#map").scrollIntoView({ behavior: RM ? "auto" : "smooth", block: "center" }); });
+      box.append(c);
+    });
+  }
+
+  /* ---------- assemble ---------- */
+  function buildAll() {
+    renderTiles(); buildLegend(); buildThemeFilters(); buildMap(); buildBoard(); buildReqFilters(); renderReqs(); buildPath(); buildSugs();
+    renderDetail(); select(state.selected); placeDots();
+  }
+  function replayEntrance() {
+    JOBS.forEach((j) => { const g = dotEls[j.id]; g.style.transition = "none"; g.style.opacity = "0"; g.style.transform = "translate(" + cx + "px," + cy + "px)"; });
+    document.querySelectorAll("#map .tlabel").forEach((n) => (n.style.opacity = "0")); $("#heading").style.opacity = "0";
+    requestAnimationFrame(() => requestAnimationFrame(() => { JOBS.forEach((j) => (dotEls[j.id].style.transition = "")); placeDots(); }));
+    renderTiles(); renderReqs();
+  }
+  // keep the headline honest if the picks change
+  $("#headSub").textContent = "Based on the " + pickedJobs().length + " jobs you sent from Saved.";
+})();
+</script>
+</body>
+</html>

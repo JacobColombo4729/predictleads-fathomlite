@@ -95,3 +95,84 @@ export interface Filters {
 }
 
 export type FeedbackSignal = "good" | "bad";
+
+/* ---------- Compass ---------- */
+
+export type RequirementStatus = "supported" | "partial" | "unknown";
+
+export interface CompassTheme {
+  id: string;
+  name: string;
+  /** Number of picked jobs in this theme. */
+  count: number;
+  /** Compass heading in degrees, clockwise from north. */
+  angle: number;
+  halfWidth: number;
+  /** Mean fit (0-100) of the picks in this theme. */
+  meanFit: number;
+}
+
+/** A verbatim line of the person's own profile matched to a requirement line. */
+export interface CompassEvidence {
+  text: string;
+  source: string;
+  matchedRequirement: string;
+}
+
+export interface CompassRequirement {
+  id: string;
+  /** A requirement sentence as written in the listings (the group's most typical wording). */
+  text: string;
+  /** How many of the picked jobs ask for this. */
+  n: number;
+  /** 0-100 similarity of the closest profile line; not a probability. */
+  coverage: number;
+  status: RequirementStatus;
+  evidence: CompassEvidence | null;
+  /** Mentions years, a degree or a certification: similarity cannot confirm it, so check it yourself. */
+  verify: boolean;
+  jobIds: string[];
+}
+
+export interface CompassWhy {
+  evidence: string;
+  source: string;
+  requirement: string;
+}
+
+export interface CompassJob {
+  job: Job;
+  pick: boolean;
+  themeId: string;
+  /** 0-100 similarity to the profile, scaled against all listings. Not a chance of being hired. */
+  fit: number;
+  /** Degrees from the theme's heading. */
+  offset: number;
+  why: CompassWhy[];
+  /** Requirement-group ids this pick asks for that the profile does not fully show. */
+  stretch: string[];
+  /** For suggestions: requirement groups the job would help build. */
+  builds: string[];
+}
+
+export interface CompassStep {
+  requirementId: string;
+  text: string;
+  n: number;
+  coverage: number;
+  status: RequirementStatus;
+  verify: boolean;
+  action: string;
+}
+
+export interface CompassResult {
+  picksAnalyzed: number;
+  duplicatesCollapsed: number;
+  themes: CompassTheme[];
+  strongestThemeId: string;
+  jobs: CompassJob[];
+  requirements: CompassRequirement[];
+  nextSteps: CompassStep[];
+  stats: { jobs: number; themes: number; requirementGroups: number; groupsWithEvidence: number; suggestions: number; sentencesRead: number };
+  limits: string[];
+}
