@@ -96,7 +96,27 @@ People already in tech who moved into a **different role bucket** after at least
 
 ### 4b Review round
 
-Set `POOL` (one of the two retrained pools, or a rejection status from 4a to check whether a rule throws real switches away), then run 4c. Each run shows **5 random people** from that pool, new ones every time, with each person's **whole timeline** (titles and programs with dates; no employers or locations), every entry's label and the switch marked. The printed seed brings a sample back (`SEED = <number>`). Tell Claude which `person_id`s look right or wrong, and why, in your own words; don't paste the timelines.
+Set `POOL` (one of the three career-changer pools, or a rejection status from 4a to check whether a rule throws real switches away), then run 4c. Each run shows **5 random people** from that pool, new ones every time, with each person's **whole timeline** (titles and programs with dates; no employers or locations), every entry's label and the switch marked. The printed seed brings a sample back (`SEED = <number>`). Tell Claude which `person_id`s look right or wrong, and why, in your own words; don't paste the timelines. Aim for **about 20 people per pool** (4 runs).
+
+**What "right" means:**
+
+| Pool | Right if | Common mistakes to look for |
+|:--|:--|:--|
+| Retrained after working in another field | A real non-tech job (12+ months), then a tech or math program, then a tech job | The "other field" job was really technical; the program came after the tech job; a student job counted as a career |
+| Retrained, new grad from another field | Studied a non-tech field first, then a tech or math program, then a tech job | The first degree was really technical; the order of the programs is wrong (undated programs) |
+| Changed roles within tech | 12+ months in one tech role, then a genuinely different tech role | The same job retitled; the two roles are really the same bucket; the up/sideways label is wrong |
+| A rejection status | The rule was right to reject them | A real career changer the rule threw away |
+
+**Also check:** the prior career area (is "other" hiding a clear career?) and, for within-tech moves, whether "up", "sideways" or "down" matches the titles.
+
+**Spot-check results** (counts only; filled in from the review, never the timelines)
+
+| Pool | People checked | Right | Wrong | Main errors |
+|:--|--:|--:|--:|:--|
+| Retrained after working in another field | 0 | 0 | 0 | |
+| Retrained, new grad from another field | 0 | 0 | 0 | |
+| Changed roles within tech | 0 | 0 | 0 | |
+| Rejected: changed jobs without tech or math training | 0 | 0 | 0 | |
 
 ## 5. Freeze and save: the modeling table
 
