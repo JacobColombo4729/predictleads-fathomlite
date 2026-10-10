@@ -64,7 +64,7 @@ A separate tab built on the compass: a personal outlook from the user's résumé
 
 - **Picking a role in the compass sets the priority queue's occupation filter;** every other filter (location, work mode, schedule, job type, role level) combines with it.
 - **The date picker** shows the queue as of a chosen date (fair from July 1, for example July vs. September).
-- **Hide, never remove:** listings out of reach, stale (more than 90 days old on the date viewed) or in an occupation that isn't a tech path (document management specialists) are hidden with a count and a reason, and a "show hidden" toggle brings them back.
+- **Hide, never remove:** listings out of reach, likely ghosts (over 90 days old and from a company gone quiet) or in an occupation that isn't a tech path (document management specialists) are hidden with a count and a reason, and a "show hidden" toggle brings them back. Other listings over 90 days old stay visible, labelled "open 90+ days" and ranked lower.
 
 ## 7. Honesty rules
 
