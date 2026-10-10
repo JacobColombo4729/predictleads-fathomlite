@@ -225,3 +225,23 @@ export interface SignalsQuery {
   limit: number;
   offset: number;
 }
+
+/* ---------- AI gap analysis (one job against the saved profile) ---------- */
+
+export type QualificationStatus = "supported" | "explicit_gap" | "unknown";
+
+export interface GapEvidence { evidence_id: string; source: string; text: string }
+
+export interface GapAssessment {
+  evidence_sufficiency: "sufficient" | "insufficient";
+  insufficiency_reason: string | null;
+  transferable_experience: { job_duty: string; candidate_evidence_ids: string[]; job_evidence_ids: string[]; rationale: string }[];
+  qualifications: {
+    qualification_id: string; qualification: string; classification: "required" | "preferred" | "unclear";
+    status: QualificationStatus; candidate_evidence_ids: string[]; job_evidence_ids: string[]; rationale: string;
+  }[];
+  next_steps: { action: string; qualification_ids: string[]; evidence_ids: string[] }[];
+  evidence_catalog: GapEvidence[];
+}
+
+export type GapResult = { state: "unavailable" } | { state: "completed"; assessment: GapAssessment };

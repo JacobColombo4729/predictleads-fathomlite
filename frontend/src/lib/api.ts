@@ -1,4 +1,6 @@
 import type {
+  GapAssessment,
+  GapResult,
   SignalCompany,
   SignalPattern,
   SignalsOverview,
@@ -245,6 +247,16 @@ export const api = {
   },
 
   /** Compass analysis of 2-20 picked jobs against the saved profile. Local embeddings only; nothing leaves the machine. */
+  /** AI gap analysis of one job against the saved profile. Sends profile text and the job description to OpenAI when enabled. */
+  async gapAnalysis(jobId: string, snapshotId: string): Promise<GapResult> {
+    const current = await api.currentProfile();
+    if (!current) throw new ApiError(404, "profile_not_found", "Save your profile first.");
+    const r = await request<{ assessment_state: "completed" | "unavailable"; assessment: GapAssessment | null }>(
+      "POST", `/profiles/${current.id}/jobs/${encodeURIComponent(jobId)}/assessment`, { snapshot_id: snapshotId, profile_version: current.version },
+    );
+    return r.assessment_state === "completed" && r.assessment ? { state: "completed", assessment: r.assessment } : { state: "unavailable" };
+  },
+
   async compass(profileId: string, profileVersion: number, snapshotId: string, jobIds: string[]): Promise<CompassResult> {
     const r = await request<{
       picks_analyzed: number;

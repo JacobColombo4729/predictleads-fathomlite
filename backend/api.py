@@ -821,6 +821,13 @@ def _assessment_cache_key(
     return hashlib.sha256(json.dumps(material, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
 
 
+def _default_assessment_provider() -> "grounded.ExplanationProvider | None":
+    """The AI gap analysis sends profile and job text to OpenAI, so it is off unless PREDICTLEADS_ASSESSMENT=openai."""
+    if os.environ.get("PREDICTLEADS_ASSESSMENT", "").strip().lower() != "openai":
+        return None
+    return grounded.OpenAIProvider.from_environment()
+
+
 def _default_extraction_provider() -> "resume_extraction.ResumeProvider | None":
     """Resume "magic fill" sends resume text to OpenAI, so it is off unless PREDICTLEADS_RESUME_EXTRACTION=openai."""
     if os.environ.get("PREDICTLEADS_RESUME_EXTRACTION", "").strip().lower() != "openai":
@@ -878,7 +885,7 @@ def create_app(
         app.state.job_repository = jobs
         app.state.ranker = ranker or _default_ranker(jobs.jobs)
         app.state.store = store
-        app.state.assessment_provider = provider
+        app.state.assessment_provider = provider if provider is not None else _default_assessment_provider()
         app.state.extraction_provider = extraction_provider or _default_extraction_provider()
         app.state.signals = signal_store if signal_store is not None else _load_signals()
         yield

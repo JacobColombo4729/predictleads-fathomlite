@@ -1,0 +1,20 @@
+/* AI gap analysis tab. Status always carries an icon and a label, never colour alone. */
+
+.ga h4 { font-size: var(--fs-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin: 18px 0 8px; }
+.ga__summary { margin: 4px 0 0; }
+.ga__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.ga__item { border: 1px solid var(--border); border-left-width: 4px; border-radius: var(--r-md); background: var(--surface-muted); padding: 10px 12px; display: grid; gap: 6px; }
+.ga__item--supported { border-left-color: var(--accent); }
+.ga__item--unknown { border-left-color: var(--warn-text); }
+.ga__item--explicit_gap { border-left-color: var(--danger); }
+.ga__head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ga__status { font-size: 12px; font-weight: 650; padding: 1px 8px; border-radius: var(--r-pill); border: 1px solid var(--border); }
+.ga__status--supported { background: var(--accent-soft); color: var(--accent-strong); border-color: var(--accent-border); }
+.ga__status--unknown { background: var(--warn-soft); color: var(--warn-text); border-color: var(--warn-border); }
+.ga__status--explicit_gap { background: var(--danger-soft); color: var(--danger-ink); border-color: var(--danger-border); }
+.ga__kind { font-size: 12px; color: var(--text-muted); }
+.ga__req { margin: 0; font-weight: 600; }
+.ga__why { margin: 0; color: var(--text-muted); font-size: var(--fs-sm); }
+.ga__quote { margin: 0; padding: 6px 10px; border-left: 2px solid var(--border-strong); font-size: var(--fs-sm); color: var(--text); background: var(--surface); border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+.ga__quote span { display: block; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 2px; }
+.ga__steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; }

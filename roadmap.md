@@ -63,7 +63,7 @@ Status terms: **Built** means working in the running app and verified; **Impleme
 
 **Compass — Built (local, no LLM).** Clustering and similarity over stored BGE vectors. Thresholds are heuristics, not validated.
 
-**Feature 2: grounded gap analysis for one selected job — Implemented, not connected.** `code/grounded_match_explanations.py` and `POST /api/v1/profiles/{id}/jobs/{job_id}/assessment` exist and pass offline tests; the UI does not call them. Needs consent per use and a budget decision. **Open question:** whether the course requires a second GenAI feature in the app. If so, this is the one to connect (the Compass uses no LLM).
+**Feature 2: AI gap analysis for one selected job — Built, awaiting a live test (2026-10-10).** `code/grounded_match_explanations.py`, `POST /api/v1/profiles/{id}/jobs/{job_id}/assessment`, and an **AI gap analysis** tab in the job details panel (`frontend/src/components/GapAnalysis.tsx`). It works for whoever's profile is in the session (anyone who enters or imports a resume). Off unless the backend starts with `.un_demo_backend.ps1 -Assess`; per-use consent checkbox; sends the profile's experience and skills (no name, email, phone or links) and the job description to OpenAI (`gpt-4.1-mini`); every point must cite lines that exist in the profile or listing or the whole result is rejected; results are cached per session. Tested offline with a mock provider and in the browser with a canned response; **not yet run live**. The Compass uses no LLM, so this and Magic fill are the two GenAI features.
 
 ## 5. Backend and Frontend
 
@@ -80,7 +80,7 @@ Status terms: **Built** means working in the running app and verified; **Impleme
 
 1. **Measure the ranker.** Jesse and Jacob each label about 40 pairs (about 30 minutes; 60-80 for a stronger result); then `python code/analyze_review_labels.py ...`. This gives the one real number for the pitch.
 2. **End-to-end rehearsal** on a real profile with desired roles; fix what breaks.
-3. **Decide on feature 2** (connect the single-job gap analysis or not), after checking the course requirement.
+3. **Live-test the AI gap analysis** on a real profile and a few jobs you know well (start the backend with `-ResumeFill -Assess`); check that each cited line is real and the statuses are fair; note the cost.
 4. **Clean notebook and write-up**, built on [docs/ml-inventory.md](docs/ml-inventory.md) with measured versus unvalidated claims stated plainly.
 5. **Demo plan**: live or recorded, a recorded fallback, local or deployed.
 6. **Refresh stale docs** (frontend README) as items land.

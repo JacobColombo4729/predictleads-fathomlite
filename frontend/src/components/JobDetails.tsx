@@ -1,5 +1,3 @@
-import CompanyHiringBadge from "./signals/CompanyHiringBadge";
-import CompanyHiring from "./signals/CompanyHiring";
 import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import type { Company, Profile, Recommendation, Stage, TrackedJob } from "../types";
 import { descriptionParagraphs, formatDate, historicalStatusText, safeHttpUrl } from "../lib/jobs";
@@ -8,11 +6,15 @@ import { requirementLines } from "../lib/gap";
 import { NOTE_LIMIT } from "../state/constants";
 import { BackIcon, BookmarkIcon, ExternalIcon } from "./Icons";
 import StageSelect from "./StageSelect";
+import CompanyHiringBadge from "./signals/CompanyHiringBadge";
+import CompanyHiring from "./signals/CompanyHiring";
+import GapAnalysis, { useGapAnalysis } from "./GapAnalysis";
 
-type Tab = "overview" | "evidence" | "company";
+type Tab = "overview" | "evidence" | "gap" | "company";
 const TABS: { id: Tab; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "evidence", label: "Skills check" },
+  { id: "gap", label: "AI gap analysis" },
   { id: "company", label: "Company" },
 ];
 
@@ -48,6 +50,7 @@ function DetailsBody({ item, tracked, profile, snapshotId, onToggleSave, onStage
   const [fullDescription, setFullDescription] = useState<string | null>(null);
   const [descriptionState, setDescriptionState] = useState<"loading" | "ready" | "failed">("loading");
   const job = item.job;
+  const gap = useGapAnalysis(item.job.id, snapshotId);
 
   useEffect(() => {
     let cancelled = false;
@@ -214,6 +217,7 @@ function DetailsBody({ item, tracked, profile, snapshotId, onToggleSave, onStage
           </section>
         )}
 
+        {tab === "gap" && <GapAnalysis gap={gap} />}
         {tab === "company" && <CompanyPanel company={job.company} />}
       </div>
     </div>
