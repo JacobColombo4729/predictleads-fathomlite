@@ -68,10 +68,8 @@ A separate tab built on the compass: a personal outlook from the user's résumé
 
 ## 7. Honesty rules
 
-- **Never success rates:** the resumes show only people who made a switch, so the compass shows where switchers went, never the odds that a switch works.
-- **Never causation:** "people like you got there through this training", never "this training gets you hired".
-- **Job growth covers a whole occupation,** so it sits next to the role's entry-level share from our listings.
-- **Job growth carries its accuracy:** "expected growth (official projections)", never "will grow". Years 1–2 are moderately reliable and years 3–5 low to moderate (`docs/job_growth.md`); fast-changing roles (data, AI and ML) carry extra uncertainty, and IT project management's figure is a proxy from the 15-1299 catch-all.
+*The general rules (no causation, hires, success rates, entry-level growth or certain futures) are in [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md), "What we never claim". Compass-specific:*
+- **Job growth sits next to the role's entry-level share,** and carries its accuracy (moderate for years 1–2, low to moderate for 3–5; `docs/job_growth.md`); IT project management's figure is a proxy from the 15-1299 catch-all.
 - **Show the sample size on every path.** Most paths are thin (78% of prior-career paths rest on fewer than 10 people), so the compass falls back to the bucket-level pattern when a user's exact path is thin.
 
 ## 8. Where it's built

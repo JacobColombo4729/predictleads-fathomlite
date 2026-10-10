@@ -9,7 +9,7 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 ## What only this project has
 
 - **Live 2026 listings with timing:** when each listing appeared and when it closed (PredictLeads), so we can say how fast to act, not only what fits.
-- **Real career switches:** people who retrained into computer and mathematical roles, found in a public resume dataset (`notebooks/Profiles.ipynb`): 17,952 unique people, 2,813 career changers.
+- **Real career switches:** people who retrained into computer and mathematical roles, found in a public resume dataset (`notebooks/Profiles.ipynb`): 2,813 career changers ([`docs/data.md`](docs/data.md)).
 - **Role buckets that connect the two:** the same buckets on listings (O*NET codes) and on career switches (job titles).
 - **Job growth expectations per role:** expected growth over at most the next 5 years, from official occupational projections (BLS 2025–2035) joined on the same occupation codes, so role recommendations look ahead. Plan: [`docs/job_growth.md`](docs/job_growth.md).
 
@@ -50,16 +50,3 @@ Every compass idea, with status and where it's built: [`COMPASS.md`](COMPASS.md)
 - **Not success rates:** the resumes only show people who made a switch, not those who tried and didn't. The compass shows where switchers went, never the odds that a switch works.
 - **Not entry-level growth:** job growth projections cover a whole occupation; entry-level openings come from our listings.
 - **Not a certain future:** growth is "expected (official projections)", never "will grow", with its accuracy stated (moderate for years 1–2, low to moderate for 3–5) and a range if the error band is adopted.
-
-## Changes made (2026-10-09)
-
-| Where | Change |
-|:--|:--|
-| `PROJECT_OUTLINE.md` | The pitch line under "The idea", and a short "What makes this different" section |
-| `APPLICATION.md` | A **Retraining compass** view next to role discovery: training options → roles people like the user moved into (with counts) → each role's 2026 openings, median pay and closing speed; picking a role feeds the priority queue. The Coach agent explains it; part of build stage 2 |
-| `notebooks/Profiles.ipynb` | A prior career × first tech job table, then a training field × first tech role table (4a.2b), as percents of all retrained people, fields and roles ordered infrastructure → code → data, with the people count and an "all retrained" row; the within-tech table (4a.3) uses the same layout |
-| `notebooks/EDA_SDA_2.ipynb` | A new section, 3.12: each role bucket's 2026 open listings, median pay, median days open and entry-level share; joined to the Profiles table by role bucket |
-| `notebooks/ML_Fit.ipynb` | Check whether knowing the training field predicts the first tech role better than the background alone |
-| Deck | The pitch on the title slide; a new "What makes this different" slide (reachable, real paths, how fast to move); slide 11 shows the training → role → 2026 openings chain; the two-decades framing replaces the date range |
-
-Added after the team meeting: moving across and up within tech, path questions, job growth expectations, the date picker and the Ideas tab (in `APPLICATION.md` and `PROJECT_OUTLINE.md`). EDA_SDA_2 is done (2026-10-10), including 3.12; the app views are a design only.
