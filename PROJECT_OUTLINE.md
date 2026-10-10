@@ -20,7 +20,7 @@ The ranking weighs two questions for every listing:
 
 We can't see applications or hires, so the ranking rests on what PredictLeads' data *does* show: how long listings stay open, who posts them, where, and what they say, including what they ask of a newcomer.
 
-**The end product:** a web app with a **priority queue** of listings for a career changer. Each listing shows how open it is to someone new to the field, its estimated apply-by date, why it ranks where it does, and a link to apply. **Up to 60.7% of listings live on employers' own sites** (the share also counts other domains that aren't hiring platforms or job boards), so most ranked listings can link straight to the employer's posting page.
+**The end product:** a web app with a **priority queue** of listings for a career changer. Each listing shows how open it is to someone new to the field, its estimated apply-by date, why it ranks where it does, and a link to apply. **In the computer and mathematical niche, at least 38% of listings are on the employer's own website** (the listing's domain matches the company's; EDA_SDA_2 3.2d), and up to 65% if every "company site / other" listing were, so many ranked listings can link straight to the employer's posting page.
 
 ## What makes this different
 
@@ -120,4 +120,4 @@ Each notebook answers one question and hands its final table to the next. The Tr
 
 ## Questions for PredictLeads
 
-Crawl frequency and date precision; what `status` and `last_processed_at` mean; the time zone of posting dates; whether older snapshots exist; how duplicates and reposts are handled; how `seniority` is assigned; and whether real listings can appear in our final presentation.
+Crawl frequency and date precision; what `status` and `last_processed_at` mean; the time zone of posting dates; whether older snapshots exist; how duplicates and reposts are handled; how `seniority` is assigned; whether real listings can appear in our final presentation; and **why job-board listings stop after May 2026** (494 and 526 in April and May, then almost none; EDA_SDA_2 3.2c).

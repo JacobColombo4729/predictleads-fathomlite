@@ -60,7 +60,8 @@ Official occupational employment projections (for example BLS's 10-year projecti
 - **`posted_at` timestamps sit at 22:00 or 23:00 UTC,** which is midnight Central European time, so they're probably local dates.
 - **Listings without a language label almost all lack a description** (99.8%).
 - **`seniority`'s labels aren't documented.** The entry-level flag counts only `junior` for now; check every label before relying on it (EDA_SDA_1 Q3b).
-- **"Company site / other" (60.7% of listings) means "not on our lists of hiring platforms and job boards",** so it's an upper bound on listings hosted on employers' own sites.
+- **"Company site / other" (60.7% of listings) means "not on our lists of hiring platforms and job boards",** so it's an upper bound on listings hosted on employers' own sites. In the computer and mathematical niche, 58.5% of these are on the employer's own domain, 38% of all niche listings (EDA_SDA_2 3.2d).
+- **Job-board listings stop after May 2026:** 494 and 526 first seen in April and May, then 4, 2, 2 and 0 from June to September (EDA_SDA_2 3.2c). A change in collection, not in employers; job-board timing results cover April–May only. Asked of PredictLeads.
 
 ## Schemas
 
