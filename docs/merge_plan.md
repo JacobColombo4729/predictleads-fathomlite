@@ -36,7 +36,7 @@ project_leads/  (Jacob: analysis)            predictleads-hackathon/  (Jesse: ap
 ### After the merge
 
 ```
-predictleads-career-changers/        (name to agree; in a shared GitHub organization)
+predictleads-hackathon/              (name agreed 2026-10-10; in a shared GitHub organization)
 ├── app/
 │   ├── backend/        Jesse's API, plus timing, hiding rules and the retraining compass
 │   ├── frontend/       Jesse's React app, plus the retraining compass view
