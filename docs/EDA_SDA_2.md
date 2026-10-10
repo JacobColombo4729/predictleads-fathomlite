@@ -57,7 +57,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 5. **Conclusion and next steps** (into EDA_SDA_3)
 
 **What the data shows**
-- **The niche: 14,139 computer and mathematical listings** from 6,723 companies (7.6% of 184,889), 3,484 still open. None needed the O*NET-code fallback. The other 170,750 listings are cut, kept only as a summary of 1,008 occupations in 24 groups (1c).
+- *To update after the rerun (credentialed math now out of scope).* **The niche: 14,139 computer and mathematical listings** from 6,723 companies (7.6% of 184,889), 3,484 still open. None needed the O*NET-code fallback. The other 170,750 listings are cut, kept only as a summary of 1,008 occupations in 24 groups (1c).
 - **In that summary, computer and mathematical pays the most** (median $66.63 an hour, original listings) but has among the fewest entry-level listings (9%) and signs of openness to career changers (21%). Its median window, 22.5 days, is close to most groups'.
 
 ## 2. Analysis views
@@ -199,12 +199,14 @@ The listing side is `role_bucket(onet_code)` (`ONET_DETAILED_BUCKETS` for detail
 2. **Size each bucket** on originals only: listings, listings still open, companies and the top company's share, with and without manager-level listings (3.11; they're hidden per applicant, so the niche keeps them).
 3. **Count career changers per bucket** from `Profiles.ipynb`'s modeling table (`career_changer`, by the role at the switch; unique people, after duplicate removal), split by pool: retrained after working, retrained as new grads, and changed roles within tech.
 4. **Depth check per bucket:** measure the 95% confidence-interval width of the Kaplan–Meier share still open after 7 days in each sub-group. Enough depth means **±5 points or narrower** (a width of 10 or less), tight enough to show the 5–16 point gaps the EDA found, in at least 80% of sub-groups. Splits are tried from finest to coarsest, combining sub-groups that are too wide: month × source type, then source type, then month, then the whole bucket. The finest split that passes is how finely that bucket is analyzed in section 3. (About 300+ listings per sub-group are needed for ±5, so most buckets won't support all 18 month × source sub-groups.)
-5. **Keep a bucket** only if it passes the depth check on the listings side **and** has enough career changers to learn from (at least 30 unique people, counting **all three pools**). The 30 was first set for retrained people only, before the within-tech pool existed; counting retrained only would drop data and analytics (22 retrained, 238 in all), which the compass needs to show is reached through other tech roles. Thin buckets are combined with a close one or analyzed only as part of the niche; their listings always stay in the table (likely credentialed math, which has no resume titles). **IT project managers** (O*NET 15-1299.09, about 13% of the niche) stay in "other computer roles": no resume bucket matches them yet (decision pending). Record each keep, combine or drop with its reason.
+5. **Keep a bucket** only if it passes the depth check on the listings side **and** has enough career changers to learn from (at least 30 unique people, counting **all three pools**). The 30 was first set for retrained people only, before the within-tech pool existed; counting retrained only would drop data and analytics (22 retrained, 238 in all), which the compass needs to show is reached through other tech roles. Thin buckets are combined with a close one or analyzed only as part of the niche; their listings always stay in the table. **Credentialed math** (actuaries, mathematicians) is out of the niche from 1d: credential-gated, with no career switches into it. **IT project managers** (O*NET 15-1299.09, about 13% of the niche) have their own bucket since 2026-10-10, on both sides (a Profiles rules change). Record each keep, combine or drop with its reason.
 6. **Save the niche** (kept buckets, blockers hidden) as its own table, the base for section 4 and EDA_SDA_3.
 
 **Also described per bucket** (not used to choose buckets): variation in the factors (window, source, company volume, reposts, pay), coverage of key fields (description, salary, `posted`), words per description (EDA_SDA_1 Q3e), and openness to career changers (`entry_share`, `career_open_share`, years asked, degree required).
 
 **Related groups:** the team's source-background groups are cut with the rest (1d); they live on as rows of the 1c occupation summary (pay, timing, openness) and through O*NET skills and the Career Changers Matrix for role discovery.
+
+*To update after the reruns (IT project management is now its own bucket; credentialed math is out of scope).*
 
 **What the data shows**
 - **Seven buckets get their own analysis and compass paths:** software development (4,572 listings, 473 career changers), networks and systems (2,724; 675), data and analytics (1,739; 238), security (744; 351), IT support (711; 383), database (698; 394) and quality assurance (546; 40, just over the 30 needed).
@@ -276,7 +278,7 @@ Report how many listings each rule hides. Then check:
 
 ### 3.12 The retraining compass: the 2026 side
 
-For each kept role bucket, after blockers are hidden: **open listings at the snapshot, new listings per week, median pay (where disclosed), median days open (Kaplan–Meier), entry-level share, and expected job growth** (official projections by occupation code; time frame to be decided). Rows in the same role order as Profiles (`ROLE_ORDER` in `src/career_switch.py`: infrastructure → code → data).
+For each kept role bucket, after blockers are hidden: **open listings at the snapshot, new listings per week, median hourly pay (where disclosed), median days open (Kaplan–Meier), entry-level share, openness to career changers, remote share, and expected job growth** (a placeholder column until the projections are downloaded) (official projections by occupation code; time frame to be decided). Rows in the same role order as Profiles (`ROLE_ORDER` in `src/career_switch.py`: infrastructure → code → data).
 
 Join it by role bucket to Profiles' three path tables, so every path shows its 2026 openings, pay, closing speed and growth:
 - **Prior career → first tech job** and **field trained in → first tech job** (4a.2b): the compass for changing careers.

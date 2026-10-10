@@ -25,6 +25,11 @@ RULES = {
     # Target roles: computer and mathematical (O*NET 15-xxxx), grouped into buckets for role discovery.
     # The first bucket that matches a title wins, so order matters.
     "cm_buckets": {
+        # Added 2026-10-10: IT project managers are 13% of the niche's listings (O*NET 15-1299.09). A plain
+        # "project manager" with no tech word isn't matched, since it could be any field.
+        "it project management": r"\b(?:it|i\.t\.|technical|technology|software|systems?|infrastructure|erp|digital|data|cloud"
+                                 r"|application|web) (?:project|program|delivery) manager\b|\btechnical program manager\b"
+                                 r"|\b(?:it|technical) pm\b|\bscrum master\b|\bagile (?:coach|project manager|delivery lead)\b",
         "data and analytics": r"\bdata (?:analyst|scientist|engineer|architect|specialist|management|modell?er|warehouse)\b"
                               r"|\bbusiness intelligence\b|\bbi (?:analyst|developer|engineer)\b|\bpower ?bi\b|\btableau\b"
                               r"|\betl (?:developer|engineer)\b|\banalytics\b|\bquantitative analyst\b|\bmis analyst\b"
@@ -42,7 +47,8 @@ RULES = {
     },
     # Level of the job at the switch, recorded in first_level as a label and model feature; no level is left out
     # (prior experience can qualify someone for a senior or manager role).
-    "manager_target": r"\b(?:manager|director|head|chief|vp|vice president|president|cto|cio|ceo)\b",
+    # Project, program and delivery managers aren't people managers, so they don't count as "manager or above"
+    "manager_target": r"\b(?:(?<!project )(?<!program )(?<!delivery )manager|director|head|chief|vp|vice president|president|cto|cio|ceo)\b",
     "senior_target": r"\b(?:senior|sr\.?|lead|principal|staff|architect)\b",
     # Pre-switch jobs that don't count as a background to switch from
     "not_a_background": r"\bintern(?:ship)?\b|\bstudent\b|\bvolunteer\b|\b(?:teaching|research|graduate) assistant\b|\bfellow(?:ship)?\b",
@@ -364,7 +370,7 @@ ONET_ROLE_BUCKETS = {
 
 
 # Detailed O*NET codes inside "computer occupations, all other" (15-1299), matched on the full code first, so they
-# don't all land in "other computer roles". IT project managers (15-1299.09) stay there: no resume bucket matches them.
+# don't all land in "other computer roles".
 ONET_DETAILED_BUCKETS = {
     "15-1299.01": "networks and systems",    # web administrators
     "15-1299.04": "security",                # penetration testers
@@ -372,6 +378,7 @@ ONET_DETAILED_BUCKETS = {
     "15-1299.06": "security",                # digital forensics analysts
     "15-1299.07": "software development",    # blockchain engineers
     "15-1299.08": "networks and systems",    # computer systems engineers/architects
+    "15-1299.09": "it project management",   # information technology project managers
 }
 
 
@@ -441,7 +448,7 @@ def training_field(text):
 # One order for training fields and tech roles, from infrastructure to code to data, so related fields and roles sit
 # near each other and the people in path tables form a band down the diagonal.
 ROLE_ORDER = ["it support", "networks and systems", "security", "database", "software development", "quality assurance",
-              "data and analytics"]
+              "data and analytics", "it project management"]
 FIELD_ORDER = ["networking", "cybersecurity", "information technology and systems", "computer engineering and electronics",
                "computer applications (BCA / MCA)", "computer science", "software and web development",
                "data science and analytics", "mathematics and statistics", "tech degree, field not named"]

@@ -87,7 +87,7 @@ Each notebook answers one question and hands its final table to the next. The Tr
 | 5 | **TimeSeries** | When do listings appear and close? | Decomposition, stationarity tests, lag features, ARIMA / SARIMA, survival by month | Planned |
 | 6 | **ML_Fit** | Which roles and listings fit a career changer? | Keyword overlap → TF-IDF cosine → BGE embeddings (local) → RRF hybrid; skills-based matching on O*NET skills; a trained layer on real career moves (Option B); hit rate@3/@5 per pool, old-field bias; SHAP; role discovery and the compass | Planned |
 | 7 | **ML_Rank** | How should listings be ranked? | Listing timing model (logistic regression, LightGBM, CatBoost, XGBoost; Cox and survival models; LambdaRank); combined with fit, accessibility and pay into the priority queue by an evidence-based, tunable formula; evaluated against newest-first; SHAP | Planned |
-| side | **Profiles** | Who really changed into or within tech or math, and how? | Public resume dataset; duplicate removal; whole-timeline rules (`src/career_switch.py`); random spot-checks | **Frozen** (2026-10-09): rules spot-checked; final tables in `data/profiles/` |
+| side | **Profiles** | Who really changed into or within tech or math, and how? | Public resume dataset; duplicate removal; whole-timeline rules (`src/career_switch.py`); random spot-checks | **Reopened** (2026-10-10): IT project management bucket added; refreeze after the rerun. Rules spot-checked; final tables in `data/profiles/` |
 
 ## Key decisions so far
 
