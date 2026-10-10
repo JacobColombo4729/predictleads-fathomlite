@@ -10,7 +10,7 @@ Saved under data/flat/ (git-ignored; prints aggregates only: counts, sizes, spee
                                                mathematical by occupation group or a 15- O*NET code, as in EDA_SDA_2 1d), all columns,
                                                the same flattened format as job_openings_200000/
     job_openings_included_full/part_NNNN.pkl   the related objects of those documents, duplicates removed
-    all_fields_lean_full/part_NNNN.pkl         every English US (or no-country) listing in any field, lean columns
+    all_fields_lean_full/part_NNNN.parquet     every English US (or no-country) listing in any field, lean typed columns
                                                only (no text): company volume and the occupation summary come from it
     stream_full_progress.json                  documents done, for resuming
 
@@ -94,10 +94,15 @@ def lean_rows(flat):
     out = flat.reindex(columns=list(LEAN_COLS)).rename(columns=LEAN_COLS)
     out["country"] = flat.reindex(columns=["attributes.location_data"])["attributes.location_data"].map(first_country)
     desc = flat.reindex(columns=["attributes.description"])["attributes.description"].fillna("").map(lambda s: TAG_RE.sub(" ", s))
-    out["desc_words"] = desc.str.split().str.len()
+    out["desc_words"] = desc.str.split().str.len().fillna(0).astype("int32")
     keep = out.language.isin(["en"]) | out.language.isna()
     keep &= out.country.eq("United States") | out.country.isna()
-    return out[keep]
+    out = out[keep]
+    for c in ["first_seen", "last_seen", "posted"]:  # typed, so the 13 million rows stay small in memory
+        out[c] = pd.to_datetime(out[c], utc=True, errors="coerce")
+    for c in ["salary_low_usd", "salary_high_usd"]:
+        out[c] = pd.to_numeric(out[c], errors="coerce").astype("float32")
+    return out
 
 
 def scope_mask(flat):
@@ -110,11 +115,11 @@ def scope_mask(flat):
 
 
 class PartWriter:
-    """Buffers rows and saves numbered parts of PART_ROWS rows; resumes numbering after a restart."""
-    def __init__(self, folder):
-        self.folder = folder
+    """Buffers rows and saves numbered parts (pickle, or Parquet for the typed lean table); resumes numbering after a restart."""
+    def __init__(self, folder, fmt="pkl"):
+        self.folder, self.fmt = folder, fmt
         folder.mkdir(parents=True, exist_ok=True)
-        self.part_no = len(list(folder.glob("part_*.pkl")))
+        self.part_no = len(list(folder.glob(f"part_*.{fmt}")))
         self.buf, self.rows = [], 0
 
     def add(self, df):
@@ -126,7 +131,9 @@ class PartWriter:
 
     def flush(self):
         if self.buf:
-            pd.concat(self.buf, ignore_index=True).to_pickle(self.folder / f"part_{self.part_no:04d}.pkl")
+            df = pd.concat(self.buf, ignore_index=True)
+            path = self.folder / f"part_{self.part_no:04d}.{self.fmt}"
+            df.to_parquet(path, index=False) if self.fmt == "parquet" else df.to_pickle(path)
             self.part_no += 1
             self.buf = []
 
@@ -146,7 +153,7 @@ def run(max_docs=None, local=None, out_root=None):
         return progress
     # Parts are saved at each chunk boundary, then the checkpoint; a crash in between can repeat one chunk's rows,
     # which the notebooks remove (they drop duplicate ids).
-    writers = {k: PartWriter(out_root / v) for k, v in names.items()}
+    writers = {k: PartWriter(out_root / v, "parquet" if k == "lean" else "pkl") for k, v in names.items()}
     seen_included = set()
     lines, counter, total_bytes = open_lines(local)
     start, docs, skipped = time.time(), 0, progress["docs_done"]
@@ -230,6 +237,14 @@ def run(max_docs=None, local=None, out_root=None):
               f"\n  disk ≈ {sum(sizes.values()) * scale / 1e9:.1f} GB (scope {sizes['scope'] * scale / 1e9:.1f} GB, "
               f"lean {sizes['lean'] * scale / 1e9:.1f} GB, included {sizes['included'] * scale / 1e9:.2f} GB)")
     return progress
+
+
+def load_lean(columns, root=None):
+    """The all-fields lean table, only the given columns, with repeated text as categories (memory-safe for 13M rows)."""
+    import pyarrow.dataset as ds
+    folder = Path(root or FLAT_DIR) / "all_fields_lean_full"
+    return ds.dataset(sorted(folder.glob("part_*.parquet")), format="parquet").to_table(columns=columns).to_pandas(
+        strings_to_categorical=True)
 
 
 if __name__ == "__main__":
