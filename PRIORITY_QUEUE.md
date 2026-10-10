@@ -26,7 +26,7 @@
   - **4 Final table:** defend each decision, apply them all at the end, save for EDA_SDA_3. **5 Conclusion.**
 - **Rerun EDA_SDA_1 from the top once** to confirm the new loader (`src/pl_data.py`) works with the real data and cache; restart the kernel first.
 - **Pin the packages the next notebooks need** in `requirements.txt` (`lifelines`, `statsmodels`, `nltk`, `spacy`, `lightgbm`, `catboost`, `xgboost`, `shap`), then tell the team.
-- **Data housekeeping:** delete `data/external/resume_structured/archive.zip` once you no longer want a backup (the resume data is unzipped; the notebook re-extracts from it only if the CSVs go missing), the old `data/profiles/*_v9` files, the old lean-table cache (`data/clean/job_openings_lean_*.pkl` without `_v2`), the blank review files in `data/profiles/review/`, and any leftover `*_flat_*.pkl` files.
+- **Data housekeeping:** delete `data/external/resume_structured/archive.zip` once you no longer want a backup (the resume data is unzipped; the notebook re-extracts from it only if the CSVs go missing), the old `data/profiles/*_v9*` files (replaced by `modeling_table.pkl` and `retrained_candidates.csv`), the old lean-table cache (`data/clean/job_openings_lean_*.pkl` without `_v2`), the blank review files in `data/profiles/review/`, and any leftover `*_flat_*.pkl` files.
 - **Tell the team** to pull, rerun `pip install -r requirements.txt`, and switch their `.env` to `S3_PATH`.
 
 ## Next
@@ -61,8 +61,6 @@
   - Evaluation (ROC-AUC, F1, C-index, precision@k, NDCG), SHAP, bootstrap business translation, sensitivity checks, solution report.
 - **Job growth expectations:** check the terms of use, download the official 10-year occupational projections into `data/external/`, map them to role buckets by occupation code, and convert to the time frame the team picks. Add an expected-growth column to the compass (EDA_SDA_2 3.12).
 - **Date picker (as-of date):** a helper in `src/` that returns the listings live on a date with features computed as of that date; check it on June 1 vs. August 1, 2026 (counts only). The model for a date is trained only on what was known by then; the demo can start with test-period dates.
-- **Widen the background-area keywords (Profiles 4a.2e):** "other" is down to 16% of retrained people (115 of 706, from 157) but still the biggest row of the prior-career table. Run 4a.2e, which lists the most common unmatched titles (shared by 3+ people), and tell Claude which career each belongs to, or add keywords to `BACKGROUND_AREAS`; rerun from 4a. The 157 stay in: they're real career changers.
-- **Compass for moving up (Profiles):** the rules only count moves into a *different* role, so "trained, then reached a senior or manager role in the same role" isn't captured. Add a pool or label for it (training dated before the level change; the level at each job is already tagged), then a training × level table next to the compass.
 - **Compass ideas** (`APPLICATION.md`): skills to build (EDA_SDA_3 skills vs. a résumé), career options and time to switch (Profiles), pay increase (2026 listing pay by occupation), expected growth, and stepping-stone roles (level at the switch in Profiles).
 - **Decide the time frames** for career options and job growth in the compass (team).
 - **O*NET (in scope, small):** check the terms of use, then download only the **Career Changers Matrix** (latest release) and the **skills** for computer and mathematical occupations plus the team's background occupations. Listings already carry O*NET codes, so they join directly.
@@ -84,6 +82,7 @@
 
 ## Later
 
+- **Profiles is frozen** (2026-10-09). Reopen only if needed: a pool for moving up within the same role (training, then a senior or manager role; levels are already tagged), or more prior-career keywords ("other" is 115 of 706; 4a.2e lists the common titles). Any change means a rerun, then the ML notebook reloads `modeling_table.pkl`.
 - **App:** transferable-fit stage (the career changer's background profile), priority model with adjustable weights, MCP servers, then agents (see `APPLICATION.md`).
 - **Run log:** settings, seeds and metrics for every run, in a CSV or a local MLflow store. Never listing text.
 - **Stretch techniques:** transferable fit with embeddings; embeddings vs. TF-IDF; change-point detection (`ruptures`); topic modeling (NMF or BERTopic); several daily snapshots to observe closures directly; a one-page system card.

@@ -9,7 +9,7 @@
 - `PROJECT_OUTLINE.md`: what we're doing. `HOW_WE_WORK.md`: how we work (standards, leakage rules, scope, risks).
 - `docs/decisions.md`: decision log. `docs/data.md`: data reference and auto-generated schemas. `DIFFERENTIATORS.md`: how the project stands out and how to pitch it.
 - `PRIORITY_QUEUE.md`: tasks. `APPLICATION.md`: app design.
-- `notebooks/`: EDA_SDA_1 (exploration, scope) → EDA_SDA_2 (non-text, niche) → EDA_SDA_3 (NLP) → EDA_SDA_4 (statistics) → TimeSeries → ML. Each hands its final table to the next under `data/clean/`. `Profiles.ipynb` (rules in `src/career_switch.py`) finds career switches in the external resume dataset, tuned in review rounds.
+- `notebooks/`: EDA_SDA_1 (exploration, scope) → EDA_SDA_2 (non-text, niche) → EDA_SDA_3 (NLP) → EDA_SDA_4 (statistics) → TimeSeries → ML. Each hands its final table to the next under `data/clean/`. `Profiles.ipynb` (rules in `src/career_switch.py`) finds career switches in the external resume dataset; **frozen** (2026-10-09): its final tables are `data/profiles/modeling_table.pkl` and `retrained_candidates.csv`.
 - `src/`: shared code imported into notebooks: `eda_helpers.py` (paths, charts, survival), `pl_data.py` (S3, caching, flattening, schemas), `career_switch.py` (career-switch rules, role buckets), `export_markdown.py` (notebook exports)
 - `data/`: local data only, git-ignored, **never read by Claude**
 - `.env`: non-secret settings (AWS profile, region, S3 path), git-ignored
