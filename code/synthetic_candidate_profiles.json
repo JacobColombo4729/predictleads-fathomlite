@@ -1,0 +1,42 @@
+[
+  {
+    "profile_id": "synthetic_customer_support_technical_training",
+    "experience": ["customer service, issue triage, account support, and escalation handling"],
+    "evidenced_skills": ["customer communication", "ticket documentation", "basic networking coursework", "C++ training project"],
+    "desired_roles": ["technical support specialist", "help desk analyst", "customer success engineer"],
+    "location": "Chicago",
+    "preferences": {"keywords": ["troubleshooting", "technical training"]}
+  },
+  {
+    "profile_id": "synthetic_healthcare_operations",
+    "experience": ["clinic scheduling, patient intake, and electronic health record workflows"],
+    "evidenced_skills": ["HIPAA awareness", "medical terminology", "appointment coordination", "data entry"],
+    "desired_roles": ["medical assistant", "healthcare operations coordinator", "patient access representative"],
+    "location": null,
+    "preferences": {"keywords": ["healthcare", "patient services"]}
+  },
+  {
+    "profile_id": "synthetic_retail_inventory",
+    "experience": ["retail floor operations, inventory counts, and customer assistance"],
+    "evidenced_skills": ["point of sale", "inventory control", "team training", "conflict resolution"],
+    "desired_roles": ["inventory coordinator", "retail operations associate", "purchasing assistant"],
+    "location": null,
+    "preferences": {"keywords": ["inventory", "operations"]}
+  },
+  {
+    "profile_id": "synthetic_project_coordination",
+    "experience": ["coordinating cross-functional schedules, milestones, and status updates"],
+    "evidenced_skills": ["project documentation", "spreadsheet reporting", "stakeholder communication", "risk tracking"],
+    "desired_roles": ["project coordinator", "implementation coordinator", "junior project manager"],
+    "location": null,
+    "preferences": {"keywords": ["project delivery", "coordination"]}
+  },
+  {
+    "profile_id": "synthetic_software_development",
+    "experience": ["building small web applications and maintaining automated tests"],
+    "evidenced_skills": ["Python", "JavaScript", "SQL", "Git", "unit testing"],
+    "desired_roles": ["software developer", "QA automation engineer", "application support engineer"],
+    "location": null,
+    "preferences": {"keywords": ["software", "quality assurance"]}
+  }
+]
