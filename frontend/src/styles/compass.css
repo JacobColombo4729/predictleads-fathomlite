@@ -250,7 +250,9 @@ tr.row--picked { background: var(--accent-soft); }
 .cp-sug, .cp-jcard { position: relative; }
 .cp-toast a.cp-toast__btn { text-decoration: none; }
 
-/* Legend: the entries light up the matching marks on the map when hovered or focused. */
+/* Legend: the two shape entries are toggles. The chosen kind comes to the front with a ripple; the other fades back. */
 .cp-legend__label { font-weight: 600; color: var(--text); }
-.cp-legend .cp-legend__item { padding: 2px 8px; border-radius: 8px; cursor: default; }
-.cp-legend .cp-legend__item:hover, .cp-legend .cp-legend__item:focus-visible { background: var(--surface-muted); color: var(--text); outline: 1px solid var(--border-strong); }
+.cp-legend .cp-legend__item { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--border); background: none; color: var(--text-muted); font: inherit; font-size: 12.5px; cursor: pointer; }
+.cp-legend .cp-legend__item:hover { border-color: var(--border-strong); color: var(--text); }
+.cp-legend .cp-legend__item.is-on { background: var(--accent-soft); border-color: var(--accent-border); color: var(--accent-strong); font-weight: 600; }
+.cp-dot.is-back { opacity: 0.14 !important; }

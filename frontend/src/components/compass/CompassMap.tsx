@@ -82,8 +82,9 @@ const inScopeKey = (roles: CompassRole[], turn: number, half: number) =>
  * comes to rest (a drag is released or an eased turn arrives); the class toggle happens outside React.
  */
 export default function CompassMap({ result, themeFilter, selectedId, highlightId, stretch, onSelect, onScopeChange }: Props) {
-  // hovering a legend entry lights every mark of that kind (picked jobs or suggested roles)
-  const [legendGroup, setLegendGroup] = useState<"pick" | "suggested" | null>(null);
+  // Clicking a legend entry brings that kind of mark (picked jobs or suggested roles) to the front and keeps it there; the other fades back.
+  const [activeGroup, setActiveGroup] = useState<"pick" | "suggested" | null>(null);
+  const toggleGroup = (group: "pick" | "suggested") => setActiveGroup((g) => (g === group ? null : group));
   const wrap = useRef<HTMLDivElement>(null);
   const [placed, setPlaced] = useState(prefersReducedMotion());
   const [tip, setTip] = useState<Tip | null>(null);
@@ -405,26 +406,30 @@ export default function CompassMap({ result, themeFilter, selectedId, highlightI
         <text x={MAP.cx} y={MAP.cy + 4} textAnchor="middle" className="cp-map__you">You</text>
 
         <g ref={dotsG} transform={`rotate(${turn} ${MAP.cx} ${MAP.cy})`}>
-        {result.jobs.map((j, i) => {
+        {[...result.jobs.entries()]
+          .sort(([, a], [, b]) => Number(activeGroup !== null && (activeGroup === "pick") === a.pick) - Number(activeGroup !== null && (activeGroup === "pick") === b.pick))
+          .map(([i, j]) => { // the active kind is drawn last, so it sits on top; i stays the job's own index for the dial's mark refs
           const theme = result.themes.find((t) => t.id === j.themeId) ?? result.themes[0];
           const [x, y] = polar(j.angle, fitToRadius(j.fit));
           const visible = matches(j);
           const selected = selectedId === j.job.id;
           const color = themeColor(j.themeId);
-          const inGroup = legendGroup !== null && (legendGroup === "pick") === j.pick;
-          const dim = (highlightId !== null && highlightId !== j.job.id) || (legendGroup !== null && !inGroup);
-          const lit = highlightId === j.job.id || inGroup;
+          const front = activeGroup !== null && (activeGroup === "pick") === j.pick;
+          const back = activeGroup !== null && !front;
+          const dim = highlightId !== null && highlightId !== j.job.id;
+          const lit = highlightId === j.job.id;
+          // the ripple marks what is in focus: the active kind, or (with nothing active) the suggested roles
           return (
             <g
               key={j.job.id}
-              className={`cp-dot${dim ? " is-dim" : ""}${lit ? " is-lit" : ""}${scopeJobs.has(j.job.id) ? "" : " is-out"}`}
+              className={`cp-dot${dim ? " is-dim" : ""}${lit ? " is-lit" : ""}${scopeJobs.has(j.job.id) ? "" : " is-out"}${back ? " is-back" : ""}${front ? " is-front" : ""}`}
               tabIndex={visible ? 0 : -1}
               role="button"
               aria-label={`${j.job.title} at ${j.job.company.name}, ${j.role}, ${theme.name}, fit ${j.fit} percent, ${TIER_NAME[tierOf(j.fit, stretch)]}${j.pick ? "" : ", suggested"}`}
               style={{
                 transform: placed ? `translate(${x}px, ${y}px)` : `translate(${MAP.cx}px, ${MAP.cy}px)`,
                 opacity: placed ? (visible ? 1 : 0.12) : 0,
-                pointerEvents: visible ? "auto" : "none",
+                pointerEvents: visible && !back ? "auto" : "none",
                 transitionDelay: placed && !prefersReducedMotion() ? `${150 + i * 70}ms` : "0ms",
               }}
               onClick={() => onSelect(j.job.id)}
@@ -436,6 +441,7 @@ export default function CompassMap({ result, themeFilter, selectedId, highlightI
             >
               <circle r={16} fill="transparent" />
               <g ref={(el) => { marks.current[i] = el; }} transform={`rotate(${-turn})`}>
+              {(front || (activeGroup === null && !j.pick)) && <circle className="cp-halo" r={12} style={{ fill: color, opacity: 0.35 }} />}
               {j.pick ? (
                 <rect className="cp-mark" x={-7} y={-7} width={14} height={14} rx={2} transform="rotate(45)" strokeWidth={selected ? 3 : 2} style={{ fill: color, stroke: selected ? "var(--text)" : "var(--surface)" }} />
               ) : (
@@ -462,15 +468,15 @@ export default function CompassMap({ result, themeFilter, selectedId, highlightI
           <span key={t.id}><i className="cp-key" style={{ background: themeColor(t.id) }} />{t.name}</span>
         ))}
         <span className="cp-legend__label">Shape:</span>
-        <span className="cp-legend__item" tabIndex={0} onMouseEnter={() => setLegendGroup("pick")} onMouseLeave={() => setLegendGroup(null)} onFocus={() => setLegendGroup("pick")} onBlur={() => setLegendGroup(null)}>
+        <button type="button" className={`cp-legend__item${activeGroup === "pick" ? " is-on" : ""}`} aria-pressed={activeGroup === "pick"} title="Bring the jobs you picked to the front" onClick={() => toggleGroup("pick")}>
           <i className="cp-key cp-key--diamond" style={{ background: "var(--text-muted)" }} />A job you picked ({result.jobs.filter((j) => j.pick).length})
-        </span>
-        <span className="cp-legend__item" tabIndex={0} onMouseEnter={() => setLegendGroup("suggested")} onMouseLeave={() => setLegendGroup(null)} onFocus={() => setLegendGroup("suggested")} onBlur={() => setLegendGroup(null)}>
+        </button>
+        <button type="button" className={`cp-legend__item${activeGroup === "suggested" ? " is-on" : ""}`} aria-pressed={activeGroup === "suggested"} title="Bring the suggested roles to the front" onClick={() => toggleGroup("suggested")}>
           <i className="cp-key" style={{ background: "var(--text-muted)" }} />A suggested role ({result.jobs.filter((j) => !j.pick).length})
-        </span>
+        </button>
         <span><i className="cp-key cp-key--scope" />Scope: what faces north (narrower means a tighter set of good fits)</span>
         <span><i className="cp-key cp-key--rings" />Rings, inside out: {TIER_NAME.best}, {TIER_NAME.reach}, {TIER_NAME.stretch}</span>
-        <span className="cp-legend__hint">Drag the outer ring to turn it, or click a role to face it</span>
+        <span className="cp-legend__hint">Click a shape to bring those jobs to the front (click again to clear). Drag the outer ring to turn it, or click a role to face it.</span>
       </div>
     </div>
   );
