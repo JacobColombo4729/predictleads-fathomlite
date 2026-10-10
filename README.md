@@ -1,6 +1,6 @@
 # PredictLeads Hackathon: career-changer job matching
 
-A demo that helps career changers (starting with TripleTen AI/ML graduates) find realistic roles in AI/ML, data and technical sales / solutions engineering. A user builds a profile (optionally with **Magic fill** from a resume), sees ranked jobs from the September 30, 2026 PredictLeads snapshot, rates them 👍/👎 to refine the list, and saves the ones they like.
+A demo that helps career changers (starting with TripleTen AI/ML graduates) find realistic roles in AI/ML, data and technical sales / solutions engineering. A user builds a profile (optionally with **Magic fill** from a resume), sees ranked jobs from the September 30, 2026 PredictLeads snapshot, rates them 👍/👎 to refine the list, saves the ones they like, and can send up to 20 saved jobs to the **Compass**, which finds what they have in common, how the profile lines up (with the closest line of the person's own profile as evidence) and other roles that might fit. Dark theme by default.
 
 **Start with [STATUS.md](STATUS.md)** for the current state and [roadmap.md](roadmap.md) for what is planned. This file is only the map.
 
@@ -10,8 +10,8 @@ Everything here is a hackathon prototype. Listings are **historical records, not
 
 | Path | What it is |
 |---|---|
-| `backend/` | FastAPI demo API: sessions, profiles, search, ranked recommendations (TF-IDF + BGE reciprocal-rank fusion), relevance feedback, saved jobs, grounded assessment (off by default) and resume extraction (opt-in). See [docs/backend-api.md](docs/backend-api.md). |
-| `frontend/` | React + Vite app wired to the API (Discover, Saved, Profile). See [frontend/README.md](frontend/README.md). |
+| `backend/` | FastAPI demo API: sessions, profiles, search, ranked recommendations (TF-IDF + BGE reciprocal-rank fusion), relevance feedback, saved jobs, the Compass analysis, grounded assessment (off by default) and resume extraction (opt-in). See [docs/backend-api.md](docs/backend-api.md). |
+| `frontend/` | React + Vite app wired to the API (Discover, Saved, Compass, Profile). See [frontend/README.md](frontend/README.md). |
 | `code/` | Python modules: matching engine (`job_matching_engine`), BGE text builders (`bge_text`), corpus and ranking pipeline (`rank_candidates`, `extract_targeted_pool`, `prepare_jobs`), role-family classifier, grounded explanations, resume extraction, review tooling, and the early data-discovery scripts. |
 | `tests/`, `backend/tests/` | Live tests. Run them all with `.\run_tests.ps1`. |
 | `archive/experiments/` | Earlier experiments, kept as history. Nothing live imports them. See its [README](archive/experiments/README.md). |

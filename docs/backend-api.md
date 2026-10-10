@@ -9,6 +9,7 @@ A minimal FastAPI service in `backend/api.py` for the demo. It is deliberately *
 - Read-only search and job/company details from one historical snapshot (the 81,284 listings whose source status is not explicitly closed).
 - Personalized recommendations through a replaceable ranker. The demo runs `tfidf_bge_rrf_equal` (`backend/rrf_ranker.py`, equal-weight reciprocal-rank fusion of TF-IDF and BGE cosine, depth 50, k=60); `PREDICTLEADS_API_RANKER=tfidf` serves TF-IDF alone. Scores are retrieval signals, not match percentages or hiring probabilities.
 - Relevance feedback: 👍/👎 on jobs per session. Recommendations then move the query toward liked and away from rejected jobs (Rocchio-style, applied to both signals) and hide rated jobs. The model is not retrained, and ratings disappear with the session.
+- **Compass** (`backend/compass.py`): analysis of 2-20 picked jobs against the saved profile, entirely local (stored BGE vectors and the local BGE model; no outside AI call). See below.
 - A grounded assessment endpoint for one profile/job pair (`code/grounded_match_explanations.py`). Provider generation is **disabled by default** and the web app does not call it yet.
 - Resume extraction ("Magic fill", `code/resume_profile_extraction.py`): **opt-in**, sends resume text to OpenAI. See below.
 
@@ -61,6 +62,7 @@ All data routes except session creation, reset, `healthz` and the snapshot descr
 | `GET/PUT /api/v1/feedback`, `DELETE /api/v1/feedback/{snapshot_id}/{job_id}` | List, set (`good` or `bad`) and clear ratings. |
 | `POST /api/v1/profiles/{profile_id}/jobs/{job_id}/assessment` | One grounded assessment; returns `assessment_state: unavailable` while the provider is off. |
 | `GET/POST /api/v1/saved-jobs`, `PATCH`/`DELETE /api/v1/saved-jobs/{snapshot_id}/{job_id}` | Saved jobs with workflow `stage` and `note`. |
+| `POST /api/v1/profiles/{profile_id}/compass` | Compass analysis. Body: `snapshot_id`, `profile_version`, `job_ids` (2-20). Needs the embedding (RRF) ranker, else `409 compass_unavailable`. About 4 seconds on CPU. |
 | `POST /api/v1/profile-extraction` | Magic fill: body has exactly one of `resume_text` or `resume_pdf_base64`. Stateless: nothing is stored or saved. Returns suggested profile fields, or `state: unavailable` when disabled. |
 
 ### Resume extraction rules
@@ -68,6 +70,20 @@ All data routes except session creation, reset, `healthz` and the snapshot descr
 - Text-based PDFs are read locally with `pypdf` (2 MB and 10 pages at most; scanned PDFs are rejected). Emails, phone numbers and links are removed before any text is sent.
 - Every returned experience, project, education or skill item must include a quote found verbatim in the resume; items that fail are dropped and counted. Desired roles, arrangements and constraints are never extracted.
 - Skill "evidence" lines are the model's attribution and are not covered by the quote check.
+
+## Compass analysis
+
+`POST /api/v1/profiles/{id}/compass` takes the jobs a person picked on the Saved page and returns:
+
+- **themes** (at most 3): clusters of the picks, named from the listings' own O*NET occupation label (first clause) or common title words, each with a compass heading for the map;
+- **jobs**: each pick and up to five suggestions with a `fit` (0-100), an angular offset for the map, up to two `why` lines (a verbatim profile line next to the listing line it matches) and `stretch`/`builds` requirement ids;
+- **requirements**: requirement and duty sentences from the picks, clustered by meaning, with how many picks mention each (`n`), the closest profile line as `evidence`, a `coverage` (0-100) and a `status` of `supported`, `partial` or `unknown` ("not mentioned"). Lines that mention years, degrees or certifications get `verify: true` and are never marked supported;
+- **next_steps**: the unsupported groups that appear most often (`n` times how little the profile shows it);
+- stats, the fit scale, and the method limits.
+
+How it works: the picks' stored embeddings give themes and fit; the profile is encoded the same way as the ranker's query. `fit` scales the cosine similarity between the profile and a listing from the 5th percentile of all listings (0) to the single best match (100). Requirement sentences come from `bge_text._job_sections` (benefits, EEO and company-pitch sections are skipped), are embedded in one batch, merged when their cosine distance is under 0.22, and compared with the person's own lines (experience, projects, education, skills; the headline is not evidence). Suggestions are the listings nearest a blend of the profile and the picks, excluding the picks, anything the person rated, near-copies of a pick's title and duplicates, diversified with maximal marginal relevance and a small push away from near-copies of the picks.
+
+Everything shown as evidence is a verbatim line from the profile or a listing. All thresholds (coverage 0.50-0.80 cosine, supported at 70, partial at 40, explanation similarity 0.66) are heuristics tuned by eye on a few real examples; **they have not been validated**. Scores are similarities, not hiring probabilities, and listings are historical.
 
 ## Tests
 
