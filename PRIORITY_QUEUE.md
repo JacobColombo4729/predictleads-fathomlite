@@ -24,7 +24,7 @@
   - **3.11 Hide what a career changer can't get:** manager-level listings per applicant (only for applicants without management experience), text blockers after EDA_SDA_3; report what each rule hides; accessibility checks within the niche.
   - **3.12 The compass, 2026 side:** each role's openings, pay, closing speed, entry-level share and expected growth, joined to Profiles' three path tables (prior career, training, within tech), with people counts and thin paths marked.
   - **4 Final table:** defend each decision, apply them all at the end, save for EDA_SDA_3. **5 Conclusion.**
-- **Finish the package setup:** run `brew install libomp` (LightGBM and XGBoost need it on a Mac) and `python -m spacy download en_core_web_sm`; the packages are pinned in `requirements.txt` (2026-10-10). Then tell the team (README section 4).
+- **Tell the team about the new packages:** pull, `pip install -r requirements.txt`, and on a Mac `brew install libomp`; then `python -m spacy download en_core_web_sm` (README section 4).
 - **Data housekeeping:** delete `data/external/resume_structured/archive.zip` once you no longer want a backup (the resume data is unzipped; the notebook re-extracts from it only if the CSVs go missing), the old `data/profiles/*_v9*` files (replaced by `modeling_table.pkl` and `retrained_candidates.csv`), the old lean-table cache (`data/clean/job_openings_lean_*.pkl` without `_v2`), the whole `data/profiles/review/` folder (old round_01 files; nothing reads them), and any leftover `*_flat_*.pkl` files.
 - **Tell the team** to pull, rerun `pip install -r requirements.txt`, and switch their `.env` to `S3_PATH`.
 
