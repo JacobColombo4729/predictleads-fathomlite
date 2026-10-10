@@ -21,18 +21,22 @@ Everything here is a hackathon prototype. Listings are **historical records, not
 
 ## Set up and run
 
+Commands below are PowerShell (Windows). On **macOS / Linux** use the `.sh` equivalents noted under each step.
+
 1. **Environment** (one virtual environment for everything):
    ```powershell
    python -m venv .venv
    & ".\.venv\Scripts\pip" install -r requirements.txt
    cd frontend; npm install; cd ..
    ```
+   macOS / Linux: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt && (cd frontend && npm install)`
 2. **Data and model** (not in git): the serving corpus at `data/matching/ai_ml_serving_v1` (built by the pipeline below) and the BGE model `BAAI/bge-base-en-v1.5` (revision pinned in `code/bge_text.py`) in `models/bge-base-en-v1.5`, or set `PREDICTLEADS_BGE_MODEL_DIR`.
 3. **Backend** (about 3.5 minutes to load, about 2.5 GB of memory):
    ```powershell
    .\run_demo_backend.ps1            # add -ResumeFill to enable Magic fill; -Ranker tfidf for the lighter ranker
    ```
-4. **Frontend**: `cd frontend; npm run dev`, then open http://127.0.0.1:5173.
+   macOS / Linux: `./run_demo_backend.sh` (flags `--resume-fill`, `--ranker tfidf`, `--port N`).
+4. **Frontend**: `cd frontend; npm run dev` (macOS / Linux: `cd frontend && npm run dev`), then open http://127.0.0.1:5173.
 5. **Magic fill** sends the resume text you choose to OpenAI after you tick a consent box. Copy `.env.example` to `.env` and set `OPENAI_API_KEY`. It is off unless the backend starts with `-ResumeFill`.
 
 ## Tests
@@ -42,6 +46,8 @@ Everything here is a hackathon prototype. Listings are **historical records, not
 .\run_tests.ps1 -Frontend        # also type-check and build the React app
 .\run_tests.ps1 -Archive         # also the archived experiment tests
 ```
+
+macOS / Linux: `./run_tests.sh`, with `--frontend` and `--archive`.
 
 ## Data pipeline (rebuilding the corpus)
 
