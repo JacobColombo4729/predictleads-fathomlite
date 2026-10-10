@@ -17,7 +17,7 @@
   - **3.4 Pay disclosed:** by state, hourly vs. salaried and seniority, within company-volume bands.
   - **3.5 Reposts and company volume:** use volume counted from earlier listings only (EDA_SDA_1 Q1d: 13 vs. 30 days, so the finding holds), with and without staffing agencies (2b); how strongly reposts count, and whether high volume means more competition or more openings (and more entry-level listings).
   - **3.6 The niche, computer and mathematical by role bucket:** map `onet_code` to buckets (report unmapped codes); size each bucket with and without manager-level listings (hidden per applicant, so the niche keeps them); count career changers per bucket from `Profiles.ipynb`, all three pools, split by pool; run the depth check; keep buckets that pass on both sides (30+ career changers in all pools; retrained-only would drop data and analytics).
-  - **3.7 Blind spots:** the 2-day live tolerance, part-time annualized pay, the seniority labels, and state from `location_data`.
+  - **3.7 Blind spots:** the 2-day live tolerance, salaried part-time pay (hourly conversion assumes 2,080 hours), the seniority labels, and state from `location_data`.
   - **3.8 Join the companies table** (left join, keys checked).
   - **3.9 Missing data:** follow the per-field plan already in the notebook; by-group missingness and `isnull().corr()`.
   - **3.10 Outliers:** IQR and boxplots for days open, words, salary, times listed.

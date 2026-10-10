@@ -77,7 +77,7 @@ Some analyses are skewed by part of the table. Each analysis states which **view
 | # | Fix | How | Result |
 |:-:|:--|:--|:--|
 | 1 | **Staffing agencies** | Flag listings posted by recruiters or staffing firms: company name and domain words (staffing, recruiting, talent, well-known agency names), or an "about" text that says staffing or recruiting firm (companies table). A review cell (2b.1 review, row-level) lists the most-flagged companies so a teammate can check the keywords | `is_staffing`, kept. Report their share by field and their days open; compute company volume with and without them (3.5), since agencies post at high volume and repost often. The app labels them "posted by a recruiter" |
-| 2 | **Salary sanity** | EDA_SDA_1 (6.5) already blanked annual pay outside $10k–$1M. Here: swap reversed ranges; re-read a "yearly" $7–$200 as hourly and an "hourly" $10k–$1M as yearly, which recovers pay that 6.5 blanked | `pay_suspect` flag; counts per fix. Runs before the outliers (3.10) and the pay factor |
+| 2 | **Salary sanity, standardized to hourly** | EDA_SDA_1 (6.5) already blanked pay outside $10k–$1M a year. Here: convert to one hourly rate (2,080 hours a year, full time); swap reversed ranges; re-read a "yearly" $7–$200 as hourly and an "hourly" $10k–$1M as yearly, which recovers pay that 6.5 blanked | **`salary_hourly_usd` is the one pay column from here on** (`salary_annual_usd` is dropped); `pay_suspect` flag; counts per fix. Runs before the outliers (3.10) and the pay factor |
 | 3 | **Date consistency** | EDA_SDA_1 (6.3) already removed impossible timelines and blanked `posted` dates after `first_seen`. Here: `posted` more than a year before `first_seen` | `posted_old` flag, kept; it feeds the ghost-listing check (3.1) |
 | 4 | **Internships and temporary roles** | `contract_types` plus title words (intern, internship, temporary, temp, seasonal, contract-to-hire) | `job_type` (internship, temporary, contract, regular), kept: they can be entry points for career changers. Report their share in the niche and their days open; the app can filter them |
 | 5 | **Title normalization** | Lowercase; strip bracketed text, locations after " - " or " \| ", requisition IDs, pay, and "remote" or "hybrid" tags (kept as a flag) | `title_clean`; the original title stays. Recheck the repost count and the role-bucket mapping with it |
@@ -175,7 +175,7 @@ The listing side is `role_bucket(onet_code)` (`ONET_ROLE_BUCKETS`, which also co
 |:--|:--|
 | The "closed" outcome is wrong for reposted jobs: the earlier listing disappears without being filled | In the analysis (not as a model input), treat a listing that was later reposted as "closed without filling" or censored |
 | The 2-day "still open" tolerance is a guess | Distribution of days between `last_seen` and the snapshot; a bump near 7 days means it's too tight |
-| Annualizing hourly pay assumes full time | Adjust with `contract_types` (part time vs. full time), or flag part-time annualized pay |
+| Converting salaried pay to hourly assumes full time (2,080 hours) | Hourly listings keep their posted rate, so only salaried part-time listings are off; flag them with `contract_types` (part time) |
 | Company volume counted within the sample | The companies table has no size or employee count. It does have a description (industry, via NLP in EDA_SDA_3), a ticker (publicly traded), parent and subsidiary companies, and similar companies: check whether these add anything beyond volume |
 | State isn't in the table | Add it from `location_data`, if PredictLeads includes it |
 | Missing country vs. remote, missing language vs. description | Confirm the EDA_SDA_1 section 10a results |
@@ -209,7 +209,7 @@ Merge the companies table into the listings (a **left join** on `company_id` = c
 
 ### 3.10 Outliers
 
-Boxplots and IQR rules for days open, words per description, annual salary, times listed. Course standard: inspect, explain, and keep or remove with a reason. Advanced: robust (median / IQR) summaries, and log scales for the right-skewed measures.
+Boxplots and IQR rules for days open, words per description, hourly pay, times listed. Course standard: inspect, explain, and keep or remove with a reason. Advanced: robust (median / IQR) summaries, and log scales for the right-skewed measures.
 
 ### 3.11 Career-change accessibility, and hiding what a career changer can't get
 

@@ -137,7 +137,7 @@ The priority score ranks postings by how much an application is worth. It combin
 | **Career-change accessibility** | How open the posting is to someone new to the field | Seniority and listing text: years required, degree or equivalent experience, training, career-changer wording |
 | **Transferable fit** | How well the skills from the user's old field match the posting | TF-IDF or local embeddings, with O*NET skills |
 | **Competition** | Lower is better | Reposts, company hiring volume, similar open postings, external market tightness |
-| **Pay** | Annual salary, where disclosed | Cleaned salary data, compared with listings in the same role |
+| **Pay** | Hourly pay rate, where disclosed (salaried pay converted at 2,080 hours a year) | Cleaned salary data (`salary_hourly_usd`), compared with listings in the same role |
 | **Freshness** | Days since first seen | `first_seen_at` |
 
 **How it's tuned:** the analysis decides which factors carry real signal and how strongly. The weights start from those findings and are checked against a newest-first baseline on a later time period. Users can adjust the weights with sliders, for example "reachability matters more to me than pay."
