@@ -403,3 +403,9 @@ input[type="file"]::file-selector-button:hover { background: var(--neutral-soft)
 }
 .field select:focus { border-color: var(--accent); outline: 0; box-shadow: 0 0 0 3px var(--accent-soft); }
 input[type="checkbox"], input[type="range"] { accent-color: var(--accent); }
+
+/* Search form */
+.searchform { display: flex; gap: var(--s2); align-items: stretch; }
+.searchform .search { flex: 1; min-width: 0; }
+.searchform .btn { height: auto; padding: 0 var(--s4); }
+.searchnote { margin: 0 0 var(--s2); }

@@ -1,4 +1,4 @@
-import type { FeedbackSignal, Filters, Profile, Recommendation, Stage, TrackedJob } from "../types";
+import type { FeedbackSignal, Filters, Profile, Recommendation, SearchScope, Stage, TrackedJob } from "../types";
 import FilterBar from "../components/FilterBar";
 import JobCard from "../components/JobCard";
 import JobDetails from "../components/JobDetails";
@@ -15,6 +15,7 @@ interface Props {
   snapshotId: string | null;
   snapshotDate: string | null;
   ranker: string;
+  searchScope: SearchScope;
   feedbackApplied: boolean;
   ratingCounts: { good: number; bad: number };
   onClearRatings: () => void;
@@ -62,6 +63,14 @@ export default function DiscoverPage(p: Props) {
             {p.loading && p.recs.length > 0 ? " Updating…" : ""}
           </span>
         </div>
+
+        {p.filters.query.trim() && p.searchScope !== "all" && (
+          <p className="muted small searchnote" role="status">
+            {p.searchScope === "title"
+              ? <>Showing jobs with “{p.filters.query.trim()}” in the title, ranked by fit to your profile.</>
+              : <>Few job titles match “{p.filters.query.trim()}”, so this also searches descriptions and tags.</>}
+          </p>
+        )}
 
         <section className="feedbackbar" aria-label="Your ratings">
           <p>
