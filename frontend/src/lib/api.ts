@@ -1,4 +1,5 @@
 import { participantId } from "./research";
+import type { MarketOverview, MarketQuery, MarketResponse, ResearchResponse, TranscribeResponse } from "./market";
 import type {
   GapBatchResult,
   GapEvidence,
@@ -161,6 +162,31 @@ const signalsQuery = (q: SignalsQuery): string => {
 };
 
 export const api = {
+  marketOverview: () => request<MarketOverview>("GET", "/market/overview"),
+  /** Turns a question into a search with OpenAI (when switched on) and answers it from our own data. */
+  marketAsk: (question: string) => request<MarketResponse>("POST", "/market/ask", { question }),
+  /** Runs a structured search without any AI: preset questions and edited filters. */
+  marketRun: (query: MarketQuery) => request<MarketResponse>("POST", "/market/run", { query }),
+  /** Optional web research on one company (OpenAI web search). Sends only the company's name and website. */
+  companyResearch: (companyId: string) => request<ResearchResponse>("POST", "/market/company-research", { company_id: companyId }),
+  /** Speech to text for one spoken question (OpenAI transcription, when switched on). The recording is sent for this request only. */
+  async transcribe(audio: Blob): Promise<TranscribeResponse> {
+    let response: Response;
+    try {
+      response = await fetch(`${BASE}/market/transcribe`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": audio.type || "audio/webm", ...(participantId() ? { "X-Participant-Id": participantId()! } : {}) },
+        body: audio,
+      });
+    } catch {
+      throw new ApiError(0, "network_error", "Could not reach the matching service. Is the backend running?");
+    }
+    const payload = (await response.json().catch(() => null)) as { error?: { code?: string; message?: string } } | null;
+    if (!response.ok) throw new ApiError(response.status, payload?.error?.code ?? "http_error", payload?.error?.message ?? `Request failed (${response.status}).`);
+    return payload as unknown as TranscribeResponse;
+  },
+
   signalsOverview: () => request<SignalsOverview>("GET", "/signals/overview"),
   signalsPatterns: async () => (await request<{ patterns: Record<string, SignalPattern> }>("GET", "/signals/patterns")).patterns,
   signalsCompanies: (q: SignalsQuery) => request<{ total: number; companies: SignalCompany[] }>("GET", `/signals/companies?${signalsQuery(q)}`),

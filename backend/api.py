@@ -25,6 +25,7 @@ from fastapi import Cookie, Depends, FastAPI, Header, Query, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, ConfigDict, Field, ValidationError as PydanticValidationError, field_validator, model_validator
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -38,6 +39,8 @@ import resume_profile_extraction as resume_extraction  # noqa: E402
 from . import compass as compass_analysis  # noqa: E402
 from . import events as research_events  # noqa: E402
 from . import feedback_ranking  # noqa: E402
+from . import market as market_engine  # noqa: E402
+from . import market_llm  # noqa: E402
 from . import signals as hiring_signals  # noqa: E402
 
 
@@ -202,6 +205,21 @@ class GapBatchRequest(BaseModel):
     job_ids: list[str] = Field(min_length=1, max_length=grounded.MAX_BATCH_JOBS)
 
 
+class MarketAsk(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    question: str = Field(min_length=3, max_length=300)
+
+
+class MarketRunRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    query: market_engine.MarketQuery
+
+
+class MarketResearchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    company_id: str = Field(min_length=1, max_length=80)
+
+
 class ResearchConsent(BaseModel):
     model_config = ConfigDict(extra="forbid")
     consent: bool
@@ -216,6 +234,19 @@ class SavedJobCreate(BaseModel):
 EXPLORE_SHARE = 0.15       # about this share of a page is exploration (see below)
 EXPLORE_MIN_LIMIT = 8      # smaller pages are left alone
 EXPLORE_MAX = 5
+MARKET_ASK_CAP = 120        # AI questions per demo session (each is one small request)
+MARKET_RESEARCH_CAP = 40    # web-research requests per demo session
+MARKET_VOICE_CAP = 60       # voice questions per demo session
+VOICE_MAX_BYTES = 5 * 1024 * 1024  # a spoken question is a few hundred kilobytes; this is a generous ceiling
+MARKET_EXAMPLES = [
+    {"question": "Which companies are hiring people who use Snowflake or dbt?", "query": {"task": "companies", "technologies": ["Snowflake", "dbt"]}},
+    {"question": "Who's hiring data roles in Texas and ramping up?", "query": {"task": "companies", "role_family": ["data"], "states": ["Texas"], "patterns": ["burst"]}},
+    {"question": "Which tools show up most in AI engineer listings?", "query": {"task": "technologies", "role_family": ["ai_ml"], "title_words": ["AI engineer"]}},
+    {"question": "What do technical sales roles pay in Austin?", "query": {"task": "pay", "role_family": ["technical_sales"], "cities": ["Austin"]}},
+    {"question": "Which companies just started hiring data engineers?", "query": {"task": "companies", "role_family": ["data"], "title_words": ["data engineer"], "first_time_hiring": True}},
+    {"question": "Which of my saved companies are in a hiring burst?", "query": {"task": "companies", "only_my_saved": True, "patterns": ["burst"]}},
+    {"question": "Compare Databricks and Snowflake hiring", "query": {"task": "compare", "companies": ["Databricks", "Snowflake"]}},
+]
 FeedbackReason = Literal["wrong_role", "seniority", "location", "pay", "company", "seen", "other"]
 # A thumbs-down only pushes results away from that job's content when the job itself was the wrong kind of role (or no reason was given).
 # For the other reasons the job is still hidden, but the ranker does not learn "less like this" from a job that was rejected for another reason.
@@ -885,6 +916,24 @@ def _assessment_cache_key(
     return hashlib.sha256(json.dumps(material, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
 
 
+def _load_market() -> "market_engine.MarketEngine | None":
+    directory = hiring_signals.default_signals_dir()
+    if directory is None:
+        return None
+    try:
+        return market_engine.load_engine(directory)
+    except Exception as exc:  # noqa: BLE001  (a missing or damaged table switches the feature off, it does not stop the app)
+        logging.getLogger("uvicorn.error").warning("market table not loaded: %s", type(exc).__name__)
+        return None
+
+
+def _default_market_ai() -> "market_llm.OpenAIMarketProvider | None":
+    """Ask the market sends the question (and, on request, a company name) to OpenAI, so it is off unless PREDICTLEADS_MARKET=openai."""
+    if os.environ.get("PREDICTLEADS_MARKET", "").strip().lower() != "openai":
+        return None
+    return market_llm.OpenAIMarketProvider.from_environment()
+
+
 def _default_assessment_provider() -> "grounded.ExplanationProvider | None":
     """The AI gap analysis sends profile and job text to OpenAI, so it is off unless PREDICTLEADS_ASSESSMENT=openai."""
     if os.environ.get("PREDICTLEADS_ASSESSMENT", "").strip().lower() != "openai":
@@ -938,6 +987,8 @@ def create_app(
     ranker: RankingBackend | None = None,
     extraction_provider: "resume_extraction.ResumeProvider | None" = None,
     signal_store: "hiring_signals.SignalStore | None" = None,
+    market_data: "market_engine.MarketEngine | None" = None,
+    market_ai: Any = None,
 ) -> FastAPI:
     config = settings or Settings.from_environment()
     store = SessionStore(config.db_path, config.session_ttl_seconds)
@@ -952,6 +1003,9 @@ def create_app(
         app.state.assessment_provider = provider if provider is not None else _default_assessment_provider()
         app.state.extraction_provider = extraction_provider or _default_extraction_provider()
         app.state.signals = signal_store if signal_store is not None else _load_signals()
+        app.state.market = market_data if market_data is not None else _load_market()
+        app.state.market_ai = market_ai if market_ai is not None else _default_market_ai()
+        app.state.market_use = {}
         if config.events_db_path is not None:
             app.state.events = research_events.EventStore(config.events_db_path, config.events_require_consent)
             app.state.events.initialize()
@@ -964,6 +1018,9 @@ def create_app(
     app.state.assessment_provider = provider
     app.state.extraction_provider = extraction_provider
     app.state.events = None
+    app.state.market = None
+    app.state.market_ai = None
+    app.state.market_use = {}
 
     @app.middleware("http")
     async def reject_untrusted_write_origins(request: Request, call_next):
@@ -1222,6 +1279,136 @@ def create_app(
         events, pid = participant_of(request)
         removed = events.withdraw(pid) if events is not None and pid else 0
         return {"available": events is not None, "consented": False, "events": 0, "deleted": removed}
+
+    def _market() -> "market_engine.MarketEngine":
+        engine = getattr(app.state, "market", None)
+        if engine is None:
+            raise APIError(503, "market_unavailable", "The market table has not been built. Run code/hiring_signals.py market.", retryable=False)
+        return engine
+
+    def _spend(session_hash: str, kind: str, cap: int) -> None:
+        key = (session_hash, kind)
+        used = app.state.market_use.get(key, 0)
+        if used >= cap:
+            raise APIError(429, "market_limit_reached", "This demo session has used all of its AI requests for this feature. Start a new session to continue.")
+        app.state.market_use[key] = used + 1
+
+    def _saved_company_ids(session_hash: str) -> list[str]:
+        jobs: JobRepository = app.state.job_repository
+        ids: set[str] = set()
+        for row in store.list_saved_jobs(session_hash, jobs.snapshot_id):
+            record = jobs.by_id.get(row["job_id"])
+            company = _company_id(record.source) if record is not None else ""
+            if company:
+                ids.add(company)
+        return sorted(ids)
+
+    def _run_market(query: "market_engine.MarketQuery", session_hash: str) -> dict[str, Any]:
+        return _market().run(query, _saved_company_ids(session_hash) if query.only_my_saved else None)
+
+    @app.get("/api/v1/market/overview")
+    def market_overview(session_hash: str = Depends(session_dependency)) -> dict[str, Any]:
+        engine = getattr(app.state, "market", None)
+        ai = getattr(app.state, "market_ai", None)
+        return {"available": engine is not None, "ask_enabled": engine is not None and ai is not None, "research_enabled": engine is not None and ai is not None,
+                "voice_enabled": engine is not None and ai is not None and hasattr(ai, "transcribe"),
+                "examples": MARKET_EXAMPLES, "as_of": market_engine.day_to_date(engine.cutoff).isoformat() if engine is not None else None,
+                "limits": {"ask": MARKET_ASK_CAP, "research": MARKET_RESEARCH_CAP}}
+
+    @app.post("/api/v1/market/run")
+    def market_run(payload: MarketRunRequest, session_hash: str = Depends(session_dependency)) -> dict[str, Any]:
+        """Run a structured query. No AI is involved, so it works with the AI switched off (preset questions, edited filters)."""
+        return {"state": "ok", "query": payload.query.model_dump(), "result": _run_market(payload.query, session_hash)}
+
+    @app.post("/api/v1/market/ask")
+    def market_ask(payload: MarketAsk, request: Request, session_hash: str = Depends(session_dependency)) -> dict[str, Any]:
+        _market()
+        refusal = market_engine.refuse_in_advance(payload.question)
+        if refusal is not None:  # forecasts and advice are refused outright, without using the AI
+            return {"state": "unsupported", "question": payload.question, "reason": refusal}
+        ai = getattr(app.state, "market_ai", None)
+        if ai is None:
+            return {"state": "unavailable", "reason": "ai_disabled", "question": payload.question}
+        _spend(session_hash, "ask", MARKET_ASK_CAP)
+        try:
+            parsed = ai.parse(payload.question)
+        except market_llm.MarketAIUnavailable:
+            return {"state": "unavailable", "reason": "ai_disabled", "question": payload.question}
+        except market_llm.MarketAIFailure:
+            raise APIError(502, "market_ai_failed", "The AI service could not be reached or failed. Nothing was kept; try again.", retryable=True) from None
+        if not parsed.get("supported", False):
+            reason = " ".join(str(parsed.get("unsupported_reason") or "").split())[:240] or "That question needs information our data does not have."
+            return {"state": "unsupported", "question": payload.question, "reason": reason}
+        grounded_fields, grounding_notes = market_engine.ground_in_question(
+            {k: v for k, v in parsed.items() if k not in ("supported", "unsupported_reason")}, payload.question)
+        try:
+            query = market_engine.MarketQuery.model_validate(grounded_fields)
+        except PydanticValidationError:
+            return {"state": "unsupported", "question": payload.question, "reason": "I could not turn that into a search. Try rephrasing it."}
+        result = _run_market(query, session_hash)
+        result["notes"] = grounding_notes + result.get("notes", [])
+        log_event(request, "market_ask", session_hash, payload={"question": payload.question, "query": query.model_dump()})
+        return {"state": "ok", "question": payload.question, "query": query.model_dump(), "result": result}
+
+    @app.post("/api/v1/market/transcribe")
+    async def market_transcribe(request: Request, session_hash: str = Depends(session_dependency)) -> dict[str, Any]:
+        """Speech to text for a question spoken into the microphone. The raw recording is the request body; nothing is stored."""
+        _market()
+        ai = getattr(app.state, "market_ai", None)
+        if ai is None or not hasattr(ai, "transcribe"):
+            return {"state": "unavailable", "reason": "ai_disabled"}
+        content_type = (request.headers.get("content-type") or "").split(";")[0].strip().lower()
+        if not (content_type.startswith("audio/") or content_type == "video/webm"):
+            raise APIError(415, "unsupported_audio", "Send the recording as audio.")
+        audio = await request.body()
+        if not audio:
+            raise APIError(422, "empty_audio", "The recording was empty.")
+        if len(audio) > VOICE_MAX_BYTES:
+            raise APIError(413, "audio_too_large", "That recording is too long. Keep the question short.")
+        _spend(session_hash, "voice", MARKET_VOICE_CAP)
+        try:
+            text = await run_in_threadpool(ai.transcribe, audio, request.headers.get("content-type") or content_type)
+        except market_llm.MarketAIUnavailable:
+            return {"state": "unavailable", "reason": "ai_disabled"}
+        except market_llm.MarketAIFailure:
+            raise APIError(502, "transcription_failed", "The recording could not be turned into text. Nothing was kept; try again.", retryable=True) from None
+        text = " ".join(str(text).split())[:300]
+        return {"state": "ok", "text": text} if text else {"state": "empty", "message": "We didn't catch anything. Try again a little closer to the microphone."}
+
+    @app.post("/api/v1/market/company-research")
+    def market_company_research(payload: MarketResearchRequest, request: Request, session_hash: str = Depends(session_dependency)) -> dict[str, Any]:
+        """Optional web research on one company, chosen by the person. Sends only the company's name and website to OpenAI."""
+        engine = _market()
+        ai = getattr(app.state, "market_ai", None)
+        if ai is None:
+            return {"state": "unavailable", "reason": "ai_disabled"}
+        if payload.company_id not in engine.signals.index:
+            raise APIError(404, "company_not_found", "That company is not in the market data.")
+        row = engine.signals.loc[payload.company_id]
+        name = str(row["company_name"]) if isinstance(row["company_name"], str) else None
+        domain = str(row["domain"]) if isinstance(row["domain"], str) else None
+        if not name:
+            raise APIError(422, "company_unnamed", "This company has no name in the data, so it cannot be researched.")
+        cache_key = hashlib.sha256(f"market_research|{payload.company_id}|{getattr(ai, 'model', '')}".encode("utf-8")).hexdigest()
+        cached = store.get_assessment(cache_key, session_hash)
+        if cached is not None:
+            return {"state": "ok", "cache": "hit", **cached}
+        _spend(session_hash, "research", MARKET_RESEARCH_CAP)
+        try:
+            found = ai.research(name, domain)
+        except market_llm.MarketAIUnavailable:
+            return {"state": "unavailable", "reason": "ai_disabled"}
+        except market_llm.MarketAIFailure:
+            raise APIError(502, "market_research_failed", "The web research could not be completed. Nothing was kept; try again.", retryable=True) from None
+        if not found.get("text") or not found.get("sources"):
+            return {"state": "no_sources", "company_id": payload.company_id, "name": name,
+                    "message": "No reliable web sources were found for this company, so nothing is shown."}
+        wrapped = {"company_id": payload.company_id, "name": name, "domain": domain, "text": found["text"], "sources": found["sources"],
+                   "model": getattr(ai, "model", None), "retrieved": market_engine.date.today().isoformat(),
+                   "label": "From the web through OpenAI. This is not PredictLeads data and can be wrong or out of date."}
+        store.cache_assessment(cache_key, session_hash, wrapped)
+        log_event(request, "market_research", session_hash, payload={"company_id": payload.company_id})
+        return {"state": "ok", "cache": "miss", **wrapped}
 
     @app.get("/api/v1/signals/overview")
     def signals_overview(session_hash: str = Depends(session_dependency)) -> dict[str, Any]:

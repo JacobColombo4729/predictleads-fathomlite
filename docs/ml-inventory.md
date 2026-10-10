@@ -13,6 +13,8 @@ A plain inventory for defending the project. For each piece: what it does, the p
 | 5. Hiring signals | Signals, job-card badge | Anomaly detection + entity resolution, backtested | Models tried, not shipped | **Yes, temporal backtest** |
 | 6. Role-family classifier | Not in the app | Logistic regression on BGE | Yes | Yes, against provider labels (not against fit) |
 | 7. Match explanations | Off by default | GenAI with grounding | No | Not run in the demo |
+| 8. Ask the market | Signals tab | GenAI turns a question into a validated search; the answer is plain data analysis | No (hosted model) | Checked by tests and live on public questions; the engine's numbers are counts and medians of real listings |
+| 9. Company research and voice | Signals tab | GenAI with web search (cited sentences only); speech-to-text | No (hosted model) | Tested on one company and one synthetic voice; not measured at scale |
 
 ## 1. Job ranker
 
@@ -58,6 +60,12 @@ A plain inventory for defending the project. For each piece: what it does, the p
 ## 7. Match explanations (off by default)
 
 A grounded GenAI explanation of why a job fits, restricted to facts in the profile and listing. Built and tested offline, not part of the default demo.
+
+## 8-9. Ask the market, company research and voice
+
+- **What:** a question box over our hiring data ([ask-the-market.md](ask-the-market.md)). A hosted model only translates the question into a search; our code validates it, runs it on the listing table and shows how it was read. An optional step researches one company with web search, and a Talk button turns speech into text.
+- **Why it is defensible:** the AI never writes the numbers. Places, technologies and companies must literally appear in the question or they are removed (and the screen says so). Forecasts and advice are refused by a rule, not by the model. A company synopsis keeps only sentences that carry a web citation, and shows its sources.
+- **Honest limits:** the model can misread an unusual question (the read-back chips let a person see and fix that); web research can be wrong or out of date and says so; counts come from one crawler snapshot with crawler dates.
 
 ## What we should not claim
 
