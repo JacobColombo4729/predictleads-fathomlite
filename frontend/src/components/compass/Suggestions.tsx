@@ -1,3 +1,4 @@
+import SaveButton from "./SaveButton";
 import type { CompassJob, CompassResult } from "../../types";
 import { requirementShortName, themeColor } from "../../lib/compass";
 
@@ -7,6 +8,8 @@ interface Props {
   onSelect: (jobId: string) => void;
   onHighlight: (jobId: string | null) => void;
   onAdd: (job: CompassJob) => void;
+  savedIds: Set<string>;
+  onSave: (job: CompassJob) => void;
 }
 
 function blurb(job: CompassJob): string {
@@ -17,7 +20,7 @@ function blurb(job: CompassJob): string {
 }
 
 /** Listings you did not pick that sit near your picks and your profile. Hovering a card lights its diamond on the map. */
-export default function Suggestions({ result, selectedId, onSelect, onHighlight, onAdd }: Props) {
+export default function Suggestions({ result, selectedId, onSelect, onHighlight, onAdd, savedIds, onSave }: Props) {
   const suggestions = result.jobs.filter((j) => !j.pick);
   if (suggestions.length === 0) return <p className="cp-sub">No more suggestions here. The roles you added are on the tier board above, and moving the stretch slider finds more.</p>;
   return (
@@ -39,6 +42,7 @@ export default function Suggestions({ result, selectedId, onSelect, onHighlight,
             onBlur={() => onHighlight(null)}
           >
             <span className="cp-sug__badge">Hidden fit</span>
+            <SaveButton job={j} saved={savedIds.has(j.job.id)} onSave={onSave} />
             <div className="cp-sug__t">{j.job.title}</div>
             <div className="cp-sug__c">{j.job.company.name}{theme ? ` · ${theme.name}` : ""}</div>
             <p>{blurb(j)}</p>

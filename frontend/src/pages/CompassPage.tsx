@@ -39,7 +39,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [themeFilter, setThemeFilter] = useState("all");
   const [added, setAdded] = useState<CompassJob[]>([]);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{ text: string; kind: "tiers" | "saved" } | null>(null);
   const [stretch, setStretch] = useState(0);
   const [table, setTable] = useState(false);
 
@@ -63,12 +63,16 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
 
   const addRole = useCallback((job: CompassJob) => {
     setAdded((list) => (list.some((x) => x.job.id === job.job.id) ? list : [...list, job]));
-    setNotice(`Added “${job.job.title}” (${job.job.company.name}) to Your fit, in tiers.`);
+    setNotice({ text: `Added “${job.job.title}” (${job.job.company.name}) to Your fit, in tiers.`, kind: "tiers" });
   }, []);
   const removeRole = useCallback((jobId: string) => {
     setAdded((list) => list.filter((x) => x.job.id !== jobId));
     setNotice(null);
   }, []);
+  const saveRole = useCallback((job: CompassJob) => {
+    onSave(job.job);
+    setNotice({ text: `Saved “${job.job.title}” (${job.job.company.name}) to your Saved jobs.`, kind: "saved" });
+  }, [onSave]);
   const showTiers = () => { document.getElementById("cp-tiers")?.scrollIntoView({ behavior: "smooth", block: "start" }); setNotice(null); };
 
   const finished = useCallback(() => {
@@ -209,7 +213,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
               </div>
               {state.status === "ready" && state.updating && <p className="cp-sub" role="status">Finding roles at this stretch…</p>}
               {state.status === "ready" && state.notice && <p className="field__error" role="alert">{state.notice}</p>}
-              <TierBoard jobs={viewResult!.jobs} themeFilter={themeFilter} stretch={stretch} selectedId={selected?.job.id ?? null} onSelect={setSelectedId} addedIds={addedIds} onAdd={addRole} onRemove={removeRole} />
+              <TierBoard jobs={viewResult!.jobs} themeFilter={themeFilter} stretch={stretch} selectedId={selected?.job.id ?? null} onSelect={setSelectedId} addedIds={addedIds} onAdd={addRole} onRemove={removeRole} savedIds={savedIds} onSave={saveRole} />
             </div>
           </section>
 
@@ -249,7 +253,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
                   <p className="cp-sub">Different titles, similar work. Hover a card to find it on the compass. Press “Add to my tiers” to move a role up into Your fit, in tiers; it stays there when you move the stretch slider, and it is included in the skills gap analysis.</p>
                 </div>
               </header>
-              <Suggestions result={listResult!} selectedId={selected?.job.id ?? null} onSelect={setSelectedId} onHighlight={setHighlightId} onAdd={addRole} />
+              <Suggestions result={listResult!} selectedId={selected?.job.id ?? null} onSelect={setSelectedId} onHighlight={setHighlightId} onAdd={addRole} savedIds={savedIds} onSave={saveRole} />
             </div>
           </section>
 
@@ -260,8 +264,10 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
       )}
       {notice && (
         <div className="cp-toast" role="status">
-          <span>{notice}</span>
-          <button type="button" className="cp-toast__btn" onClick={showTiers}>Show me</button>
+          <span>{notice.text}</span>
+          {notice.kind === "tiers"
+            ? <button type="button" className="cp-toast__btn" onClick={showTiers}>Show me</button>
+            : <a className="cp-toast__btn" href={routeHref("saved")}>View Saved</a>}
           <button type="button" className="cp-toast__x" aria-label="Dismiss" onClick={() => setNotice(null)}>×</button>
         </div>
       )}
