@@ -669,16 +669,24 @@ def _normalize_locations(raw: Mapping[str, Any]) -> str:
     return " ".join(values).casefold()
 
 
-def _search_indices(repository: JobRepository, filters: RecommendationFilters) -> list[int]:
-    query = (filters.query or "").strip().casefold()
+TITLE_FIRST_MIN_RESULTS = 5  # with fewer title matches than this, a search falls back to the whole listing text
+
+
+def _search_indices(repository: JobRepository, filters: RecommendationFilters, *, title_only: bool = False) -> list[int]:
+    """Listings matching the filters. Every word of the query must appear (in any order); `title_only` looks at titles only."""
+    tokens = (filters.query or "").strip().casefold().split()
     location = (filters.location or "").strip().casefold()
     output: list[int] = []
     for index, job in enumerate(repository.jobs):
         source = job.source
-        title, occupation, description = matching._job_search_fields(source)
-        searchable = " ".join((title, occupation, description, str(source.get("company_name_included") or ""), " ".join(source.get("tags") or []), " ".join(source.get("categories") or []))).casefold()
-        if query and query not in searchable:
-            continue
+        if tokens:
+            if title_only:
+                haystack = " ".join(str(source.get(key) or "") for key in ("title_searchable", "title_normalized", "title_raw")).casefold()
+            else:
+                title, occupation, description = matching._job_search_fields(source)
+                haystack = " ".join((title, occupation, description, str(source.get("company_name_included") or ""), " ".join(source.get("tags") or []), " ".join(source.get("categories") or []))).casefold()
+            if not all(token in haystack for token in tokens):
+                continue
         if location and location not in _normalize_locations(source):
             continue
         has_description = bool(job.usable_description)
@@ -692,6 +700,16 @@ def _search_indices(repository: JobRepository, filters: RecommendationFilters) -
             continue
         output.append(index)
     return output
+
+
+def _search_scoped(repository: JobRepository, filters: RecommendationFilters) -> tuple[list[int], str]:
+    """Title matches first. Returns the listings and the scope used: "all" (no query), "title" or "anywhere"."""
+    if not (filters.query or "").strip():
+        return _search_indices(repository, filters), "all"
+    by_title = _search_indices(repository, filters, title_only=True)
+    if len(by_title) >= TITLE_FIRST_MIN_RESULTS:
+        return by_title, "title"
+    return _search_indices(repository, filters), "anywhere"
 
 
 def _filters_digest(snapshot_id: str, filters: RecommendationFilters) -> str:
@@ -1110,7 +1128,7 @@ def create_app(
             raise APIError(409, "profile_version_conflict", "Reload the current profile before requesting recommendations.")
         profile_data = json.loads(profile_row["profile_json"])
         candidate = _candidate_from_profile(profile_id, profile_data)
-        indices = _search_indices(jobs, payload.filters)
+        indices, search_scope = _search_scoped(jobs, payload.filters)
         feedback_rows = store.list_feedback(session_hash, payload.snapshot_id)
         liked = [row["job_id"] for row in feedback_rows if row["signal"] == "good"]
         disliked = [row["job_id"] for row in feedback_rows if row["signal"] == "bad"]
@@ -1154,6 +1172,7 @@ def create_app(
                 "note": "Rated jobs are left out of new results. Feedback adapts this session's ranking only; it does not retrain the model.",
             },
             "snapshot": {"snapshot_id": payload.snapshot_id, "date": jobs.snapshot_date},
+            "search": {"query": (payload.filters.query or "").strip(), "scope": search_scope},
             "items": items,
         }
 

@@ -1,3 +1,4 @@
+import { useEffect, useState, type FormEvent } from "react";
 import type { DescriptionFilter, Filters } from "../types";
 import { SearchIcon } from "./Icons";
 
@@ -7,21 +8,38 @@ interface Props {
 }
 
 export default function FilterBar({ filters, onChange }: Props) {
+  // The search words are applied with the Search button (or Enter); location and description apply as you change them.
+  const [draft, setDraft] = useState(filters.query);
+  useEffect(() => setDraft(filters.query), [filters.query]);
+
   const set = <K extends keyof Filters>(key: K, value: Filters[K]) =>
     onChange({ ...filters, [key]: value });
 
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    set("query", draft.trim());
+  };
+  const clear = () => {
+    setDraft("");
+    set("query", "");
+  };
+
   return (
     <div className="filters">
-      <label className="search">
-        <SearchIcon />
-        <span className="sr-only">Narrow results by words in the job title or description</span>
-        <input
-          type="search"
-          value={filters.query}
-          placeholder="Narrow by words in the title or description"
-          onChange={(e) => set("query", e.target.value)}
-        />
-      </label>
+      <form className="searchform" role="search" onSubmit={submit}>
+        <label className="search">
+          <SearchIcon />
+          <span className="sr-only">Search jobs by title or keywords</span>
+          <input
+            type="search"
+            value={draft}
+            placeholder="Search jobs by title or keywords, e.g. sales engineer"
+            onChange={(e) => setDraft(e.target.value)}
+          />
+        </label>
+        <button type="submit" className="btn btn--primary">Search</button>
+        {filters.query && <button type="button" className="btn btn--ghost" onClick={clear}>Clear</button>}
+      </form>
       <div className="filters__row">
         <label className="select">
           <span>Location contains</span>

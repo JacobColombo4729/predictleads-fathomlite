@@ -120,6 +120,7 @@ export default function App() {
           snapshotId={live.snapshot?.id ?? null}
           snapshotDate={live.snapshot?.date ?? null}
           ranker={live.ranker}
+          searchScope={live.searchScope}
           feedbackApplied={live.feedbackApplied}
           ratingCounts={live.ratingCounts}
           onClearRatings={() => void live.clearRatings()}

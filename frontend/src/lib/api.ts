@@ -1,5 +1,6 @@
 import type {
   CompassResult,
+  SearchScope,
   EntryKind,
   FeedbackSignal,
   Filters,
@@ -192,7 +193,7 @@ export const api = {
     snapshotId: string,
     filters: Filters,
     limit = 25,
-  ): Promise<{ items: Recommendation[]; feedback: { good: number; bad: number; applied: boolean }; ranker: string }> {
+  ): Promise<{ items: Recommendation[]; feedback: { good: number; bad: number; applied: boolean }; ranker: string; searchScope: SearchScope }> {
     const apiFilters: Record<string, string> = {};
     if (filters.query.trim()) apiFilters.query = filters.query.trim();
     if (filters.location.trim()) apiFilters.location = filters.location.trim();
@@ -200,6 +201,7 @@ export const api = {
     const r = await request<{
       ranking: { ranker_id: string };
       feedback: { good: number; bad: number; applied: boolean };
+      search?: { query: string; scope: SearchScope };
       items: { rank: number; job: ApiJob; similar_to_liked?: { job_id: string; title: string | null; similarity: number } }[];
     }>("POST", `/profiles/${profileId}/recommendations`, {
       snapshot_id: snapshotId,
@@ -210,6 +212,7 @@ export const api = {
     return {
       ranker: r.ranking.ranker_id,
       feedback: r.feedback,
+      searchScope: r.search?.scope ?? "all",
       items: r.items.map((it) => ({
         job: jobFromApi(it.job),
         rank: it.rank,
