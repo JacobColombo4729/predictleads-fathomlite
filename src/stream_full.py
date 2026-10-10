@@ -25,6 +25,7 @@ import time
 from pathlib import Path
 
 import pandas as pd
+from tqdm import tqdm
 
 from src.eda_helpers import DATA_DIR
 from src.pl_data import FLAT_DIR, PART_ROWS, SNAPSHOT
@@ -150,6 +151,18 @@ def run(max_docs=None, local=None, out_root=None):
     lines, counter, total_bytes = open_lines(local)
     start, docs, skipped = time.time(), 0, progress["docs_done"]
     chunk = []
+    # Progress bar: share of the file read (full run) or of the test's documents, with elapsed time, time left and speed
+    if max_docs:
+        bar = tqdm(total=max_docs, unit=" docs", unit_scale=True, desc="Test run", dynamic_ncols=True)
+    else:
+        bar = tqdm(total=total_bytes, unit="B", unit_scale=True, unit_divisor=1024, desc="Full file", dynamic_ncols=True)
+    if skipped:
+        bar.set_description("Skipping finished documents")
+
+    def tick(final=False):
+        bar.update((docs if max_docs else counter.bytes_read) - bar.n)
+        bar.set_postfix_str(f"{docs:,} docs | {progress['records']:,} listings | niche {progress['niche']:,} "
+                            f"({progress['niche'] / max(progress['records'], 1):.1%})", refresh=final)
 
     def process(chunk_lines):
         recs, inc = [], []
@@ -175,8 +188,12 @@ def run(max_docs=None, local=None, out_root=None):
 
     for line in lines:
         docs += 1
+        if docs % 1_000 == 0:
+            tick()
         if docs <= skipped:  # already done in an earlier run: read past it without parsing
             continue
+        if docs == skipped + 1 and skipped:
+            bar.set_description("Full file" if not max_docs else "Test run")
         chunk.append(line)
         if len(chunk) == DOCS_PER_CHUNK or (max_docs and docs >= max_docs):
             process(chunk)
@@ -185,11 +202,7 @@ def run(max_docs=None, local=None, out_root=None):
                 w.flush()  # parts end on a chunk boundary, so a checkpoint never splits a part
             progress["docs_done"] = docs
             progress_file.write_text(json.dumps(progress))
-            elapsed = time.time() - start
-            share = counter.bytes_read / total_bytes
-            print(f"{docs:,} documents | {progress['records']:,} listings | niche {progress['niche']:,} "
-                  f"({progress['niche'] / max(progress['records'], 1):.1%}) | {share:.1%} of the file | {elapsed / 60:.1f} min",
-                  flush=True)
+            tick(final=True)
             gc.collect()
         if max_docs and docs >= max_docs:
             break
@@ -198,6 +211,8 @@ def run(max_docs=None, local=None, out_root=None):
         for w in writers.values():
             w.flush()
         progress["docs_done"] = docs
+    tick(final=True)
+    bar.close()
     elapsed, share = time.time() - start, counter.bytes_read / total_bytes
     if not max_docs:
         progress["finished"] = True
