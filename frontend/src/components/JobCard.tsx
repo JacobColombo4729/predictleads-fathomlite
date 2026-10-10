@@ -1,5 +1,7 @@
 import type { FeedbackSignal, Recommendation } from "../types";
 import { formatDate, historicalStatusText } from "../lib/jobs";
+import { useSignalPattern } from "../lib/signals";
+import PatternBadge from "./signals/PatternBadge";
 import { BookmarkIcon, BuildingIcon, CalendarIcon, CashIcon, PinIcon, ThumbDownIcon, ThumbUpIcon } from "./Icons";
 
 interface Props {
@@ -17,6 +19,7 @@ const SIMILAR_MIN = 0.78;
 
 export default function JobCard({ item, selected, saved, onSelect, onViewDetails, onToggleSave, onRate }: Props) {
   const { job } = item;
+  const signal = useSignalPattern(job.company.id);
   const similar = item.similarTo && item.similarTo.similarity >= SIMILAR_MIN ? item.similarTo : null;
   return (
     <article
@@ -38,6 +41,7 @@ export default function JobCard({ item, selected, saved, onSelect, onViewDetails
         <div><CashIcon /><dt className="sr-only">Salary</dt><dd className={job.salary ? "" : "muted"}>{job.salary ?? "Salary: Not provided"}</dd></div>
       </dl>
 
+      {signal && <p className="card__signal"><PatternBadge pattern={signal} compact /></p>}
       {similar && (
         <p className="card__similar">More like “{similar.title ?? "a job you liked"}”, which you marked as a good match.</p>
       )}

@@ -35,6 +35,7 @@ import job_matching_engine as matching  # noqa: E402
 import resume_profile_extraction as resume_extraction  # noqa: E402
 from . import compass as compass_analysis  # noqa: E402
 from . import feedback_ranking  # noqa: E402
+from . import signals as hiring_signals  # noqa: E402
 
 
 SNAPSHOT_ID_PREFIX = "predictleads-"
@@ -851,6 +852,13 @@ def _default_ranker(jobs: Sequence[matching.JobRecord]) -> "RankingBackend":
     return TfIdfRankingBackend(jobs)
 
 
+def _load_signals() -> "hiring_signals.SignalStore | None":
+    directory = hiring_signals.default_signals_dir()
+    if directory is None or not (directory / "company_signals.csv").exists():
+        return None
+    return hiring_signals.SignalStore.load(directory)
+
+
 def create_app(
     *,
     settings: Settings | None = None,
@@ -858,6 +866,7 @@ def create_app(
     repository: JobRepository | None = None,
     ranker: RankingBackend | None = None,
     extraction_provider: "resume_extraction.ResumeProvider | None" = None,
+    signal_store: "hiring_signals.SignalStore | None" = None,
 ) -> FastAPI:
     config = settings or Settings.from_environment()
     store = SessionStore(config.db_path, config.session_ttl_seconds)
@@ -871,6 +880,7 @@ def create_app(
         app.state.store = store
         app.state.assessment_provider = provider
         app.state.extraction_provider = extraction_provider or _default_extraction_provider()
+        app.state.signals = signal_store if signal_store is not None else _load_signals()
         yield
 
     app = FastAPI(title="PredictLeads Hackathon Demo API", version="1.0.0", lifespan=lifespan)
@@ -1085,6 +1095,39 @@ def create_app(
         jobs: JobRepository = app.state.job_repository
         row = jobs.get(job_id, snapshot_id)
         return _job_details(row, snapshot_id, jobs.snapshot_date)
+
+    def _signals() -> "hiring_signals.SignalStore":
+        store_ = getattr(app.state, "signals", None)
+        if store_ is None:
+            raise APIError(503, "signals_unavailable", "Hiring signals have not been built. Run code/hiring_signals.py build.", retryable=False)
+        return store_
+
+    @app.get("/api/v1/signals/overview")
+    def signals_overview(session_hash: str = Depends(session_dependency)) -> dict[str, Any]:
+        return _signals().overview()
+
+    @app.get("/api/v1/signals/patterns")
+    def signals_patterns(session_hash: str = Depends(session_dependency)) -> dict[str, Any]:
+        return {"patterns": _signals().patterns()}
+
+    @app.get("/api/v1/signals/companies")
+    def signals_companies(
+        pattern: Literal["burst", "sustained", "cooling", "quiet"] | None = None,
+        family: Literal["ai_ml", "data", "technical_sales"] | None = None,
+        q: str | None = Query(default=None, max_length=80),
+        sort: Literal["new_30", "active", "surge_z"] = "new_30",
+        limit: int = Query(default=25, ge=1, le=100),
+        offset: int = Query(default=0, ge=0),
+        session_hash: str = Depends(session_dependency),
+    ) -> dict[str, Any]:
+        return _signals().leaderboard(pattern, family, (q or "").strip() or None, sort, limit, offset)
+
+    @app.get("/api/v1/signals/companies/{company_id}")
+    def signals_company(company_id: str, session_hash: str = Depends(session_dependency)) -> dict[str, Any]:
+        found = _signals().company(company_id)
+        if found is None:
+            raise APIError(404, "signals_company_not_found", "No hiring signals for that company.")
+        return found
 
     @app.get("/api/v1/companies/{company_id}")
     def read_company(

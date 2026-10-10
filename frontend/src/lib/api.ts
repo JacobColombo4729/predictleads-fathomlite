@@ -1,4 +1,8 @@
 import type {
+  SignalCompany,
+  SignalPattern,
+  SignalsOverview,
+  SignalsQuery,
   CompassResult,
   SearchScope,
   EntryKind,
@@ -52,7 +56,7 @@ async function request<T>(method: string, path: string, body?: unknown, headers:
 interface ApiJob {
   job_id: string;
   title: string;
-  company_summary: { name: string | null; domain: string | null } | null;
+  company_summary: { company_id?: string | null; name: string | null; domain: string | null } | null;
   location: string | null;
   salary_raw: unknown;
   description?: string | null;
@@ -89,6 +93,7 @@ export function jobFromApi(j: ApiJob): Job {
     id: j.job_id,
     title: j.title,
     company: {
+      id: j.company_summary?.company_id ?? null,
       name: j.company_summary?.name?.trim() || "Company name not provided",
       domain: j.company_summary?.domain ?? null,
       description: null,
@@ -139,7 +144,23 @@ export function profileToApi(p: Profile) {
 
 /* ---------- endpoints ---------- */
 
+const signalsQuery = (q: SignalsQuery): string => {
+  const p = new URLSearchParams();
+  if (q.pattern) p.set("pattern", q.pattern);
+  if (q.family) p.set("family", q.family);
+  if (q.q) p.set("q", q.q);
+  p.set("sort", q.sort);
+  p.set("limit", String(q.limit));
+  p.set("offset", String(q.offset));
+  return p.toString();
+};
+
 export const api = {
+  signalsOverview: () => request<SignalsOverview>("GET", "/signals/overview"),
+  signalsPatterns: async () => (await request<{ patterns: Record<string, SignalPattern> }>("GET", "/signals/patterns")).patterns,
+  signalsCompanies: (q: SignalsQuery) => request<{ total: number; companies: SignalCompany[] }>("GET", `/signals/companies?${signalsQuery(q)}`),
+  signalsCompany: (id: string) => request<SignalCompany>("GET", `/signals/companies/${encodeURIComponent(id)}`),
+
   async ensureSession(): Promise<void> {
     await request("POST", "/demo-sessions");
   },
