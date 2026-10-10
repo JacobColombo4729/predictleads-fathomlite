@@ -7,7 +7,7 @@
 
 ## Now
 
-- **Merge with `predictleads-hackathon`** (plan: [`docs/merge_plan.md`](docs/merge_plan.md)): share the plan with Jesse and agree on its six decisions (scope and taxonomy, which listings count as live, outside AI services, one ranker, one data pipeline, what "Compass" means); merge about 2026-10-13 to 10-14, after the full-file EDA_SDA_2 rerun; pause `ML_Fit` until then.
+- **Merge with `predictleads-hackathon`** (plan: [`docs/merge_plan.md`](docs/merge_plan.md)): send the plan to Jesse and agree on its six decisions; merge as soon as the four readiness gates are met (decisions agreed, both streams finished, nothing in flight, paths set by a setting); pause `ML_Fit` until then. Claude: gate 4 for this repo.
 - **Full dataset, full scale for every notebook** (decided 2026-10-10; stream test: ≈13.4M listings, ≈1.0M in scope, ≈40 minutes, ≈8.4 GB):
   1. **Jacob:** finish the first full stream (`PL/bin/python -m src.stream_full`), paste the summary, delete `data/flat/stream_test/`. Its scope parts (all columns) are kept.
   3. **Jacob:** after step 1, run the second pass: `PL/bin/python -m src.stream_full --rows` (≈40 minutes, resumable): EDA_SDA_1's cleaned row for every English US listing, typed Parquet, no text (`data/flat/all_fields_rows_full/`). Then `data/flat/all_fields_lean_full/` can be deleted once EDA_SDA_2 reads the rows table.
