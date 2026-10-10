@@ -25,7 +25,7 @@ Company size, funding, revenue, industry, headquarters, remote or on-site status
 
 A separate button on each company, chosen by the person. It sends only the company's **name and website** to OpenAI and asks for a short synopsis from **web search** results (OpenAI's `web_search_preview` tool). Rules enforced in code:
 
-- Only sentences that carry a web citation are kept; a sentence the model wrote from memory is dropped.
+- Only sentences a web citation covers are kept. A citation covers the passage before it (the model is told to cite every sentence, and often cites a whole paragraph at once); anything written after the last citation has no source and is dropped, and an answer with no citation at all shows nothing.
 - The sources are listed (tracking tags removed), and the result is labelled "From the web through OpenAI. This is not PredictLeads data and can be wrong or out of date."
 - If no sentence has a source, nothing is shown.
 - Results are cached for the session.

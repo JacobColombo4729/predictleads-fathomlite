@@ -438,16 +438,24 @@ class AiHelperTests(unittest.TestCase):
         self.assertEqual(tools[0]["type"], "web_search_preview")
         self.assertIn("Acme (website: acme.com)", json.dumps(post.call_args.args[1]["input"]))
 
-    def test_only_sentences_with_a_citation_are_kept(self) -> None:
-        text = "Acme builds data tools. ([acme.com](https://acme.com/about)) It was founded in 2010 and is worth a billion dollars. It serves banks ([acme.com](https://acme.com/customers))."
+    def cite(self, text, *pairs):
         notes = []
-        for sub, url in (("([acme.com](https://acme.com/about))", "https://acme.com/about"), ("([acme.com](https://acme.com/customers))", "https://acme.com/customers")):
+        for sub, url in pairs:
             start = text.index(sub)
             notes.append({"type": "url_citation", "url": url, "title": "t", "start_index": start, "end_index": start + len(sub)})
-        kept, urls = market_llm.keep_cited_sentences(text, notes)
-        self.assertIn("Acme builds data tools.", kept)
-        self.assertIn("It serves banks", kept)
-        self.assertNotIn("founded in 2010", kept)  # written from memory, so it is dropped
+        return notes
+
+    def test_a_citation_covers_the_passage_before_it_and_text_after_the_last_one_is_dropped(self) -> None:
+        text = "Acme builds data tools. It serves banks and insurers. ([acme.com](https://acme.com/about)) It is probably the largest in its field."
+        kept, urls = market_llm.keep_cited_sentences(text, self.cite(text, ("([acme.com](https://acme.com/about))", "https://acme.com/about")))
+        self.assertEqual(kept, "Acme builds data tools. It serves banks and insurers.")
+        self.assertEqual(urls, ["https://acme.com/about"])  # the closing guess has no source after it, so it is gone
+
+    def test_each_sentence_can_carry_its_own_source(self) -> None:
+        text = "Acme builds data tools. ([acme.com](https://acme.com/about)) It serves banks. ([acme.com](https://acme.com/customers))"
+        kept, urls = market_llm.keep_cited_sentences(text, self.cite(
+            text, ("([acme.com](https://acme.com/about))", "https://acme.com/about"), ("([acme.com](https://acme.com/customers))", "https://acme.com/customers")))
+        self.assertEqual(kept, "Acme builds data tools. It serves banks.")
         self.assertEqual(urls, ["https://acme.com/about", "https://acme.com/customers"])
 
     def test_a_synopsis_with_no_citations_is_shown_as_nothing(self) -> None:
