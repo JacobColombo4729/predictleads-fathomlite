@@ -32,7 +32,7 @@ The core of the app is the **priority queue**: listings ranked for this career c
 
 ### List view (home)
 
-- **Date picker ("as of"):** shows the queue as it stood on a chosen date, for example June 1 vs. August 1, 2026. See [Pick a date](#pick-a-date-as-of-view).
+- **Date picker ("as of"):** shows the queue as it stood on a chosen date, for example July 1 vs. September 1, 2026. See [Pick a date](#pick-a-date-as-of-view).
 - **Live search:** the list narrows with every letter typed. It matches titles, companies and, optionally, description text.
 - **Sort:** priority (default), openness to career changers, apply-by date, transferable fit, pay, freshness.
 - **Filters:** they combine, and each one shows how many postings match:
@@ -105,12 +105,12 @@ Opens full screen on tap or click:
 
 ### Pick a date (as-of view)
 
-- The user picks a date; the queue shows the listings **live on that day** and ranks them with **only what was known that day**. Comparing June with August shows how the best options change.
+- The user picks a date; the queue shows the listings **live on that day** and ranks them with **only what was known that day**. Comparing July with September shows how the best options change.
 - **What the dates mean:** `first_seen_at` is the first day PredictLeads' crawler found a listing (a median of 1.5 days after the employer posted it); `last_seen_at` is the last day the crawler still found it. A listing is live on a date when it was first seen on or before it and last seen on or after it.
 - **No hindsight in the scores:** listing age is counted up to the chosen date; reposts and company hiring volume only from listings first seen before it; and `last_seen_at` only decides which listings were live, never a score.
 - **No hindsight in the model:** the model that scores a date is trained only on what was known by that date; a listing still open on that date counts as still open in training, even though we later know when it closed. The simple version for the demo offers only dates in the test period (September), which the main model never learned from; any earlier date needs a model retrained as of that date.
 - **A built-in check:** for past dates we know which listings actually closed and when, so the app can show how good its apply-by estimates were.
-- Dates before June miss long-open listings first seen before 2026-03-30 (the data's six-month window).
+- **Fair from July:** listings first seen before 2026-03-30 are missing, so earlier dates undercount long-open listings. Live listings jump from 2,459 on April 1 to about 32,000 by June 1, and their age mix settles from July (EDA_SDA_1 8b); the picker starts at July 1.
 
 ### Background profile (for transferable fit)
 

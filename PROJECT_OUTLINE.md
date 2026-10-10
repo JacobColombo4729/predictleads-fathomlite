@@ -28,7 +28,7 @@ We can't see applications or hires, so the ranking rests on what PredictLeads' d
 - **A retraining compass (the foundation):** prior career → the training people took → their first tech job → that role's 2026 openings, pay, closing speed and expected job growth. It serves two moves: **changing careers** (retraining into a new field) and **moving up** (training to reach senior or manager roles in the user's own field). Ideas to try: skills to build from the user's résumé, career options down the line, the pay increase, and stepping-stone roles.
 - **Moving across tech roles:** people already in tech or math who moved into a different role (1,848 in the resumes, for example IT support → networks or security, developers → databases or data), so the tool also serves someone changing direction within tech. Moving *up* (to senior or manager roles) is counted separately in Profiles 4a.3.
 - **How fast to move:** an apply-by estimate on every listing; and listings a career changer can't get are hidden.
-- **Pick a date:** the priority list as it stood on any date in the data (for example June vs. August 2026), to show how the best options change over time.
+- **Pick a date:** the priority list as it stood on any date in the data (for example July vs. September 2026), to show how the best options change over time.
 
 Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
 
@@ -45,7 +45,7 @@ Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
 
 | Finding | Evidence | What it means for a career changer |
 |:--|:--|:--|
-| **Company hiring volume is the strongest signal** (being rechecked) | Listings at companies with 20+ openings close in a median **14 days**, vs. **32** for one-off listings. Volume was counted over all six months, which includes later listings; EDA_SDA_2 rechecks it with earlier listings only | Listings from high-volume employers need fast action |
+| **Company hiring volume is the strongest signal** | Listings at companies with 20+ openings close in a median **13 days**, vs. **30** for one-off listings, counting only each company's earlier listings (the way the model sees it; 14 vs. 32 over the whole six months) | Listings from high-volume employers need fast action |
 | **The application window is short** | **28%** of listings are gone within a week; the median within about **22 days** | "Still open / apply-by" is a core factor |
 | **Source matters** | Company sites and LinkedIn: **17–19 days**; several hiring platforms: **28–37 days** | Source adjusts urgency |
 | **Some listing traits carry signal; keyword flags don't** | Disclosed pay, long descriptions and hiring platforms: 11–16 points more still open after a week; urgency and remote wording: no gap | Model the traits; test richer NLP |
@@ -113,7 +113,7 @@ Each notebook answers one question and hands its final table to the next. The Tr
 
 - Job growth figures are projections, not forecasts we make or check, and they're national, by occupation. A growing occupation doesn't mean more entry-level openings; our listings measure those.
 - The resumes only show people who made a switch, not those who tried and didn't, so paths show where switchers went, never how likely a switch is to work.
-- Early dates in the date picker miss long-open listings first seen before 2026-03-30 (the six-month window), so June onward gives fairer comparisons.
+- Early dates in the date picker miss long-open listings first seen before 2026-03-30 (the six-month window), so July onward gives fair comparisons: live listings jump from 2,459 on April 1 to about 32,000 by June 1, and their age mix settles from July (EDA_SDA_1 8b).
 
 ## Questions for PredictLeads
 
