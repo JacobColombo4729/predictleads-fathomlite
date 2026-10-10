@@ -32,7 +32,8 @@ How we measure how well a **career changer's** background fits a job listing and
 | 3 | BGE embeddings, cosine (small or base model, run locally) | Stronger similarity |
 | 4 | RRF hybrid (reciprocal rank fusion of TF-IDF and BGE) | Hybrid similarity |
 | 5 | Skills-based matching (both sides mapped to O*NET skills) | Fixes the old-field vocabulary problem |
-| 6 | Trained layer (Option B): steps 2–5 scores plus Profiles features, trained on real career moves | The project's fit model |
+| 6 | Trained layer (Option B): steps 2–5 scores plus Profiles features, trained on real career moves (logistic regression, gradient boosting, and a small neural network if it wins) | The project's fit model |
+| 7 | Stretch: BGE fine-tuned on real career moves (local, small model) | Only if step 6 plateaus |
 
 **Every step is scored the same way:** using only a career changer's pre-switch background, is the role bucket they actually moved into in the top 3 or top 5? Reported per pool and overall, against a title-keyword baseline, along with how often each step suggests the old field. Expect steps 1–4 to favor the old field; steps 5 and 6 exist to fix that.
 
