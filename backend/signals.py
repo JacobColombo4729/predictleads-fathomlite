@@ -108,6 +108,7 @@ class SignalStore:
         if detail:
             out["evidence"] = [e for s in self.intent.get(cid, []) for e in s["evidence"]]
             out["technologies"] = self.tech.get(cid, [])[:15]
+            out["week_ends"] = self.week_ends
         return out
 
     def leaderboard(self, pattern: str | None, family: str | None, query: str | None, sort: str, limit: int, offset: int) -> dict[str, Any]:

@@ -1,4 +1,5 @@
 import CompanyHiringBadge from "./signals/CompanyHiringBadge";
+import CompanyHiring from "./signals/CompanyHiring";
 import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 import type { Company, Profile, Recommendation, Stage, TrackedJob } from "../types";
 import { descriptionParagraphs, formatDate, historicalStatusText, safeHttpUrl } from "../lib/jobs";
@@ -228,7 +229,9 @@ function CompanyPanel({ company }: { company: Company }) {
     ["Headquarters", company.headquarters],
   ];
   return (
-    <section className="section section--first">
+    <>
+    <CompanyHiring companyId={company.id} />
+    <section className="section">
       <h3>About {company.name}</h3>
       <p className="section__note">Only fields present in the job record are shown. The separate company file has not been joined, so other details are unknown.</p>
       <dl className="kv kv--wide">
@@ -240,5 +243,6 @@ function CompanyPanel({ company }: { company: Company }) {
         ))}
       </dl>
     </section>
+    </>
   );
 }
