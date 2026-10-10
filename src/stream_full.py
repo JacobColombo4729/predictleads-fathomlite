@@ -6,7 +6,7 @@ Usage, from the project folder (PL or .venv activated):
     python -m src.stream_full                  -> the full run (resumable: rerun after a crash or a closed laptop)
 
 Saved under data/flat/ (git-ignored; prints aggregates only: counts, sizes, speeds):
-    job_openings_full/part_NNNN.pkl            niche listings (English or unlabeled, US or no country, computer and
+    job_openings_full/part_NNNN.pkl            scope listings (English or unlabeled, US or no country, computer and
                                                mathematical by occupation group or a 15- O*NET code, as in EDA_SDA_2 1d), all columns,
                                                the same flattened format as job_openings_200000/
     job_openings_included_full/part_NNNN.pkl   the related objects of those documents, duplicates removed
@@ -14,7 +14,7 @@ Saved under data/flat/ (git-ignored; prints aggregates only: counts, sizes, spee
                                                only (no text): company volume and the occupation summary come from it
     stream_full_progress.json                  documents done, for resuming
 
-Filters match EDA_SDA_1 (English, US or no country) and EDA_SDA_2 1d (the niche); later notebooks apply the rest.
+Filters match EDA_SDA_1 (English, US or no country) and EDA_SDA_2 1d (the scope); later notebooks apply the rest.
 """
 import argparse
 import gc
@@ -30,7 +30,7 @@ from tqdm import tqdm
 from src.eda_helpers import DATA_DIR
 from src.pl_data import FLAT_DIR, PART_ROWS, SNAPSHOT
 
-NICHE_GROUP = "Computer and Mathematical"
+SCOPE_GROUP = "Computer and Mathematical"
 DOCS_PER_CHUNK = 20_000
 LEAN_COLS = {  # flattened column -> short name (EDA_SDA_1 6.1a names), no text
     "id": "id",
@@ -100,12 +100,12 @@ def lean_rows(flat):
     return out[keep]
 
 
-def niche_mask(flat):
+def scope_mask(flat):
     """English or unlabeled, US or no country, computer and mathematical: the group, or a 15- O*NET code (EDA_SDA_2 1d's rule)."""
     col = lambda c: flat.reindex(columns=[c])[c]
     lang, group, code = col("attributes.language"), col("attributes.onet_data.family"), col("attributes.onet_data.code")
     country = col("attributes.location_data").map(first_country)
-    in_group = group.eq(NICHE_GROUP) | code.fillna("").str.startswith("15-")
+    in_group = group.eq(SCOPE_GROUP) | code.fillna("").str.startswith("15-")
     return (lang.eq("en") | lang.isna()) & (country.eq("United States") | country.isna()) & in_group
 
 
@@ -137,10 +137,10 @@ def folder_size(folder):
 
 def run(max_docs=None, local=None, out_root=None):
     out_root = Path(out_root) if out_root else (FLAT_DIR / "stream_test" if max_docs else FLAT_DIR)
-    names = {"niche": "job_openings_full", "included": "job_openings_included_full", "lean": "all_fields_lean_full"}
+    names = {"scope": "job_openings_full", "included": "job_openings_included_full", "lean": "all_fields_lean_full"}
     progress_file = out_root / "stream_full_progress.json"
     out_root.mkdir(parents=True, exist_ok=True)
-    progress = json.loads(progress_file.read_text()) if progress_file.exists() else {"docs_done": 0, "records": 0, "niche": 0, "lean": 0}
+    progress = json.loads(progress_file.read_text()) if progress_file.exists() else {"docs_done": 0, "records": 0, "scope": 0, "lean": 0}
     if progress.get("finished"):
         print("already finished:", {k: v for k, v in progress.items() if k != "finished"})
         return progress
@@ -161,8 +161,8 @@ def run(max_docs=None, local=None, out_root=None):
 
     def tick(final=False):
         bar.update((docs if max_docs else counter.bytes_read) - bar.n)
-        bar.set_postfix_str(f"{docs:,} docs | {progress['records']:,} listings | niche {progress['niche']:,} "
-                            f"({progress['niche'] / max(progress['records'], 1):.1%})", refresh=final)
+        bar.set_postfix_str(f"{docs:,} docs | {progress['records']:,} listings | scope {progress['scope']:,} "
+                            f"({progress['scope'] / max(progress['records'], 1):.1%})", refresh=final)
 
     def process(chunk_lines):
         recs, inc = [], []
@@ -176,15 +176,15 @@ def run(max_docs=None, local=None, out_root=None):
                     seen_included.add(key)
                     inc.append(r)
         flat = pd.json_normalize(recs)
-        mask = niche_mask(flat)
-        writers["niche"].add(flat[mask].reset_index(drop=True))
+        mask = scope_mask(flat)
+        writers["scope"].add(flat[mask].reset_index(drop=True))
         lean = lean_rows(flat).reset_index(drop=True)
         writers["lean"].add(lean)
         progress["lean"] += len(lean)
         if inc:
             writers["included"].add(pd.json_normalize(inc))
         progress["records"] += len(flat)
-        progress["niche"] += int(mask.sum())
+        progress["scope"] += int(mask.sum())
 
     for line in lines:
         docs += 1
@@ -220,14 +220,14 @@ def run(max_docs=None, local=None, out_root=None):
 
     sizes = {k: folder_size(out_root / v) for k, v in names.items()}
     print(f"\ndone: {docs:,} documents, {progress['records']:,} listings in {elapsed / 60:.1f} min; read {share:.1%} of the file")
-    print(f"kept: niche {progress['niche']:,} listings, all-fields lean {progress['lean']:,} rows")
+    print(f"kept: scope {progress['scope']:,} listings, all-fields lean {progress['lean']:,} rows")
     print("disk used: " + ", ".join(f"{k} {v / 1e9:.2f} GB" for k, v in sizes.items()))
     if max_docs and share > 0:
         scale = 1 / share
         print(f"\nprojection for the full file (by compressed bytes read; rough):"
-              f"\n  documents ≈ {docs * scale:,.0f}, listings ≈ {progress['records'] * scale:,.0f}, niche ≈ {progress['niche'] * scale:,.0f}"
+              f"\n  documents ≈ {docs * scale:,.0f}, listings ≈ {progress['records'] * scale:,.0f}, scope ≈ {progress['scope'] * scale:,.0f}"
               f"\n  time ≈ {elapsed * scale / 3600:.1f} hours"
-              f"\n  disk ≈ {sum(sizes.values()) * scale / 1e9:.1f} GB (niche {sizes['niche'] * scale / 1e9:.1f} GB, "
+              f"\n  disk ≈ {sum(sizes.values()) * scale / 1e9:.1f} GB (scope {sizes['scope'] * scale / 1e9:.1f} GB, "
               f"lean {sizes['lean'] * scale / 1e9:.1f} GB, included {sizes['included'] * scale / 1e9:.2f} GB)")
     return progress
 

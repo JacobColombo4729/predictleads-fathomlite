@@ -166,6 +166,6 @@ A synthetic person (only for small roles, inside training folds) takes its seed'
 | Collect zips and convert them to clean JSON (section 3, Step 3) | One teammate only | Profiles arriving |
 | Code job titles to O*NET | TBD | Clean JSON |
 | Write the synthetic generator in `src/` | TBD | O*NET related occupations and skills downloaded |
-| Write the label rules; collect team ratings | TBD | Profiles and EDA_SDA_2's niche table |
+| Write the label rules; collect team ratings | TBD | Profiles and EDA_SDA_2's scope table |
 
 **Never** paste profiles, listing text or any of this data into AI tools (Claude, ChatGPT, Copilot). Use made-up examples like the one above when asking for coding help.

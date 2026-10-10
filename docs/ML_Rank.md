@@ -15,8 +15,8 @@ Builds the **listing model** and the **priority queue**. The listing model predi
 | Notebook | Question | Hands off |
 |:--|:--|:--|
 | EDA_SDA_1 | What's in the data, and what's the scope? | Final table 1 |
-| EDA_SDA_2 | Which listings do we study? The niche cut, additional cleaning, non-text checks, ghost listings | Niche table, non-text features, occupation summary |
-| EDA_SDA_3 | What do the descriptions say? Text features, validated blockers, skills mapped to O*NET (no matching models) | Niche table + text features |
+| EDA_SDA_2 | Which listings do we study? The scope cut, additional cleaning, non-text checks, ghost listings | Scope table, non-text features, occupation summary |
+| EDA_SDA_3 | What do the descriptions say? Text features, validated blockers, skills mapped to O*NET (no matching models) | Scope table + text features |
 | EDA_SDA_4 | Which features hold up? Statistics, confounders, the adjusted Cox check | Modeling-ready table |
 | TimeSeries | When do listings appear and close? | Timing features |
 | ML_Fit | Which roles and listings fit a career changer? Keyword → TF-IDF → BGE → RRF, skills-based matching, a trained layer on real career moves | Fit scores, role discovery, the compass |
@@ -56,7 +56,7 @@ Builds the **listing model** and the **priority queue**. The listing model predi
 | 8b. The priority queue | | **Combine** `ML_Fit`'s fit score with this model's chance still open and apply-by date, career-change accessibility, pay and the TimeSeries features in one score: a formula with weights that start from the evidence (EDA_SDA_4's adjusted model) and are tuned on the validation month, with user sliders in the app. Only features that survived EDA_SDA_4 go in |
 | 9. Interpretation | **Feature importance** from the final model | **SHAP** values and partial dependence. **Per-listing breakdown for the app's detail view:** each factor's 0–100 rating and its exact contribution to the priority score (rating × weight, adding up to the total), plus each listing's top SHAP features for chance still open, grouped under plain-language names; check that SHAP values add up to each prediction, and save the breakdown with the scores |
 | 10. Business translation | Top-N selection by prediction; **bootstrap** confidence intervals and risk (MLinBusiness) | "Of a career changer's top 10, how many are still open and realistically reachable", with company-clustered intervals |
-| 11. Sensitivity | | Do conclusions hold under our choices (2-day live tolerance, niche boundaries, CET `posted`)? |
+| 11. Sensitivity | | Do conclusions hold under our choices (2-day live tolerance, scope boundaries, CET `posted`)? |
 | 12. Solution report | Steps performed, difficulties and how they were solved, the final model and its score | |
 
 ## 2.–12.
