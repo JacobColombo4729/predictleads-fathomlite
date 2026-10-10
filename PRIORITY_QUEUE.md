@@ -9,7 +9,7 @@
 
 - **Tomorrow (2026-10-10), Jacob:** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
 - **EDA_SDA_2 (non-text), the next notebook:**
-  - **Setup:** load EDA_SDA_1's final table (184,889 listings, late March flagged `partial_month`).
+  - **Setup (code written, needs a run):** load EDA_SDA_1's final table (184,889 listings); save the per-occupation summary (1c, `data/clean/occupation_summary.pkl`); cut to computer and mathematical listings only (1d).
   - **2b Additional cleaning (code written, needs a run):** staffing agencies, date consistency, internships and temporary roles, title normalization, multi-location listings. Fix or flag, never drop; counts per step. Check the 2b.1 review cell's flagged companies locally.
   - **3.1 Ghost listings vs. struggling employers:** hide, never remove: check the 90-day "hide as stale" threshold against the data (closing rates past 90 days, relisting, company still posting); describe the long-open listings, measure each signal (relisted, company still posting, source, `posted` vs. `first_seen`), and combine them into a "likely ghost listing" flag.
   - **3.2 Source:** source within company-volume bands; job-board copies of company-site listings; platform sizes. Add the domain check that refines the 60.7%.

@@ -12,7 +12,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 - English-language listings in the United States (no language label: dropped), plus listings with **no country**, kept and flagged `country_missing` for 3.8 to resolve
 - Monthly horizon, April–September 2026
 - Every listing's full follow-up: long-open listings kept, nothing capped
-- All occupation groups and seniority levels, and all candidate factor columns, including reposts as a feature
+- All seniority levels and candidate factor columns, including reposts as a feature. **Only computer and mathematical listings are kept (1d, decided 2026-10-10);** every other group is cut, leaving just a per-occupation summary of pay and timing (1c)
 - Career-change accessibility flags: `entry_seniority`, `years_required`, `low_experience_ask`, `entry_wording`, `changer_wording`, `degree_required`, `equivalent_experience`, and the first-pass `career_open` (EDA_SDA_1 Q1g)
 
 **Conventions carried over:**
@@ -26,7 +26,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 | Notebook | Question | Hands off |
 |:--|:--|:--|
 | EDA_SDA_1 | What's in the data, and what's the scope? | Final table 1 |
-| EDA_SDA_2 | Which listings do we study? Non-text checks, ghost listings, the career-change target | Niche table, non-text features |
+| EDA_SDA_2 | Which listings do we study? The niche cut, non-text checks, ghost listings, the career-change target | Niche table, non-text features, the occupation summary |
 | EDA_SDA_3 | What features does the text add? (NLP) | Niche table + text features |
 | EDA_SDA_4 | Which features hold up? (statistics) | Modeling-ready table |
 | TimeSeries | When do listings appear and close? | Timing patterns and features |
@@ -67,8 +67,9 @@ Some analyses are skewed by part of the table. Each analysis states which **view
 | **With a salary** | About 43% of listings | Pay level and pay comparisons | Pay is missing for the rest |
 | **Closed listings** | Not still open at the snapshot | Simple descriptive durations | Survival methods use every listing; this view is only for plain summaries |
 | **Long-open listings** | Open for a long time (threshold set in 3.1) | Ghost listings vs. desperate employers | The question only applies to them |
-| **Open to career changers** | `career_open`, or the stricter rule chosen in 3.11 | Accessibility comparisons, inside and outside the niche | Shows whether reachable listings behave differently |
-| **The niche** | Computer and mathematical listings, by role bucket (3.6) | The segment analysis and the final table | Focus |
+| **Open to career changers** | `career_open`, or the stricter rule chosen in 3.11 | Accessibility comparisons within the niche; against other groups only through the 1c summary | Shows whether reachable listings behave differently |
+| **The niche** | The whole table after the cut in 1d: computer and mathematical listings, by role bucket (3.6) | Everything in this notebook | Focus |
+| **Other groups** | The 1c occupation summary only (aggregates; no listings) | Comparing the niche with other fields; pay in a user's current field for the compass | The listings themselves are cut |
 
 ## 2b. Additional cleaning
 
@@ -149,7 +150,7 @@ Steps: describe the long-open listings (how many, which occupation groups and so
 
 ### 3.6 The niche: computer and mathematical, by role bucket
 
-**Decided (2026-10-09):** the niche is **computer and mathematical listings in the US**, with listings a career changer can't get hidden (3.11). It isn't narrowed to one role: role discovery needs several roles to choose from, and a single role would leave too few listings and too few career-switch examples. Instead, **role bucket** is a dimension inside the niche, defined the same way on both sides, so the listings (what's open) and the career changers in `Profiles.ipynb` (who got there) line up role by role:
+**Decided (2026-10-09; applied at the start, in 1d, since 2026-10-10):** the niche is **computer and mathematical listings in the US**, with listings a career changer can't get hidden (3.11). It isn't narrowed to one role: role discovery needs several roles to choose from, and a single role would leave too few listings and too few career-switch examples. Instead, **role bucket** is a dimension inside the niche, defined the same way on both sides, so the listings (what's open) and the career changers in `Profiles.ipynb` (who got there) line up role by role:
 
 | Role bucket | Listings: O*NET codes (2019 SOC) | Profiles: resume titles |
 |:--|:--|:--|
@@ -175,7 +176,7 @@ The listing side is `role_bucket(onet_code)` (`ONET_ROLE_BUCKETS`, which also co
 
 **Also described per bucket** (not used to choose buckets): variation in the factors (window, source, company volume, reposts, pay), coverage of key fields (description, salary, `posted`), words per description (EDA_SDA_1 Q3e), and openness to career changers (`entry_share`, `career_open_share`, years asked, degree required).
 
-**Related groups:** the team's source-background groups stay in the table for comparison and role discovery: skill overlap through O*NET skills and the Career Changers Matrix, and TF-IDF similarity once EDA_SDA_3 exists.
+**Related groups:** the team's source-background groups are cut with the rest (1d); they live on as rows of the 1c occupation summary (pay, timing, openness) and through O*NET skills and the Career Changers Matrix for role discovery.
 
 ### 3.7 Blind spots from Part 1
 
@@ -236,7 +237,7 @@ Report how many listings each rule hides. Then check:
 | Accessibility flags by company-volume band and by source | Entry-level listings cluster at high-volume employers or on certain platforms | Account for it, so accessibility isn't company size or source in disguise |
 | Pay of listings open to career changers vs. the rest, within the niche | A large pay gap | Show it in the app, and let the pay weight trade off against accessibility |
 | Days open by accessibility, within the niche | Reachable listings close faster | Raise their urgency in the ranking |
-| Degree required by occupation group | Near-universal in a group, with little "or equivalent experience" | That group is a poor target |
+| Degree required by role bucket | Near-universal in a bucket, with little "or equivalent experience" | That bucket is a poor target |
 | Each part of `career_open` separately | One part (for example, entry-level wording) adds little | Use a stricter rule for the "open to career changers" view |
 
 ### 3.12 The retraining compass: the 2026 side
