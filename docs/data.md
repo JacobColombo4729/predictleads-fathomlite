@@ -53,7 +53,7 @@ Official occupational employment projections (for example BLS's 10-year projecti
 - **`first_seen_at` is when PredictLeads' crawler found a posting,** not when the employer posted it. How precise it is depends on how often each company is crawled. The EDA compares it with `posted_at` where both exist (Q2c).
 - **A posting disappearing isn't the same as being filled.** It could also be cancelled, expired or moved.
 - **Dates are stored as strings.** The cleaning step parses them.
-- **Salaries mix time units** (`salary_time_unit`). The cleaning step converts them to one annual figure.
+- **Salaries mix time units** (`salary_time_unit`). The cleaning step (EDA_SDA_1 6.5) converts them to one hourly rate, `salary_hourly_usd` (salaried pay ÷ 2,080 hours, full time).
 - **`status` is never "open":** it's "closed" or empty. Use `last_seen_at` relative to the snapshot date to judge whether a listing is still live.
 - **Every job opening's company is in the companies file** (100% match). The companies file has no company size or employee count.
 - **The snapshot holds a rolling six-month window:** listings first seen 2026-03-30 to 2026-09-30, so long-running listings that started earlier are missing (left truncation).
