@@ -33,7 +33,7 @@ Builds the **listing model** and the **priority queue**. The listing model predi
 - **Ghost listings in training:** does the timing model predict the test month better when trained without `likely_ghost` listings (EDA_SDA_2 3.1d)? A ghost's days open isn't a real hiring window. Keep whichever wins; ghosts stay in the data and stay hidden in the app either way.
 - Is the model fast enough to rank listings live in the app?
 
-**Leakage rules** (`HOW_WE_WORK.md`):
+**Leakage rules** (`STANDARDS.md`):
 - Listing features use only what's known when a listing first appears. Company hiring volume and reposts count only listings first seen **before** it; `last_seen_at`, `status` and days open are never features.
 - **Date picker:** a model that scores a chosen date is trained only on what was known by then; listings still open that day are censored at that day. The main model is evaluated on the test months, and earlier dates need a model retrained as of that date.
 - **Role model:** only `feature` columns from the Profiles modeling table. Compass and path counts used as features are rebuilt inside each training fold, so a test person never counts toward their own answer.
