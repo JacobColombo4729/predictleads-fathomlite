@@ -80,7 +80,7 @@ Each notebook answers one question and hands its final table to the next. The Tr
 | # | Notebook | Question | Key methods | Status |
 |:-:|:--|:--|:--|:--|
 | 1 | **EDA_SDA_1** | What's in the data, and what's the scope? | Cleaning with an audit trail, survival curves, factor comparisons, scope decisions defended with evidence; career-change accessibility (Q1g) | **Done** |
-| 2 | **EDA_SDA_2** | Which listings do we study? | Ghost listings vs. desperate employers; checks on source, freshness, pay, reposts, company volume; companies-table join; missing-data patterns; **narrowing computer and mathematical to what a career changer can get**; pairing it with the team's backgrounds | Next |
+| 2 | **EDA_SDA_2** | Which listings do we study? | **Cut to computer and mathematical at the start** (other groups kept only as a per-occupation pay and timing summary); additional cleaning; ghost listings vs. desperate employers; checks on source, freshness, pay, reposts, company volume; companies-table join; missing-data patterns; **narrowing computer and mathematical to what a career changer can get**; pairing it with the team's backgrounds | Next |
 | 3 | **EDA_SDA_3** | What features does the text add? | Text normalization, lemmatization, TF-IDF; evergreen, urgency and hiring-difficulty phrases; career-change flags validated (experience, education, licenses, training); transferable skills | Planned |
 | 4 | **EDA_SDA_4** | Which features hold up? | Pearson + Spearman correlation, multicollinearity (VIF), hypothesis tests with effect sizes, confounding and company-clustering checks, competing risks | Planned |
 | 5 | **TimeSeries** | When do listings appear and close? | Decomposition, stationarity tests, lag features, ARIMA / SARIMA, survival by month | Planned |
