@@ -204,3 +204,16 @@ tr.row--picked { background: var(--accent-soft); }
 .btn--lg { height: 40px; padding: 0 var(--s4); font-weight: 650; font-size: var(--fs-md); }
 
 .cp-chip--tag { margin-left: 8px; font-size: 11px; padding: 0 7px; vertical-align: middle; }
+
+/* Suggested roles on the tier board are outlined, added roles are solid. */
+.cp-jcard--suggested { border-style: dashed; }
+.cp-linkbtn { margin-top: 8px; background: none; border: 0; padding: 0; color: var(--accent-strong); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; text-align: left; }
+.cp-linkbtn:hover { text-decoration: underline; }
+.cp-sug__add { margin-top: 10px; }
+.cp-toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 20;
+  display: flex; align-items: center; gap: 12px; max-width: min(92vw, 640px);
+  background: var(--inverse-bg); color: var(--inverse-fg); border-radius: 12px; padding: 10px 14px; box-shadow: var(--shadow-pop); font-size: var(--fs-sm);
+}
+.cp-toast__btn { background: none; border: 1px solid currentColor; color: inherit; border-radius: 8px; padding: 3px 10px; font: inherit; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.cp-toast__x { background: none; border: 0; color: inherit; font-size: 18px; line-height: 1; cursor: pointer; opacity: 0.7; }

@@ -10,12 +10,15 @@ interface Props {
   stretch: number;
   selectedId: string | null;
   onSelect: (jobId: string) => void;
+  addedIds: Set<string>;
+  onAdd: (job: CompassJob) => void;
+  onRemove: (jobId: string) => void;
 }
 
 const TIERS: Tier[] = ["best", "reach", "stretch"];
 
 /** Your picks and the suggested roles in three tiers by fit. Releasing the stretch slider brings in roles further from your picks; cards slide to their column. */
-export default function TierBoard({ jobs, themeFilter, stretch, selectedId, onSelect }: Props) {
+export default function TierBoard({ jobs, themeFilter, stretch, selectedId, onSelect, addedIds, onAdd, onRemove }: Props) {
   const board = useRef<HTMLDivElement>(null);
   const rects = useRef(new Map<string, { left: number; top: number }>());
 
@@ -58,19 +61,22 @@ export default function TierBoard({ jobs, themeFilter, stretch, selectedId, onSe
             <div
               key={j.job.id}
               data-id={j.job.id}
-              className={`cp-jcard${selectedId === j.job.id ? " is-sel" : ""}`}
+              className={`cp-jcard${selectedId === j.job.id ? " is-sel" : ""}${!j.pick && !addedIds.has(j.job.id) ? " cp-jcard--suggested" : ""}`}
               role="button"
               tabIndex={0}
               onClick={() => onSelect(j.job.id)}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(j.job.id); } }}
             >
-              <div className="cp-jcard__t">{j.job.title}{!j.pick && <span className="cp-chip cp-chip--tag">Suggested</span>}</div>
+              <div className="cp-jcard__t">{j.job.title}{!j.pick && <span className="cp-chip cp-chip--tag">{addedIds.has(j.job.id) ? "Added" : "Suggested"}</span>}</div>
               <div className="cp-jcard__c">{j.job.company.name}</div>
               <CompanyHiringBadge companyId={j.job.company.id} />
               <div className="cp-jcard__row">
                 <div className="cp-meter"><i style={{ width: `${j.fit}%` }} /></div>
                 <span>{j.fit}%</span>
               </div>
+              {!j.pick && (addedIds.has(j.job.id)
+                ? <button type="button" className="cp-linkbtn" onClick={(e) => { e.stopPropagation(); onRemove(j.job.id); }}>Remove from my tiers</button>
+                : <button type="button" className="cp-linkbtn" onClick={(e) => { e.stopPropagation(); onAdd(j); }}>+ Add to my tiers</button>)}
             </div>
           ))}
         </div>
