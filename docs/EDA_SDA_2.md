@@ -58,7 +58,6 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 **What the data shows**
 - **The niche: 14,019 computer and mathematical listings** from 6,685 companies (7.6% of 184,889), 3,458 still open. None needed the O*NET-code fallback. Credentialed math (120 listings: actuaries, mathematicians) is out of scope, and the other 170,750 listings are cut; both are kept only in the summary of 1,008 occupations in 24 groups (1c).
-- **In that summary, computer and mathematical pays the most** (median $66.63 an hour, original listings) but has among the fewest entry-level listings (9%) and signs of openness to career changers (21%). Its median window, 22.5 days, is close to most groups'.
 
 ## 2. Analysis views
 

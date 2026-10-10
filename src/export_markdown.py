@@ -98,7 +98,7 @@ LAYOUTS = {
             ["3.12a The 2026 market by role bucket"],
             ["4b Final table: listings after each step", "4c Final niche table at a glance"],
         ],
-        "charts": ["# 1c Chart", "# 3.1 Chart", "# 3.2 Chart", "# 3.3e Chart", "# 3.6 Chart", "# 3.9 Chart", "# 3.11 Chart",
+        "charts": ["# 3.1 Chart", "# 3.2 Chart", "# 3.3e Chart", "# 3.6 Chart", "# 3.9 Chart", "# 3.11 Chart",
                    "# 3.12 Chart"],
     },
     "Profiles": {
