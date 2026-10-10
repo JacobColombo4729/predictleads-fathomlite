@@ -8,9 +8,9 @@
 ## Now
 
 - **Slide deck for the team, due Friday 2026-10-09:** `reports/Team update 2026-10-09.pptx` (local only) is built; upload it to Google Slides.
-- **Give Claude instructions for the additional data cleaning** (reminder).
 - **EDA_SDA_2 (non-text), the next notebook:**
   - **Setup:** load EDA_SDA_1's final table (182,367 listings).
+  - **2b Additional cleaning:** staffing agencies, salary sanity, date consistency, internships and temporary roles, title normalization, multi-location listings, description cleanup. Fix or flag, never drop; counts per step.
   - **3.1 Ghost listings vs. struggling employers:** describe the long-open listings, measure each signal (relisted, company still posting, source, `posted` vs. `first_seen`), and combine them into a "likely ghost listing" flag.
   - **3.2 Source:** source within company-volume bands; job-board copies of company-site listings; platform sizes. Add the domain check that refines the 60.7%.
   - **3.3 Freshness:** the late-found tail, survival of late-found vs. prompt listings, with vs. without `posted`.

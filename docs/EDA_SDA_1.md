@@ -371,7 +371,7 @@ Every decision about the final table, defended with the evidence from sections 6
 | **Time scales** | Month; week; day of week; hour of day | Month, week and day of week | Month, week, day of week | Decided. Day of week uses `posted` (41%, Central European dates), since `first_seen` days follow the crawler. Hour of day isn't supported |
 | **Follow-up window** | Drop listings open more than 50 days; cap at 50 days; keep the full record | Keep the full record | Keep the full record | Decided: a long-open listing could be a ghost listing (rank lower) **or** an employer still struggling to hire (rank higher). Age alone can't tell them apart; EDA_SDA_2 separates the two |
 | **Prioritization factors (Q1)** | See below | | Keep all candidates for now | **Kept for now:** non-text questions are checked in EDA_SDA_2, text questions in EDA_SDA_3 |
-| **Additional data cleaning** | | | Applied in EDA_SDA_2 | **Open:** instructions pending |
+| **Additional data cleaning** | | | Applied in EDA_SDA_2 | **Decided:** seven fixes in EDA_SDA_2 section 2b (staffing agencies, salary sanity, date consistency, internships and temporary roles, title normalization, multi-location listings, description cleanup); fix or flag, never drop |
 
 ### Prioritization factors (Q1)
 
