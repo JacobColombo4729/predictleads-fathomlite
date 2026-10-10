@@ -140,7 +140,8 @@ Steps: describe the long-open listings (how many, which occupation groups and so
 - **90 days is a reasonable stale line, but not a sharp break.** Among listings first seen in April–May, the share of open listings that close within the next 30 days falls steadily: 54% in the first month, 42%, 32%, then 26% from day 90 to 120. A 90-day-old listing is about half as likely to close next month as a new one, yet a quarter still close each month, so many stale listings aren't dead; the ghost flag tells them apart.
 - **666 of 3,447 open listings (19%) are more than 90 days old,** from 14% (quality assurance) to 22% (software development). Every open job-board listing (47) is more than 90 days old, likely how job boards keep listings up; 3.2 looks at it.
 - **One signal separates ghosts from active listings:** only 44% of stale listings come from a company that posted anything new in the last 60 days, vs. 92% of younger ones. Relisting, very old posting dates and source barely differ, so the flag rests almost entirely on company activity.
-- **374 likely ghosts (56% of stale) and 292 possibly hard to fill.** Without likely ghosts, median days open drops 1–3 days per bucket and open counts about 10% (3.12a). *To fill in after the next run: whether "possibly hard to fill" listings are more open to career changers; if not, the category is dropped.*
+- **374 likely ghosts (56% of stale);** without them, median days open drops 1–3 days per bucket and open counts about 10% (3.12a).
+- **"Possibly hard to fill" is dropped:** those 292 stale listings from still-active companies are no more open to career changers than younger listings (19.6% vs. 20.0% show any sign; 7.9% vs. 10.2% entry level), so the idea that a struggling employer welcomes newcomers doesn't hold here. Stale listings that aren't likely ghosts are just "stale" (hidden in the app like all stale listings). Likely ghosts are clearly less open (14.5%).
 
 ### 3.2 Source / platform
 
