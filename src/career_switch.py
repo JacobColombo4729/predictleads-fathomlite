@@ -363,11 +363,24 @@ ONET_ROLE_BUCKETS = {
 }
 
 
+# Detailed O*NET codes inside "computer occupations, all other" (15-1299), matched on the full code first, so they
+# don't all land in "other computer roles". IT project managers (15-1299.09) stay there: no resume bucket matches them.
+ONET_DETAILED_BUCKETS = {
+    "15-1299.01": "networks and systems",    # web administrators
+    "15-1299.04": "security",                # penetration testers
+    "15-1299.05": "security",                # information security engineers
+    "15-1299.06": "security",                # digital forensics analysts
+    "15-1299.07": "software development",    # blockchain engineers
+    "15-1299.08": "networks and systems",    # computer systems engineers/architects
+}
+
+
 def role_bucket(onet_code):
     """The role bucket of a listing's O*NET-SOC code; None if it isn't a mapped computer and mathematical code."""
     if not isinstance(onet_code, str):
         return None
-    return ONET_ROLE_BUCKETS.get(onet_code.strip()[:7])
+    code = onet_code.strip()
+    return ONET_DETAILED_BUCKETS.get(code[:10]) or ONET_ROLE_BUCKETS.get(code[:7])
 
 
 # Broad areas for describing where career changers come from (analysis only: changing these never changes who is a
