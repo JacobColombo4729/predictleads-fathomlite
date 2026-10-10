@@ -180,10 +180,16 @@ Steps: describe the long-open listings (how many, which occupation groups and so
   - **`n_sources_so_far`:** how many different sources carry the job at the moment this listing appears (1 = only here).
   - **Hypothesis: posting on several boards signals urgency.** Test it, don't assume it: days open (Kaplan–Meier) by `n_sources_so_far` and cross-posted vs. relisted vs. single, within company-volume bands and with and without staffing agencies (2b.1). Applicant-tracking systems often send one posting to several boards automatically, so check within platform too: if the gap disappears there, it's the software, not the employer's urgency.
   - **Copies in different cities aren't cross-posts:** each listing names one location (2b.5), so a job in several cities appears as several listings. The table has no per-listing city yet, so **source stands in for it:** a live earlier copy on a different source is a cross-post; on the same source, most likely another city (`is_same_source_copy`).
-  - **Check the matching:** boards sometimes reformat descriptions, so copies may not share a description fingerprint. Compare with a looser match (same company and `title_clean`, first seen within 7 days) and report how many more cross-posts it finds.
+  - **Matching (decided after the first run, 2026-10-10):** copies are matched on company and clean title, not the description: boards reformat descriptions, and the strict match found 0 cross-posts (a looser check found 460 same-title copies within 7 days).
 - **Reposts** (a decided feature: how strongly should it count?): days open by `times_listed` and by relisted vs. cross-posted; repost rate in the chosen groups; repost rate within company-volume bands, to see whether it adds anything beyond company volume.
 - **Company hiring volume:** does high volume mean **more competition, or more openings to win?** Its direction in the ranking depends on the answer. Count each company's listings from before each listing only, so the future isn't used. The companies table has no company size or employee count, so listing volume is our only measure of how much a company hires.
 - **For career changers:** do high-volume employers post a larger share of entry-level listings or training wording? If so, volume also signals that a newcomer can get in.
+
+**What the data shows**
+- **Company hiring volume is the strongest signal in the niche:** listings from companies with 20+ earlier listings (any field) close in a median **7.1 days** vs. **38.9** for a company's first listing, about 5.5× (EDA_SDA_1 found 2.3× across all fields). It holds without staffing agencies (7.1 vs. 39.0) and without likely ghosts (7.1 vs. 33.8), and within every source type: company sites 6.1 vs. 48.1 days, hiring platforms 18.2 vs. 42.1; job boards show a weaker gap (12.0 vs. 16.5).
+- **Big employers aren't more open to newcomers:** 8–11% of listings are entry level in every volume band, so volume is about speed, not access.
+- **To check in 3.3:** companies with many listings may be crawled more often, which would shorten the windows we observe for them.
+- *To fill in after the rerun of 3.5b–c (copies are now matched on company and clean title, since the strict description match found no cross-posts): how many copies are cross-posted, same-source or relisted, and whether multi-board posting goes with faster closing within source type.*
 
 ### 3.6 The niche: computer and mathematical, by role bucket
 
