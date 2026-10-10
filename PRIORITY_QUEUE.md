@@ -8,6 +8,7 @@
 ## Now
 
 - **Tomorrow (2026-10-10), Jacob:** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
+- **Rerun Profiles, then EDA_SDA_2 (IT project management bucket):** Profiles from the top (rules changed: new bucket, project managers no longer "manager or above"), save; then EDA_SDA_2 from the top through 3.12. Claude updates every Profiles count (2,554 career changers and the rest) in the notebook, docs and deck, and refreezes Profiles.
 - **EDA_SDA_2 (non-text), the next notebook:**
   - **Setup: done** (2026-10-10): 14,139 computer and mathematical listings from 6,723 companies; occupation summary saved (`data/clean/occupation_summary.pkl`, 1,008 occupations).
   - **2b Additional cleaning: done** (2026-10-10); the staffing flags were checked in the 2b.1 review.
@@ -16,14 +17,14 @@
   - **3.3 Freshness:** the late-found tail, survival of late-found vs. prompt listings, with vs. without `posted`.
   - **3.4 Pay disclosed:** by state, hourly vs. salaried and seniority, within company-volume bands.
   - **3.5 Reposts and company volume:** split copies of the same job into cross-posted (on several boards at once: `is_crosspost`, `n_sources_so_far`) and relisted after closing (`is_relisted`), earlier copies only; test whether multi-board posting signals urgency (days open by number of sources, within platform and volume bands); use volume counted from earlier listings only (EDA_SDA_1 Q1d: 13 vs. 30 days, so the finding holds), with and without staffing agencies (2b); how strongly reposts count, and whether high volume means more competition or more openings (and more entry-level listings).
-  - **3.6 The niche by role bucket: done** (7 buckets with their own analysis). **Decide on IT project managers:** 1,832 listings (13% of the niche), half manager-level; own bucket (reopens Profiles) or stay in "other".
+  - **3.6 The niche by role bucket: done.** IT project managers get their own bucket and credentialed math is out of scope (2026-10-10).
   - **3.6 details:** map `onet_code` to buckets (report unmapped codes); size each bucket with and without manager-level listings (hidden per applicant, so the niche keeps them); count career changers per bucket from `Profiles.ipynb`, all three pools, split by pool; run the depth check; keep buckets that pass on both sides (30+ career changers in all pools; retrained-only would drop data and analytics).
   - **3.7 Blind spots:** the 2-day live tolerance, salaried part-time pay (hourly conversion assumes 2,080 hours), the seniority labels, and state from `location_data`.
   - **3.8 Join the companies table** (left join, keys checked).
   - **3.9 Missing data:** follow the per-field plan already in the notebook; by-group missingness and `isnull().corr()`.
   - **3.10 Outliers:** IQR and boxplots for days open, words, salary, times listed.
   - **3.11 Hide what a career changer can't get:** manager-level listings per applicant (only for applicants without management experience), text blockers after EDA_SDA_3; report what each rule hides; accessibility checks within the niche.
-  - **3.12 The compass, 2026 side:** each role's openings, pay, closing speed, entry-level share and expected growth, joined to Profiles' three path tables (prior career, training, within tech), with people counts and thin paths marked.
+  - **3.12 The compass, 2026 side (code written, needs the reruns):** each role's openings, pay, closing speed, entry-level share and expected growth, joined to Profiles' three path tables (prior career, training, within tech), with people counts and thin paths marked.
   - **4 Final table:** defend each decision, apply them all at the end, save for EDA_SDA_3. **5 Conclusion.**
 - **Tell the team about the new packages:** pull, `pip install -r requirements.txt`, and on a Mac `brew install libomp`; then `python -m spacy download en_core_web_sm` (README section 4).
 - **Data housekeeping:** delete `data/external/resume_structured/archive.zip` once you no longer want a backup (the resume data is unzipped; the notebook re-extracts from it only if the CSVs go missing), the old `data/profiles/*_v9*` files (replaced by `modeling_table.pkl` and `retrained_candidates.csv`), the old lean-table cache (`data/clean/job_openings_lean_*.pkl` without `_v2`), the whole `data/profiles/review/` folder (old round_01 files; nothing reads them), and any leftover `*_flat_*.pkl` files.
