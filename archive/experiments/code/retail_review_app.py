@@ -28,7 +28,7 @@ review_counts = review_store.review_counts
 save_progress = review_store.save_progress
 write_saved_judgment = review_store.write_saved_judgment
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[3]
 EXPERIMENT_DIR = ROOT / "data" / "matching" / "description_coverage_20261007T141953Z"
 BLINDED_PATH = EXPERIMENT_DIR / "blinded_review_view.csv"
 JUDGMENTS_PATH = EXPERIMENT_DIR / "retail_review_judgments.csv"

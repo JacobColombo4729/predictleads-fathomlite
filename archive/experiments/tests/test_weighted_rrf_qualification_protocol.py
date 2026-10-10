@@ -139,7 +139,7 @@ class QualificationProtocolTests(unittest.TestCase):
         self.assertIn("contradiction_not_explicit_in_candidate_source", codes)
 
     def test_wastewater_case_is_complete_and_not_duplicated(self):
-        frozen = PROJECT_ROOT / "data/matching/weighted_rrf_20261008T233000Z/diagnostics/dev_top5_strong_ceiling_20261009/blinded_grader_audit_20261009/revised_protocol_v2_20261009/reviewer_input_blinded.jsonl"
+        frozen = PROJECT_ROOT.parents[1] / "data/matching/weighted_rrf_20261008T233000Z/diagnostics/dev_top5_strong_ceiling_20261009/blinded_grader_audit_20261009/revised_protocol_v2_20261009/reviewer_input_blinded.jsonl"
         rows = [json.loads(line) for line in frozen.read_text(encoding="utf-8").splitlines() if line.strip()]
         case = next(row for row in rows if row["profile_id"] == "dev_brewery_cellar_to_water_operations"
                     and row["job_id"] == "8aceeb9d-e12a-47a9-9427-653ad8c7ffa1")

@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 spec = importlib.util.spec_from_file_location(
     "analyze_matching_text_errors", PROJECT_ROOT / "code/analyze_matching_text_errors.py",
 )
