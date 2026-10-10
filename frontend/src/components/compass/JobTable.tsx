@@ -1,3 +1,4 @@
+import CompanyHiringBadge from "../signals/CompanyHiringBadge";
 import type { CompassJob, CompassResult } from "../../types";
 import { TIER_NAME, tierOf } from "../../lib/compass";
 
@@ -20,7 +21,7 @@ export default function JobTable({ result, themeFilter, stretch, onSelect }: Pro
         {rows.map((j) => (
           <tr key={j.job.id} onClick={() => onSelect(j.job.id)}>
             <td>{j.job.title}</td>
-            <td>{j.job.company.name}</td>
+            <td>{j.job.company.name}<CompanyHiringBadge companyId={j.job.company.id} /></td>
             <td>{result.themes.find((t) => t.id === j.themeId)?.name}</td>
             <td>{TIER_NAME[tierOf(j.fit, stretch)]}</td>
             <td>{j.fit}%</td>

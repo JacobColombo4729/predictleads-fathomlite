@@ -1,3 +1,4 @@
+import CompanyHiringBadge from "../signals/CompanyHiringBadge";
 import { useEffect, useState } from "react";
 import type { CompassJob, CompassResult } from "../../types";
 import { STATUS_LABEL, TIER_NAME, requirementShortName, themeColor, tierOf } from "../../lib/compass";
@@ -32,6 +33,7 @@ export default function JobDetailPanel({ result, job, stretch, saved, onSave }: 
       <div className="cp-eyebrow">{job.pick ? "Picked job" : "Suggested job"}</div>
       <h3>{job.job.title}</h3>
       <p className="cp-sub">{job.job.company.name}{job.job.location ? ` · ${job.job.location}` : ""}</p>
+      <CompanyHiringBadge companyId={job.job.company.id} />
       <div className="cp-chips">
         {theme && <span className="cp-chip"><i className="cp-key" style={{ background: themeColor(theme.id) }} />{theme.name}</span>}
         <span className="cp-chip">{TIER_NAME[tierOf(job.fit, stretch)]}</span>
