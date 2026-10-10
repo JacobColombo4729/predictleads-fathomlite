@@ -428,3 +428,5 @@ input[type="checkbox"], input[type="range"] { accent-color: var(--accent); }
 .reason__hint { margin: 0; font-size: var(--fs-xs); color: var(--text-muted); }
 .reason__row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .reason__status { font-size: var(--fs-xs); color: var(--text-muted); margin-left: auto; }
+
+.rank--explore { background: var(--violet-soft); color: var(--violet); border: 1px solid var(--violet-border); white-space: nowrap; }

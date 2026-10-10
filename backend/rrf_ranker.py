@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import random
 import sys
 from collections import defaultdict
 from collections.abc import Callable, Sequence
@@ -33,6 +34,7 @@ from backend import feedback_ranking as feedback  # noqa: E402
 
 DEPTH = 50
 RRF_K = 60
+EXPLORE_TOP = 30   # a job counts as one signal's favourite when it sits in that signal's top 30
 QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 
 
@@ -87,6 +89,7 @@ class RrfRankingBackend:
     version = "rank_candidates-rrf-v1-k60-depth50-equal"
     score_type = "reciprocal_rank_fusion"
     feedback_version = feedback.VERSION
+    supports_exploration = True  # can add jobs the two signals disagree about (see rank)
     supports_compass = True  # exposes the vector methods the Compass analysis needs (see backend/compass.py)
 
     def __init__(self, jobs: Sequence[matching.JobRecord], corpus_dir: Path, *,
@@ -138,7 +141,15 @@ class RrfRankingBackend:
 
     def rank(self, profile: matching.CandidateProfile, limit: int, candidate_indices: Sequence[int], *,
              liked_job_ids: Sequence[str] = (), disliked_job_ids: Sequence[str] = (),
-             exclude_job_ids: Sequence[str] = ()) -> list[dict[str, Any]]:
+             exclude_job_ids: Sequence[str] = (), explore: int = 0,
+             rng: random.Random | None = None) -> list[dict[str, Any]]:
+        """Fused ranking of the eligible listings, best first.
+
+        With explore > 0, up to that many extra listings follow the ranked ones, each flagged with `exploration`:
+        "keyword" (the keyword signal ranks it high, the embedding signal does not), "embedding" (the reverse), and, when there
+        is room for more than two, one "random" listing. They are chosen to teach us something: a rating on a listing the two
+        signals disagree about says which signal was right. The caller decides where to show them.
+        """
         liked, disliked = self._indices(liked_job_ids), self._indices(disliked_job_ids)
         adjust = bool(liked or disliked)  # excluded jobs are hidden but do not move the query
         rated = set(liked) | set(disliked) | set(self._indices(exclude_job_ids))
@@ -171,7 +182,43 @@ class RrfRankingBackend:
         for position, (index, _) in enumerate(embedding_top, 1):
             fused[self.job_ids[index]] += 1.0 / (RRF_K + position)
         ranked = sorted(fused.items(), key=lambda pair: (-pair[1], pair[0]))[:limit]
-        return [{"job_id": job_id, "rank": rank, "score": score} for rank, (job_id, score) in enumerate(ranked, 1)]
+        results = [{"job_id": job_id, "rank": rank, "score": score} for rank, (job_id, score) in enumerate(ranked, 1)]
+        if explore > 0:
+            results.extend(self._exploration(explore, {r["job_id"] for r in results}, tfidf_top, embedding_top, depth, eligible, rng or random.Random()))
+        return results
+
+    def _exploration(self, count: int, shown: set[str], tfidf_top: Sequence[tuple[int, float]], embedding_top: Sequence[tuple[int, float]],
+                     depth: int, eligible: Sequence[int], rng: random.Random) -> list[dict[str, Any]]:
+        """Listings to add beyond the ranked ones: where the two signals disagree most, balanced between the two sides, plus a random one."""
+        position_keyword = {self.job_ids[i]: p for p, (i, _) in enumerate(tfidf_top, 1)}
+        position_embedding = {self.job_ids[i]: p for p, (i, _) in enumerate(embedding_top, 1)}
+        sides: dict[str, list[tuple[int, str]]] = {"keyword": [], "embedding": []}
+        for job_id in set(position_keyword) | set(position_embedding):
+            if job_id in shown:
+                continue
+            k, e = position_keyword.get(job_id, depth + 1), position_embedding.get(job_id, depth + 1)
+            if min(k, e) > EXPLORE_TOP:
+                continue
+            sides["keyword" if k < e else "embedding"].append((abs(k - e), job_id))
+        for side in sides.values():
+            side.sort(key=lambda pair: (-pair[0], pair[1]))
+        want_random = 1 if count >= 3 else 0
+        chosen: list[dict[str, Any]] = []
+        order = ["keyword", "embedding"]
+        taken = {"keyword": 0, "embedding": 0}
+        while len(chosen) < count - want_random and any(taken[s_] < len(sides[s_]) for s_ in order):
+            for side in order:
+                if len(chosen) >= count - want_random:
+                    break
+                if taken[side] < len(sides[side]):
+                    chosen.append({"job_id": sides[side][taken[side]][1], "rank": None, "score": 0.0, "exploration": side})
+                    taken[side] += 1
+        if want_random:
+            used = shown | {c["job_id"] for c in chosen}
+            pool = [self.job_ids[i] for i in eligible if self.job_ids[i] not in used]
+            if pool:
+                chosen.append({"job_id": rng.choice(pool), "rank": None, "score": 0.0, "exploration": "random"})
+        return chosen
 
     def most_similar_liked(self, job_ids: Sequence[str], liked_job_ids: Sequence[str]) -> dict[str, dict[str, Any]]:
         """For each result, the liked job whose embedding is closest (cosine) to it."""

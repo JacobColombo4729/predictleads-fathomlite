@@ -33,6 +33,17 @@ The reason changes what the ranker learns from that rating, not just the data:
 
 Notes are free text and may contain personal details. In production they need the opt-in, a retention limit and a review step before anyone reads them.
 
+## Exploration: listings we would not normally show
+
+People can only rate what the ranker shows them, so on their own the ratings cannot reveal good listings the ranker misses, and any comparison of methods on them favours the current one. To fix that, Discover mixes in a few extra listings (about 15% of a page, 4 of 25), labelled **Something different** on the card, at random positions but never first:
+
+- **Where the two signals disagree.** The ranker combines a keyword signal (TF-IDF) and a meaning signal (embeddings). Exploration picks listings that one signal puts in its top 30 and the other does not, half from each side. A rating on one of these says which signal was the better judge.
+- **One random listing** per page (when there are three or more slots), so the log also covers listings all methods would miss.
+
+Each exploration listing is logged with its source (`keyword`, `embedding` or `random`), the position it was shown in, and the ratings it gets carry that source. `python code/feedback_report.py` prints the share of good ratings per source, for example `ranker`, `keyword`, `embedding`, `random`. If `embedding` clearly beats `keyword`, the meaning signal is the better judge where they disagree. It needs a few dozen ratings per source before it means much, so treat early numbers as a direction, not a result.
+
+Exploration is only used when the page asks for it (Discover does), only on the combined ranker, and not on small pages. A thumbs-up or thumbs-down on an exploration listing teaches the live ranking like any other rating.
+
 ## What is not recorded
 
 No names, emails, phone numbers, resume text, profile text, notes or job descriptions. The participant id is a random value generated in the browser (`localStorage`); it identifies a browser, not a person. Job ids point to the PredictLeads snapshot, which stays inside our own infrastructure.

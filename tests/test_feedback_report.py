@@ -56,6 +56,18 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(summary["thumbs_down_reasons"], {"location": 1, "wrong_role": 1, "none given": 1})
         self.assertEqual(summary["thumbs_down_notes"], 1)
 
+    def test_share_good_is_reported_by_where_the_listing_came_from(self) -> None:
+        self.store.log(A, "rating", job_id="a", payload={"signal": "good", "rank": 1})
+        self.store.log(A, "rating", job_id="b", payload={"signal": "good", "rank": 2, "source": "embedding"})
+        self.store.log(A, "rating", job_id="c", payload={"signal": "good", "rank": 3, "source": "embedding"})
+        self.store.log(A, "rating", job_id="d", payload={"signal": "bad", "rank": 4, "source": "keyword"})
+        self.store.log(A, "rating", job_id="e", payload={"signal": "bad", "rank": 5, "source": "random"})
+        groups = fr.summarize(self.store.events())["by_source"]
+        self.assertEqual(groups["ranker"], {"rated": 1, "share_good": 1.0})
+        self.assertEqual(groups["embedding"], {"rated": 2, "share_good": 1.0})
+        self.assertEqual(groups["keyword"], {"rated": 1, "share_good": 0.0})
+        self.assertEqual(groups["random"], {"rated": 1, "share_good": 0.0})
+
     def test_empty_log_does_not_crash(self) -> None:
         summary = fr.summarize([])
         self.assertEqual(summary["participants"], 0)

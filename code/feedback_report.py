@@ -35,6 +35,18 @@ def final_ratings(events: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [e for e in latest.values() if e is not None]
 
 
+def by_source(ratings: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Share of good ratings by where the listing came from: the ranker, or an exploration listing (keyword / embedding / random).
+
+    "keyword" listings were ranked high by the keyword signal and not by the embedding signal; "embedding" the reverse.
+    If one side's share of good ratings is clearly higher, that signal was the better judge on the listings they disagree about.
+    """
+    groups: dict[str, list[bool]] = defaultdict(list)
+    for r in ratings:
+        groups[r["payload"].get("source", "ranker")].append(r["payload"].get("signal") == "good")
+    return {name: {"rated": len(v), "share_good": round(sum(v) / len(v), 3)} for name, v in sorted(groups.items())}
+
+
 def summarize(events: list[dict[str, Any]]) -> dict[str, Any]:
     by_type = Counter(e["type"] for e in events)
     people = sorted({e["participant_id"] for e in events})
@@ -57,6 +69,7 @@ def summarize(events: list[dict[str, Any]]) -> dict[str, Any]:
         f"rated_in_top_{TOP_K}": len(top),
         "thumbs_down_reasons": dict(Counter(r["payload"].get("reason", "none given") for r in ratings if r["payload"].get("signal") == "bad")),
         "thumbs_down_notes": sum(1 for r in ratings if r["payload"].get("note")),
+        "by_source": by_source(ratings),
         "per_participant": {p[:8]: dict(c) for p, c in per_person.items()},
     }
 
