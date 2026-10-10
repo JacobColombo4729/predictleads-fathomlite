@@ -10,7 +10,7 @@
 - **Tomorrow (2026-10-10), Jacob:** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
 - **EDA_SDA_2 (non-text), the next notebook:**
   - **Setup:** load EDA_SDA_1's final table (182,367 listings).
-  - **2b Additional cleaning:** staffing agencies, salary sanity, date consistency, internships and temporary roles, title normalization, multi-location listings, description cleanup. Fix or flag, never drop; counts per step.
+  - **2b Additional cleaning (code written, needs a run):** staffing agencies, salary sanity, date consistency, internships and temporary roles, title normalization, multi-location listings. Fix or flag, never drop; counts per step. Check the 2b.1 review cell's flagged companies locally.
   - **3.1 Ghost listings vs. struggling employers:** describe the long-open listings, measure each signal (relisted, company still posting, source, `posted` vs. `first_seen`), and combine them into a "likely ghost listing" flag.
   - **3.2 Source:** source within company-volume bands; job-board copies of company-site listings; platform sizes. Add the domain check that refines the 60.7%.
   - **3.3 Freshness:** the late-found tail, survival of late-found vs. prompt listings, with vs. without `posted`.
@@ -31,7 +31,7 @@
 ## Next
 
 - **EDA_SDA_3 (NLP):**
-  - Preprocessing: normalize, stopwords, lemmatize; TF-IDF fit on the training months only; boilerplate removal.
+  - Preprocessing: description cleanup moved here from EDA_SDA_2 2b (HTML, equal-opportunity and benefits boilerplate → `desc_clean`); normalize, stopwords, lemmatize; TF-IDF fit on the training months only.
   - Validate the keyword flags: a teammate checks a random sample of matches locally (career-change flags, `urgency`, `mentions_remote`).
   - Hard-blocker rules per role bucket (years-asked threshold, required licenses); apply them in this notebook's final table, with a count of what each hides.
   - Evergreen wording (feeds the ghost-listing flag), required vs. preferred qualifications, skills extraction mapped to O*NET skills.
