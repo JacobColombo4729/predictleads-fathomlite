@@ -21,7 +21,18 @@ interface Props {
 }
 
 interface Tip { job: CompassJob; x: number; y: number }
-interface Drag { pointerId: number; startPointer: number; moved: boolean }
+interface Drag {
+  pointerId: number;
+  /** Pointer heading at the last move, in degrees clockwise from north. */
+  last: number;
+  moved: boolean;
+  /** Map centre in client pixels, measured once when the drag starts (the map doesn't move during a drag). */
+  cx: number;
+  cy: number;
+  el: Element;
+  /** Removes the window listeners that end the drag if the release happens somewhere the ring can't see. */
+  unlisten: () => void;
+}
 
 const CARDINALS = [["N", 0], ["E", 90], ["S", 180], ["W", 270]] as const;
 const DEGREE_TICKS = Array.from({ length: 36 }, (_, i) => i * 10);
@@ -170,46 +181,73 @@ export default function CompassMap({ result, themeFilter, selectedId, highlightI
   const scopeJobs = new Set(view.jobs ? view.jobs.split(" ") : []);
   const heading = ((Math.round(turn) % 360) + 360) % 360;
 
-  /** Pointer heading in degrees clockwise from north, measured around the map centre. */
-  const pointerHeading = (e: PointerEvent): number | null => {
-    const ctm = svg.current?.getScreenCTM();
-    if (!ctm) return null;
-    const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
-    return (Math.atan2(pt.x - MAP.cx, MAP.cy - pt.y) * 180) / Math.PI;
+  /** Heading of a client point around the map centre, in degrees clockwise from north. */
+  const headingFrom = (cx: number, cy: number, x: number, y: number) => (Math.atan2(x - cx, cy - y) * 180) / Math.PI;
+
+  /**
+   * Ends a drag, however it ends: a release on the ring, a release anywhere else on the page, the browser cancelling
+   * or dropping the pointer, or a move that arrives with no button held. Returns true when the pointer barely moved,
+   * so the press counts as a click.
+   */
+  const endDrag = (): boolean => {
+    const d = drag.current;
+    if (!d) return false;
+    drag.current = null;
+    d.unlisten();
+    setDragging(false);
+    try {
+      if (d.el.hasPointerCapture?.(d.pointerId)) d.el.releasePointerCapture(d.pointerId);
+    } catch {
+      // the pointer is already gone
+    }
+    if (d.moved) showFacing(dial.turn.current); // the drag has come to rest
+    return !d.moved;
   };
   const onBezelDown = (e: PointerEvent) => {
-    const at = pointerHeading(e);
-    if (at === null) return;
+    if (e.button !== 0) return;
+    const ctm = svg.current?.getScreenCTM();
+    if (!ctm) return;
+    e.preventDefault(); // no text selection or native drag, which would steal the pointer mid-turn
+    endDrag();
+    const centre = new DOMPoint(MAP.cx, MAP.cy).matrixTransform(ctm);
+    const el = e.currentTarget as Element;
     try {
-      (e.currentTarget as Element).setPointerCapture(e.pointerId);
+      el.setPointerCapture(e.pointerId);
     } catch {
-      // the pointer is already gone (e.g. released before this handler ran); the drag still works without capture
+      // the pointer is already gone; the window listeners below still end the drag
     }
-    drag.current = { pointerId: e.pointerId, startPointer: at, moved: false };
+    const onWindowUp = () => endDrag();
+    window.addEventListener("pointerup", onWindowUp);
+    window.addEventListener("pointercancel", onWindowUp);
+    window.addEventListener("blur", onWindowUp);
+    drag.current = {
+      pointerId: e.pointerId, last: headingFrom(centre.x, centre.y, e.clientX, e.clientY), moved: false,
+      cx: centre.x, cy: centre.y, el,
+      unlisten: () => {
+        window.removeEventListener("pointerup", onWindowUp);
+        window.removeEventListener("pointercancel", onWindowUp);
+        window.removeEventListener("blur", onWindowUp);
+      },
+    };
     setTip(null);
   };
   const onBezelMove = (e: PointerEvent) => {
     const d = drag.current;
-    const at = d && d.pointerId === e.pointerId ? pointerHeading(e) : null;
-    if (!d || at === null) return;
-    const delta = shortestTurn(d.startPointer, at);
+    if (!d || d.pointerId !== e.pointerId) return;
+    if (e.buttons === 0) {
+      endDrag(); // the release was missed: never let the ring follow a mouse with no button held
+      return;
+    }
+    const at = headingFrom(d.cx, d.cy, e.clientX, e.clientY);
+    const delta = shortestTurn(d.last, at);
     if (!d.moved && Math.abs(delta) < 2) return;
     if (!d.moved) setDragging(true);
     d.moved = true;
     // measure from the last pointer heading so the turn stays continuous past +/-180
     dial.setTurn(dial.turn.current + delta);
-    d.startPointer = at;
+    d.last = at;
   };
-  /** Ends a drag; returns true when the pointer barely moved, so the press counts as a click. */
-  const onBezelUp = (e: PointerEvent): boolean => {
-    const d = drag.current;
-    drag.current = null;
-    setDragging(false);
-    const el = e.currentTarget as Element;
-    if (el.hasPointerCapture?.(e.pointerId)) el.releasePointerCapture(e.pointerId);
-    if (d?.moved) showFacing(dial.turn.current); // the drag has come to rest
-    return d !== null && !d.moved;
-  };
+  const onBezelUp = (): boolean => endDrag();
   const onBezelKey = (e: KeyboardEvent) => {
     const step = e.shiftKey ? 45 : 15;
     const keys: Record<string, number> = { ArrowRight: step, ArrowUp: step, ArrowLeft: -step, ArrowDown: -step };
@@ -294,6 +332,7 @@ export default function CompassMap({ result, themeFilter, selectedId, highlightI
           onPointerMove={onBezelMove}
           onPointerUp={onBezelUp}
           onPointerCancel={onBezelUp}
+          onLostPointerCapture={onBezelUp}
           onKeyDown={onBezelKey}
         />
         {/* each spoke's tick: hover for its name, click to turn it to north, drag to turn the ring */}
@@ -308,8 +347,9 @@ export default function CompassMap({ result, themeFilter, selectedId, highlightI
                 className="cp-spokehit"
                 onPointerDown={onBezelDown}
                 onPointerMove={onBezelMove}
-                onPointerUp={(e) => { if (onBezelUp(e)) faceRole(r.angle); }}
+                onPointerUp={() => { if (onBezelUp()) faceRole(r.angle); }}
                 onPointerCancel={onBezelUp}
+                onLostPointerCapture={onBezelUp}
               >
                 <title>{`${r.name}. Click to face it, or drag to turn the ring.`}</title>
               </line>
@@ -329,8 +369,9 @@ export default function CompassMap({ result, themeFilter, selectedId, highlightI
               className={`cp-map__role${r.count ? "" : " is-empty"}${isMinor(result.roles, ri) ? " is-minor" : ""}${view.inScope[ri] === "1" ? " is-in-scope" : ""}`}
               onPointerDown={onBezelDown}
               onPointerMove={onBezelMove}
-              onPointerUp={(e) => { if (onBezelUp(e)) faceRole(r.angle); }}
+              onPointerUp={() => { if (onBezelUp()) faceRole(r.angle); }}
               onPointerCancel={onBezelUp}
+              onLostPointerCapture={onBezelUp}
             >
               <title>{`${r.name}: ${r.count ? `${r.count} on the map` : "none of these jobs, shown for contrast"}. Click to face it, or drag to turn the ring.`}</title>
               {lines[ri].map((line, i) => (
