@@ -1,4 +1,4 @@
-import { BookmarkIcon, CompassIcon, FindIcon, UserIcon } from "./Icons";
+import { BookmarkIcon, CompassIcon, FindIcon, SignalsIcon, UserIcon } from "./Icons";
 import { routeHref, type Route } from "../lib/router";
 import ThemeToggle from "./ThemeToggle";
 
@@ -11,6 +11,7 @@ const items: { route: Route; label: string; Icon: typeof CompassIcon }[] = [
   { route: "discover", label: "Discover", Icon: FindIcon },
   { route: "saved", label: "Saved", Icon: BookmarkIcon },
   { route: "compass", label: "Compass", Icon: CompassIcon },
+  { route: "signals", label: "Signals", Icon: SignalsIcon },
   { route: "profile", label: "Profile", Icon: UserIcon },
 ];
 

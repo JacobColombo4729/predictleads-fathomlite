@@ -3,6 +3,9 @@ import { COMPASS_MAX, COMPASS_MIN } from "./lib/compass";
 import { routeHref } from "./lib/router";
 import { useCompass } from "./state/useCompass";
 import CompassPage from "./pages/CompassPage";
+import SignalsPage from "./pages/SignalsPage";
+import { SignalPatternsContext } from "./lib/signals";
+import { useSignalPatterns } from "./state/useSignalPatterns";
 import type { FeedbackSignal, Filters, Recommendation, Stage } from "./types";
 import { isBlankProfile } from "./lib/profile";
 import { useRoute } from "./lib/router";
@@ -24,6 +27,7 @@ export default function App() {
   const [toast, setToast] = useState<ToastState | null>(null);
 
   const live = useLive(filters);
+  const signalPatterns = useSignalPatterns(live.boot.status === "ready");
 
   // Saved jobs ticked for the Compass (kept in the order ticked), and the analysis built from them.
   const [picked, setPicked] = useState<string[]>([]);
@@ -104,9 +108,11 @@ export default function App() {
     route === "discover" ? `shell--discover shell--${mobileView}`
     : route === "saved" ? `shell--saved ${panelOpen ? "shell--detail shell--with-panel" : "shell--list"}`
     : route === "compass" ? "shell--compass"
+    : route === "signals" ? "shell--signals"
     : "shell--profile";
 
   return (
+    <SignalPatternsContext.Provider value={signalPatterns}>
     <div className={`shell ${shellClass}`}>
       <SideNav route={route} savedCount={savedCount} />
 
@@ -168,6 +174,7 @@ export default function App() {
           onRerun={rerunCompass}
         />
       )}
+      {route === "signals" && <SignalsPage />}
       {route === "profile" && (
         <ProfilePage
           profile={live.profile}
@@ -180,5 +187,6 @@ export default function App() {
 
       {toast && <Toast toast={toast} onDismiss={() => setToast(null)} />}
     </div>
+    </SignalPatternsContext.Provider>
   );
 }
