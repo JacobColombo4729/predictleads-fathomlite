@@ -73,9 +73,22 @@ export default function SavedJobsPage(p: Props) {
         <header className="browse__head">
           <div>
             <h1>Saved Jobs</h1>
-            <p className="browse__sub">Your own stages and notes. Stages describe your progress, not the listing's status.</p>
+            <p className="browse__sub">Your own stages and notes. Tick the jobs that feel like you, then send them to the Compass.</p>
           </div>
-          <span className="demo-tag">Saved to your demo session</span>
+          <div className="browse__actions">
+            {rows.length > 0 && (
+              <button
+                type="button"
+                className="btn btn--primary btn--lg"
+                disabled={!canSend}
+                onClick={p.onSendToCompass}
+                title={canSend ? "Analyze the picked jobs in the Compass" : `Tick at least ${COMPASS_MIN} jobs first`}
+              >
+                Send to Compass{p.picked.length > 0 ? ` (${p.picked.length})` : ""}
+              </button>
+            )}
+            <span className="demo-tag">Saved to your demo session</span>
+          </div>
         </header>
 
         {rows.length === 0 ? (
@@ -232,8 +245,8 @@ export default function SavedJobsPage(p: Props) {
                 </span>
               </div>
               <div className="cp-row" style={{ marginTop: 0 }}>
+                <button type="button" className="btn btn--primary btn--lg" disabled={!canSend} onClick={p.onSendToCompass}>Send to Compass</button>
                 {p.picked.length > 0 && <button type="button" className="btn btn--ghost" onClick={p.onClearPicks}>Clear</button>}
-                <button type="button" className="btn btn--primary" disabled={!canSend} onClick={p.onSendToCompass}>Send to Compass</button>
               </div>
             </div>
           </>

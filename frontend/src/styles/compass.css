@@ -169,7 +169,7 @@ tr.row--picked { background: var(--accent-soft); }
 .card--picked { border-color: var(--accent); background: var(--accent-soft); }
 .card__pick { display: flex; align-items: center; gap: 8px; font-size: var(--fs-sm); color: var(--text-muted); }
 .sendbar {
-  position: sticky; bottom: var(--s3); margin: var(--s3) 0 var(--s4); display: flex; align-items: center; justify-content: space-between; gap: var(--s3); flex-wrap: wrap;
+  position: sticky; bottom: var(--s3); margin: var(--s3) 0 var(--s4); display: flex; align-items: center; justify-content: flex-start; gap: var(--s4); flex-wrap: wrap;
   background: var(--inverse-bg); color: var(--inverse-fg); border-radius: 14px; padding: 10px 14px; box-shadow: var(--shadow-pop); z-index: 4;
 }
 .sendbar__hint { font-size: var(--fs-sm); opacity: 0.8; }
@@ -198,3 +198,7 @@ tr.row--picked { background: var(--accent-soft); }
   --cp-good-ink: #0ca30c;
   --cp-grid: #2c2c2a; --cp-axis: #454542; --cp-ink-2: #c3c2b7;
 }
+
+/* Saved page header: the main action sits next to the title */
+.browse__actions { display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; justify-content: flex-end; }
+.btn--lg { height: 40px; padding: 0 var(--s4); font-weight: 650; font-size: var(--fs-md); }
