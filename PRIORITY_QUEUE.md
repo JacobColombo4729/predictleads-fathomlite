@@ -7,29 +7,19 @@
 
 ## Now
 
-- **Tomorrow (2026-10-10), Jacob:** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
-- **EDA_SDA_2 (non-text), the next notebook:**
-  - **Setup: done** (2026-10-10): 14,139 computer and mathematical listings from 6,723 companies; occupation summary saved (`data/clean/occupation_summary.pkl`, 1,008 occupations).
-  - **2b Additional cleaning: done** (2026-10-10); the staffing flags were checked in the 2b.1 review.
-  - **3.1: done** (2026-10-10): 90-day stale line kept; 666 stale, 374 likely ghosts; "possibly hard to fill" dropped (no more open to newcomers).
-  - **3.1 details:** hide, never remove: check the 90-day stale threshold against the data (closing rates past 90 days, relisting, company still posting); describe the long-open listings, measure each signal (relisted, company still posting, source, `posted` vs. `first_seen`), and combine them into a "likely ghost listing" flag.
-  - **3.2 Source:** source within company-volume bands; job-board copies of company-site listings; platform sizes. Add the domain check that refines the 60.7%.
-  - **3.3 Freshness:** the late-found tail, survival of late-found vs. prompt listings, with vs. without `posted`.
+- **Jacob (from 2026-10-10):** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
+- **EDA_SDA_2 (non-text), in progress.** Done (2026-10-10): setup and the niche cut (14,019 listings), 2b cleaning and filter fields, 3.1 ghosts and the 90-day line, 3.5 company volume and copies, 3.6 role buckets, 3.12 the compass's 2026 side. Still to write:
+  - **3.2 Source:** source within company-volume bands; job-board copies of company-site listings; platform sizes; why every open job-board listing is over 90 days old (3.1b); the domain check that refines the 60.7%.
+  - **3.3 Freshness:** the late-found tail; late-found vs. prompt listings, with vs. without `posted`; whether high-volume companies are crawled more often (3.5a's 7 vs. 39 days).
   - **3.4 Pay disclosed:** by state, hourly vs. salaried and seniority, within company-volume bands.
-  - **3.5:** 3.5a done (volume: 7 vs. 39 days, 5.5×). **Rerun 3.5b–3.5c** (copies now matched on company and clean title; source count fixed), then notes. **Was:** company volume from earlier listings in any field (bands, within source type, without staffing and ghosts); copy types (cross-posted, same-source copy, relisted) and the multi-board urgency test.
-  - **3.5 details:** split copies of the same job into cross-posted (on several boards at once: `is_crosspost`, `n_sources_so_far`) and relisted after closing (`is_relisted`), earlier copies only; test whether multi-board posting signals urgency (days open by number of sources, within platform and volume bands); use volume counted from earlier listings only (EDA_SDA_1 Q1d: 13 vs. 30 days, so the finding holds), with and without staffing agencies (2b); how strongly reposts count, and whether high volume means more competition or more openings (and more entry-level listings).
-  - **3.6 The niche by role bucket: done.** IT project managers get their own bucket and credentialed math is out of scope (2026-10-10).
-  - **3.6 details:** map `onet_code` to buckets (report unmapped codes); size each bucket with and without manager-level listings (hidden per applicant, so the niche keeps them); count career changers per bucket from `Profiles.ipynb`, all three pools, split by pool; run the depth check; keep buckets that pass on both sides (30+ career changers in all pools; retrained-only would drop data and analytics).
-  - **3.7 Blind spots:** the 2-day live tolerance, salaried part-time pay (hourly conversion assumes 2,080 hours), the seniority labels, and state from `location_data`.
+  - **3.7 Blind spots:** the 2-day live tolerance, salaried part-time pay (hourly conversion assumes 2,080 hours), the seniority labels, and state from `location_data` (also needed for the app's location filter).
   - **3.8 Join the companies table** (left join, keys checked).
-  - **3.9 Missing data:** follow the per-field plan already in the notebook; by-group missingness and `isnull().corr()`.
-  - **3.10 Outliers:** IQR and boxplots for days open, words, salary, times listed.
-  - **3.11 Hide what a career changer can't get:** manager-level listings per applicant (only for applicants without management experience), text blockers after EDA_SDA_3; report what each rule hides; accessibility checks within the niche.
-  - **3.12 The compass, 2026 side: done** (2026-10-10; growth column waits for the projections). each role's openings, pay, closing speed, entry-level share and expected growth, joined to Profiles' three path tables (prior career, training, within tech), with people counts and thin paths marked.
-  - **4 Final table:** defend each decision, apply them all at the end, save for EDA_SDA_3. **5 Conclusion.**
-- **Tell the team about the new packages:** pull, `pip install -r requirements.txt`, and on a Mac `brew install libomp`; then `python -m spacy download en_core_web_sm` (README section 4).
+  - **3.9 Missing data:** the per-field plan; by-group missingness and `isnull().corr()`.
+  - **3.10 Outliers:** IQR and boxplots for days open, words, hourly pay, times listed.
+  - **3.11 Hide what a career changer can't get:** manager-level listings per applicant, text blockers after EDA_SDA_3; report what each rule hides.
+  - **4 Final table:** defend each decision, apply them at the end, save for EDA_SDA_3. **5 Conclusion.**
 - **Data housekeeping:** delete `data/external/resume_structured/archive.zip` once you no longer want a backup (the resume data is unzipped; the notebook re-extracts from it only if the CSVs go missing), the old `data/profiles/*_v9*` files (replaced by `modeling_table.pkl` and `retrained_candidates.csv`), the old lean-table cache (`data/clean/job_openings_lean_*.pkl` without `_v2`), the whole `data/profiles/review/` folder (old round_01 files; nothing reads them), and any leftover `*_flat_*.pkl` files.
-- **Tell the team** to pull, rerun `pip install -r requirements.txt`, and switch their `.env` to `S3_PATH`.
+- **Tell the team** to pull, rerun `pip install -r requirements.txt` (and on a Mac `brew install libomp`), run `python -m spacy download en_core_web_sm`, and switch their `.env` to `S3_PATH` (README section 4).
 
 ## Next
 

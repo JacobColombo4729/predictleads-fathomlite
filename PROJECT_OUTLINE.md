@@ -65,7 +65,7 @@ The listing itself matters more than the job title: two listings in the same fie
 | Still open / apply-by | First-seen and last-seen dates (survival analysis) |
 | Freshness | Days since first seen (the crawler finds listings a median of 1.5 days after posting) |
 | Competition | Company hiring volume; reposts (times listed, days since last listed), split into relisted after closing vs. cross-posted on several boards at once |
-| Urgency (to test) | How many boards carry the same job at once (`n_sources_so_far`); EDA_SDA_2 3.5 checks it isn't just applicant-tracking software posting everywhere |
+| Urgency (not testable here) | How many boards carry the same job at once: only 13 cross-posted listings in the niche (EDA_SDA_2 3.5), so it isn't used |
 | Hiring difficulty | Listing age, repeated reposts; ghost listing vs. employer still hiring |
 | Pay | Hourly pay rate, standardized in EDA_SDA_1 6.5 (salaried pay ÷ 2,080 hours; disclosed for about 47% of listings) |
 | Employer intent | Listing text: urgency, remote, description length, evergreen wording |
