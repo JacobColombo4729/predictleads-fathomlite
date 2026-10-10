@@ -1,0 +1,1 @@
+"""Offline tests for the FastAPI demo backend."""
