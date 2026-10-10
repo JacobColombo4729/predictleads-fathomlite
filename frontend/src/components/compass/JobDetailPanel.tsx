@@ -17,13 +17,14 @@ interface Props {
   scopeJobs: CompassJob[] | null;
   onSelect: (jobId: string) => void;
   onClear: () => void;
+  onHighlight: (jobId: string | null) => void;
 }
 
 /**
  * Why a pick or suggestion fits, and where you would stretch. Every quoted line is verbatim from your profile or the
  * listing. With nothing selected it lists the jobs inside the map's scope, which change as you turn the ring.
  */
-export default function JobDetailPanel({ result, job, stretch, saved, onSave, added, onAdd, onRemove, scopeJobs, onSelect, onClear }: Props) {
+export default function JobDetailPanel({ result, job, stretch, saved, onSave, added, onAdd, onRemove, scopeJobs, onSelect, onClear, onHighlight }: Props) {
   const [meter, setMeter] = useState(0);
   useEffect(() => {
     setMeter(0);
@@ -43,7 +44,7 @@ export default function JobDetailPanel({ result, job, stretch, saved, onSave, ad
           <ul className="cp-scopelist">
             {scopeJobs.map((j) => (
               <li key={j.job.id}>
-                <button type="button" onClick={() => onSelect(j.job.id)}>
+                <button type="button" onClick={() => onSelect(j.job.id)} onMouseEnter={() => onHighlight(j.job.id)} onMouseLeave={() => onHighlight(null)} onFocus={() => onHighlight(j.job.id)} onBlur={() => onHighlight(null)}>
                   <span className="cp-scopelist__t">{j.job.title}{j.pick ? "" : <i> · suggested</i>}</span>
                   <span className="cp-scopelist__c">{[j.job.company.name, j.role].filter(Boolean).join(" · ")}</span>
                   <span className="cp-scopelist__fit">{TIER_NAME[tierOf(j.fit, stretch)]} · {j.fit}%</span>

@@ -19,7 +19,7 @@ function blurb(job: CompassJob): string {
     : "It sits close to the jobs you picked and to your profile, under a title you didn’t pick.";
 }
 
-/** Listings you did not pick that sit near your picks and your profile. Hovering a card lights its diamond on the map. */
+/** Listings you did not pick that sit near your picks and your profile. Hovering a card lights its mark on the map. */
 export default function Suggestions({ result, selectedId, onSelect, onHighlight, onAdd, savedIds, onSave }: Props) {
   const suggestions = result.jobs.filter((j) => !j.pick);
   if (suggestions.length === 0) return <p className="cp-sub">No more suggestions here. The roles you added are on the tier board above, and moving the stretch slider finds more.</p>;

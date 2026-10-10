@@ -7,10 +7,11 @@ interface Props {
   themeFilter: string;
   stretch: number;
   onSelect: (jobId: string) => void;
+  onHighlight?: (jobId: string | null) => void;
 }
 
 /** The map as a table, so nothing depends on seeing positions or colours. */
-export default function JobTable({ result, themeFilter, stretch, onSelect }: Props) {
+export default function JobTable({ result, themeFilter, stretch, onSelect, onHighlight }: Props) {
   const rows = result.jobs.filter((j: CompassJob) => themeFilter === "all" || j.themeId === themeFilter).sort((a, b) => b.fit - a.fit);
   return (
     <table className="cp-table">
@@ -19,7 +20,7 @@ export default function JobTable({ result, themeFilter, stretch, onSelect }: Pro
       </thead>
       <tbody>
         {rows.map((j) => (
-          <tr key={j.job.id} onClick={() => onSelect(j.job.id)}>
+          <tr key={j.job.id} onClick={() => onSelect(j.job.id)} onMouseEnter={() => onHighlight?.(j.job.id)} onMouseLeave={() => onHighlight?.(null)}>
             <td>{j.job.title}</td>
             <td>{j.job.company.name}<CompanyHiringBadge companyId={j.job.company.id} /></td>
             <td>{result.themes.find((t) => t.id === j.themeId)?.name}</td>

@@ -169,7 +169,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
                   </div>
                 )}
                 {table ? (
-                  <JobTable result={viewResult!} themeFilter={themeFilter} stretch={stretch} onSelect={setSelectedId} />
+                  <JobTable result={viewResult!} themeFilter={themeFilter} stretch={stretch} onSelect={setSelectedId} onHighlight={setHighlightId} />
                 ) : (
                   <CompassMap
                     result={viewResult!}
@@ -194,6 +194,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
                 scopeJobs={table ? null : scopeIds.map((id) => viewResult!.jobs.find((j) => j.job.id === id)).filter((j) => j !== undefined)}
                 onSelect={setSelectedId}
                 onClear={() => setSelectedId(null)}
+                onHighlight={setHighlightId}
               />
             </div>
           </section>
@@ -218,7 +219,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
               </div>
               {state.status === "ready" && state.updating && <p className="cp-sub" role="status">Finding roles at this stretch…</p>}
               {state.status === "ready" && state.notice && <p className="field__error" role="alert">{state.notice}</p>}
-              <TierBoard jobs={viewResult!.jobs} themeFilter={themeFilter} stretch={stretch} selectedId={selected?.job.id ?? null} onSelect={setSelectedId} addedIds={addedIds} onAdd={addRole} onRemove={removeRole} savedIds={savedIds} onSave={saveRole} />
+              <TierBoard jobs={viewResult!.jobs} themeFilter={themeFilter} stretch={stretch} selectedId={selected?.job.id ?? null} onSelect={setSelectedId} addedIds={addedIds} onAdd={addRole} onRemove={removeRole} onHighlight={setHighlightId} savedIds={savedIds} onSave={saveRole} />
             </div>
           </section>
 
