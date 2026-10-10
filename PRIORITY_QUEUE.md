@@ -9,7 +9,7 @@
 
 - **Jacob (from 2026-10-10):** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
 - **EDA_SDA_2 (non-text), in progress.** Done (2026-10-10): setup and the niche cut (14,019 listings), 2b cleaning and filter fields, 3.1 ghosts and the 90-day line, 3.2 source, 3.3 freshness and crawl timing, 3.4 pay disclosure, 3.7 blind spots and state, 3.5 company volume and copies, 3.6 role buckets, 3.8 company facts and no-country listings, 3.9 missing data, 3.12 the compass's 2026 side. Eleven charts, matching EDA_SDA_1. Still to write:
-  - **3.10 Outliers:** IQR and boxplots for days open, words, hourly pay, times listed.
+  - **3.10 Outliers:** written (IQR and log-scale fences, what the outliers are, boxplots); needs a run, then notes.
   - **3.11 Hide what a career changer can't get:** manager-level listings per applicant, text blockers after EDA_SDA_3; report what each rule hides.
   - **4 Final table:** defend each decision, apply them at the end, save for EDA_SDA_3. **5 Conclusion.**
 - **Data housekeeping:** delete `data/external/resume_structured/archive.zip` once you no longer want a backup (the resume data is unzipped; the notebook re-extracts from it only if the CSVs go missing), the old `data/profiles/*_v9*` files (replaced by `modeling_table.pkl` and `retrained_candidates.csv`), the old lean-table cache (`data/clean/job_openings_lean_*.pkl` without `_v2`), the whole `data/profiles/review/` folder (old round_01 files; nothing reads them), and any leftover `*_flat_*.pkl` files.
