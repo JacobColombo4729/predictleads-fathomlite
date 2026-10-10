@@ -9,7 +9,7 @@
 
 - **Jacob (from 2026-10-10):** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
 - **EDA_SDA_2 (non-text), in progress.** Done (2026-10-10): setup and the niche cut (14,019 listings), 2b cleaning and filter fields, 3.1 ghosts and the 90-day line, 3.2 source, 3.3 freshness and crawl timing, 3.4 pay disclosure, 3.7 blind spots and state, 3.5 company volume and copies, 3.6 role buckets, 3.12 the compass's 2026 side. Nine charts, matching EDA_SDA_1. Still to write:
-  - **3.8 Join the companies table**: written (company facts, no-country listings resolved, with a chart); needs a run, then notes.
+  - **3.8 Join the companies table**: done; rerun 3.8a–d for the without-staffing column and exact shares, then finish the notes.
   - **3.9 Missing data:** the per-field plan; by-group missingness and `isnull().corr()`.
   - **3.10 Outliers:** IQR and boxplots for days open, words, hourly pay, times listed.
   - **3.11 Hide what a career changer can't get:** manager-level listings per applicant, text blockers after EDA_SDA_3; report what each rule hides.
