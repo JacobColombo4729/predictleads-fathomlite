@@ -1,6 +1,7 @@
 import type {
-  GapAssessment,
-  GapResult,
+  GapBatchResult,
+  GapEvidence,
+  GapJobResult,
   SignalCompany,
   SignalPattern,
   SignalsOverview,
@@ -247,14 +248,16 @@ export const api = {
   },
 
   /** Compass analysis of 2-20 picked jobs against the saved profile. Local embeddings only; nothing leaves the machine. */
-  /** AI gap analysis of one job against the saved profile. Sends profile text and the job description to OpenAI when enabled. */
-  async gapAnalysis(jobId: string, snapshotId: string): Promise<GapResult> {
+  /** AI skills gap analysis for the Compass picks: ONE request to OpenAI covering every job, when the server has it enabled. */
+  async compassGapAnalysis(snapshotId: string, jobIds: string[]): Promise<GapBatchResult> {
     const current = await api.currentProfile();
     if (!current) throw new ApiError(404, "profile_not_found", "Save your profile first.");
-    const r = await request<{ assessment_state: "completed" | "unavailable"; assessment: GapAssessment | null }>(
-      "POST", `/profiles/${current.id}/jobs/${encodeURIComponent(jobId)}/assessment`, { snapshot_id: snapshotId, profile_version: current.version },
-    );
-    return r.assessment_state === "completed" && r.assessment ? { state: "completed", assessment: r.assessment } : { state: "unavailable" };
+    const r = await request<{
+      assessment_state: "completed" | "unavailable"; candidate_evidence: GapEvidence[]; jobs: Record<string, GapJobResult>; failed: number;
+    }>("POST", `/profiles/${current.id}/compass/gap-analysis`, { snapshot_id: snapshotId, profile_version: current.version, job_ids: jobIds });
+    return r.assessment_state === "completed"
+      ? { state: "completed", candidateEvidence: r.candidate_evidence, jobs: r.jobs, failed: r.failed }
+      : { state: "unavailable" };
   },
 
   async compass(profileId: string, profileVersion: number, snapshotId: string, jobIds: string[]): Promise<CompassResult> {

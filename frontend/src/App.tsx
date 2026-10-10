@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { COMPASS_MAX, COMPASS_MIN } from "./lib/compass";
 import { routeHref } from "./lib/router";
 import { useCompass } from "./state/useCompass";
+import { useGapBatch } from "./state/useGapBatch";
 import CompassPage from "./pages/CompassPage";
 import SignalsPage from "./pages/SignalsPage";
 import { SignalPatternsContext } from "./lib/signals";
@@ -31,6 +32,7 @@ export default function App() {
 
   // Saved jobs ticked for the Compass (kept in the order ticked), and the analysis built from them.
   const [picked, setPicked] = useState<string[]>([]);
+  const gapBatch = useGapBatch(live.snapshot?.id ?? null);
   const compass = useCompass({ profileId: live.profileId, profileVersion: live.profileVersion, snapshotId: live.snapshot?.id ?? null });
 
   useEffect(() => {
@@ -172,6 +174,8 @@ export default function App() {
           savedIds={new Set(Object.keys(live.tracker))}
           onSave={(job) => { live.save(job).catch(() => setToast({ message: "Could not save that job. Please try again." })); }}
           onRerun={rerunCompass}
+          gap={gapBatch}
+          snapshotReady={live.snapshot !== null}
         />
       )}
       {route === "signals" && <SignalsPage />}
@@ -181,7 +185,7 @@ export default function App() {
           edited={!isBlankProfile(live.profile)}
           recovered={false}
           onSave={live.saveProfile}
-          onReset={async () => { await live.startOver(); compass.reset(); setPicked([]); }}
+          onReset={async () => { await live.startOver(); compass.reset(); gapBatch.reset(); setPicked([]); }}
         />
       )}
 

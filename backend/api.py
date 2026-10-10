@@ -183,6 +183,13 @@ class AssessmentRequest(BaseModel):
     )
 
 
+class GapBatchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    snapshot_id: str = Field(min_length=1, max_length=80)
+    profile_version: int = Field(ge=1)
+    job_ids: list[str] = Field(min_length=1, max_length=grounded.MAX_BATCH_JOBS)
+
+
 class SavedJobCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
     job_id: str = Field(min_length=1, max_length=120)
@@ -796,6 +803,9 @@ class DisabledAssessmentProvider:
     def generate(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
         raise grounded.ProviderUnavailable("Assessment generation is disabled")
 
+    def generate_batch(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
+        raise grounded.ProviderUnavailable("Assessment generation is disabled")
+
 
 def _assessment_cache_key(
     session_hash: str,
@@ -1269,6 +1279,59 @@ def create_app(
             "ranking": {"ranker_id": ranker.ranker_id, "version": ranker.version},
             **result,
         }
+
+    @app.post("/api/v1/profiles/{profile_id}/compass/gap-analysis")
+    def compass_gap_analysis(
+        profile_id: str,
+        payload: GapBatchRequest,
+        session_hash: str = Depends(session_dependency),
+    ) -> dict[str, Any]:
+        """AI skills gap analysis for the jobs picked in the Compass: ONE provider request covering every job."""
+        jobs: JobRepository = app.state.job_repository
+        jobs.require_snapshot(payload.snapshot_id)
+        profile_row = store.get_profile(session_hash)
+        if profile_row is None or profile_row["profile_id"] != profile_id:
+            raise APIError(404, "profile_not_found", "No matching candidate profile exists in this demo session.")
+        if profile_row["version"] != payload.profile_version:
+            raise APIError(409, "profile_version_conflict", "Reload the current profile before requesting the analysis.")
+        unique_ids = list(dict.fromkeys(payload.job_ids))
+        job_data = []
+        for job_id in unique_ids:
+            record = jobs.by_id.get(job_id)
+            if record is None:
+                raise APIError(404, "job_not_found", "One of the picked jobs is not present in the requested snapshot.")
+            source = record.source
+            job_data.append({
+                "job_id": job_id,
+                "title": source.get("title_searchable") or source.get("title_raw"),
+                "description_text": source.get("description_text"),
+            })
+        candidate_data = _candidate_mapping(profile_id, json.loads(profile_row["profile_json"]))
+        content_hash = hashlib.sha256(json.dumps(
+            {"kind": "compass_batch", "candidate": candidate_data, "jobs": job_data,
+             "addendum": hashlib.sha256(grounded._BATCH_PROMPT_ADDENDUM.encode("utf-8")).hexdigest(), "max_chars": grounded.MAX_DESCRIPTION_CHARS},
+            ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+        selected_provider = app.state.assessment_provider or DisabledAssessmentProvider()
+        model_id = str(getattr(selected_provider, "model", type(selected_provider).__name__))
+        cache_key = _assessment_cache_key(session_hash, profile_id, profile_row["version"], "compass_batch", payload.snapshot_id, content_hash, model_id)
+        cached = store.get_assessment(cache_key, session_hash)
+        if cached is not None:
+            return {"assessment_state": "completed", "cache": "hit", **cached}
+        unavailable = {"assessment_state": "unavailable", "reason": "provider_disabled", "cache": "miss", "jobs": {}, "candidate_evidence": [], "failed": 0}
+        try:
+            result = grounded.explain_matches(candidate_data, job_data, provider=selected_provider)
+        except grounded.ProviderUnavailable:
+            return unavailable
+        except grounded.ProviderFailure:
+            if app.state.assessment_provider is None:
+                return unavailable
+            raise APIError(502, "provider_failed", "The AI service could not be reached or failed. Nothing was kept; try again.", retryable=True) from None
+        except grounded.ResponseValidationError:
+            raise APIError(502, "assessment_validation_failed", "The AI's answer was not in the expected form. Nothing was kept; try again.", retryable=True) from None
+        wrapped = {"profile_id": profile_id, "profile_version": profile_row["version"], "snapshot_id": payload.snapshot_id, **result}
+        if result["failed"] == 0:  # a partly failed run is not cached, so running it again retries the failed jobs
+            store.cache_assessment(cache_key, session_hash, wrapped)
+        return {"assessment_state": "completed", "cache": "miss", **wrapped}
 
     @app.get("/api/v1/feedback")
     def list_feedback(
