@@ -15,7 +15,7 @@
   - **3.2 Source:** source within company-volume bands; job-board copies of company-site listings; platform sizes. Add the domain check that refines the 60.7%.
   - **3.3 Freshness:** the late-found tail, survival of late-found vs. prompt listings, with vs. without `posted`.
   - **3.4 Pay disclosed:** by state, hourly vs. salaried and seniority, within company-volume bands.
-  - **3.5 Reposts and company volume:** recheck EDA_SDA_1's 14 vs. 32 days with volume counted from earlier listings only (the original used the whole six months, which includes the future); how strongly reposts count, and whether high volume means more competition or more openings (and more entry-level listings).
+  - **3.5 Reposts and company volume:** use volume counted from earlier listings only (EDA_SDA_1 Q1d: 13 vs. 30 days, so the finding holds), with and without staffing agencies (2b); how strongly reposts count, and whether high volume means more competition or more openings (and more entry-level listings).
   - **3.6 The niche, computer and mathematical by role bucket:** map `onet_code` to buckets (report unmapped codes); size each bucket with and without manager-level listings (hidden per applicant, so the niche keeps them); count career changers per bucket from `Profiles.ipynb`, all three pools, split by pool; run the depth check; keep buckets that pass on both sides (30+ career changers in all pools; retrained-only would drop data and analytics).
   - **3.7 Blind spots:** the 2-day live tolerance, part-time annualized pay, the seniority labels, and state from `location_data`.
   - **3.8 Join the companies table** (left join, keys checked).
@@ -60,7 +60,7 @@
   - Leakage: counts from earlier listings only; a date-picker model trained only on what was known by its date; compass counts rebuilt inside each training fold.
   - Evaluation (ROC-AUC, F1, C-index, precision@k, NDCG), SHAP, bootstrap business translation, sensitivity checks, solution report.
 - **Job growth expectations:** check the terms of use, download the official 10-year occupational projections into `data/external/`, map them to role buckets by occupation code, and convert to the time frame the team picks. Add an expected-growth column to the compass (EDA_SDA_2 3.12).
-- **Date picker (as-of date):** a helper in `src/` that returns the listings live on a date with features computed as of that date; check it on June 1 vs. August 1, 2026 (counts only). The model for a date is trained only on what was known by then; the demo can start with test-period dates.
+- **Date picker (as-of date):** a helper in `src/` that returns the listings live on a date with features computed as of that date; check it on July 1 vs. September 1, 2026 (counts only; EDA_SDA_1 8b shows dates before July are skewed young). The model for a date is trained only on what was known by then; the demo can start with test-period dates.
 - **Compass ideas** (`APPLICATION.md`): skills to build (EDA_SDA_3 skills vs. a résumé), career options and time to switch (Profiles), pay increase (2026 listing pay by occupation), expected growth, and stepping-stone roles (level at the switch in Profiles).
 - **Decide the time frames** for career options and job growth in the compass (team).
 - **O*NET (in scope, small):** check the terms of use, then download only the **Career Changers Matrix** (latest release) and the **skills** for computer and mathematical occupations plus the team's background occupations. Listings already carry O*NET codes, so they join directly.

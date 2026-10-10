@@ -34,7 +34,7 @@ Each notebook hands its final table to the next. The TripleTen course templates 
 
 | Finding | Evidence | What it means for a career changer |
 |:--|:--|:--|
-| **Company hiring volume is the strongest signal** (to recheck) | Listings at companies with 20+ openings close in a median **14 days** vs. **32** for one-off listings. Volume here counts all six months, including later listings; EDA_SDA_2 rechecks it with earlier listings only | High-volume employers' listings need action first |
+| **Company hiring volume is the strongest signal** | Listings at companies with 20+ openings close in a median **13 days** vs. **30** for one-off listings, counting only each company's earlier listings (the way the model sees it; 14 vs. 32 over the whole six months) | High-volume employers' listings need action first |
 | **The window is short** | **28%** of listings are gone within a week; the median within about **22 days** | Apply before feeling fully qualified |
 | **Source matters** | **15–19 days** (SmartRecruiters, LinkedIn, company sites) vs. **28–37** on several platforms | Source adjusts urgency |
 | **Some listing traits carry signal; keyword flags don't** | Disclosed pay, long descriptions and hiring platforms: **11–16 points** more still open after a week; urgency and remote wording: **no gap** | Model the traits; test richer NLP than keyword flags |
@@ -53,7 +53,7 @@ What separates a listing worth applying to today is mostly **the listing itself*
 - **Six months of history,** so no seasonal advice. `first_seen` follows the crawler, so day-of-week patterns need `posted` (41% of listings).
 - **We see listings appear and disappear, not hires.** Openness to career changers is what listings *ask for*, not who gets hired.
 - **The text flags are keyword rules** with likely false positives ("urgent care") until EDA_SDA_3 validates them.
-- **The six-month window misses older listings:** listings first seen before 2026-03-30 aren't in the data, so the earliest dates undercount what was open (8b), which matters for the app's date picker.
+- **The six-month window misses older listings:** listings first seen before 2026-03-30 aren't in the data, so the earliest dates undercount what was open; the app's date picker starts at July 1 (8b).
 - **High-volume posters include staffing agencies,** which can inflate company volume; EDA_SDA_2 (2b) flags them.
 
 Detailed findings: section 9. Every decision with its evidence: section 10.
@@ -260,7 +260,7 @@ Which hiring platforms, job boards or company sites host listings, and whether a
 Whether a few companies post most listings (a short watch list for an applicant), and whether listings from high-volume companies close faster or slower.
 
 **What the data shows**
-- **The strongest single signal:** listings from companies with 20+ openings stay open a median 14 days vs. 32 for one-off listings. **Descriptive only:** volume counts each company's listings over all six months, including ones posted later. *To fill in after running: the check below, with volume counted from earlier listings only (the way the model will see it), and whether the gap holds.*
+- **The strongest single signal, and it holds:** listings from companies with 20+ openings stay open a median 14 days vs. 32 for one-off listings when volume counts all six months. Counting only each company's **earlier** listings (the way the model will see it), it's **13 vs. 30**, and 13 vs. 33 among listings first seen from May, with a month or more of history. Fewer listings land in the top band that way (26% vs. 42%), since a company's early listings count as low volume.
 - **High-volume employers post 42% of all listings;** in every group the top 10% of companies post 39–60% (healthcare practitioners is the most concentrated).
 - **Watching about 300–1,100 companies per group** (those with 5+ listings) covers a large share of openings. Reposts are more common there too (3% vs. 1%).
 
@@ -334,7 +334,7 @@ Fields the project may use later: language (for an English-only corpus), status 
 - **English covers 92.3%** of listings, and `status` holds only "closed" or nothing.
 - **`contract_types` needed unifying** (6.2); its onsite, remote and hybrid labels give a second remote signal.
 - **`tags` are too sparse to use as skills** (53% empty, 7,196 values), while **`categories`** is a clean 27-value taxonomy (99% filled). Every job opening's company is in the companies table.
-- *To fill in after running (8b): live listings on the 1st of each month, and from which month the counts and listing ages level off; that's the earliest fair date for the app's date picker.*
+- **The date picker is fair from July (8b):** live listings jump from 2,459 on April 1 and 23,884 on May 1 to 32,000–40,000 from June on. Their age mix settles from July, when about half were first seen in the past 30 days (June: 66%; April: all of them). Earlier dates are skewed toward young listings because the data starts on 2026-03-30.
 
 ## 9. Findings: where to narrow down
 
@@ -342,7 +342,7 @@ Fields the project may use later: language (for an English-only corpus), status 
 
 | Factor | Evidence | Verdict |
 |---|---|---|
-| Competition: company hiring volume | 14 vs. 32 median days open (20+ openings vs. one-off); these companies post 42% of listings | **Strongest factor** (whole-window count; rechecked in EDA_SDA_2): model it first |
+| Competition: company hiring volume | 14 vs. 32 median days open over the whole six months, 13 vs. 30 counting earlier listings only (20+ openings vs. one-off); these companies post 42% of listings | **Strongest factor:** holds with earlier listings only (13 vs. 30 days, Q1d check); model it first |
 | Source | 15 (SmartRecruiters), 17 (LinkedIn), 19 (company sites) to 37 (BambooHR) median days; 66% vs. 82–89% open after a week | **Strong:** model it with company volume, since the two overlap |
 | Still open / apply-by | 28% gone in 7 days, median about 22 days; 22–34% in the first week by group | **Strong:** the basis for apply-by estimates; group-specific |
 | Employer intent (text) | Long descriptions go with longer windows (81% vs. 69% open at 7 days); urgency and remote wording show no gap | **Mixed:** test description length and richer NLP; keyword flags alone carry little |
