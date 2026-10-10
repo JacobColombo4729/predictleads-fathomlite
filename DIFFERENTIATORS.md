@@ -24,6 +24,8 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 | **5. Where and when to look** | A watch list of employers hiring at volume or posting entry-level roles, plus a check-every-N-days cadence; a date picker shows how the list changed (July vs. September 2026) | High-volume employers post 42% of listings; 300–1,100 companies per field cover most openings; every listing has first-seen and last-seen dates |
 | **6. Ideas tab** | A separate tab built on the compass, from the résumé: skills to build, career options down the line, the pay increase, expected job growth, and stepping-stone roles (to try; time frames kept vague) | Profiles (time to switch, paths, level at the switch), 2026 listing pay by role, job growth expectations |
 
+Every compass idea, with status and where it's built: [`COMPASS.md`](COMPASS.md).
+
 ## What we lead with
 
 **Angles 3 and 4 are the story (the compass leads), angle 1 is the hook.** Angle 2 is built into every view. Angle 6 (the Ideas tab) extends the compass into a personal outlook; angle 5 is a supporting feature.

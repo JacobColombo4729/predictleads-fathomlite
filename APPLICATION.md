@@ -82,6 +82,9 @@ Opens full screen on tap or click:
 
 ### Retraining compass
 
+*All compass ideas, with status and where each is built: [`COMPASS.md`](COMPASS.md).*
+
+
 - **Two uses:** changing careers (retraining into a new field) and **moving up** (training that helps someone reach senior or manager roles in their own field, for example a master's or a certification before a senior or lead role).
 - Starts from the user's **prior career**: where people from that career landed (Profiles 4a.2b).
 - For the user's background, lists the **training options** people like them took (degrees, certificates, bootcamps), grouped by field.
