@@ -10,6 +10,7 @@ Artifact paths below are workspace-relative and remain under ignored `data/`. Th
 | Original preparation slice | `data/prepared/jobs_sample_20261005T205936Z/` | 10,000 rows written; stopped at `primary_resource_limit`; not EOF. |
 | Corrected preparation validation slice | `data/prepared/jobs_sample_validation_20261005T205936Z/` | 10,000 rows written; stopped at `primary_resource_limit`; not EOF. Raw fields/order match the earlier slice; derived text/date flags reflect the corrected helper version. |
 | Full-file role exploration | `data/discovery/role_exploration/roles_corrected_20261006T000000Z/` | `run_summary.json`: 13,415,388 eligible jobs, 30,000 seeded sample, `stop_reason=eof`, `complete_file_scanned=true`, no errors/skips. Includes SQLite counts, report, title/family/occupation/pair CSVs, and prepared sample JSONL. Report was recovered offline after a report-rendering error; details are in `docs/discovery-summary.md`. |
+| Job Matching Engine baseline | `data/matching/job_matching_engine_baseline/` | Local prototype run on the saved sample: 30,000 loaded, 24,514 usable descriptions, 100 recommendations across five synthetic profiles and two methods, 99 pooled review rows. No human labels or ranking metrics. Outputs include `recommendations.csv`, `relevance_review_template.csv`, and `matching_run_summary.json`; see `docs/job-matching-engine.md`. |
 
 ## Partial, Interrupted, and Superseded Outputs
 

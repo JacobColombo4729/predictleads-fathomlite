@@ -4,13 +4,14 @@ This workspace contains data-quality discovery and reversible preparation tools 
 
 ## Product Scope
 
-The hackathon problem space is helping job seekers explore opportunities and possible career transitions. Evidence-backed skill search, location-aware discovery, compensation-transparent filtering, and the preparation schema are proposals for team review, not finalized requirements or team decisions. See [the proposal](docs/data-preparation-proposal.md). No app, skill extraction, cross-file company enrichment, embeddings, or ML/LLM matching is implemented here.
+The hackathon problem space is helping job seekers explore opportunities and possible career transitions. Evidence-backed skill search, location-aware discovery, compensation-transparent filtering, and the preparation schema are proposals for team review, not finalized requirements or team decisions. See [the proposal](docs/data-preparation-proposal.md). No application, skill extraction, cross-file company enrichment, embedding retrieval, or LLM matching is implemented here. A first local keyword/TF-IDF retrieval baseline is available in [the matching milestone](docs/job-matching-engine.md); it has not been evaluated with human relevance labels.
 
 What is implemented:
 
 - A completed full-file quality audit of jobs and companies, with saved report and summary.
 - A bounded preparation script and two validated 10,000-job development slices.
 - A completed full-file jobs role exploration, exact SQLite-backed record frequencies, and a seeded uniform 30,000-job reservoir.
+- A first local keyword/TF-IDF matching baseline with five synthetic profiles and a pooled human-review export; ranking quality is not yet evaluated.
 - Offline synthetic self-tests and reports describing data limitations.
 
 The data files themselves are local and ignored by Git. Counts are source-record frequencies, not verified unique jobs or currently open positions.
@@ -23,6 +24,10 @@ The data files themselves are local and ignored by Git. Counts are source-record
 4. [Preparation methodology](docs/data-preparation.md), then [preparation review](docs/preparation-review.md).
 5. [Preparation proposal](docs/data-preparation-proposal.md) for undecided product/data-contract questions.
 6. [Notebook entry point](notebooks/data_discovery.ipynb) for a local-only view of the saved documentation.
+7. [Job Matching Engine milestone](docs/job-matching-engine.md) for the local baseline, synthetic profiles, and human-review workflow.
+8. [Project roadmap](roadmap.md) for proposed components, decisions, and next milestones.
+9. [Retail review tool](docs/retail-review-tool.md) for the blinded local review screen and later evaluation command.
+10. Run `python -m streamlit run .\code\retail_review_app.py` from the project root to review saved retail/inventory recommendations locally.
 
 ## Directory Guide
 
