@@ -75,10 +75,10 @@ How many people the rules leave, and who they are in numbers. **Viable** means t
 One row per viable candidate, stating their **prior career**, the **field they trained in** (grouped by `TRAINING_FIELDS` in `src/career_switch.py`) and the program as written. The full table is saved to `data/profiles/` for browsing; everything printed here is aggregate except the preview in 4a.2d.
 
 **What it shows**
-- **Prior career shapes where people land.** Arts and media (52 people), humanities (44) and engineering (48) went mostly into software (about half or more of each); administration and office (89) and business (87) spread across IT support, networks and software; logistics and trades (35) went about half into networks. Overall, first tech jobs were software (33%), networks and systems (25%), IT support (16%), databases (13%), security (9%), data and analytics (3%) and quality assurance (under 1%).
+- **Prior career shapes where people land.** Arts and media (52 people), humanities (46) and engineering (46) went mostly into software (about half or more of each); business (109) and administration and office (80) spread across networks, software and IT support; logistics and trades (35) went about 40% into networks, and military and public service (26) about 40% into IT support. Overall, first tech jobs were software (33%), networks and systems (25%), IT support (16%), databases (13%), security (9%), data and analytics (3%) and quality assurance (under 1%).
 - **The biggest single paths (% of all 706 retrained people):** computer science → software (75 people, 10.6%), software and web development → software (72, 10.2%), networking → networks and systems (32, 4.5%). Information technology, the biggest field (235), spreads across every role.
 - **Only 22 of the 706 retrained people (3%) started in data and analytics,** so its share is small in every training field. People reach data mostly by moving within tech (216, 4a.3), so the compass should point career changers to a first tech role on the way to data, not only to a data course.
-- **157 people (22%) fall in "other":** their job titles matched no area, so they're the biggest row; widening the area keywords is a queued rules task. The top programs as written are all computer science or information technology and are grouped correctly.
+- **115 people (16%) fall in "other":** their job titles matched no area, so they're still the biggest row, down from 157 (22%) after widening the area keywords (4a.2e lists the remaining common titles). They stay in: they're real career changers. The top programs as written are all computer science or information technology and are grouped correctly.
 
 **What it shows**
 - **Most retrained switches are from 2010–2019 (524 of 706, 74%);** only one is dated 2020 or later. Switch dates are descriptive only and never filter anyone.
@@ -139,6 +139,6 @@ Rerun this section after any change to the rules in `src/career_switch.py`.
 
 **Limits.**
 - The rules were spot-checked on random samples (4b/4c), not every person, and the resumes were converted by OCR and an LLM.
-- 22% of retrained people have a prior career of "other" (titles that matched no area), and job levels are read from title words, so the level split is rough.
+- 16% of retrained people have a prior career of "other" (titles that matched no area), and job levels are read from title words, so the level split is rough.
 - The resumes show only people who made a switch, so the tables show where switchers went, never how likely a switch is to work.
 - The switches span two decades, so the 2026 listings supply today's openings, pay and timing.
