@@ -63,7 +63,8 @@ The listing itself matters more than the job title: two listings in the same fie
 | Career-change accessibility | Hard blockers hide a listing; softer signals raise it. Seniority (entry level); listing text: years of experience required, degree required, "or equivalent experience", entry-level and training wording, career-changer wording |
 | Still open / apply-by | First-seen and last-seen dates (survival analysis) |
 | Freshness | Days since first seen (the crawler finds listings a median of 1.5 days after posting) |
-| Competition | Company hiring volume; reposts (times listed, days since last listed) |
+| Competition | Company hiring volume; reposts (times listed, days since last listed), split into relisted after closing vs. cross-posted on several boards at once |
+| Urgency (to test) | How many boards carry the same job at once (`n_sources_so_far`); EDA_SDA_2 3.5 checks it isn't just applicant-tracking software posting everywhere |
 | Hiring difficulty | Listing age, repeated reposts; ghost listing vs. employer still hiring |
 | Pay | Hourly pay rate, standardized in EDA_SDA_1 6.5 (salaried pay ÷ 2,080 hours; disclosed for about 47% of listings) |
 | Employer intent | Listing text: urgency, remote, description length, evergreen wording |

@@ -137,7 +137,13 @@ Steps: describe the long-open listings (how many, which occupation groups and so
 
 ### 3.5 Reposts and company hiring volume
 
-- **Reposts** (a decided feature: how strongly should it count?): days open by `times_listed`; repost rate in the chosen groups; repost rate within company-volume bands, to see whether it adds anything beyond company volume.
+- **Cross-posted vs. reposted (added 2026-10-10).** EDA_SDA_1 counts every later copy of the same job (same company, title and description) as a repost, so a copy on a second board while the first is still up looks the same as a job relisted after it closed. Split them, using each listing's earlier copies only, so nothing comes from the future:
+  - **`is_crosspost`:** an earlier copy is still live when this one appears, from a different source (the platform, or "company site" or "job board" when there's no platform).
+  - **`is_relisted`:** earlier copies exist, but none is still live: the job came back after closing.
+  - **`n_sources_so_far`:** how many different sources carry the job at the moment this listing appears (1 = only here).
+  - **Hypothesis: posting on several boards signals urgency.** Test it, don't assume it: days open (Kaplan–Meier) by `n_sources_so_far` and cross-posted vs. relisted vs. single, within company-volume bands and with and without staffing agencies (2b.1). Applicant-tracking systems often send one posting to several boards automatically, so check within platform too: if the gap disappears there, it's the software, not the employer's urgency.
+  - **Check the matching:** boards sometimes reformat descriptions, so copies may not share a description fingerprint. Compare with a looser match (same company and `title_clean`, first seen within 7 days) and report how many more cross-posts it finds.
+- **Reposts** (a decided feature: how strongly should it count?): days open by `times_listed` and by relisted vs. cross-posted; repost rate in the chosen groups; repost rate within company-volume bands, to see whether it adds anything beyond company volume.
 - **Company hiring volume:** does high volume mean **more competition, or more openings to win?** Its direction in the ranking depends on the answer. Count each company's listings from before each listing only, so the future isn't used. The companies table has no company size or employee count, so listing volume is our only measure of how much a company hires.
 - **For career changers:** do high-volume employers post a larger share of entry-level listings or training wording? If so, volume also signals that a newcomer can get in.
 
