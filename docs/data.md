@@ -21,6 +21,16 @@ Daily snapshots in S3, laid out as `YYYY/MM/DD/`. We work from the **2026-09-30*
 |---|---|---|---|
 | Kaggle `suriyaganesh/resume-dataset-structured`, version 2 (2024-11-14) | `data/external/resume_structured/` | MIT | About 54,000 resumes, OCR'd and LLM-structured from public resume collections. Files are numbered (`01_people.csv` … `06_skills.csv`). Tables: `people` (never loaded: names and contact details), `experience` (title, firm, start/end MM/YYYY, location; only title and dates are loaded), `education`, `person_skills`, `skills`, `abilities`. Skills are undated. Used by `notebooks/Profiles.ipynb` |
 
+**What it gives us:** 54,933 resume records → 17,952 unique people (each resume appeared about 3 times) → 15,145 who held a computer and mathematical job → **2,554 career changers**: 1,848 moved between tech roles (sideways or up; Profiles 4a.3 splits them), 369 retrained after working in another field, 337 retrained as new grads. For each: background, training field, first tech role, the switch date and the time it took. Most switches are from 2010–2019, so the dataset supplies career paths; the 2026 listings supply openings, pay and timing.
+
+**Saved by `notebooks/Profiles.ipynb`** (git-ignored, under `data/profiles/`; rerun after any change to the rules):
+- `modeling_table.pkl` (section 5): the final Profiles table for the ML notebook. All 15,145 people who reached a computer and mathematical job, one row each: pre-switch features, the role at the switch as the label, outcome columns (never features), and the `career_changer` flag marking the 2,554 career changers that results are reported on.
+- `retrained_candidates.csv` (4a.2a): the 706 retrained career changers, for browsing locally.
+
+## External data: job growth expectations
+
+Official occupational employment projections (for example BLS's 10-year projections): expected employment change by occupation code. They join to listings and role buckets through the occupation part of `onet_code`. The time frame isn't decided yet; the 10-year rate converts to any shorter one at the same yearly rate: growth over *n* years = (1 + 10-year growth)^(*n*/10) − 1. To download into `data/external/` once the terms of use are checked.
+
 ## Fields the project depends on
 
 | Need | Fields |
@@ -36,6 +46,8 @@ Daily snapshots in S3, laid out as `YYYY/MM/DD/`. We work from the **2026-09-30*
 | Company information | Name and domain from `job_openings_included` (99.6% / 100%). Description (90%) and location (94%) from the companies table, joined on `relationships.company.data.id` = company `id`. |
 
 ## Data quirks
+
+- **What `first_seen_at` and `last_seen_at` mean:** the first and the last day PredictLeads' crawler found a listing on the web. A listing is **live on a date** if it was first seen on or before that date and last seen on or after it; **days open** = last seen − first seen. Listings last seen within 2 days of the snapshot (2026-09-30) count as still open (censored). The date picker in the app uses the same rule.
 
 - **The samples are the *first* N documents of the file, not random samples.** If the file is sorted, for example by company or date, the sample is biased. The EDA checks this (Q2b).
 - **`first_seen_at` is when PredictLeads' crawler found a posting,** not when the employer posted it. How precise it is depends on how often each company is crawled. The EDA compares it with `posted_at` where both exist (Q2c).

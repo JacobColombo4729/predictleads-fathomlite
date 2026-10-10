@@ -84,6 +84,23 @@ LAYOUTS = {
         "charts": ["# 6.1i", "# Q1a chart", "# Q1b chart", "# Q1c chart", "# Q1d charts", "# Q1e charts", "# Q1f chart",
                    "# Q1g chart", "# Q2 charts: weekday", "# Q3 chart: seniority mix"],
     },
+    "Profiles": {
+        "skip_sections": {"1.", "3.", "4b", "5."},
+        "full_text_sections": {"Job", "6."},
+        "max_bullets": 2,
+        "bullets_by_section": {"4a.3": 3},
+        "table_groups": [
+            ["Duplicate resumes", "From every resume to viable candidates"],
+            ["Data and analytics: everyone vs. the career-changer view", "Level of the job at the switch"],
+            ["Summary statistics, all viable candidates"],
+            ["Retrained career changers by path"],
+            ["Prior career → first tech job"],
+            ["Retraining compass"],
+            ["Changed roles within tech"],
+            ["Moves within tech: sideways or up, by", "Moves within tech: sideways or up, overall"],
+        ],
+        "charts": ["# 4a.1a", "# 4a.1b", "# 4a.2a", "# 4a.2b", "# 4a.2c"],
+    },
 }
 
 
