@@ -108,14 +108,29 @@ export type SearchScope = "all" | "title" | "anywhere";
 
 export type RequirementStatus = "supported" | "partial" | "unknown";
 
+export interface CompassRole {
+  name: string;
+  /** Compass heading in degrees, clockwise from north. */
+  angle: number;
+  /** Jobs on the map in this role. */
+  count: number;
+}
+
+/** Where the person's scope points, and how wide it is when each map heading faces north. */
+export interface CompassScope {
+  /** Map heading (degrees) with the most well-fitting jobs around it; the bezel opens with this facing north. */
+  heading: number;
+  /** Degrees between entries of halfWidths. */
+  step: number;
+  /** Scope half-width at map headings 0, step, 2*step, ... */
+  halfWidths: number[];
+}
+
 export interface CompassTheme {
   id: string;
   name: string;
   /** Number of picked jobs in this theme. */
   count: number;
-  /** Compass heading in degrees, clockwise from north. */
-  angle: number;
-  halfWidth: number;
   /** Mean fit (0-100) of the picks in this theme. */
   meanFit: number;
 }
@@ -154,8 +169,10 @@ export interface CompassJob {
   themeId: string;
   /** 0-100 similarity to the profile, scaled against all listings. Not a chance of being hired. */
   fit: number;
-  /** Degrees from the theme's heading. */
-  offset: number;
+  /** Role-family spoke this job sits on. */
+  role: string;
+  /** Compass heading in degrees, clockwise from north, inside its role's slice. */
+  angle: number;
   why: CompassWhy[];
   /** Requirement-group ids this pick asks for that the profile does not fully show. */
   stretch: string[];
@@ -178,6 +195,9 @@ export interface CompassResult {
   duplicatesCollapsed: number;
   themes: CompassTheme[];
   strongestThemeId: string;
+  /** Up to 12 role-family spokes around the map, evenly spaced. */
+  roles: CompassRole[];
+  scope: CompassScope;
   jobs: CompassJob[];
   requirements: CompassRequirement[];
   nextSteps: CompassStep[];

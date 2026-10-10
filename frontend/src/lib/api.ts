@@ -268,10 +268,12 @@ export const api = {
     const r = await request<{
       picks_analyzed: number;
       duplicates_collapsed: number;
-      themes: { id: string; name: string; count: number; angle: number; half_width: number; mean_fit: number }[];
+      themes: { id: string; name: string; count: number; mean_fit: number }[];
       strongest_theme_id: string;
+      roles: { name: string; angle: number; count: number }[];
+      scope: { heading: number; step: number; half_widths: number[] };
       jobs: {
-        job: ApiJob; pick: boolean; theme_id: string; fit: number; offset: number;
+        job: ApiJob; pick: boolean; theme_id: string; fit: number; role: string; angle: number;
         why: { evidence: string; source: string; requirement: string }[]; stretch?: string[]; builds?: string[];
       }[];
       requirements: {
@@ -285,10 +287,12 @@ export const api = {
     return {
       picksAnalyzed: r.picks_analyzed,
       duplicatesCollapsed: r.duplicates_collapsed,
-      themes: r.themes.map((t) => ({ id: t.id, name: t.name, count: t.count, angle: t.angle, halfWidth: t.half_width, meanFit: t.mean_fit })),
+      themes: r.themes.map((t) => ({ id: t.id, name: t.name, count: t.count, meanFit: t.mean_fit })),
       strongestThemeId: r.strongest_theme_id,
+      roles: r.roles,
+      scope: { heading: r.scope.heading, step: r.scope.step, halfWidths: r.scope.half_widths },
       jobs: r.jobs.map((j) => ({
-        job: jobFromApi(j.job), pick: j.pick, themeId: j.theme_id, fit: j.fit, offset: j.offset, why: j.why,
+        job: jobFromApi(j.job), pick: j.pick, themeId: j.theme_id, fit: j.fit, role: j.role, angle: j.angle, why: j.why,
         stretch: j.stretch ?? [], builds: j.builds ?? [],
       })),
       requirements: r.requirements.map((q) => ({

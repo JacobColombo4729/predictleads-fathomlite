@@ -13,10 +13,17 @@ interface Props {
   added: boolean;
   onAdd: (job: CompassJob) => void;
   onRemove: (jobId: string) => void;
+  /** Jobs inside the map's scope wedge, best fit first; null when the map is not showing. */
+  scopeJobs: CompassJob[] | null;
+  onSelect: (jobId: string) => void;
+  onClear: () => void;
 }
 
-/** Why a pick or suggestion fits, and where you would stretch. Every quoted line is verbatim from your profile or the listing. */
-export default function JobDetailPanel({ result, job, stretch, saved, onSave, added, onAdd, onRemove }: Props) {
+/**
+ * Why a pick or suggestion fits, and where you would stretch. Every quoted line is verbatim from your profile or the
+ * listing. With nothing selected it lists the jobs inside the map's scope, which change as you turn the ring.
+ */
+export default function JobDetailPanel({ result, job, stretch, saved, onSave, added, onAdd, onRemove, scopeJobs, onSelect, onClear }: Props) {
   const [meter, setMeter] = useState(0);
   useEffect(() => {
     setMeter(0);
@@ -25,6 +32,29 @@ export default function JobDetailPanel({ result, job, stretch, saved, onSave, ad
     return () => cancelAnimationFrame(id);
   }, [job]);
 
+  if (!job && scopeJobs) {
+    return (
+      <div className="cp-card cp-detail">
+        <div className="cp-eyebrow">In scope · {scopeJobs.length}</div>
+        <p className="cp-sub">The jobs inside the highlighted slice. Turn the ring to explore another direction.</p>
+        {scopeJobs.length === 0 ? (
+          <p className="cp-empty">Nothing faces north here. Turn the ring toward the dots.</p>
+        ) : (
+          <ul className="cp-scopelist">
+            {scopeJobs.map((j) => (
+              <li key={j.job.id}>
+                <button type="button" onClick={() => onSelect(j.job.id)}>
+                  <span className="cp-scopelist__t">{j.job.title}{j.pick ? "" : <i> · suggested</i>}</span>
+                  <span className="cp-scopelist__c">{[j.job.company.name, j.role].filter(Boolean).join(" · ")}</span>
+                  <span className="cp-scopelist__fit">{TIER_NAME[tierOf(j.fit, stretch)]} · {j.fit}%</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
+  }
   if (!job) return <div className="cp-card cp-detail"><p className="cp-empty">Select a dot to see why it fits and where you’d stretch.</p></div>;
 
   const theme = result.themes.find((t) => t.id === job.themeId);
@@ -33,6 +63,7 @@ export default function JobDetailPanel({ result, job, stretch, saved, onSave, ad
 
   return (
     <div className="cp-card cp-detail" aria-live="polite">
+      {scopeJobs && <button type="button" className="cp-back" onClick={onClear}>← Jobs in scope</button>}
       <div className="cp-eyebrow">{job.pick ? "Picked job" : added ? "Added role" : "Suggested job"}</div>
       <h3>{job.job.title}</h3>
       <p className="cp-sub">{job.job.company.name}{job.job.location ? ` · ${job.job.location}` : ""}</p>

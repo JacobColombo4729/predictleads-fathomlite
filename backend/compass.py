@@ -6,6 +6,9 @@ Given 2-20 listings a person picked, their saved profile and the stored BGE embe
 * **requirement groups**: requirement and duty sentences from the picks, clustered by meaning, with how many of
   the picks mention each group and the closest line of the person's own profile as evidence;
 * **fit** for each pick: similarity of the profile to the listing, scaled against all listings;
+* **role axes**: up to 4 axes of O*NET role families, the least alike roles facing each other; each job points
+  along its role's spoke, or between the most similar spokes when its role has none;
+* **scope**: the direction with the most well-fitting jobs, and how wide that scope is at every heading;
 * **suggestions**: listings the person did not pick that sit near the picks and the profile, diversified and
   filtered so they are not near-copies of a pick's title;
 * **next steps**: the requirement groups that appear often and are least supported.
@@ -17,6 +20,7 @@ does not say, which is unknown, not a verdict. Thresholds below are heuristics a
 
 from __future__ import annotations
 
+import itertools
 import math
 import re
 from dataclasses import dataclass
@@ -26,6 +30,7 @@ import numpy as np
 
 import bge_text
 import job_matching_engine as matching
+from role_family_classifier import FAMILY_OF_OCCUPATION
 
 # ---- heuristics (documented, tunable, unvalidated) ----
 FIT_LOW_PERCENTILE = 5.0       # a listing among the least similar 5% to the profile scores 0
@@ -50,6 +55,18 @@ NOVELTY_WEIGHT = 0.35          # how strongly a suggestion is pushed away from n
 MAX_PROFILE_UNITS = 90
 MIN_PICKS = 2
 MAX_PICKS = 20
+MAX_ROLE_POLES = 8             # 4 axes; each axis pairs two roles that sit opposite each other on the map
+ROLE_CENTROID_SAMPLE = 400     # listings per role used to place that role
+OFF_AXIS_SHARPNESS = 20.0      # how strongly a job whose role has no spoke leans towards the most similar spoke
+OTHER_ROLE = "Other roles"
+# Scope: the slice of the map the person faces. Heuristics, not validated.
+SCOPE_KAPPA = 4.0              # how sharply jobs near a heading count (von Mises kernel)
+SCOPE_WINDOW = 90.0            # jobs further than this from the heading are ignored
+SCOPE_MIN_HALF = 8.0           # narrowest scope: a tight cluster of good fits at your strongest direction
+SCOPE_MAX_HALF = 60.0          # widest scope: scattered, weak or no jobs
+SCOPE_STEP = 5                 # degrees between precomputed scope widths
+SCOPE_SUPPORT_HALF = 0.4       # fit-weighted job mass that takes the evidence term halfway to full
+SUGGESTION_SCOPE_WEIGHT = 0.6  # a suggestion counts less than a job the person picked
 
 _BOILERPLATE = re.compile(
     r"equal opportunity|\beeo\b|reasonable accommodation|background check|drug[- ]free|e-verify|salary range|base pay|"
@@ -161,6 +178,122 @@ def _occupation(source: Mapping[str, Any]) -> str | None:
     onet = source.get("onet_data")
     name = onet.get("occupation_name") if isinstance(onet, Mapping) else None
     return str(name) if name else None
+
+
+def _role_family(source: Mapping[str, Any]) -> str:
+    occupation = _occupation(source)
+    return FAMILY_OF_OCCUPATION.get(occupation, OTHER_ROLE) if occupation else OTHER_ROLE
+
+
+_role_centroid_cache: dict[tuple[int, int, int], dict[str, np.ndarray]] = {}
+
+
+def _role_centroids(backend: CompassBackend, all_jobs: Sequence[matching.JobRecord]) -> dict[str, np.ndarray]:
+    """Mean embedding of each role family across the corpus (a fixed sample per role), cached per corpus."""
+    key = (id(backend), id(all_jobs), len(all_jobs))
+    if key not in _role_centroid_cache:
+        ids_by_role: dict[str, list[str]] = {}
+        for job in all_jobs:
+            role = _role_family(job.source)
+            ids = ids_by_role.setdefault(role, [])
+            if role != OTHER_ROLE and len(ids) < ROLE_CENTROID_SAMPLE:
+                ids.append(job.job_id)
+        _role_centroid_cache[key] = {
+            role: _normalize(np.asarray(backend.job_vectors(ids), dtype=np.float32).mean(axis=0))
+            for role, ids in ids_by_role.items() if ids
+        }
+    return _role_centroid_cache[key]
+
+
+def _pairings(items: list[str]):
+    if not items:
+        yield []
+        return
+    first, rest = items[0], items[1:]
+    for k, other in enumerate(rest):
+        for tail in _pairings(rest[:k] + rest[k + 1:]):
+            yield [(first, other), *tail]
+
+
+def _pole_layout(roles: Sequence[str], centroids: Mapping[str, np.ndarray]) -> dict[str, float]:
+    """Pair roles into axes so each role faces the one least like it, then order the axes so neighbouring spokes
+    are alike. roles[0] points north. An even number of roles gives len(roles) / 2 axes."""
+    if len(roles) == 1:
+        return {roles[0]: 0.0}
+
+    def sim(a: str, b: str) -> float:
+        return float(centroids[a] @ centroids[b])
+
+    pairs = min(_pairings(list(roles)), key=lambda m: (sum(sim(a, b) for a, b in m), m))
+    best: list[str] = []
+    best_score = -math.inf
+    for rest in itertools.permutations(pairs[1:]):
+        for flips in itertools.product((False, True), repeat=len(rest)):
+            axes = [pairs[0], *[(b, a) if flip else (a, b) for (a, b), flip in zip(rest, flips)]]
+            ring = [a for a, _ in axes] + [b for _, b in axes]
+            score = sum(sim(ring[n], ring[(n + 1) % len(ring)]) for n in range(len(ring)))
+            if score > best_score:
+                best, best_score = ring, score
+    step = 360.0 / len(best)
+    north = best.index(roles[0])
+    return {role: round(((n - north) * step) % 360.0, 2) for n, role in enumerate(best)}
+
+
+def _signed_turn(degrees: float) -> float:
+    return (degrees + 180.0) % 360.0 - 180.0
+
+
+def _scope(points: Sequence[tuple[float, int, bool]]) -> dict[str, Any]:
+    """Where the person's scope points and how wide it is when each map heading faces north.
+
+    points are (angle, fit, picked). Well-fitting picks count most. The heading is the direction with the most
+    fit-weighted jobs around it, so it can fall between two role spokes. The width at a heading starts at its widest
+    and narrows toward the weighted angular spread of the jobs near it as support builds up. Support is the product of
+    how much fit-weighted evidence is there, how many jobs share it (one centred job, however good, counts half), and
+    how strong this direction is against the strongest one, so the scope is tightest on the best-fitting cluster.
+    """
+    weights = [(fit / 100.0) ** 2 * (1.0 if pick else SUGGESTION_SCOPE_WEIGHT) for _, fit, pick in points]
+
+    def kernel(offset: float) -> float:
+        return math.exp(SCOPE_KAPPA * (math.cos(math.radians(offset)) - 1.0))
+
+    def density(h: int) -> float:
+        return sum(w * kernel(a - h) for (a, _, _), w in zip(points, weights))
+
+    heading = max(range(360), key=lambda h: (density(h), -h))
+    stats: list[tuple[float, float, float, float]] = []  # (mass, spread, fit, sum of squared weights) per step
+    for h in range(0, 360, SCOPE_STEP):
+        mass = spread = fit = squares = 0.0
+        for (a, f, _), w in zip(points, weights):
+            offset = _signed_turn(a - h)
+            if abs(offset) > SCOPE_WINDOW:
+                continue
+            k = w * kernel(offset)
+            mass += k
+            spread += k * offset * offset
+            fit += k * f / 100.0
+            squares += k * k
+        stats.append((mass, spread, fit, squares))
+    peak = max((m for m, _, _, _ in stats), default=0.0)
+    half_widths: list[float] = []
+    for mass, spread, fit, squares in stats:
+        if mass < 1e-3:
+            half_widths.append(SCOPE_MAX_HALF)
+            continue
+        cluster = min(SCOPE_MAX_HALF, max(SCOPE_MIN_HALF, math.sqrt(spread / mass) * (1.4 - fit / mass)))  # better fit narrows
+        evidence = mass / (mass + SCOPE_SUPPORT_HALF)
+        sharing = 1.0 - 0.5 ** (mass * mass / squares)  # effective job count: 1 job -> 0.5, 3 -> 0.875, 6 -> 0.98
+        strength = math.sqrt(mass / peak)                # 1 at your strongest direction
+        support = evidence * sharing * strength
+        half_widths.append(round(SCOPE_MAX_HALF - (SCOPE_MAX_HALF - cluster) * support, 1))
+    return {"heading": heading, "step": SCOPE_STEP, "half_widths": half_widths}
+
+
+def _circular_mean(degrees: Sequence[float], weights: Sequence[float] | None = None) -> float:
+    w = weights if weights is not None else [1.0] * len(degrees)
+    x = sum(wi * math.sin(math.radians(d)) for d, wi in zip(degrees, w))
+    y = sum(wi * math.cos(math.radians(d)) for d, wi in zip(degrees, w))
+    return round(math.degrees(math.atan2(x, y)) % 360.0, 2)
 
 
 def _title_tokens(title: str) -> set[str]:
@@ -420,20 +553,17 @@ def analyze(
     def importance(req: Mapping[str, Any]) -> float:
         return req["n"] * (1 - req["coverage"] / 100)
 
-    # 6. themes and angles
+    # 6. themes and map directions
     labels = _choose_theme_labels(pick_vectors)
-    k = len(set(labels))
     theme_members = {t: [i for i, l in enumerate(labels) if l == t] for t in sorted(set(labels))}
     mean_fit = {t: float(np.mean([pick_fits[i] for i in idx])) for t, idx in theme_members.items()}
     ordered_themes = sorted(theme_members, key=lambda t: (-mean_fit[t], t))
-    base_angles = {1: [40], 2: [50, 230], 3: [40, 160, 280]}[k]
-    half_width = {1: 70.0, 2: 82.0, 3: 52.0}[k]
     theme_info: dict[int, dict[str, Any]] = {}
     for rank, t in enumerate(ordered_themes):
         idx = theme_members[t]
         theme_info[t] = {
             "id": f"t{rank + 1}", "name": _theme_name([distinct[i].source for i in idx]), "count": len(idx),
-            "angle": base_angles[rank], "half_width": half_width, "mean_fit": int(round(mean_fit[t])),
+            "mean_fit": int(round(mean_fit[t])),
             "centroid": _normalize(pick_vectors[idx].mean(axis=0)), "mean_vec": pick_vectors[idx].mean(axis=0),
         }
     names_seen: dict[str, int] = {}
@@ -444,22 +574,54 @@ def analyze(
             theme_info[t]["name"] = f"{name} ({names_seen[name]})"
     suggestion_theme = [int(max(theme_info, key=lambda t: float(theme_info[t]["centroid"] @ v))) for v in suggestion_vectors]
 
-    offsets: dict[str, float] = {}
-    for t in ordered_themes:
-        member_idx = theme_members[t]
-        sug_idx = [i for i, st in enumerate(suggestion_theme) if st == t]
-        mats = pick_vectors[member_idx]
-        center = theme_info[t]["mean_vec"]
-        if len(member_idx) >= 2:
+    # direction is role: up to 4 axes of opposite roles; a job sits on its role's spoke, or leans towards the most
+    # similar spokes when its role has none
+    map_keys = [("p", i) for i in range(len(distinct))] + [("s", i) for i in range(len(suggestions))]
+    map_vectors = np.vstack([pick_vectors, suggestion_vectors]) if len(suggestions) else pick_vectors
+    map_roles = [_role_family(job.source) for job in (*distinct, *suggestions)]
+    role_of = dict(zip(map_keys, map_roles))
+    centroids = _role_centroids(backend, all_jobs)
+    role_counts: dict[str, int] = {}
+    for role in map_roles:
+        role_counts[role] = role_counts.get(role, 0) + 1
+    poles = sorted((r for r in role_counts if r in centroids), key=lambda r: (-role_counts[r], r))[:MAX_ROLE_POLES]
+    if poles and len(poles) < MAX_ROLE_POLES:  # fill with the roles closest to everything on the map
+        middle = _normalize(map_vectors.mean(axis=0))
+        nearby = sorted((r for r in centroids if r not in poles), key=lambda r: (-float(centroids[r] @ middle), r))
+        poles += nearby[: MAX_ROLE_POLES - len(poles)]
+    if len(poles) > 1 and len(poles) % 2:
+        poles = poles[:-1]
+    spoke_angle = _pole_layout(poles, centroids) if poles else {OTHER_ROLE: 0.0}
+    if not poles:
+        role_of = {key: OTHER_ROLE for key in map_keys}
+    role_axes = [{"name": r, "angle": a, "count": sum(1 for x in role_of.values() if x == r)}
+                 for r, a in sorted(spoke_angle.items(), key=lambda p: p[1])]
+    slice_half = min(60.0, 180.0 / len(spoke_angle) - 3.0)
+    angles: dict[str, float] = {}
+    for role, axis_angle in spoke_angle.items():
+        on_spoke = [n for n, key in enumerate(map_keys) if role_of[key] == role]
+        if not on_spoke:
+            continue
+        mats = map_vectors[on_spoke]
+        center = mats.mean(axis=0)
+        if len(on_spoke) >= 2:
             _, _, vt = np.linalg.svd(mats - center, full_matrices=False)
-            axis = vt[0]
+            coords = [float(v) for v in (mats - center) @ vt[0]]
         else:
-            axis = np.zeros(pick_vectors.shape[1], dtype=np.float32)
-        coords = [float((pick_vectors[i] - center) @ axis) for i in member_idx] + [float((suggestion_vectors[i] - center) @ axis) for i in sug_idx]
-        spread = _spread_offsets(coords, theme_info[t]["half_width"] - 14)
-        keys = [("p", i) for i in member_idx] + [("s", i) for i in sug_idx]
-        for (kind, i), off in zip(keys, spread):
-            offsets[f"{kind}{i}"] = off
+            coords = [0.0]
+        spread = _spread_offsets(coords, slice_half, min_gap=min(8.0, slice_half / 2))
+        for n, off in zip(on_spoke, spread):
+            kind, i = map_keys[n]
+            angles[f"{kind}{i}"] = round((axis_angle + off) % 360.0, 2)
+    pole_names = list(spoke_angle)
+    for n, key in enumerate(map_keys):
+        if role_of[key] in spoke_angle:
+            continue
+        sims = np.array([float(centroids[r] @ _normalize(map_vectors[n])) for r in pole_names])
+        weights = np.exp(OFF_AXIS_SHARPNESS * (sims - sims.max()))
+        angles[f"{key[0]}{key[1]}"] = _circular_mean([spoke_angle[r] for r in pole_names], list(weights))
+    scope = _scope([(angles[f"{kind}{i}"], (pick_fits if kind == "p" else suggestion_fits)[i], kind == "p")
+                    for kind, i in map_keys])
 
     # 7. per-job explanations from sentence/profile-line matches
     unit_use: dict[int, int] = {}  # how often each profile line has already been shown, so explanations vary
@@ -496,7 +658,7 @@ def analyze(
         gaps.sort(key=importance, reverse=True)
         jobs_out.append({
             "job_id": job.job_id, "pick": True, "theme_id": theme_info[t]["id"], "fit": pick_fits[j],
-            "offset": round(offsets[f"p{j}"], 2),
+            "role": role_of[("p", j)], "angle": angles[f"p{j}"],
             "why": why_for(pick_sentence_vectors[j], pick_sentences[j]),
             "stretch": [g["id"] for g in gaps[:3]],
         })
@@ -510,7 +672,7 @@ def analyze(
             builds = [requirements[g]["id"] for g in reached[:2]]
         jobs_out.append({
             "job_id": job.job_id, "pick": False, "theme_id": theme_info[t]["id"], "fit": suggestion_fits[i],
-            "offset": round(offsets[f"s{i}"], 2),
+            "role": role_of[("s", i)], "angle": angles[f"s{i}"],
             "why": why_for(suggestion_sentence_vectors[i], suggestion_sentences[i]),
             "builds": builds,
         })
@@ -531,6 +693,8 @@ def analyze(
         "duplicates_collapsed": duplicates_collapsed,
         "themes": themes_out,
         "strongest_theme_id": themes_out[0]["id"],
+        "roles": role_axes,
+        "scope": scope,
         "jobs": jobs_out,
         "requirements": requirements,
         "next_steps": next_steps,
