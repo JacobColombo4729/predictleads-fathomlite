@@ -72,6 +72,7 @@ Some analyses are skewed by part of the table. Each analysis states which **view
 | **With a salary** | About 43% of listings | Pay level and pay comparisons | Pay is missing for the rest |
 | **Closed listings** | Not still open at the snapshot | Simple descriptive durations | Survival methods use every listing; this view is only for plain summaries |
 | **Long-open listings** | Open for a long time (threshold set in 3.1) | Ghost listings vs. desperate employers | The question only applies to them |
+| **Without likely ghosts** | Every listing except `likely_ghost` (3.1d) | Every timing result (days open, share still open, open at the snapshot) is shown both with and without them, from 3.1 on | A forgotten listing's "days open" isn't a real hiring window, so ghosts can stretch timing results; they stay in the data either way |
 | **Open to career changers** | `career_open`, or the stricter rule chosen in 3.11 | Accessibility comparisons within the niche; against other groups only through the 1c summary | Shows whether reachable listings behave differently |
 | **The niche** | The whole table after the cut in 1d: computer and mathematical listings, by role bucket (3.6) | Everything in this notebook | Focus |
 | **Other groups** | The 1c occupation summary only (aggregates; no listings) | Comparing the niche with other fields; pay in a user's current field for the compass | The listings themselves are cut |
@@ -87,6 +88,7 @@ Some factors travel together, so a raw gap can belong to something else. **Every
 | **Staffing agencies** (`is_staffing`, 2b.1) | They post at volume and repost often | Gaps shown with and without them |
 | **Role bucket and seniority** | A senior data scientist role and an IT support role close at different speeds for unrelated reasons | Within role bucket (3.6) where buckets are big enough; seniority as a split |
 | **Month first seen** | Later months have had less time to close | Survival methods (still-open listings censored); month as a split for timing gaps |
+| **Ghost listings** (`likely_ghost`, 3.1d) | Forgotten listings inflate days open and the count still open | Timing results also shown without likely ghosts |
 
 **The rule:** each factor shows the **raw gap**, then the **gap within volume band × source type**, and within role bucket where there are enough listings. A factor counts as real only if the gap holds within the groups. EDA_SDA_4 then confirms the survivors with one model that adjusts for all of these at once.
 
@@ -116,7 +118,7 @@ Some factors travel together, so a raw gap can belong to something else. **Every
 
 ## 3. Checks and analyses
 
-Record each result and the decision it leads to here, then apply it when building the final table (section 4). **Every factor test follows the confounders rule in section 2:** raw gap, then the gap within volume band × source type (and role bucket where possible); only gaps that hold count.
+Record each result and the decision it leads to here, then apply it when building the final table (section 4). **From 3.1 on, every timing result is also shown without likely ghosts** (section 2's views). **Every factor test follows the confounders rule in section 2:** raw gap, then the gap within volume band × source type (and role bucket where possible); only gaps that hold count.
 
 ### 3.1 Ghost listings vs. desperate employers
 
