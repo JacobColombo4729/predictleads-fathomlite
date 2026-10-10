@@ -52,7 +52,7 @@ Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
 | **Factors differ by field** | Remote **2–35%**, reposts **0.9–9%**, median pay **$38k–$137.5k** by occupation group | Build the model for one target field |
 | **The best-paid field is the hardest to enter** | Computer and mathematical: **9%** junior, **77%** mid/senior; sales and food preparation are junior-heavy but pay less | We target it anyway (pay, text, the team's backgrounds) and hide what a career changer can't get |
 | **How open listings are to career changers** | Entry level ranges from **3%** (management) to **70%** (food preparation); **22%** of computer and mathematical listings show any sign of openness | Becomes its own ranking factor |
-| **Real career switches exist in public resumes** | 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; almost all with readable job dates) → **2,554 career changers**: 1,848 changed roles within tech, 369 retrained after working in another field, 337 retrained as new grads from another field | Training data for role discovery and fit. A spot-check of the rules is in progress |
+| **Real career switches exist in public resumes** | 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; almost all with readable job dates) → **2,554 career changers**: 1,848 changed roles within tech, 369 retrained after working in another field, 337 retrained as new grads from another field | Training data for role discovery and fit. Rules spot-checked on random samples |
 
 The listing itself matters more than the job title: two listings in the same field can differ more than two different fields do.
 
@@ -84,7 +84,7 @@ Each notebook answers one question and hands its final table to the next. The Tr
 | 4 | **EDA_SDA_4** | Which features hold up? | Pearson + Spearman correlation, multicollinearity (VIF), hypothesis tests with effect sizes, confounding and company-clustering checks, competing risks | Planned |
 | 5 | **TimeSeries** | When do listings appear and close? | Decomposition, stationarity tests, lag features, ARIMA / SARIMA, survival by month | Planned |
 | 6 | **ML** | Which roles fit a career changer, and how should listings be ranked? | Baselines; logistic regression, random forest, LightGBM, CatBoost, XGBoost; survival and learning-to-rank models; ROC-AUC, C-index, NDCG; SHAP explanations | Planned |
-| side | **Profiles** | Who really changed into or within tech or math, and how? | Public resume dataset; duplicate removal; whole-timeline rules (`src/career_switch.py`); random spot-checks | **Built**; labels everyone, career changers are a view; spot-check in progress |
+| side | **Profiles** | Who really changed into or within tech or math, and how? | Public resume dataset; duplicate removal; whole-timeline rules (`src/career_switch.py`); random spot-checks | **Built**; labels everyone, career changers are a view; rules spot-checked |
 
 ## Key decisions so far
 
@@ -109,7 +109,7 @@ Each notebook answers one question and hands its final table to the next. The Tr
 - Six months of data rules out seasonal advice.
 - We can't see who gets hired, so we can't tell whether employers actually hire career changers. Accessibility is read from what listings *ask for*.
 - The career-change flags are keyword rules until EDA_SDA_3 validates them. Hiding listings on an unvalidated rule could hide listings a career changer could get, so rules hide nothing until they're validated.
-- The career-switch profiles aren't reviewed yet (a spot-check is in progress), and most switches are from 2010–2019 (median 2014), so the resumes teach career paths while the 2026 listings supply the market. O*NET's current Career Changers Matrix checks that the paths still hold.
+- The career-switch rules were spot-checked on random samples, not every person, and most switches are from 2010–2019 (median 2014), so the resumes teach career paths while the 2026 listings supply the market. O*NET's current Career Changers Matrix checks that the paths still hold.
 
 - Job growth figures are projections, not forecasts we make or check, and they're national, by occupation. A growing occupation doesn't mean more entry-level openings; our listings measure those.
 - The resumes only show people who made a switch, not those who tried and didn't, so paths show where switchers went, never how likely a switch is to work.
