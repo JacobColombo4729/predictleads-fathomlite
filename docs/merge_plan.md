@@ -1,6 +1,6 @@
 # Merge plan: `project_leads` (Jacob) + `predictleads-hackathon` (Jesse)
 
-**A proposal for Jesse and Jacob to confirm.** Updated 2026-10-10. Nothing is merged until we both agree on the six decisions in section 3. **Answer sheets:** Jacob's answers in [`merge_plan_jacob.md`](merge_plan_jacob.md); Jesse copies it as `merge_plan_jesse.md`, and we compare the two.
+**A proposal for Jesse and Jacob to confirm.** Updated 2026-10-10. Nothing is merged until we both agree on the six decisions in section 3.
 
 ## 1. The short version
 
