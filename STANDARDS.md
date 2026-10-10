@@ -30,7 +30,7 @@ For a given **career changer** (anyone switching from their current background t
 - Role discovery ranks the role real career changers actually moved into near the top (hit rate in the top 3 and top 5), better than a title-keyword baseline.
 - Every factor in the model is backed by a measured pattern with a confidence interval, or reported plainly as having no usable signal.
 - Findings are nuanced: factors matter differently by role, source or listing type.
-- Every ranking can be explained: each listing's score shows the factors behind it.
+- Every ranking can be explained: each listing's score shows the factors behind it, and the app's detail view breaks it down by feature (each factor's rating, its share of the score, and the top features behind the model-based ratings).
 - Claims stay within what the data measures: listings appearing and disappearing, not hires.
 
 ## Working standards

@@ -68,7 +68,12 @@ Opens full screen on tap or click:
 - **What it asks of a newcomer:** years of experience, degree or equivalent experience, licenses, training offered
 - **Transferable fit** with the skills that carry over from the user's old field, and gaps (requirements their profile doesn't show yet)
 - **Competition** signals: reposted, company hiring at volume, similar postings open
-- **Priority score** broken into the parts that make it up
+- **Rating breakdown by feature** ("why it's ranked here"), right under the title:
+  - **Each factor's rating** (chance still open, career-change accessibility, transferable fit, pay, competition, freshness, and expected growth for the role), on one 0–100 scale, with a plain-language line ("pays more than 70% of listings in this role").
+  - **How much each factor added to the priority score:** rating × the user's current weight, shown as bars that add up to the total, so moving a weight slider visibly changes the breakdown.
+  - **What drives the model-based ratings:** for chance still open and fit, the features that pushed the rating up or down the most (SHAP values, grouped under plain names such as "company hiring at volume", "posted on the employer's site", "skills that carry over"), top three each way.
+  - **Unknown is shown as unknown:** a factor the listing can't support (no pay, no description) says "not disclosed" or "not enough text" instead of a made-up rating, and the breakdown says how it was handled.
+  - Ratings are estimates from postings appearing and disappearing, never a chance of being hired.
 - The full posting text
 - **Apply** button: a link to the application portal (the posting's original URL)
 - Star, and set tracker status
@@ -154,7 +159,7 @@ The priority score ranks postings by how much an application is worth. It combin
 
 **How it's tuned:** the analysis decides which factors carry real signal and how strongly. The weights start from those findings and are checked against a newest-first baseline on a later time period. Users can adjust the weights with sliders, for example "reachability matters more to me than pay."
 
-Every score shows its parts, so a user can see why a posting ranks where it does.
+Every score shows its parts, so a user can see why a posting ranks where it does: the detail view breaks the score down by factor, and the model-based factors by their top features (section 2, detail view).
 
 ---
 
@@ -223,7 +228,7 @@ Each stage is usable on its own, so we always have something to demo.
 |---|---|---|
 | **1. MVP** | List view with live search, sort and filters; date picker; detail view with apply link; stars and Starred tab; unreachable listings hidden, with what each listing asks of a newcomer; apply-by, chance still open, pay, freshness | Still open / apply-by and the EDA's chosen factors |
 | **2. Transferable fit and role discovery** | Background profile; suggested roles; retraining compass; Ideas tab; moving across and up within tech; job growth expectations; transferable-fit score and filter; skills that carry over, and gaps | TF-IDF or local embeddings; O*NET skills; job growth expectations |
-| **3. Priority model** | Tuned priority score with adjustable weights | Full analysis |
+| **3. Priority model** | Tuned priority score with adjustable weights; the rating breakdown by feature in the detail view | Full analysis; ML_Rank's per-listing contributions |
 | **4. Agents** | MCP servers, then the agents, starting with Ranker, Coach and Reminder | Stages 1–3; the advisors' answer |
 | **5. Market panel** | Listing volume by month, with each role's expected growth | Stage 1 |
 
