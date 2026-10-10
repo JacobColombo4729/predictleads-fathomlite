@@ -190,6 +190,8 @@ Steps: describe the long-open listings (how many, which occupation groups and so
 | Days open by disclosure, within company-volume bands | The gap holds | Keep as a factor |
 | | The gap disappears | Keep only as the companion flag for pay level |
 
+**As built (2026-10-10):** state comes later (3.7, from `location_data`), so 3.4 uses role level, source, company volume and role bucket. Disclosure is compared within company-volume bands and without likely ghosts (the confounders rule).
+
 ### 3.5 Reposts and company hiring volume
 
 - **Cross-posted vs. reposted (added 2026-10-10).** EDA_SDA_1 counts every later copy of the same job (same company, title and description) as a repost, so a copy on a second board while the first is still up looks the same as a job relisted after it closed. Split them, using each listing's earlier copies only, so nothing comes from the future:
