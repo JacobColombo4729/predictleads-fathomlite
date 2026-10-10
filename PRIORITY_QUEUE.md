@@ -8,8 +8,9 @@
 ## Now
 
 - **Full dataset (decided 2026-10-10): run the stream test** from the project folder: `PL/bin/python -m src.stream_full --test 1000000` (about 20–40 minutes; needs S3 access as for EDA_SDA_1). Tell Claude the printed projections (counts, hours, GB only). Then: the full run overnight (`PL/bin/python -m src.stream_full`, resumable), move EDA_SDA_1's cleaning into `src/` so it can clean the full niche, point EDA_SDA_2 at it, and rerun EDA_SDA_2–3. Delete `data/flat/stream_test/` after the test.
-- **Jacob (from 2026-10-10):** upload the slide deck (`reports/Team update 2026-10-10.pptx`, local only, already built; it replaces the 2026-10-09 version) to Google Slides, then delete the old 2026-10-09 deck; tell the team (below). Data housekeeping done 2026-10-10 (about 50 GB free).
-- **Tell the team** to pull, rerun `pip install -r requirements.txt` (and on a Mac `brew install libomp`), run `python -m spacy download en_core_web_sm`, and switch their `.env` to `S3_PATH` (README section 4).
+- **Jacob (from 2026-10-10):** upload the slide deck (`reports/Team update 2026-10-10.pptx`, local only, already built; it replaces the 2026-10-09 version) to Google Slides, then delete the old 2026-10-09 deck; tell the team (below). Data housekeeping and laptop cleanup done 2026-10-10 (53+ GB free; raw caches removed, all flattened tables, clean tables, profiles and resume CSVs checked intact).
+- **Jacob: two quick checks after the cleanup:** confirm the venv still works (`PL/bin/python -c "import pandas, sklearn, torch"`), and turn on automatic output stripping: `pip install nbstripout`, `nbstripout --install`, pin `nbstripout` in `requirements.txt`, commit, and tell the team (below). The three notebooks show as modified only because of outputs; their code matches the last commit.
+- **Tell the team** to pull, rerun `pip install -r requirements.txt` (and on a Mac `brew install libomp`), run `python -m spacy download en_core_web_sm`, switch their `.env` to `S3_PATH` (README section 4), and run `nbstripout --install` once `nbstripout` is in `requirements.txt`.
 
 ## Next
 
@@ -71,6 +72,9 @@
 
 ## Later
 
+- **Backup:** an encrypted Time Machine backup to Jacob's removable drive when it's available, **excluding every `data/` folder** (the data stays in S3 and approved locations only).
+- **predictleads-hackathon:** its `.venv` was removed 2026-10-10 to free space; rebuild it (`python -m venv .venv && pip install -r requirements.txt`) before working there.
+
 - **Profiles is frozen** (refrozen 2026-10-10). Reopen only if needed: a pool for moving up within the same role (training, then a senior or manager role; levels are already tagged), or more prior-career keywords ("other" is 115 of 706; 4a.2e lists the common titles). Any change means a rerun, then the ML notebook reloads `modeling_table.pkl`.
 - **App:** transferable-fit stage (the career changer's background profile), priority model with adjustable weights, MCP servers, then agents (see `APPLICATION.md`).
 - **Run log:** settings, seeds and metrics for every run, in a CSV or a local MLflow store. Never listing text.
@@ -92,5 +96,5 @@
 ## Finish
 
 - **Polish all seven notebooks (EDA_SDA_1–4, TimeSeries, ML_Fit, ML_Rank) and Profiles so they read as one unit:** consistent titles, numbering, terms and formatting; each opening links back to the previous notebook's conclusion; imports at the top (course standard); no repeated code; every course-template requirement checked. EDA_SDA_1 is already trimmed, with its data loading in `src/pl_data.py`.
-- Permanently delete every copy of the data: `data/` (Parquet, pickle, zip and `.jsonl.zst` files, including `data/flat/`, `data/clean/`, `data/external/` and `data/profiles/`), `reports/`, the copy in `~/dev/predictleads-hackathon/data/`, downloads, and any S3 copies.
+- Permanently delete every copy of the data: `data/` (Parquet, pickle, zip and `.jsonl.zst` files, including `data/flat/`, `data/clean/`, `data/external/` and `data/profiles/`), `reports/`, the copy in `~/dev/predictleads-hackathon/data/`, downloads (including `~/Downloads/1_corpus_and_signals.zip` if it's still there), and any S3 copies.
 - Confirm the deletion in writing if asked.
