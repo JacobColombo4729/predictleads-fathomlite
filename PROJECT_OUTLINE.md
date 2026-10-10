@@ -84,7 +84,7 @@ Each notebook answers one question and hands its final table to the next. The Tr
 | 4 | **EDA_SDA_4** | Which features hold up? | Pearson + Spearman correlation, multicollinearity (VIF), hypothesis tests with effect sizes, confounding and company-clustering checks, competing risks | Planned |
 | 5 | **TimeSeries** | When do listings appear and close? | Decomposition, stationarity tests, lag features, ARIMA / SARIMA, survival by month | Planned |
 | 6 | **ML** | Which roles fit a career changer, and how should listings be ranked? | Baselines; logistic regression, random forest, LightGBM, CatBoost, XGBoost; survival and learning-to-rank models; ROC-AUC, C-index, NDCG; SHAP explanations | Planned |
-| side | **Profiles** | Who really changed into or within tech or math, and how? | Public resume dataset; duplicate removal; whole-timeline rules (`src/career_switch.py`); random spot-checks | **Built**; labels everyone, career changers are a view; rules spot-checked |
+| side | **Profiles** | Who really changed into or within tech or math, and how? | Public resume dataset; duplicate removal; whole-timeline rules (`src/career_switch.py`); random spot-checks | **Frozen** (2026-10-09): rules spot-checked; final tables in `data/profiles/` |
 
 ## Key decisions so far
 
