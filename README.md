@@ -64,6 +64,6 @@ All commands run from the repo root with the project `.venv`; each script's `--h
 ## Where to read more
 
 1. [STATUS.md](STATUS.md) and [roadmap.md](roadmap.md)
-2. [Discovery summary](docs/discovery-summary.md), [data preparation](docs/data-preparation.md), [preparation review](docs/preparation-review.md), [role exploration](docs/role-exploration.md), [artifact index](docs/artifact-index.md)
+2. [Discovery summary](docs/discovery-summary.md), [data preparation](docs/data-preparation.md), [preparation review](docs/preparation-review.md), [role exploration](docs/role-exploration.md), [artifact index](docs/artifact-index.md), [what the first/last-seen dates mean](docs/signal-semantics.md)
 3. [Backend API](docs/backend-api.md), [API contracts](docs/api-contracts.md), [grounded match explanations](docs/grounded-match-explanations.md), [matching engine notes](docs/job-matching-engine.md)
 4. History: [docs/archive/](docs/archive/) and [archive/experiments/](archive/experiments/README.md)
