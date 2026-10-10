@@ -4,6 +4,8 @@ export type HistoricalStatus = "listed_when_observed" | "not_in_latest_snapshot"
 
 /** Every field except `name` may be unknown in source data. */
 export interface Company {
+  /** PredictLeads company id; lets a job be matched to the hiring signals. */
+  id?: string | null;
   name: string;
   domain: string | null;
   /** Description as provided by the source data. */
@@ -178,4 +180,47 @@ export interface CompassResult {
   nextSteps: CompassStep[];
   stats: { jobs: number; themes: number; requirementGroups: number; groupsWithEvidence: number; suggestions: number; sentencesRead: number };
   limits: string[];
+}
+
+/* ---------- hiring signals ---------- */
+
+export type SignalPattern = "burst" | "sustained" | "cooling" | "quiet";
+export type SignalFamily = "ai_ml" | "data" | "technical_sales";
+
+export interface SignalEvidence { job_id: string; title: string; first_seen: string }
+
+export interface SignalCompany {
+  company_id: string;
+  name: string | null;
+  domain: string | null;
+  pattern: SignalPattern;
+  new_30: number;
+  active: number;
+  gone_30: number;
+  baseline_monthly: number | null;
+  surge_z: number | null;
+  enough_history: boolean;
+  families: Record<SignalFamily, { new_30: number; active: number }>;
+  /** New openings per week, oldest first, ending on the snapshot date. */
+  weekly: number[];
+  intent: { family: string; signal: string; meaning: string; new_30: number | null; baseline_monthly: number | null; top_tech: string[] }[];
+  evidence?: SignalEvidence[];
+  technologies?: { technology: string; new_30: number; still_observed: number }[];
+}
+
+export interface SignalsOverview {
+  snapshot: string | null;
+  companies: number;
+  pattern_counts: Record<SignalPattern, number>;
+  week_ends: string[];
+  carry_over: { pattern: SignalPattern; companies: number; next_as_share_of_this_month: number; share_still_hiring_next_month: number }[];
+}
+
+export interface SignalsQuery {
+  pattern: SignalPattern | null;
+  family: SignalFamily | null;
+  q: string;
+  sort: "new_30" | "active" | "surge_z";
+  limit: number;
+  offset: number;
 }
