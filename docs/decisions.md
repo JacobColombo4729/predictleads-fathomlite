@@ -117,3 +117,5 @@ Every project decision, with its reasoning. Newest at the bottom. Record team de
 | | Final prioritization factors | | TBD in EDA_SDA_4 |
 | | Tool for processing the full job openings file | | TBD |
 | | Virtual environment name: README says `.venv`, Jacob uses `PL` | Consistent setup across the team | TBD |
+| 2026-10-10 | No-country listings (EDA_SDA_2 3.8): keep if the company is US-based (1,337) or the listing is remote (80), flagged `country_inferred`; the other 132 are dropped in section 4 | The company's location settles most cases; the rest close on first sight with no description, so they look like crawl stubs | Adopted |
+| 2026-10-10 | Company facts joined (`is_public`, `has_parent`, `n_subsidiaries`, `company_country`); company type added to the confounders | At 20+ listings, public companies' listings stay open 20 days vs. 6 for others, so the volume effect depends on company type | Adopted; EDA_SDA_4 tests volume × company type |
