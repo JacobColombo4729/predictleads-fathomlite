@@ -36,7 +36,7 @@ Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
 
 - **Source:** PredictLeads job openings and companies datasets, snapshot of 2026-09-30.
 - **Analyzed so far:** 200,000 job listings from 51,006 companies, first seen 2026-03-30 to 2026-09-30.
-- **Analysis table after cleaning and scoping:** 182,367 English-language listings from 46,810 companies, April–September 2026 (US, plus flagged listings with no country); 41,825 still open at the snapshot.
+- **Analysis table after cleaning and scoping:** 184,889 English-language listings from 47,252 companies, April–September 2026 plus the data's first two days in late March, flagged `partial_month` (US, plus flagged listings with no country); 41,984 still open at the snapshot.
 - **Career switches:** the public Kaggle structured resume dataset (MIT license): 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; almost all with readable job dates) → **2,554 career changers**: 1,848 changed roles within tech, 369 retrained after working in another field, 337 retrained as new grads from another field. Career paths from real switches spanning two decades; the 2026 listings supply today's openings, pay and timing. Built in `notebooks/Profiles.ipynb`.
 - **Job growth expectations:** expected employment growth by occupation, from official occupational projections (time frame to be decided). They're published by occupation code, so they plug straight into the O*NET codes on listings and role buckets.
 - **Data handling:** stays local; nothing is shared with outside AI services; only aggregates are reported.
