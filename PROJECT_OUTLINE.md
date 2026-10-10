@@ -46,7 +46,7 @@ Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
 
 | Finding | Evidence | What it means for a career changer |
 |:--|:--|:--|
-| **Company hiring volume is the strongest signal** | Listings at companies with 20+ openings close in a median **13 days**, vs. **30** for one-off listings, counting only each company's earlier listings (the way the model sees it; 14 vs. 32 over the whole six months) | Listings from high-volume employers need fast action |
+| **Company hiring volume is the strongest signal** | Listings at companies with 20+ openings close in a median **13 days**, vs. **30** for one-off listings, counting only each company's earlier listings (the way the model sees it; 14 vs. 32 over the whole six months) Part of it is crawl timing: busy companies are crawled more often, and like-for-like (listings with an employer posting date, EDA_SDA_2 3.3) the gap is about 1.4–1.5× | Listings from high-volume employers need fast action |
 | **The application window is short** | **28%** of listings are gone within a week; the median within about **22 days** | "Still open / apply-by" is a core factor |
 | **Source matters** | Company sites and LinkedIn: **17–19 days**; several hiring platforms: **28–37 days** | Source adjusts urgency |
 | **Some listing traits carry signal; keyword flags don't** | Disclosed pay, long descriptions and hiring platforms: 11–16 points more still open after a week; urgency and remote wording: no gap | Model the traits; test richer NLP |

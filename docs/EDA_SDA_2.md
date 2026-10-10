@@ -174,6 +174,13 @@ Steps: describe the long-open listings (how many, which occupation groups and so
 
 **Also (added 2026-10-10): are high-volume companies crawled more often?** The crawler's visit times aren't in the data, so crawler lag (posting date → first seen) stands in for crawl frequency, and the company-volume effect from 3.5a (7 vs. 39 days) is re-measured from the employer's posting date. If it shrinks a lot, part of it was crawl timing.
 
+**What the data shows**
+- **The crawler is quick:** a median 1.5 days from the employer's posting date to first seen; 85% of listings are found within a week, 3% more than 30 days late. Hiring platforms are found fastest (1.0 days), job boards slowest (3.1).
+- **Busy companies are found faster:** on company sites the median lag is 4.4 days for a company's first listing vs. 1.3 days for companies with 20+ earlier listings, so the crawler likely visits busy companies more often.
+- **The company-volume effect is real but much smaller like-for-like.** Among listings with a posting date, a company's first listing stays open 26.0 days from first seen (31.5 from the posting date) vs. 17.3 (21.8) for companies with 20+: about **1.4–1.5×**, not the 5.5× in 3.5a. The large gap comes mostly from listings without a posting date (largely company career sites), where crawl timing likely plays a bigger part. **Busy employers do fill faster, by roughly a third, not five times.**
+- **Late-found listings had been up a while:** listings found 7+ days after posting stay open 46 days counted from the posting date (26 from first seen), vs. 22 for listings found within a day.
+- The chart (3.3e) shows the curves for both measurements; each median is where a curve crosses the dashed 50% line.
+
 ### 3.4 Pay disclosed
 
 | Check | If the result is… | Then… |
@@ -199,7 +206,7 @@ Steps: describe the long-open listings (how many, which occupation groups and so
 **What the data shows**
 - **Company hiring volume is the strongest signal in the niche:** listings from companies with 20+ earlier listings (any field) close in a median **7.1 days** vs. **38.9** for a company's first listing, about 5.5× (EDA_SDA_1 found 2.3× across all fields). It holds without staffing agencies (7.1 vs. 39.0) and without likely ghosts (7.1 vs. 33.8), and within every source type: company sites 6.1 vs. 48.1 days, hiring platforms 18.2 vs. 42.1; job boards show a weaker gap (12.0 vs. 16.5).
 - **Big employers aren't more open to newcomers:** 8–11% of listings are entry level in every volume band, so volume is about speed, not access.
-- **To check in 3.3:** companies with many listings may be crawled more often, which would shorten the windows we observe for them.
+- **Checked in 3.3:** busy companies are crawled more often, and like-for-like (listings with a posting date) the gap shrinks to about 1.4–1.5×: the volume effect is real, but much of the 5.5× is crawl timing.
 - **Copies of the same job are rare, and cross-posts almost absent:** of 14,019 listings, 13 are cross-posted (another source had the job live), 407 are same-source copies (most likely the same job in another city) and 345 are relisted; the rest are single. PredictLeads probably records one source per job, so **the multi-board urgency idea can't be tested with this data**: 13 listings are too few, even though they close faster (14 vs. 24 days).
 - **"Relisted" copies close in a median 3.5 days,** far faster than anything else. That looks like the crawler seeing the same posting refreshed (a new id), not a new hiring round; repost features (`times_listed` and the rest) should be read with that in mind, and EDA_SDA_4 tests whether they carry real signal.
 

@@ -35,7 +35,7 @@ Each notebook hands its final table to the next. The TripleTen course templates 
 
 | Finding | Evidence | What it means for a career changer |
 |:--|:--|:--|
-| **Company hiring volume is the strongest signal** | Listings at companies with 20+ openings close in a median **13 days** vs. **30** for one-off listings, counting only each company's earlier listings (the way the model sees it; 14 vs. 32 over the whole six months) | High-volume employers' listings need action first |
+| **Company hiring volume is the strongest signal** | Listings at companies with 20+ openings close in a median **13 days** vs. **30** for one-off listings, counting only each company's earlier listings (the way the model sees it; 14 vs. 32 over the whole six months). Part of the gap is crawl timing: like-for-like, measured from the employer's posting date, it's about 1.4–1.5× (EDA_SDA_2 3.3) | High-volume employers' listings need action first |
 | **The window is short** | **28%** of listings are gone within a week; the median within about **22 days** | Apply before feeling fully qualified |
 | **Source matters** | **15–19 days** (SmartRecruiters, LinkedIn, company sites) vs. **28–37** on several platforms | Source adjusts urgency |
 | **Some listing traits carry signal; keyword flags don't** | Disclosed pay, long descriptions and hiring platforms: **11–16 points** more still open after a week; urgency and remote wording: **no gap** | Model the traits; test richer NLP than keyword flags |
@@ -55,7 +55,7 @@ What separates a listing worth applying to today is mostly **the listing itself*
 - **We see listings appear and disappear, not hires.** Openness to career changers is what listings *ask for*, not who gets hired.
 - **The text flags are keyword rules** with likely false positives ("urgent care") until EDA_SDA_3 validates them.
 - **The six-month window misses older listings:** listings first seen before 2026-03-30 aren't in the data, so the earliest dates undercount what was open; the app's date picker starts at July 1 (8b).
-- **The gaps here are descriptive, not significance tests.** Kaplan–Meier medians and shares show how big each gap is; whether it's statistically significant is tested in **EDA_SDA_4, section 5**: Mann–Whitney (Wilcoxon rank-sum) for skewed measures, log-rank for survival curves, with effect sizes and Benjamini–Hochberg correction.
+- **The gaps here are descriptive, not significance tests.** Kaplan–Meier medians and shares show how big each gap is; whether it's statistically significant is tested in **EDA_SDA_4, section 5** (Q1d's chart shows one preview: a Gehan–Wilcoxon test, the survival version of the Wilcoxon test, since days open is censored): Mann–Whitney (Wilcoxon rank-sum) for skewed measures, log-rank for survival curves, with effect sizes and Benjamini–Hochberg correction.
 - **High-volume posters include staffing agencies,** which can inflate company volume; EDA_SDA_2 (2b) flags them.
 
 Detailed findings: section 9. Every decision with its evidence: section 10.
