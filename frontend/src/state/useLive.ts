@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { FeedbackSignal, Filters, Job, Profile, Recommendation, Stage, Tracker, TrackedJob } from "../types";
+import type { FeedbackSignal, Filters, Job, Profile, Recommendation, SearchScope, Stage, Tracker, TrackedJob } from "../types";
 import { api, ApiError } from "../lib/api";
 import { blankProfile, isBlankProfile } from "../lib/profile";
 
@@ -22,6 +22,7 @@ export function useLive(filters: Filters) {
   const [recsLoading, setRecsLoading] = useState(false);
   const [recsError, setRecsError] = useState<string | null>(null);
   const [ranker, setRanker] = useState<string>("");
+  const [searchScope, setSearchScope] = useState<SearchScope>("all");
   const [feedbackApplied, setFeedbackApplied] = useState(false);
   const [ratings, setRatings] = useState<Record<string, FeedbackSignal>>({});
 
@@ -85,6 +86,7 @@ export function useLive(filters: Filters) {
         if (mine !== requestId.current) return; // a newer request superseded this one
         setRecs(result.items);
         setRanker(result.ranker);
+        setSearchScope(result.searchScope);
         setFeedbackApplied(result.feedback.applied);
       } catch (e) {
         if (mine !== requestId.current) return;
@@ -200,8 +202,8 @@ export function useLive(filters: Filters) {
   }, [ratings]);
 
   return {
-    boot, retry: bootstrap, snapshot, profile, saveProfile, startOver, profileReady: profileId !== null,
-    recs, recsLoading, recsError, ranker, feedbackApplied, refresh,
+    boot, retry: bootstrap, snapshot, profile, saveProfile, startOver, profileReady: profileId !== null, profileId, profileVersion,
+    recs, recsLoading, recsError, ranker, searchScope, feedbackApplied, refresh,
     ratings, ratingCounts: counts, rate, unrate, clearRatings,
     tracker, all, save, remove, restore, update,
     isApiError: (e: unknown): e is ApiError => e instanceof ApiError,
