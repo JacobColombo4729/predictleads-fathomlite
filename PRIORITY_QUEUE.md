@@ -8,10 +8,11 @@
 ## Now
 
 - **Tomorrow (2026-10-10), Jacob:** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
+- **Rerun EDA_SDA_1 (late March kept):** the final table grows to about 184,889 listings, with late March flagged `partial_month`. Rerun from the top, then Claude updates every quoted count (182,367 and its company and still-open counts) in the notebook, the docs and the deck.
 - **EDA_SDA_2 (non-text), the next notebook:**
-  - **Setup:** load EDA_SDA_1's final table (182,367 listings).
+  - **Setup:** load EDA_SDA_1's final table (about 184,889 listings, late March flagged `partial_month`).
   - **2b Additional cleaning (code written, needs a run):** staffing agencies, date consistency, internships and temporary roles, title normalization, multi-location listings. Fix or flag, never drop; counts per step. Check the 2b.1 review cell's flagged companies locally.
-  - **3.1 Ghost listings vs. struggling employers:** describe the long-open listings, measure each signal (relisted, company still posting, source, `posted` vs. `first_seen`), and combine them into a "likely ghost listing" flag.
+  - **3.1 Ghost listings vs. struggling employers:** hide, never remove: check the 90-day "hide as stale" threshold against the data (closing rates past 90 days, relisting, company still posting); describe the long-open listings, measure each signal (relisted, company still posting, source, `posted` vs. `first_seen`), and combine them into a "likely ghost listing" flag.
   - **3.2 Source:** source within company-volume bands; job-board copies of company-site listings; platform sizes. Add the domain check that refines the 60.7%.
   - **3.3 Freshness:** the late-found tail, survival of late-found vs. prompt listings, with vs. without `posted`.
   - **3.4 Pay disclosed:** by state, hourly vs. salaried and seniority, within company-volume bands.

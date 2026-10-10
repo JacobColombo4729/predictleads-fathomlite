@@ -4,7 +4,7 @@
 
 PredictLeads × TripleTen externship · Jacob Colombo
 
-## 0. Purpose
+## Purpose
 
 `EDA_SDA_1.ipynb` explored the data, defended the scope decisions, and built its final table (sections 10 and 11). This notebook does the **non-text** in-depth analysis: it checks the factors kept for now, separates ghost listings from desperate employers, analyzes each time scale, narrows the target, **computer and mathematical**, to the listings a career changer can get, splits it into **role buckets** aligned with the career-switch profiles (our niche), pairs it with the team's backgrounds, and builds **its own final table**. The NLP work comes next, in `EDA_SDA_3.ipynb`; statistics in `EDA_SDA_4.ipynb`; then the `TimeSeries` and `ML` notebooks.
 
@@ -102,7 +102,9 @@ A long-open listing may be a **ghost listing** (forgotten or no longer monitored
 | `posted` vs. `first_seen` | Recently refreshed | Very old posting date |
 | `last_processed_at` (meaning to confirm with PredictLeads) | May record content changes | |
 
-Steps: describe the long-open listings (how many, which occupation groups and sources); measure each signal; combine them into a **"likely ghost listing" flag**; decide whether to filter, rank lower, or show the flag in the app. Evergreen wording ("always accepting applications") is added in EDA_SDA_3.
+**Decided (2026-10-10): hide, never remove.** Listings older than **90 days** on the date being viewed are hidden in the app (a note says how many, and why); every listing stays in the analysis and the model, with still-open listings censored as usual. Age on a date is known at that moment, so hiding by it uses no future information. Removing listings by how long they *ended up* open would bias the timing model (it would never see a long window) and throw away struggling employers, who may be the most open to a career changer.
+
+Steps: describe the long-open listings (how many, which occupation groups and sources); **check the 90-day threshold** (do closing rates level off past 90 days? are those listings relisted, or did their company stop posting?) and keep it or adjust it with that evidence; measure each signal; combine them into a **"likely ghost listing" flag**, used to rank lower or label, never to remove. Only listings first seen before July can reach 90 days in this six-month window. Evergreen wording ("always accepting applications") is added in EDA_SDA_3.
 
 ### 3.2 Source / platform
 

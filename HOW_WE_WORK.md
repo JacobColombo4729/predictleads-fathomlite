@@ -37,6 +37,7 @@ For a given **career changer** (anyone switching from their current background t
 - **Course baseline:** the TripleTen course templates set the structure and methods for every notebook (intro, clarifying questions, a comment after every chart, documented decisions, baselines, train/validation/test used once, a conclusion). Every applicable course method is used, then taken further.
 - **Reasoning for every decision,** recorded where the decision is made and in `docs/decisions.md`.
 - **Fix data quality as we go; apply scope filters at the end.** Cleaning fixes broken values. Scope decisions are defended first, then applied all at once in a final-filters section.
+- **Hide, never remove.** Listings that are stale (more than 90 days old on the date viewed), likely ghosts, or out of a user's reach are hidden in the app, with a count and a reason, and stay in the analysis and the model. Never drop listings by how long they ended up open: that uses the future and biases the timing model.
 - **Each analysis states its view of the table** (for example, originals only for counts; listings with `posted` for day of week) to avoid skew.
 - **Each notebook hands a final table to the next,** saved under `data/clean/`.
 - **Shared code lives in `src/`** (`eda_helpers.py`, `pl_data.py`, `career_switch.py`, `export_markdown.py`), not copied between notebooks.
@@ -68,7 +69,7 @@ For a given **career changer** (anyone switching from their current background t
 ## Scope
 
 - **Applicant side only.** "Best time to post" for employers would need hiring outcomes we don't have.
-- **English-language listings in the United States, first seen April–September 2026** (decisions and reasons in `docs/decisions.md`).
+- **English-language listings in the United States, first seen April–September 2026,** plus the data's first two days (2026-03-30 and 31), kept and flagged `partial_month` (decisions and reasons in `docs/decisions.md`).
 - **Applicants are career changers:** anyone switching from their current background to a different role or field. Source backgrounds are the team's own. Listings a career changer can't get are hidden; the model weighs everything else.
 - **Target: computer and mathematical (US).** EDA_SDA_2 splits it into role buckets shared with the career-switch profiles (not one role, since role discovery needs several), keeping buckets with enough data on both sides once unreachable listings are hidden.
 - **Transferable fit and role discovery** learn from real career switches in a public resume dataset (`notebooks/Profiles.ipynb`: 2,554 career changers: 706 who retrained from another field and 1,848 who moved between tech roles, sideways or up; rules spot-checked). Volunteer profiles, collected with consent once the advisor approves, are a recent test set. Approach: [`docs/fit_analysis.md`](docs/fit_analysis.md).

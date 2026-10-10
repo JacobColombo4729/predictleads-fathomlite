@@ -90,7 +90,7 @@ Each notebook answers one question and hands its final table to the next. The Tr
 
 - **Focus: career changers** (part of the project description): anyone switching from their current background to a different role or field. Every factor, segment and model choice is judged by what it means for someone switching fields.
 - **Career-change accessibility is its own factor,** read from seniority and listing text. It's known when a listing appears, so it's safe to model.
-- **Scope:** English-language listings in the United States, first seen April–September 2026 (only six months of history, so no seasonal claims).
+- **Scope:** English-language listings in the United States, first seen April–September 2026 (only six months of history, so no seasonal claims). The data's first two days, in late March, are kept and flagged `partial_month` rather than removed.
 - **No early filtering:** data-quality problems are fixed during cleaning; scope filters are applied only at the end, after each is defended.
 - **Long-open listings are kept:** they may be ghost listings *or* employers struggling to hire. Part 2 tells them apart instead of assuming.
 - **Reposts are a feature, not noise:** a job posted again and again may be hard to fill.
