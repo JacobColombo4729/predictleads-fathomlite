@@ -25,7 +25,7 @@ RULES = {
     # Target roles: computer and mathematical (O*NET 15-xxxx), grouped into buckets for role discovery.
     # The first bucket that matches a title wins, so order matters.
     "cm_buckets": {
-        # Added 2026-10-10: IT project managers are 13% of the niche's listings (O*NET 15-1299.09). A plain
+        # Added 2026-10-10: IT project managers are 13% of the scope's listings (O*NET 15-1299.09). A plain
         # "project manager" with no tech word isn't matched, since it could be any field.
         "it project management": r"\b(?:it|i\.t\.|technical|technology|software|systems?|infrastructure|erp|digital|data|cloud"
                                  r"|application|web) (?:project|program|delivery) manager\b|\btechnical program manager\b"

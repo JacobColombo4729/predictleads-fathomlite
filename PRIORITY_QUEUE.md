@@ -7,7 +7,7 @@
 
 ## Now
 
-- **Full dataset (decided 2026-10-10): run the stream test** from the project folder: `PL/bin/python -m src.stream_full --test 1000000` (about 20–40 minutes; needs S3 access as for EDA_SDA_1). Tell Claude the printed projections (counts, hours, GB only). Then: the full run overnight (`PL/bin/python -m src.stream_full`, resumable), move EDA_SDA_1's cleaning into `src/` so it can clean the full niche, point EDA_SDA_2 at it, and rerun EDA_SDA_2–3. Delete `data/flat/stream_test/` after the test.
+- **Full dataset (decided 2026-10-10): run the stream test** from the project folder: `PL/bin/python -m src.stream_full --test 1000000` (about 20–40 minutes; needs S3 access as for EDA_SDA_1). Tell Claude the printed projections (counts, hours, GB only). Then: the full run overnight (`PL/bin/python -m src.stream_full`, resumable), move EDA_SDA_1's cleaning into `src/` so it can clean the full scope, point EDA_SDA_2 at it, and rerun EDA_SDA_2–3. Delete `data/flat/stream_test/` after the test.
 - **Jacob (from 2026-10-10):** upload the slide deck (`reports/Team update 2026-10-10.pptx`, local only, already built; it replaces the 2026-10-09 version) to Google Slides, then delete the old 2026-10-09 deck; tell the team (below). Data housekeeping and laptop cleanup done 2026-10-10 (53+ GB free; raw caches removed, all flattened tables, clean tables, profiles and resume CSVs checked intact).
 - **Jacob: two quick checks after the cleanup:** confirm the venv still works (`PL/bin/python -c "import pandas, sklearn, torch"`), and turn on automatic output stripping: `pip install nbstripout`, `nbstripout --install`, pin `nbstripout` in `requirements.txt`, commit, and tell the team (below). The three notebooks show as modified only because of outputs; their code matches the last commit.
 - **Tell the team** to pull, rerun `pip install -r requirements.txt` (and on a Mac `brew install libomp`), run `python -m spacy download en_core_web_sm`, switch their `.env` to `S3_PATH` (README section 4), and run `nbstripout --install` once `nbstripout` is in `requirements.txt`.
@@ -20,7 +20,7 @@
   - Validate the keyword flags: a teammate checks a random sample of matches locally (career-change flags, `urgency`, `mentions_remote`); precision and recall against EDA_SDA_1's rules.
   - Hard-blocker rules per role bucket (years-asked threshold, required credentials), hidden in the app with a count of what each hides. The "asks 5+ years" preview would hide 31% of open listings (EDA_SDA_2 3.11): check required vs. preferred and the year counts first. The degree flag fires on only 3–6% of listings: widen and validate its pattern ("Bachelor's in …") before any degree rule.
   - Evergreen wording (feeds the ghost-listing flag), required vs. preferred qualifications, **skills mapped to O*NET** (the input to `ML_Fit`'s skills-based matching).
-  - Save the niche table with text features for EDA_SDA_4 and `ML_Fit`.
+  - Save the scope table with text features for EDA_SDA_4 and `ML_Fit`.
 - **EDA_SDA_4 (statistics):**
   - Descriptive statistics by group; Pearson + Spearman, Cramér's V, point-biserial; VIF.
   - Group interactions, including by role bucket, and checks for confounding (Simpson's paradox).

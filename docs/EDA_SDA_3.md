@@ -6,19 +6,19 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 ## 0. Purpose
 
-**What do the listing descriptions say?** This notebook turns the description text of EDA_SDA_2's niche listings into **features**, and validates the text rules that hide listings, so `EDA_SDA_4` can test every feature (text included) and the app can hide what a career changer can't get. **It builds no matching models:** résumé-to-listing fit (keyword overlap, TF-IDF, BGE embeddings, RRF) is in `ML_Fit`, which uses this notebook's cleaned text and skills. A text feature is kept only if it adds information beyond the non-text features.
+**What do the listing descriptions say?** This notebook turns the description text of EDA_SDA_2's scope listings into **features**, and validates the text rules that hide listings, so `EDA_SDA_4` can test every feature (text included) and the app can hide what a career changer can't get. **It builds no matching models:** résumé-to-listing fit (keyword overlap, TF-IDF, BGE embeddings, RRF) is in `ML_Fit`, which uses this notebook's cleaned text and skills. A text feature is kept only if it adds information beyond the non-text features.
 
 **For career changers,** the most important text features are what a listing asks of a newcomer (experience, education, licenses, training) and which of its skills carry over from other fields.
 
-**Inputs:** EDA_SDA_2's niche table, plus the description text for those listings, loaded from the saved flattened parts (EDA_SDA_1's table keeps only description features, to fit in memory).
+**Inputs:** EDA_SDA_2's scope table, plus the description text for those listings, loaded from the saved flattened parts (EDA_SDA_1's table keeps only description features, to fit in memory).
 
 **The series** (each notebook hands its final table to the next):
 
 | Notebook | Question | Hands off |
 |:--|:--|:--|
 | EDA_SDA_1 | What's in the data, and what's the scope? | Final table 1 |
-| EDA_SDA_2 | Which listings do we study? The niche cut, additional cleaning, non-text checks, ghost listings | Niche table, non-text features, occupation summary |
-| EDA_SDA_3 | What do the descriptions say? Text features, validated blockers, skills mapped to O*NET (no matching models) | Niche table + text features |
+| EDA_SDA_2 | Which listings do we study? The scope cut, additional cleaning, non-text checks, ghost listings | Scope table, non-text features, occupation summary |
+| EDA_SDA_3 | What do the descriptions say? Text features, validated blockers, skills mapped to O*NET (no matching models) | Scope table + text features |
 | EDA_SDA_4 | Which features hold up? Statistics, confounders, the adjusted Cox check | Modeling-ready table |
 | TimeSeries | When do listings appear and close? | Timing features |
 | ML_Fit | Which roles and listings fit a career changer? Keyword → TF-IDF → BGE → RRF, skills-based matching, a trained layer on real career moves | Fit scores, role discovery, the compass |
@@ -26,7 +26,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 **Standard:** the TripleTen course templates are the baseline (structure, methods, reporting). Every applicable course method is used, and taken further with more advanced techniques where the data calls for them.
 
-**View:** listings with a description (77% of the niche; EDA_SDA_2 3.9). Text features are **unknown** for the rest, never "no", and "has a description" stays a standard confounder: listings without one close in about 3 days.
+**View:** listings with a description (77% of the scope; EDA_SDA_2 3.9). Text features are **unknown** for the rest, never "no", and "has a description" stays a standard confounder: listings without one close in about 3 days.
 
 **Data rules:** aggregates only; never print descriptions, titles or sample rows, except in cells tagged `data-rows` (review cells for a teammate to check locally; cleared before every commit). Text stays local: no listing text goes to outside AI services. Clear outputs before committing.
 
@@ -40,7 +40,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 ### Roadmap
 
-1. **Setup:** the niche table and its description text
+1. **Setup:** the scope table and its description text
 2. **Description cleanup:** HTML to structured text, boilerplate removal, normalization and lemmas
 3. **The blocker rules:** years of experience (required vs. preferred) and degree requirements
 4. **Other text features:** evergreen wording, hiring-difficulty phrases, licenses and certifications, training and career-changer wording, urgency, remote, length
