@@ -34,6 +34,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
   const [themeFilter, setThemeFilter] = useState("all");
   const [stretch, setStretch] = useState(50);
   const [table, setTable] = useState(false);
+  const [scopeIds, setScopeIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (state.status === "loading") {
@@ -118,7 +119,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
                 <header className="cp-cardhead">
                   <div>
                     <h2>Where your picks sit</h2>
-                    <p className="cp-sub">Closer to the center means a closer match to your profile. Angle groups jobs by theme.</p>
+                    <p className="cp-sub">Closer to the center means a closer match to your profile. Direction is the kind of role; turn the ring to point the scope at a direction.</p>
                   </div>
                   <button type="button" className="chip" aria-pressed={table} onClick={() => setTable((t) => !t)}>{table ? "View as map" : "View as table"}</button>
                 </header>
@@ -142,6 +143,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
                     highlightId={highlightId}
                     stretch={stretch}
                     onSelect={setSelectedId}
+                    onScopeChange={setScopeIds}
                   />
                 )}
               </div>
@@ -151,6 +153,9 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
                 stretch={stretch}
                 saved={selected ? savedIds.has(selected.job.id) : false}
                 onSave={(j) => onSave(j.job)}
+                scopeJobs={table ? null : scopeIds.map((id) => result.jobs.find((j) => j.job.id === id)).filter((j) => j !== undefined)}
+                onSelect={setSelectedId}
+                onClear={() => setSelectedId(null)}
               />
             </div>
           </section>
