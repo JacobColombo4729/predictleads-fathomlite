@@ -134,10 +134,10 @@ class CompassAnalysisTests(unittest.TestCase):
         patcher.start()
         self.addCleanup(patcher.stop)
 
-    def run_analysis(self, pick_ids, profile=PROFILE, excluded=()):
+    def run_analysis(self, pick_ids, profile=PROFILE, excluded=(), stretch=0):
         return compass.analyze(
             self.backend, picks=[self.by_id[i] for i in pick_ids], all_jobs=self.jobs,
-            profile=candidate_from(profile), profile_data=profile, excluded_job_ids=excluded,
+            profile=candidate_from(profile), profile_data=profile, excluded_job_ids=excluded, stretch=stretch,
         )
 
     PICKS = ["sales-0", "sales-1", "sales-2", "data-0", "data-1", "data-2"]
@@ -216,6 +216,27 @@ class CompassAnalysisTests(unittest.TestCase):
         self.assertFalse(set(suggested) & set(self.PICKS))
         self.assertFalse(set(suggested) & {"sales-3", "data-3"})
         self.assertEqual(len(suggested), len(set(suggested)))
+
+    def test_stretch_zero_is_the_original_behaviour_and_is_echoed(self) -> None:
+        a = self.run_analysis(self.PICKS)
+        b = self.run_analysis(self.PICKS, stretch=0)
+        self.assertEqual([j["job_id"] for j in a["jobs"] if not j["pick"]], [j["job_id"] for j in b["jobs"] if not j["pick"]])
+        self.assertEqual(b["stretch"], 0)
+
+    def test_more_stretch_reaches_further_from_the_closest_matches(self) -> None:
+        close = self.run_analysis(self.PICKS, stretch=0)
+        far = self.run_analysis(self.PICKS, stretch=100)
+        close_fits = [j["fit"] for j in close["jobs"] if not j["pick"]]
+        far_fits = [j["fit"] for j in far["jobs"] if not j["pick"]]
+        self.assertTrue(close_fits and far_fits)
+        self.assertLess(sum(far_fits) / len(far_fits), sum(close_fits) / len(close_fits))
+        self.assertEqual(far["stretch"], 100)
+        self.assertFalse({j["job_id"] for j in far["jobs"] if not j["pick"]} & set(self.PICKS))
+        self.assertEqual([j["fit"] for j in far["jobs"] if j["pick"]], [j["fit"] for j in close["jobs"] if j["pick"]])  # picks never move
+
+    def test_out_of_range_stretch_is_clamped(self) -> None:
+        self.assertEqual(self.run_analysis(self.PICKS, stretch=500)["stretch"], 100)
+        self.assertEqual(self.run_analysis(self.PICKS, stretch=-5)["stretch"], 0)
 
     def test_next_steps_are_the_frequent_unsupported_groups(self) -> None:
         result = self.run_analysis(self.PICKS)
@@ -309,6 +330,13 @@ class CompassEndpointTests(unittest.TestCase):
         for item in body["jobs"]:
             self.assertEqual(item["job"]["job_id"], item["job_id"])
             self.assertIn("title", item["job"])
+
+    def test_stretch_is_accepted_validated_and_echoed(self) -> None:
+        picks = ["sales-0", "sales-1", "sales-2", "data-0", "data-1"]
+        self.assertEqual(self.post(picks).json()["stretch"], 0)
+        self.assertEqual(self.post(picks, stretch=60).json()["stretch"], 60)
+        self.assertEqual(self.post(picks, stretch=101).status_code, 422)
+        self.assertEqual(self.post(picks, stretch=-1).status_code, 422)
 
     def test_rated_jobs_are_not_suggested(self) -> None:
         for job_id in ("sales-3", "sales-4", "sales-5", "sales-6", "sales-7"):

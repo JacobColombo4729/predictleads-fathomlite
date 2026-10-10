@@ -174,6 +174,7 @@ export default function App() {
           savedIds={new Set(Object.keys(live.tracker))}
           onSave={(job) => { live.save(job).catch(() => setToast({ message: "Could not save that job. Please try again." })); }}
           onRerun={rerunCompass}
+          onStretch={(n) => void compass.restretch(n)}
           gap={gapBatch}
           snapshotReady={live.snapshot !== null}
         />

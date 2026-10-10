@@ -20,6 +20,8 @@ interface Props {
   savedIds: Set<string>;
   onSave: (job: Job) => void;
   onRerun: () => void;
+  /** Called when the stretch slider is released, so the suggested roles can reach further out. */
+  onStretch: (stretch: number) => void;
   gap: GapBatch;
   snapshotReady: boolean;
 }
@@ -29,14 +31,14 @@ function defaultSelection(result: CompassResult): string | null {
   return picks[0]?.job.id ?? result.jobs[0]?.job.id ?? null;
 }
 
-export default function CompassPage({ state, currentProfileVersion, savedIds, onSave, onRerun, gap, snapshotReady }: Props) {
+export default function CompassPage({ state, currentProfileVersion, savedIds, onSave, onRerun, onStretch, gap, snapshotReady }: Props) {
   // If an analysis already exists when the page opens, skip the reveal; a fresh run plays it.
   const [revealDone, setRevealDone] = useState(state.status === "ready");
   const [shown, setShown] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [themeFilter, setThemeFilter] = useState("all");
-  const [stretch, setStretch] = useState(50);
+  const [stretch, setStretch] = useState(0);
   const [table, setTable] = useState(false);
 
   useEffect(() => {
@@ -45,6 +47,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
       setSelectedId(null);
       setThemeFilter("all");
       setTable(false);
+      setStretch(0);
     }
   }, [state.status]);
 
@@ -164,14 +167,21 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
               <header className="cp-cardhead">
                 <div>
                   <h2>Your fit, in tiers</h2>
-                  <p className="cp-sub">Slide to decide how much stretch you’re open to. Cards move between tiers and the rings move on the map.</p>
+                  <p className="cp-sub">
+                    Slide right to see roles further from what you picked, then let go and the suggested roles update. Your own picks stay where they are.
+                    Best fit is 75 and up, Reach is 55 to 74, Stretch is below 55: how similar a role is to your profile, not a chance of being hired.
+                  </p>
                 </div>
               </header>
               <div className="cp-range">
                 <span>Stay close to my experience</span>
-                <input type="range" min={0} max={100} value={stretch} aria-label="How much stretch are you open to" onChange={(e) => setStretch(Number(e.target.value))} />
+                <input type="range" min={0} max={100} value={stretch} aria-label="How much stretch are you open to" onChange={(e) => setStretch(Number(e.target.value))}
+                  onPointerUp={(e) => onStretch(Number((e.target as HTMLInputElement).value))}
+                  onKeyUp={(e) => { if (e.key.startsWith("Arrow") || e.key === "Home" || e.key === "End") onStretch(Number((e.target as HTMLInputElement).value)); }} />
                 <span>Open to a stretch</span>
               </div>
+              {state.status === "ready" && state.updating && <p className="cp-sub" role="status">Finding roles at this stretch…</p>}
+              {state.status === "ready" && state.notice && <p className="field__error" role="alert">{state.notice}</p>}
               <TierBoard jobs={result.jobs} themeFilter={themeFilter} stretch={stretch} selectedId={selected?.job.id ?? null} onSelect={setSelectedId} />
             </div>
           </section>

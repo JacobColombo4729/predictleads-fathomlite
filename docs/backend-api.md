@@ -67,7 +67,7 @@ All data routes except session creation, reset, `healthz` and the snapshot descr
 | `GET /api/v1/signals/patterns` | Map of company id to `burst` / `sustained` / `cooling` (used for the badge on job cards). |
 | `GET /api/v1/signals/companies` | Leaderboard. Query: `pattern`, `family` (`ai_ml`, `data`, `technical_sales`), `q`, `sort` (`new_30`, `active`, `surge_z`), `limit` (max 100), `offset`. |
 | `GET /api/v1/signals/companies/{company_id}` | One company with example openings and technologies. |
-| `POST /api/v1/profiles/{profile_id}/compass` | Compass analysis. Body: `snapshot_id`, `profile_version`, `job_ids` (2-20). Needs the embedding (RRF) ranker, else `409 compass_unavailable`. About 4 seconds on CPU. |
+| `POST /api/v1/profiles/{profile_id}/compass` | Compass analysis. Body: `snapshot_id`, `profile_version`, `job_ids` (2-20), optional `stretch` (0-100, default 0): how far beyond the closest matches the suggested roles reach (the suggestion window moves down the ranking by up to 14,000 places, capped at a quarter of the listings; 0 is the original behaviour; the picks never change). Needs the embedding (RRF) ranker, else `409 compass_unavailable`. About 4 seconds on CPU. |
 | `POST /api/v1/profile-extraction` | Magic fill: body has exactly one of `resume_text` or `resume_pdf_base64`. Stateless: nothing is stored or saved. Returns suggested profile fields, or `state: unavailable` when disabled. |
 
 ### Resume extraction rules
