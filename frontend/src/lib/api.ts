@@ -1,4 +1,6 @@
 import type {
+  CompassResult,
+  SearchScope,
   EntryKind,
   FeedbackSignal,
   Filters,
@@ -191,7 +193,7 @@ export const api = {
     snapshotId: string,
     filters: Filters,
     limit = 25,
-  ): Promise<{ items: Recommendation[]; feedback: { good: number; bad: number; applied: boolean }; ranker: string }> {
+  ): Promise<{ items: Recommendation[]; feedback: { good: number; bad: number; applied: boolean }; ranker: string; searchScope: SearchScope }> {
     const apiFilters: Record<string, string> = {};
     if (filters.query.trim()) apiFilters.query = filters.query.trim();
     if (filters.location.trim()) apiFilters.location = filters.location.trim();
@@ -199,6 +201,7 @@ export const api = {
     const r = await request<{
       ranking: { ranker_id: string };
       feedback: { good: number; bad: number; applied: boolean };
+      search?: { query: string; scope: SearchScope };
       items: { rank: number; job: ApiJob; similar_to_liked?: { job_id: string; title: string | null; similarity: number } }[];
     }>("POST", `/profiles/${profileId}/recommendations`, {
       snapshot_id: snapshotId,
@@ -209,6 +212,7 @@ export const api = {
     return {
       ranker: r.ranking.ranker_id,
       feedback: r.feedback,
+      searchScope: r.search?.scope ?? "all",
       items: r.items.map((it) => ({
         job: jobFromApi(it.job),
         rank: it.rank,
@@ -216,6 +220,47 @@ export const api = {
           ? { jobId: it.similar_to_liked.job_id, title: it.similar_to_liked.title, similarity: it.similar_to_liked.similarity }
           : null,
       })),
+    };
+  },
+
+  /** Compass analysis of 2-20 picked jobs against the saved profile. Local embeddings only; nothing leaves the machine. */
+  async compass(profileId: string, profileVersion: number, snapshotId: string, jobIds: string[]): Promise<CompassResult> {
+    const r = await request<{
+      picks_analyzed: number;
+      duplicates_collapsed: number;
+      themes: { id: string; name: string; count: number; angle: number; half_width: number; mean_fit: number }[];
+      strongest_theme_id: string;
+      jobs: {
+        job: ApiJob; pick: boolean; theme_id: string; fit: number; offset: number;
+        why: { evidence: string; source: string; requirement: string }[]; stretch?: string[]; builds?: string[];
+      }[];
+      requirements: {
+        id: string; text: string; n: number; coverage: number; status: "supported" | "partial" | "unknown";
+        evidence: { text: string; source: string; matched_requirement: string } | null; verify?: boolean; job_ids: string[];
+      }[];
+      next_steps: { requirement_id: string; text: string; n: number; coverage: number; status: "supported" | "partial" | "unknown"; verify?: boolean; action: string }[];
+      stats: { jobs: number; themes: number; requirement_groups: number; groups_with_evidence: number; suggestions: number; sentences_read: number };
+      method: { limits: string[] };
+    }>("POST", `/profiles/${profileId}/compass`, { snapshot_id: snapshotId, profile_version: profileVersion, job_ids: jobIds });
+    return {
+      picksAnalyzed: r.picks_analyzed,
+      duplicatesCollapsed: r.duplicates_collapsed,
+      themes: r.themes.map((t) => ({ id: t.id, name: t.name, count: t.count, angle: t.angle, halfWidth: t.half_width, meanFit: t.mean_fit })),
+      strongestThemeId: r.strongest_theme_id,
+      jobs: r.jobs.map((j) => ({
+        job: jobFromApi(j.job), pick: j.pick, themeId: j.theme_id, fit: j.fit, offset: j.offset, why: j.why,
+        stretch: j.stretch ?? [], builds: j.builds ?? [],
+      })),
+      requirements: r.requirements.map((q) => ({
+        id: q.id, text: q.text, n: q.n, coverage: q.coverage, status: q.status, verify: q.verify ?? false, jobIds: q.job_ids,
+        evidence: q.evidence ? { text: q.evidence.text, source: q.evidence.source, matchedRequirement: q.evidence.matched_requirement } : null,
+      })),
+      nextSteps: r.next_steps.map((s) => ({ requirementId: s.requirement_id, text: s.text, n: s.n, coverage: s.coverage, status: s.status, verify: s.verify ?? false, action: s.action })),
+      stats: {
+        jobs: r.stats.jobs, themes: r.stats.themes, requirementGroups: r.stats.requirement_groups,
+        groupsWithEvidence: r.stats.groups_with_evidence, suggestions: r.stats.suggestions, sentencesRead: r.stats.sentences_read,
+      },
+      limits: r.method.limits,
     };
   },
 

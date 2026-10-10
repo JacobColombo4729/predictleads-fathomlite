@@ -36,7 +36,16 @@ RRF_K = 60
 QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 
 
-def _default_encoder(model_dir: Path) -> tuple[Callable[[str], np.ndarray], Callable[[matching.CandidateProfile], str]]:
+DOCUMENT_MAX_TOKENS = 128  # short sentences (requirements, profile lines) for the Compass analysis
+
+
+def _default_encoder(model_dir: Path) -> tuple[
+    Callable[[str], np.ndarray],
+    Callable[[matching.CandidateProfile], str],
+    Callable[[Sequence[str]], np.ndarray],
+]:
+    import threading
+
     import bge_text as bge  # lazy: keeps torch-free startup for the TF-IDF backend
     from sentence_transformers import SentenceTransformer
 
@@ -56,7 +65,21 @@ def _default_encoder(model_dir: Path) -> tuple[Callable[[str], np.ndarray], Call
         return model.encode([QUERY_PREFIX + text], convert_to_numpy=True, normalize_embeddings=True,
                             show_progress_bar=False)[0]
 
-    return encode, query_text
+    lock = threading.Lock()  # max_seq_length is model-wide state, so batch encodes take turns
+
+    def encode_many(texts: Sequence[str]) -> np.ndarray:
+        """Embed short texts as documents (no query prefix), unit length, float32."""
+        with lock:
+            previous = model.max_seq_length
+            model.max_seq_length = DOCUMENT_MAX_TOKENS
+            try:
+                vectors = model.encode(list(texts), batch_size=32, convert_to_numpy=True, normalize_embeddings=True,
+                                       show_progress_bar=False)
+            finally:
+                model.max_seq_length = previous
+        return np.asarray(vectors, dtype=np.float32)
+
+    return encode, query_text, encode_many
 
 
 class RrfRankingBackend:
@@ -64,10 +87,12 @@ class RrfRankingBackend:
     version = "rank_candidates-rrf-v1-k60-depth50-equal"
     score_type = "reciprocal_rank_fusion"
     feedback_version = feedback.VERSION
+    supports_compass = True  # exposes the vector methods the Compass analysis needs (see backend/compass.py)
 
     def __init__(self, jobs: Sequence[matching.JobRecord], corpus_dir: Path, *,
                  encoder: Callable[[str], np.ndarray] | None = None,
                  query_text: Callable[[matching.CandidateProfile], str] | None = None,
+                 document_encoder: Callable[[Sequence[str]], np.ndarray] | None = None,
                  model_dir: Path | None = None):
         manifest = json.loads((corpus_dir / "bge_embeddings_manifest.json").read_text(encoding="utf-8"))
         ids_hash = hashlib.sha256("\0".join(job.job_id for job in jobs).encode()).hexdigest()
@@ -84,9 +109,29 @@ class RrfRankingBackend:
             import bge_text  # lazy, for the model location
 
             model_dir = model_dir or bge_text.model_dir()
-            encoder, query_text = _default_encoder(model_dir)
+            encoder, query_text, document_encoder = _default_encoder(model_dir)
         self._encode = encoder
+        self._encode_many = document_encoder
         self._query_text = query_text or (lambda profile: " ".join((*profile.experience, *profile.evidenced_skills)))
+
+    # ---- vector access for the Compass analysis ----
+
+    def job_vectors(self, job_ids: Sequence[str]) -> np.ndarray:
+        """Stored unit-length embeddings for the given listings, in the given order."""
+        return np.asarray(self.matrix[[self.index_of[job_id] for job_id in job_ids]], dtype=np.float32)
+
+    def query_vector(self, profile: matching.CandidateProfile) -> np.ndarray:
+        """The profile as a search query, in the same space as the listing vectors (the ranker's own query)."""
+        return np.asarray(self._encode(self._query_text(profile)), dtype=np.float32)
+
+    def encode_documents(self, texts: Sequence[str]) -> np.ndarray:
+        if self._encode_many is None:
+            raise RuntimeError("This ranker was built without a document encoder.")
+        return np.asarray(self._encode_many(texts), dtype=np.float32)
+
+    def score_all(self, vector: np.ndarray) -> np.ndarray:
+        """Cosine similarity of a unit vector with every listing, aligned to the repository order."""
+        return np.asarray(self.matrix @ np.asarray(vector, dtype=np.float32))
 
     def _indices(self, job_ids: Sequence[str]) -> list[int]:
         return [self.index_of[job_id] for job_id in job_ids if job_id in self.index_of]

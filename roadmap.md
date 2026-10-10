@@ -10,13 +10,13 @@ Status: Working roadmap, rewritten to match the connected demo. For the live sta
 
 Help a career changer find relevant listings, understand the evidence, and see what to do next.
 
-**Profile → Discover (ranked jobs) → job details → gap analysis → saved jobs**
+**Profile → Discover (ranked jobs) → job details → saved jobs → Compass (analysis of the picked jobs)**
 
 1. **Profile** (built): blank start; fill the form or use **Magic fill** on a PDF/text resume (GenAI feature 1); entries are typed Job / Project / Education; add desired roles; Save.
 2. **Discover** (built): the hybrid ranker orders about 81,000 historical listings against the saved profile; filters; 👍/👎 relevance feedback adjusts the list live.
 3. **Job details** (built, basic): description, source link, historical-snapshot labelling, and a keyword-based skills check.
-4. **Gap analysis for a selected job** (GenAI feature 2, coded but not connected; see section 5).
-5. **Saved jobs** (built): stages and notes.
+4. **Saved jobs** (built): stages and notes; tick up to 20 and send them to the Compass.
+5. **Compass** (built, local): themes across the picks, a compass map, fit tiers, what the picks ask for next to your own evidence, next steps and "hidden fit" suggestions. See section 3.
 
 Status terms: **Built** means working in the running app and verified; **Implemented** means code exists but is not integrated or evaluated; **Experimental** means bounded evidence, not validated quality; **Planned** means no implementation yet.
 
@@ -53,7 +53,11 @@ Status terms: **Built** means working in the running app and verified; **Impleme
 - Grounding: every experience, project, education and skill item must carry a quote found verbatim in the resume or it is dropped and counted. Desired roles are never extracted. A fill replaces name, headline, location, experience and skills. Skill "evidence" lines are the model's attribution and are not covered by the quote check, so users should review them.
 - Tested on Jesse's resume (9 entries, about 18-24 skills, nothing dropped, wording varies slightly run to run); 26 offline tests. Budget: the original $3 cap is used up; an extra $2 was approved on 2026-10-09 and only a few cents have been spent.
 
-**Feature 2: grounded gap analysis for a selected job — Implemented, not connected**
+**Compass: gap analysis across picked jobs — Built (local, no LLM)**
+- `backend/compass.py` and `POST /api/v1/profiles/{id}/compass` analyse 2-20 picked jobs against the saved profile using the stored BGE vectors and the local model: themes (clustering), requirement groups (sentence clustering) with the closest verbatim profile line as evidence, fit scores, tiers, next steps and diversified suggestions. About 4 seconds per analysis. Years, degrees and certifications are never judged automatically. The method is documented in [docs/backend-api.md](docs/backend-api.md). All thresholds are heuristics and are not validated; the evidence is similarity, not proof.
+- Optional later: an LLM step could write a plain-language explanation of the Compass groups (consent and budget needed); not built.
+
+**Feature 2: grounded gap analysis for a single selected job — Implemented, not connected**
 - `code/grounded_match_explanations.py` and `POST /api/v1/profiles/{id}/jobs/{job_id}/assessment` exist and are tested offline. The assessment lists the job's requirements as required/preferred/unclear, marks each supported / explicit gap / unknown with cited evidence, lists transferable experience, and suggests next steps. The provider is disabled by default, and the UI does not call the endpoint; job details show only the keyword skills check.
 - Planned design: **retrieve** the most relevant profile evidence for each job requirement with the BGE embeddings; **judge** with the LLM only on that evidence, with the existing citation validation; **plan** next steps for unknown and gap items. Run on click only, then cache.
 - Rules: missing profile information is "not mentioned in your profile", never a gap. An explicit gap needs directly evidenced contradiction. No claims about hiring, eligibility or becoming qualified; do not invent courses or certificates. Needs your explicit consent per use and a budget decision before live calls.

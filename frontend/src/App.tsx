@@ -1,4 +1,8 @@
 import { useEffect, useState } from "react";
+import { COMPASS_MAX, COMPASS_MIN } from "./lib/compass";
+import { routeHref } from "./lib/router";
+import { useCompass } from "./state/useCompass";
+import CompassPage from "./pages/CompassPage";
 import type { FeedbackSignal, Filters, Recommendation, Stage } from "./types";
 import { isBlankProfile } from "./lib/profile";
 import { useRoute } from "./lib/router";
@@ -21,6 +25,10 @@ export default function App() {
 
   const live = useLive(filters);
 
+  // Saved jobs ticked for the Compass (kept in the order ticked), and the analysis built from them.
+  const [picked, setPicked] = useState<string[]>([]);
+  const compass = useCompass({ profileId: live.profileId, profileVersion: live.profileVersion, snapshotId: live.snapshot?.id ?? null });
+
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 8000);
@@ -28,6 +36,29 @@ export default function App() {
   }, [toast]);
 
   const savedCount = Object.keys(live.tracker).length;
+
+  // A pick only counts while the job is still saved.
+  const validPicks = picked.filter((id) => id in live.tracker);
+  const togglePick = (id: string) => {
+    if (picked.includes(id)) {
+      setPicked((list) => list.filter((x) => x !== id));
+    } else if (validPicks.length >= COMPASS_MAX) {
+      setToast({ message: `The Compass works best with up to ${COMPASS_MAX} jobs. Remove one to add another.` });
+    } else {
+      setPicked((list) => [...list, id]);
+    }
+  };
+  const setPicks = (ids: string[]) => {
+    const unique = [...new Set(ids)];
+    if (unique.length > COMPASS_MAX) setToast({ message: `Only the first ${COMPASS_MAX} were picked: the Compass works best with up to ${COMPASS_MAX} jobs.` });
+    setPicked(unique.slice(0, COMPASS_MAX));
+  };
+  const sendToCompass = () => {
+    if (validPicks.length < COMPASS_MIN) return;
+    void compass.run(validPicks);
+    window.location.hash = routeHref("compass");
+  };
+  const rerunCompass = () => void compass.run(compass.state.status === "idle" ? validPicks : compass.state.jobIds);
 
   const toggleSave = (item: Recommendation) => {
     if (item.job.id in live.tracker) {
@@ -72,6 +103,7 @@ export default function App() {
   const shellClass =
     route === "discover" ? `shell--discover shell--${mobileView}`
     : route === "saved" ? `shell--saved ${panelOpen ? "shell--detail shell--with-panel" : "shell--list"}`
+    : route === "compass" ? "shell--compass"
     : "shell--profile";
 
   return (
@@ -88,6 +120,7 @@ export default function App() {
           snapshotId={live.snapshot?.id ?? null}
           snapshotDate={live.snapshot?.date ?? null}
           ranker={live.ranker}
+          searchScope={live.searchScope}
           feedbackApplied={live.feedbackApplied}
           ratingCounts={live.ratingCounts}
           onClearRatings={() => void live.clearRatings()}
@@ -119,6 +152,20 @@ export default function App() {
           onToggleSave={toggleSave}
           onStageChange={setStage}
           onNoteChange={setNote}
+          picked={validPicks}
+          onTogglePick={togglePick}
+          onSetPicks={setPicks}
+          onClearPicks={() => setPicked([])}
+          onSendToCompass={sendToCompass}
+        />
+      )}
+      {route === "compass" && (
+        <CompassPage
+          state={compass.state}
+          currentProfileVersion={live.profileVersion}
+          savedIds={new Set(Object.keys(live.tracker))}
+          onSave={(job) => { live.save(job).catch(() => setToast({ message: "Could not save that job. Please try again." })); }}
+          onRerun={rerunCompass}
         />
       )}
       {route === "profile" && (
@@ -127,7 +174,7 @@ export default function App() {
           edited={!isBlankProfile(live.profile)}
           recovered={false}
           onSave={live.saveProfile}
-          onReset={live.startOver}
+          onReset={async () => { await live.startOver(); compass.reset(); setPicked([]); }}
         />
       )}
 

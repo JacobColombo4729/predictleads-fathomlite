@@ -1,5 +1,6 @@
-import { BookmarkIcon, CompassIcon, UserIcon } from "./Icons";
+import { BookmarkIcon, CompassIcon, FindIcon, UserIcon } from "./Icons";
 import { routeHref, type Route } from "../lib/router";
+import ThemeToggle from "./ThemeToggle";
 
 interface Props {
   route: Route;
@@ -7,8 +8,9 @@ interface Props {
 }
 
 const items: { route: Route; label: string; Icon: typeof CompassIcon }[] = [
-  { route: "discover", label: "Discover", Icon: CompassIcon },
+  { route: "discover", label: "Discover", Icon: FindIcon },
   { route: "saved", label: "Saved", Icon: BookmarkIcon },
+  { route: "compass", label: "Compass", Icon: CompassIcon },
   { route: "profile", label: "Profile", Icon: UserIcon },
 ];
 
@@ -32,6 +34,7 @@ export default function SideNav({ route, savedCount }: Props) {
           </li>
         ))}
       </ul>
+      <div className="sidenav__foot"><ThemeToggle /></div>
     </nav>
   );
 }
