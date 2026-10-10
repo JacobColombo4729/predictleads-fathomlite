@@ -25,7 +25,7 @@ When do listings in the career-change target appear and close? Answers "when to 
 ### Clarifying questions
 - How many new niche listings appear per day and week, and is there a weekly rhythm?
 - Is that rhythm the employers' or the crawler's? (`posted`, read as Central European dates, vs. `first_seen`)
-- Is there a trend across April–September?
+- Is there a trend across April–September? By role bucket, too: if the team adopts the proposed listing-momentum view (`docs/job_growth.md` 4c), each bucket's new-listings trend is shown next to expected growth, never blended into it (six months can't be backtested against employment).
 - Can next-day or next-week volume be forecast better than a naive baseline?
 - How fast do listings close in each month (survival by month)?
 - Do listings open to career changers arrive on a different rhythm, for example entry-level hiring waves?

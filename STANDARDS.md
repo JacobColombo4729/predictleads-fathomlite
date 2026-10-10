@@ -14,6 +14,7 @@ PredictLeads × TripleTen externship · **How we work.** Last updated 2026-10-09
 | [`docs/decisions.md`](docs/decisions.md) | Every decision, with its reasoning |
 | [`docs/data.md`](docs/data.md) | Data sources, fields, quirks and auto-generated schemas |
 | [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) | **How we stand out:** the five angles, the pitch, how we talk about the data, and what we never claim |
+| [`docs/job_growth.md`](docs/job_growth.md) | Expected job growth: source, conversion to at most 5 years, proposed extensions |
 | [`docs/fit_analysis.md`](docs/fit_analysis.md) | Transferable fit: Option A vs. B, and the applicant profiles (real career switches from a public resume dataset; volunteer profiles later) |
 | [`PRIORITY_QUEUE.md`](PRIORITY_QUEUE.md) | What to do next |
 | [`APPLICATION.md`](APPLICATION.md) | The web app's design |
@@ -104,6 +105,7 @@ For a given **career changer** (anyone switching from their current background t
 | Accessibility read from what listings ask, not from who gets hired | Word claims as "open to newcomers on paper", never "hires career changers". State it in the limitations |
 | Hiding listings on keyword rules hides some a career changer could get | Hide only on reliable (seniority) or validated (EDA_SDA_3) rules; report how many listings each rule hides |
 | Applicant profiles are personal data | Collect only with written consent and the advisor's approval; keep them under `data/`; never commit them or share them with AI tools; use synthetic profiles in anything presented |
+| Combining PredictLeads data with outside data (job growth projections) | The agreement (4.3) allows it only with PredictLeads' prior written consent: get it before the join and log it in `docs/decisions.md`. Public downloads stay in `data/external/` and count toward the final deletion (`docs/job_growth.md`) |
 | End-of-project data deletion | Track every local copy (`data/`, downloads) so all of them can be deleted and confirmed in writing |
 
 ## Discussion notes

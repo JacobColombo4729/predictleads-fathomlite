@@ -369,7 +369,7 @@ Join it by role bucket to Profiles' three path tables, so every path shows its 2
 - **Prior career → first tech job** and **field trained in → first tech job** (4a.2b): the compass for changing careers.
 - **Tech job before → after the move** (4a.3a), with the sideways-or-up split: the compass for moving across or up within tech.
 
-Every path carries its people count, and paths under about 10 people are marked thin. Growth sits next to the entry-level share, since projections cover the whole occupation. Aggregates only; this table feeds the app's Retraining compass and the deck (`DIFFERENTIATORS.md`).
+Every path carries its people count, and paths under about 10 people are marked thin. Growth sits next to the entry-level share, since projections cover the whole occupation. Its source and method are in `docs/job_growth.md` (BLS 2025–2035, employment-weighted by bucket, at most 5 years). Aggregates only; this table feeds the app's Retraining compass and the deck (`DIFFERENTIATORS.md`).
 
 **What the data shows**
 - **The 2026 market by bucket:** software development is the largest (1,175 open at the snapshot, about 174 new a week), then networks and systems (676; 103), IT project management (432; 70) and data and analytics (431; 66); quality assurance (148) and IT support (129) are the smallest. Pay is highest in software and IT project management ($72 an hour) and lowest in IT support ($32).
@@ -377,7 +377,7 @@ Every path carries its people count, and paths under about 10 people are marked 
 - **The strongest paths are within tech:** IT support → networks and systems (279 people), networks and systems → IT support (199), IT support → security (163), developers → databases (142) and → data and analytics (137). From outside tech, the largest are business → networks and systems (31), arts and media → software (30), and computer science → software (75) by training.
 - **Most paths are thin:** 78% of prior-career paths, 67% of training paths and 43% of within-tech paths rest on fewer than 10 people. The compass shows every count and marks thin paths, and `ML_Fit` should fall back to the bucket-level pattern when a user's exact path is thin.
 - **Without likely ghosts** (3.1d), each bucket's median days open drops 1–3 days (security 26.8 → 24.2, software 24.1 → 22.2) and its open count about 10%: ghosts stretch timing a little, so both versions are kept.
-- **Expected growth is still empty:** it fills once the official occupational projections are downloaded (queued). Saved for `ML_Fit`: `role_market.pkl` (8 buckets) and `compass_paths_2026.pkl` (223 paths).
+- **Expected growth is still empty:** it fills from `role_growth.pkl` (BLS 2025–2035, rolled up to buckets by 2025 employment; plan in `docs/job_growth.md`) once PredictLeads consents in writing to combining their data with BLS data. Saved for `ML_Fit`: `role_market.pkl` (8 buckets) and `compass_paths_2026.pkl` (223 paths).
 
 ## 4. EDA_SDA_2 final table
 
