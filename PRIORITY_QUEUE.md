@@ -20,7 +20,7 @@
 
 ## Next
 
-- **Differentiation ideas (2026-10-10), lead with 1, 3 and 5:** (1) "which skill unlocks the most jobs": reachable listings added per skill or certification (EDA_SDA_3 skills + hiding rules); (2) certification payoff: listings asking for each certification and the career changers who took that path; (3) stepping-stone planner: multi-step routes within tech with people per step and openings at each stop (Profiles + compass); (4) "apply now" alerts: Jesse's hiring bursts plus our timing; (5) a backtested ranking claim: train April–July, test September, top 10 vs. newest-first; (6) entry pay vs. pay one move later; (7) a state or metro map of reachable openings.
+- **Differentiation ideas (2026-10-10), lead with 1, 3 and 5:** seven planned additions, described in [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) (Planned additions): (1) which skill unlocks the most jobs; (2) certification payoff; (3) stepping-stone planner; (4) "apply now" alerts; (5) a backtested ranking claim; (6) pay now vs. one move later; (7) a map of reachable openings.
 - **Hackathon alignment:** read-only snapshot of Jesse's app in [`docs/hackathon_alignment.md`](docs/hackathon_alignment.md); refresh it before ML_Fit, ranking or app-design work, or on request.
 - **EDA_SDA_3 (text features; no matching models), in progress:**
   - **Sections 1–2 written** (setup, text loaded from the saved parts, HTML to structured text, boilerplate removal, lemmas; cached in `data/clean/eda3_text.pkl`): needs a run, then notes. Section 3 (years and degree rules) is next.
