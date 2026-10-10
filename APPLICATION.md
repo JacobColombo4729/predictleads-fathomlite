@@ -23,7 +23,7 @@ The core of the app is the **priority queue**: listings ranked for this career c
 | Career-change accessibility | Listings a career changer can't get are hidden; the rest show what they ask of a newcomer: years asked, degree or equivalent experience, training offered |
 | Still open / apply-by | An estimated apply-by date on every listing, and an apply-by filter |
 | Source and arrival cadence | Check schedule: which sources and companies to watch, and how often; alerts for new listings |
-| Job growth expectations | Expected growth of each role (time frame to be decided), shown in role discovery and the compass |
+| Job growth expectations | Expected growth of each role over at most 5 years; it shifts role suggestions toward growing roles (a visible, adjustable weight) and is shown in role discovery and the compass |
 | Listing activity over time | A date picker: the queue as it stood on any date in the data |
 
 ---
@@ -209,7 +209,7 @@ All public. Each would need its terms of use checked.
 
 | Dataset | What it adds | Used in |
 |---|---|---|
-| Job growth expectations (official occupational employment projections, e.g. BLS) | Expected employment growth by occupation; published for 10 years and converted to the time frame we choose at the same yearly rate | Role discovery, retraining compass, market panel. Joins directly on occupation code |
+| Job growth expectations (official occupational employment projections, e.g. BLS) | Expected employment growth by occupation; published for 10 years and converted to the chosen horizon (at most 5 years) at the same yearly rate | Role discovery, retraining compass, market panel. Joins directly on occupation code |
 | O*NET skills, abilities and related occupations | The skills each occupation needs, and which occupations are close | Transferable fit; suggesting target fields from a background; skills to build (compass) |
 
 ---
@@ -248,7 +248,7 @@ Each stage is usable on its own, so we always have something to demo.
 - **Agent ambition:** are agents the centerpiece of the app, or a layer on top of a solid queue? This decides how much of week 3 goes to them.
 - **Team split:** who is best suited to own the app (front end, MCP servers), so the analysis isn't starved?
 - **Queue fields:** is anything missing, such as a skills-gap column or company information?
-- **Time frames:** how far ahead the compass looks for career options and job growth (not decided yet).
+- **Time frames:** how far ahead the compass looks for career options and job growth (not decided yet; growth at most 5 years).
 - **Advisors:** may an agent backed by an outside LLM see posting text, or only aggregates and model outputs?
 - **External data:** which datasets are allowed, and do we need permission to combine them with PredictLeads data?
 - **Hosting:** does the app need to be hosted, or is a local demo enough?
