@@ -35,7 +35,8 @@ The core of the app is the **priority queue**: listings ranked for this career c
 - **Date picker ("as of"):** shows the queue as it stood on a chosen date, for example July 1 vs. September 1, 2026. See [Pick a date](#pick-a-date-as-of-view).
 - **Live search:** the list narrows with every letter typed. It matches titles, companies and, optionally, description text.
 - **Sort:** priority (default), openness to career changers, apply-by date, transferable fit, pay, freshness.
-- **Filters:** they combine, and each one shows how many postings match:
+- **Filters:** any number at once, in any combination, and each one shows how many postings match. **They apply to the priority queue itself:** the queue is always the filtered set, ranked by priority score, so "remote or hybrid, entry or mid, data and analytics, Texas" gives a ranked queue of just those. Active filters show as removable chips above the list, and a combination can be saved as a named view (for example "Remote data jobs"):
+  - **Occupation:** one or more role buckets (data and analytics, software development, IT support, …; built in EDA_SDA_2 3.6), and within them specific O*NET occupations. Picking roles in role discovery or the compass sets this filter
   - **Priority:** minimum score, or top N
   - **Apply-by:** closing within N days, or before a date
   - **Hidden automatically:** listings a career changer can't get (too many years asked, a degree or license this user lacks, or manager-level roles if the user has no management experience), and listings more than **90 days old** on the date being viewed (likely stale; the threshold is checked in EDA_SDA_2 3.1). A note shows how many were hidden, and why. Hidden listings are never deleted: a "show hidden" toggle brings them back
@@ -49,7 +50,7 @@ The core of the app is the **priority queue**: listings ranked for this career c
   - **Work mode:** remote, hybrid, onsite (`work_mode`; "not stated" shown separately rather than hidden)
   - **Schedule and job type:** full time, part time (`schedule`); internship, temporary, contract, regular (`job_type`)
   - **Role level:** entry, mid, senior, manager, leadership (`level`). The data's "mid_senior" label lumps mid and senior together, so they're split by title words (senior, lead, principal, staff, architect). Manager and leadership listings stay hidden for users without management experience unless they turn on "show hidden"
-  - Every filter allows several choices at once (for example remote **or** hybrid, entry **or** mid)
+  - Every filter allows several choices at once (for example remote **or** hybrid, entry **or** mid); different filters narrow each other (remote or hybrid **and** entry or mid **and** data and analytics)
 - **Each row shows:** title, company, priority score, an "open to career changers" badge, apply-by date, transferable fit, pay and a star.
 
 ### Starred postings
@@ -77,7 +78,7 @@ Opens full screen on tap or click:
 - From the background profile, suggests the computer and mathematical roles (O*NET occupations) their skills transfer to.
 - Learned from real career switches: people in a public resume dataset who retrained into computer and mathematical roles (`notebooks/Profiles.ipynb`).
 - Each suggested role shows the skills that carry over, the main gaps, how many reachable listings are open now, and median pay.
-- Picking roles sets what the priority queue ranks.
+- Picking roles sets the queue's occupation filter, which the user can widen or narrow like any other filter.
 
 ### Retraining compass
 
