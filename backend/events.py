@@ -148,7 +148,10 @@ class EventStore:
         for row in rows:
             for entry in json.loads(row["payload"]).get("items", []):
                 if entry[0] == job_id:
-                    return {"impression_id": int(row["event_id"]), "rank": int(entry[1])}
+                    found: dict[str, Any] = {"impression_id": int(row["event_id"]), "rank": int(entry[1])}
+                    if len(entry) > 3 and entry[3]:
+                        found["source"] = entry[3]  # keyword / embedding / random: an exploration listing
+                    return found
         return None
 
     # ---- reading (for the report) --------------------------------------------------------------------------------

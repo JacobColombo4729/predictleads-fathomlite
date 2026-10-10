@@ -8,6 +8,7 @@ import hashlib
 import json
 import logging
 import os
+import random
 import secrets
 import sqlite3
 import sys
@@ -172,6 +173,8 @@ class RecommendationsRequest(BaseModel):
     profile_version: int = Field(ge=1)
     limit: int = Field(default=10, ge=1, le=50)
     filters: RecommendationFilters = Field(default_factory=RecommendationFilters)
+    # Mix in a few listings the keyword and embedding signals disagree about (and one random one) so ratings can compare the methods.
+    explore: bool = False
 
 
 class CompassRequest(BaseModel):
@@ -210,6 +213,9 @@ class SavedJobCreate(BaseModel):
     snapshot_id: str = Field(min_length=1, max_length=80)
 
 
+EXPLORE_SHARE = 0.15       # about this share of a page is exploration (see below)
+EXPLORE_MIN_LIMIT = 8      # smaller pages are left alone
+EXPLORE_MAX = 5
 FeedbackReason = Literal["wrong_role", "seniority", "location", "pay", "company", "seen", "other"]
 # A thumbs-down only pushes results away from that job's content when the job itself was the wrong kind of role (or no reason was given).
 # For the other reasons the job is still hidden, but the ranker does not learn "less like this" from a job that was rejected for another reason.
@@ -1301,20 +1307,36 @@ def create_app(
         if blocked_companies:
             indices = [i for i in indices if _company_id(jobs.jobs[i].source) not in blocked_companies]
         ranker = app.state.ranker
+        slots = 0
+        if payload.explore and getattr(ranker, "supports_exploration", False) and payload.limit >= EXPLORE_MIN_LIMIT:
+            slots = max(1, min(EXPLORE_MAX, round(payload.limit * EXPLORE_SHARE)))
+        extra: dict[str, Any] = {"explore": slots} if slots else {}
+        if hidden_only:
+            extra["exclude_job_ids"] = hidden_only
         if liked or disliked:
-            extra = {"exclude_job_ids": hidden_only} if hidden_only else {}
-            ranked = ranker.rank(candidate, payload.limit, indices, liked_job_ids=liked, disliked_job_ids=pushing, **extra)
+            ranked = ranker.rank(candidate, payload.limit - slots, indices, liked_job_ids=liked, disliked_job_ids=pushing, **extra)
         else:
-            ranked = ranker.rank(candidate, payload.limit, indices)
+            ranked = ranker.rank(candidate, payload.limit - slots, indices, **extra)
+        # exploration listings come back after the ranked ones; place them at random positions (never first) and remember which is which
+        placed = [r for r in ranked if not r.get("exploration")]
+        explored = [r for r in ranked if r.get("exploration")]
+        if explored and placed:
+            for position, entry in zip(sorted(random.sample(range(1, len(placed) + len(explored)), min(len(explored), len(placed) + len(explored) - 1))), explored):
+                placed.insert(position, entry)
+        else:
+            placed.extend(explored)
+        ranked = placed
         similar = ranker.most_similar_liked([str(r["job_id"]) for r in ranked], liked) if liked and hasattr(ranker, "most_similar_liked") else {}
         items = []
-        for result in ranked:
+        for position, result in enumerate(ranked, 1):
             row = jobs.get(str(result["job_id"]), payload.snapshot_id)
             item = {
-                "rank": int(result["rank"]),
+                "rank": position,  # the position shown; for ranked listings this is also the ranker's order, exploration listings are slotted in
                 "retrieval_score": float(result["score"]),
                 "job": _job_summary(row, payload.snapshot_id, jobs.snapshot_date),
             }
+            if result.get("exploration"):
+                item["exploration"] = {"source": result["exploration"]}
             near = similar.get(str(result["job_id"]))
             if near is not None:
                 liked_row = jobs.by_id.get(near["job_id"])
@@ -1335,7 +1357,8 @@ def create_app(
                     "ranker": f"{ranker.ranker_id}/{ranker.version}", "limit": payload.limit,
                     "query": (payload.filters.query or "").strip(), "scope": search_scope,
                     "good_before": len(liked), "bad_before": len(disliked),
-                    "items": [[str(r["job_id"]), int(r["rank"]), round(float(r["score"]), 5)] for r in ranked],
+                    "explore_slots": slots,
+                    "items": [[str(r["job_id"]), position, round(float(r["score"]), 5), r.get("exploration")] for position, r in enumerate(ranked, 1)],
                 })
         except Exception as exc:  # noqa: BLE001
             research_log.warning("research log skipped: %s", type(exc).__name__)
@@ -1347,6 +1370,7 @@ def create_app(
                 "version": ranker.version,
                 "score_type": ranker.score_type,
                 "calibration": "uncalibrated",
+                "exploration": {"slots": slots, "method": "keyword-vs-embedding disagreement plus one random listing"} if slots else {"slots": 0},
             },
             "feedback": {
                 "good": len(liked),

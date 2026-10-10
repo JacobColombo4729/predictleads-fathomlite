@@ -42,6 +42,8 @@ export interface Recommendation {
   job: Job;
   rank?: number;
   similarTo?: SimilarToLiked | null;
+  /** Set when the listing was added to test the matching (the two methods disagreed about it, or it was random). */
+  exploration?: { source: "keyword" | "embedding" | "random" } | null;
 }
 
 export type PreferredArrangement = Exclude<WorkArrangement, "Not provided">;

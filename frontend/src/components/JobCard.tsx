@@ -32,7 +32,9 @@ export default function JobCard({ item, selected, saved, onSelect, onViewDetails
           <h3 className="card__title">{job.title}</h3>
           <p className="card__company">{job.company.name}</p>
         </div>
-        {item.rank !== undefined && <span className="rank" title="Retrieval order, not a match percentage">#{item.rank}</span>}
+        {item.exploration
+          ? <span className="rank rank--explore" title="Added to test the matching: our keyword method and our meaning-based method disagreed about this one, or it was picked at random. Your rating helps us improve.">Something different</span>
+          : item.rank !== undefined && <span className="rank" title="Retrieval order, not a match percentage">#{item.rank}</span>}
       </header>
 
       <dl className="card__meta">

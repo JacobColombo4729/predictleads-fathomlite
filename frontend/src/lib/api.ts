@@ -228,12 +228,13 @@ export const api = {
       ranking: { ranker_id: string };
       feedback: { good: number; bad: number; applied: boolean };
       search?: { query: string; scope: SearchScope };
-      items: { rank: number; job: ApiJob; similar_to_liked?: { job_id: string; title: string | null; similarity: number } }[];
+      items: { rank: number; job: ApiJob; exploration?: { source: "keyword" | "embedding" | "random" }; similar_to_liked?: { job_id: string; title: string | null; similarity: number } }[];
     }>("POST", `/profiles/${profileId}/recommendations`, {
       snapshot_id: snapshotId,
       profile_version: profileVersion,
       limit,
       filters: apiFilters,
+      explore: true, // a few "something different" listings so ratings can compare the keyword and embedding methods
     });
     return {
       ranker: r.ranking.ranker_id,
@@ -242,6 +243,7 @@ export const api = {
       items: r.items.map((it) => ({
         job: jobFromApi(it.job),
         rank: it.rank,
+        exploration: it.exploration ?? null,
         similarTo: it.similar_to_liked
           ? { jobId: it.similar_to_liked.job_id, title: it.similar_to_liked.title, similarity: it.similar_to_liked.similarity }
           : null,
