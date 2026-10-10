@@ -32,7 +32,8 @@ EPOCH = date(2026, 1, 1)
 GRACE_DAYS = 7              # last seen within this many days of the cutoff counts as still observed
 HISTORY_DAYS = 90           # a baseline needs at least this much observed history
 BATCH_MIN = 6               # a day with at least this many first sightings can be a batch discovery...
-BATCH_SHARE = 0.4           # ...if it is also at least this share of the company's listings
+BATCH_SHARE = 0.4
+BATCH_SPIKE = 10.0          # ...or a day with this many times the company's own average daily count (large companies)           # ...if it is also at least this share of the company's listings
 SURGE_Z = 2.0               # surge z-score at which a company is called "surging"
 SURGE_MIN_NEW = 3           # ...with at least this many new observed openings in 30 days
 SUSTAINED_MIN_BASELINE = 3.0   # steady hiring: at least this many new openings a month, on average...
@@ -136,7 +137,8 @@ def flag_artifacts(frame: pd.DataFrame, upto: int | None = None) -> pd.DataFrame
     """Add `batch_start` and `mass_end` flags using only listings known by day `upto` (no look-ahead; None = everything).
 
     batch_start: first sighted on a day when the company's openings were discovered together (a crawl onboarding or a
-                 site rebuild): at least BATCH_MIN openings that day and at least BATCH_SHARE of the company's listings.
+                 site rebuild): at least BATCH_MIN openings that day and either BATCH_SHARE of the company's listings or
+                 BATCH_SPIKE times its own average daily count.
     mass_end:    last sighted on a day when most of the company's vanished openings disappeared together (a crawl
                  dropout or site change rather than individual closures).
     """
@@ -146,7 +148,10 @@ def flag_artifacts(frame: pd.DataFrame, upto: int | None = None) -> pd.DataFrame
     totals = seen.groupby("company_code").size()
     per_day = seen.groupby(["company_code", "first_day"]).size().rename("n").reset_index()
     per_day["total"] = per_day["company_code"].map(totals)
-    batch = per_day[(per_day["n"] >= BATCH_MIN) & (per_day["n"] >= BATCH_SHARE * per_day["total"])]
+    last_known = upto if upto is not None else int(out["first_day"].max())
+    span = (last_known - seen.groupby("company_code")["first_day"].min() + 1).clip(lower=1)
+    per_day["daily_rate"] = per_day["company_code"].map(per_day.groupby("company_code")["n"].sum() / span)
+    batch = per_day[(per_day["n"] >= BATCH_MIN) & ((per_day["n"] >= BATCH_SHARE * per_day["total"]) | (per_day["n"] >= BATCH_SPIKE * per_day["daily_rate"].clip(lower=1.0)))]
     batch_keys = set(zip(batch["company_code"], batch["first_day"]))
     out["batch_start"] = [(c, d) in batch_keys for c, d in zip(out["company_code"], out["first_day"])]
 

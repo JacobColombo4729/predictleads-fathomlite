@@ -106,6 +106,13 @@ class ArtifactTests(unittest.TestCase):
         self.assertTrue(flagged[flagged["company_id"] == "batch"]["batch_start"].all())
         self.assertFalse(flagged[flagged["company_id"] == "organic"]["batch_start"].any())
 
+    def test_one_day_dump_at_a_large_company_is_flagged_even_below_the_share_rule(self) -> None:
+        rows = [{"company_id": "big", "first_day": 100 + i % 150, "last_day": 140 + i % 150} for i in range(300)]  # about 2 a day
+        rows += [{"company_id": "big", "first_day": 270, "last_day": 272} for _ in range(60)]  # 60 in one day, 17% of its listings
+        flagged = hs.flag_artifacts(make_frame(rows))
+        self.assertTrue(flagged[flagged["first_day"] == 270]["batch_start"].all())
+        self.assertFalse(flagged[flagged["first_day"] < 250]["batch_start"].any())
+
     def test_big_steady_company_with_a_busy_day_is_not_flagged(self) -> None:
         rows = [{"company_id": "big", "first_day": 100 + i, "last_day": 140 + i} for i in range(60)]
         rows += [{"company_id": "big", "first_day": 150, "last_day": 190} for _ in range(6)]  # busy day, but 6 of 66 listings
