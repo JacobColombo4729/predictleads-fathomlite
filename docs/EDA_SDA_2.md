@@ -71,6 +71,20 @@ Some analyses are skewed by part of the table. Each analysis states which **view
 | **The niche** | The whole table after the cut in 1d: computer and mathematical listings, by role bucket (3.6) | Everything in this notebook | Focus |
 | **Other groups** | The 1c occupation summary only (aggregates; no listings) | Comparing the niche with other fields; pay in a user's current field for the compass | The listings themselves are cut |
 
+### Confounders: compare within groups, don't filter
+
+Some factors travel together, so a raw gap can belong to something else. **Every factor test in section 3 is checked against these,** by comparing within groups (stratifying), not by filtering them out: filtering throws data away and only answers the question for what's left. Filtering is used only when a slice can't answer the question at all (for example day of week without `posted`).
+
+| Confounder | Why it matters here | How each check handles it |
+|:--|:--|:--|
+| **Company hiring volume** (earlier listings only, bands 1 / 2–4 / 5–19 / 20+) | The strongest signal; it overlaps with source, pay disclosure and staffing agencies | Every factor is compared within volume bands |
+| **Source and platform** | Platforms show closures to the crawler differently | Within source type, and within platform where there are enough listings |
+| **Staffing agencies** (`is_staffing`, 2b.1) | They post at volume and repost often | Gaps shown with and without them |
+| **Role bucket and seniority** | A senior data scientist role and an IT support role close at different speeds for unrelated reasons | Within role bucket (3.6) where buckets are big enough; seniority as a split |
+| **Month first seen** | Later months have had less time to close | Survival methods (still-open listings censored); month as a split for timing gaps |
+
+**The rule:** each factor shows the **raw gap**, then the **gap within volume band × source type**, and within role bucket where there are enough listings. A factor counts as real only if the gap holds within the groups. EDA_SDA_4 then confirms the survivors with one model that adjusts for all of these at once.
+
 ## 2b. Additional cleaning
 
 **Decided (2026-10-09):** five fixes here (salary sanity moved into EDA_SDA_1 6.5, description cleanup to EDA_SDA_3), run before the checks in section 3 so they use clean pay, dates and titles. Same rules as EDA_SDA_1: **fix or flag, never drop** (a flagged listing leaves only the analyses it would distort), keep the original column next to every cleaned one, and report how many listings each step changes (counts only). Spot-checks of examples are done locally by a teammate.
@@ -89,7 +103,7 @@ Some analyses are skewed by part of the table. Each analysis states which **view
 
 ## 3. Checks and analyses
 
-Record each result and the decision it leads to here, then apply it when building the final table (section 4).
+Record each result and the decision it leads to here, then apply it when building the final table (section 4). **Every factor test follows the confounders rule in section 2:** raw gap, then the gap within volume band × source type (and role bucket where possible); only gaps that hold count.
 
 ### 3.1 Ghost listings vs. desperate employers
 

@@ -49,6 +49,7 @@ For a given **career changer** (anyone switching from their current background t
 - **Censoring:** still-open postings are kept and handled by survival methods, never dropped.
 - **Baselines:** the segment's overall average, last year's value for seasonality, newest-first and title keyword search for prioritization.
 - **Statistics:** bootstrap 95% confidence intervals; Benjamini–Hochberg correction when testing many features or segments.
+- **Confounders: compare within groups, don't filter.** Every factor shows its raw gap, then the gap within company-volume band × source type (and role bucket where possible); it counts only if the gap holds. Standard confounders: company volume, source and platform, staffing agencies, role bucket and seniority, month first seen (list in EDA_SDA_2 section 2). EDA_SDA_4 confirms the survivors in one Cox survival regression adjusting for all of them, with company-clustered errors.
 
 ### Leakage rules
 

@@ -40,6 +40,7 @@
 - **EDA_SDA_4 (statistics):**
   - Descriptive statistics by group; Pearson + Spearman, Cramér's V, point-biserial; VIF.
   - Group interactions, including by role bucket, and checks for confounding (Simpson's paradox).
+  - Adjusted check: a Cox survival regression with every standard confounder (company volume, source and platform, staffing agency, role bucket, seniority, month), company-clustered errors, hazard ratios with 95% intervals and a proportional-hazards check.
   - Welch's t-test plus Mann–Whitney, chi-square and log-rank, with effect sizes and Benjamini–Hochberg.
   - Company-clustered bootstrap intervals; survival checks (censoring, left truncation, competing risks).
   - Record each feature kept, dropped or combined; save the modeling-ready table.
