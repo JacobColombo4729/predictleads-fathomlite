@@ -45,9 +45,15 @@ predictleads-career-changers/        (name to agree; in a shared GitHub organiza
 ├── analysis/
 │   ├── notebooks/      EDA_SDA_1–4, TimeSeries, Profiles, ML_Fit, ML_Rank
 │   └── src/            stream, cleaning rules, role buckets, helpers
-├── docs/               both sets of docs, plus decisions, data, merge plan
-├── README.md           one map of the repository
-├── STATUS.md           start here (Jesse's), with one task list folded in
+├── docs/
+│   ├── project/        Jacob's docs, unchanged: PROJECT_OUTLINE, STANDARDS, COMPASS,
+│   │                   APPLICATION, DIFFERENTIATORS
+│   ├── analysis/       decisions, data, job growth, fit analysis, merge plan, notebook exports
+│   └── app/            Jesse's docs: API, data prep, matching engine, signals, roadmap
+├── README.md           one map of the repository, for both sides
+├── PRIORITY_QUEUE.md   the one task list, kept intact (Jesse's remaining work added as items)
+├── STATUS.md           Jesse's: how to run the app and where it stands
+├── CLAUDE.md           stays at the top (Claude Code reads it there)
 ├── requirements.txt    one pinned list for both
 ├── .env.example        S3 settings and OPENAI_API_KEY as placeholders
 ├── data/               git-ignored: one layout, rebuilt from the same snapshot
@@ -120,7 +126,7 @@ flowchart LR
 |:--|:--|
 | `README.md`, `requirements.txt`, `.gitignore`, `.env.example`, `notebooks/`, `docs/` exist in both | Merge each into one |
 | **`sentence-transformers` 5.1 (Jesse) vs. 6.1 (Jacob)**, a major version; 9 other pins differ; FastAPI and uvicorn only on Jesse's side | One pinned `requirements.txt`. Check Jesse's ranker and embeddings on 6.1, or pin one version for both |
-| Two task trackers: `STATUS.md` and `roadmap.md` vs. `PRIORITY_QUEUE.md` and `PROJECT_OUTLINE.md` | `STATUS.md` stays the start page; one task list |
+| Docs on both sides; some overlap | **Nothing is deleted.** Top level keeps four files: `README.md` (one map), `PRIORITY_QUEUE.md` (**intact, the one task list**), `STATUS.md` (Jesse's run-and-status page) and `CLAUDE.md`. Jacob's other docs move unchanged to `docs/project/`; analysis docs to `docs/analysis/`; Jesse's to `docs/app/`. Only true overlap is removed: `roadmap.md`'s goal and user journey fold into `PROJECT_OUTLINE.md`, its remaining work into `PRIORITY_QUEUE.md`; the rest stays as `docs/app/roadmap.md`. Every link between docs (and the paths in `CLAUDE.md`) is updated in the same commit |
 | The S3 location is written in Jesse's committed docs; Jacob's rule keeps it only in `.env` | Move it to `.env.example` as a placeholder |
 | Windows scripts (`.ps1`) and Mac scripts (`.sh`); `.venv` vs. `PL` | Keep both script sets; one venv name in the README |
 | Notebook outputs | `nbstripout` for the whole repo |
@@ -145,7 +151,7 @@ flowchart LR
 
 - [ ] Gates 1–4 met
 - [ ] Create a shared GitHub organization; move both repos into it (each owner moves their own)
-- [ ] On a merge branch: each repo's files moved into `app/` or `analysis/` (`git mv`), histories joined (`git merge --allow-unrelated-histories`), shared files merged
+- [ ] On a merge branch: each repo's files moved into `app/` or `analysis/` (`git mv`), docs into `docs/project/`, `docs/analysis/` and `docs/app/`, histories joined (`git merge --allow-unrelated-histories`), shared files merged, links between docs updated
 - [ ] App tests pass; notebooks run on the new layout
 - [ ] One pull request, reviewed by both, merged to `main`
 - [ ] Then: shared listing set → corpus and embeddings → backend features
