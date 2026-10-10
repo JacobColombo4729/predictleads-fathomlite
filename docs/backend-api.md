@@ -11,7 +11,7 @@ A minimal FastAPI service in `backend/api.py` for the demo. It is deliberately *
 - Personalized recommendations through a replaceable ranker. The demo runs `tfidf_bge_rrf_equal` (`backend/rrf_ranker.py`, equal-weight reciprocal-rank fusion of TF-IDF and BGE cosine, depth 50, k=60); `PREDICTLEADS_API_RANKER=tfidf` serves TF-IDF alone. Scores are retrieval signals, not match percentages or hiring probabilities.
 - Relevance feedback: 👍/👎 on jobs per session. Recommendations then move the query toward liked and away from rejected jobs (Rocchio-style, applied to both signals) and hide rated jobs. The model is not retrained, and ratings disappear with the session.
 - **Compass** (`backend/compass.py`): analysis of 2-20 picked jobs against the saved profile, entirely local (stored BGE vectors and the local BGE model; no outside AI call). See below.
-- A grounded assessment endpoint for one profile/job pair (`code/grounded_match_explanations.py`). Provider generation is **disabled by default** and the web app does not call it yet.
+- A grounded assessment endpoint for one profile/job pair (`code/grounded_match_explanations.py`). Provider generation is **disabled by default**; start the backend with `-Assess` (`PREDICTLEADS_ASSESSMENT=openai`, needs `OPENAI_API_KEY`) to enable it. The job details **AI gap analysis** tab calls it after a per-use consent.
 - Resume extraction ("Magic fill", `code/resume_profile_extraction.py`): **opt-in**, sends resume text to OpenAI. See below.
 
 ## Run
