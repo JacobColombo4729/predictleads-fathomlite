@@ -84,8 +84,8 @@ function Results({ picks, result, onAgain }: { picks: CompassJob[]; result: Extr
       </p>
 
       <ul className="ga__jobs">
-        {picks.map((p, i) => (
-          <JobBlock key={p.job.id} pick={p} result={result.jobs[p.job.id]} candidateEvidence={result.candidateEvidence} open={i === 0} />
+        {picks.map((p) => (
+          <JobBlock key={p.job.id} pick={p} result={result.jobs[p.job.id]} candidateEvidence={result.candidateEvidence} />
         ))}
       </ul>
 
@@ -95,7 +95,7 @@ function Results({ picks, result, onAgain }: { picks: CompassJob[]; result: Extr
   );
 }
 
-function JobBlock({ pick, result, candidateEvidence, open }: { pick: CompassJob; result: GapJobResult | undefined; candidateEvidence: GapEvidence[]; open: boolean }) {
+function JobBlock({ pick, result, candidateEvidence }: { pick: CompassJob; result: GapJobResult | undefined; candidateEvidence: GapEvidence[] }) {
   const title = `${pick.job.title} · ${pick.job.company.name}`;
   if (!result || result.state === "failed") {
     return <li className="ga__job"><p className="ga__jobtitle">{title}</p><p className="notice notice--compact">{result?.reason ?? "No result for this job."}</p></li>;
@@ -108,7 +108,7 @@ function JobBlock({ pick, result, candidateEvidence, open }: { pick: CompassJob;
   a.qualifications.forEach((q) => { counts[q.status] += 1; });
   return (
     <li className="ga__job">
-      <details open={open}>
+      <details>
         <summary>
           <span className="ga__jobtitle">{title}</span>
           <span className="ga__counts">
