@@ -35,3 +35,4 @@ candidate_resume*.*
 /candidate-resumes/
 models/
 .vscode/
+.vite/
