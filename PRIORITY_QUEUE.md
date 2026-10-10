@@ -7,7 +7,7 @@
 
 ## Now
 
-- **Slide deck for the team, due Friday 2026-10-09:** `reports/Team update 2026-10-09.pptx` (local only) is built; upload it to Google Slides.
+- **Tomorrow (2026-10-10), Jacob:** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
 - **EDA_SDA_2 (non-text), the next notebook:**
   - **Setup:** load EDA_SDA_1's final table (182,367 listings).
   - **2b Additional cleaning:** staffing agencies, salary sanity, date consistency, internships and temporary roles, title normalization, multi-location listings, description cleanup. Fix or flag, never drop; counts per step.
