@@ -49,7 +49,7 @@ The core of the app is the **priority queue**: listings ranked for this career c
   - **Location:** one or more states (from `location_data`), listings naming several locations included where any matches
   - **Work mode:** remote, hybrid, onsite (`work_mode`; "not stated" shown separately rather than hidden)
   - **Schedule and job type:** full time, part time (`schedule`); internship, temporary, contract, regular (`job_type`)
-  - **Role level:** entry, mid, senior, manager, leadership (`level`; leadership = director, head, vice president, president, C-suite, founder, partner). The data's "mid_senior" label lumps mid and senior together, so they're split by title words (senior, lead, principal, staff, architect). Manager and leadership listings stay hidden for users without management experience unless they turn on "show hidden"
+  - **Role level:** entry, mid, senior, manager, leadership (`level`; leadership = director, head, vice president, president, c_level, founder, partner). The data's "mid_senior" label lumps mid and senior together, so they're split by title words (senior, lead, principal, staff, architect). Manager and leadership listings stay hidden for users without management experience unless they turn on "show hidden"
   - Every filter allows several choices at once (for example remote **or** hybrid, entry **or** mid); different filters narrow each other (remote or hybrid **and** entry or mid **and** data and analytics)
 - **Each row shows:** title, company, priority score, an "open to career changers" badge, apply-by date, transferable fit, pay and a star.
 
