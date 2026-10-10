@@ -8,9 +8,10 @@
 ## Now
 
 - **Tomorrow (2026-10-10), Jacob:** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
+- **Rerun EDA_SDA_1 (hourly pay):** 6.5 now cleans pay into one hourly column (`salary_hourly_usd`); rerun from the top (cached, no rebuild), then Claude re-quotes every pay figure in its notes, the docs and the deck in hourly terms.
 - **EDA_SDA_2 (non-text), the next notebook:**
   - **Setup:** load EDA_SDA_1's final table (182,367 listings).
-  - **2b Additional cleaning (code written, needs a run):** staffing agencies, salary sanity, date consistency, internships and temporary roles, title normalization, multi-location listings. Fix or flag, never drop; counts per step. Check the 2b.1 review cell's flagged companies locally.
+  - **2b Additional cleaning (code written, needs a run):** staffing agencies, date consistency, internships and temporary roles, title normalization, multi-location listings. Fix or flag, never drop; counts per step. Check the 2b.1 review cell's flagged companies locally.
   - **3.1 Ghost listings vs. struggling employers:** describe the long-open listings, measure each signal (relisted, company still posting, source, `posted` vs. `first_seen`), and combine them into a "likely ghost listing" flag.
   - **3.2 Source:** source within company-volume bands; job-board copies of company-site listings; platform sizes. Add the domain check that refines the 60.7%.
   - **3.3 Freshness:** the late-found tail, survival of late-found vs. prompt listings, with vs. without `posted`.

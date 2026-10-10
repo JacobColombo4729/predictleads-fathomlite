@@ -50,7 +50,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 ### Roadmap
 
 1. **Setup:** libraries and EDA_SDA_1's final table
-2. **Analysis views:** which slice of the table each analysis uses, and why; **additional cleaning** (2b): staffing agencies, salary sanity, date consistency, internships and temporary roles, title normalization, multi-location listings
+2. **Analysis views:** which slice of the table each analysis uses, and why; **additional cleaning** (2b): staffing agencies, date consistency, internships and temporary roles, title normalization, multi-location listings
 3. **Checks and analyses** (non-text)
 4. **EDA_SDA_2 final table:** decisions defended, then applied at the end, with a reason for each step
 5. **Conclusion and next steps** (into EDA_SDA_3)
@@ -72,17 +72,17 @@ Some analyses are skewed by part of the table. Each analysis states which **view
 
 ## 2b. Additional cleaning
 
-**Decided (2026-10-09):** six fixes here (a seventh, description cleanup, moves to EDA_SDA_3), run before the checks in section 3 so they use clean pay, dates and titles. Same rules as EDA_SDA_1: **fix or flag, never drop** (a flagged listing leaves only the analyses it would distort), keep the original column next to every cleaned one, and report how many listings each step changes (counts only). Spot-checks of examples are done locally by a teammate.
+**Decided (2026-10-09):** five fixes here (salary sanity moved into EDA_SDA_1 6.5, description cleanup to EDA_SDA_3), run before the checks in section 3 so they use clean pay, dates and titles. Same rules as EDA_SDA_1: **fix or flag, never drop** (a flagged listing leaves only the analyses it would distort), keep the original column next to every cleaned one, and report how many listings each step changes (counts only). Spot-checks of examples are done locally by a teammate.
 
 | # | Fix | How | Result |
 |:-:|:--|:--|:--|
 | 1 | **Staffing agencies** | Flag listings posted by recruiters or staffing firms: company name and domain words (staffing, recruiting, talent, well-known agency names), or an "about" text that says staffing or recruiting firm (companies table). A review cell (2b.1 review, row-level) lists the most-flagged companies so a teammate can check the keywords | `is_staffing`, kept. Report their share by field and their days open; compute company volume with and without them (3.5), since agencies post at high volume and repost often. The app labels them "posted by a recruiter" |
-| 2 | **Salary sanity, standardized to hourly** | EDA_SDA_1 (6.5) already blanked pay outside $10k–$1M a year. Here: convert to one hourly rate (2,080 hours a year, full time); swap reversed ranges; re-read a "yearly" $7–$200 as hourly and an "hourly" $10k–$1M as yearly, which recovers pay that 6.5 blanked | **`salary_hourly_usd` is the one pay column from here on** (`salary_annual_usd` is dropped); `pay_suspect` flag; counts per fix. Runs before the outliers (3.10) and the pay factor |
-| 3 | **Date consistency** | EDA_SDA_1 (6.3) already removed impossible timelines and blanked `posted` dates after `first_seen`. Here: `posted` more than a year before `first_seen` | `posted_old` flag, kept; it feeds the ghost-listing check (3.1) |
-| 4 | **Internships and temporary roles** | `contract_types` plus title words (intern, internship, temporary, temp, seasonal, contract-to-hire) | `job_type` (internship, temporary, contract, regular), kept: they can be entry points for career changers. Report their share in the niche and their days open; the app can filter them |
-| 5 | **Title normalization** | Lowercase; strip bracketed text, locations after " - " or " \| ", requisition IDs, pay, and "remote" or "hybrid" tags (kept as a flag) | `title_clean`; the original title stays. Recheck the repost count and the role-bucket mapping with it |
-| 6 | **Multi-location listings** | `n_locations` (from EDA_SDA_1) above 1 | `multi_location` flag; one row per listing for timing. The state list for the app's location filter comes with `location_data` in 3.7 |
-| 7 | **Description cleanup** | **Moved to EDA_SDA_3:** this table keeps only description features (`desc_words`, `desc_hash`, `has_html`), not the text, to fit in memory; EDA_SDA_3 loads the text anyway | `desc_clean` there, with HTML and boilerplate removed |
+| – | **Salary sanity, standardized to hourly** | **Moved to EDA_SDA_1 6.5:** all pay cleaning in one place. `salary_hourly_usd` (salaried pay ÷ 2,080 hours) is the one pay column for the whole project; reversed ranges and clearly wrong units are fixed there and flagged `pay_suspect` | Arrives clean in EDA_SDA_1's table |
+| 2 | **Date consistency** | EDA_SDA_1 (6.3) already removed impossible timelines and blanked `posted` dates after `first_seen`. Here: `posted` more than a year before `first_seen` | `posted_old` flag, kept; it feeds the ghost-listing check (3.1) |
+| 3 | **Internships and temporary roles** | `contract_types` plus title words (intern, internship, temporary, temp, seasonal, contract-to-hire) | `job_type` (internship, temporary, contract, regular), kept: they can be entry points for career changers. Report their share in the niche and their days open; the app can filter them |
+| 4 | **Title normalization** | Lowercase; strip bracketed text, locations after " - " or " \| ", requisition IDs, pay, and "remote" or "hybrid" tags (kept as a flag) | `title_clean`; the original title stays. Recheck the repost count and the role-bucket mapping with it |
+| 5 | **Multi-location listings** | `n_locations` (from EDA_SDA_1) above 1 | `multi_location` flag; one row per listing for timing. The state list for the app's location filter comes with `location_data` in 3.7 |
+| – | **Description cleanup** | **Moved to EDA_SDA_3:** this table keeps only description features (`desc_words`, `desc_hash`, `has_html`), not the text, to fit in memory; EDA_SDA_3 loads the text anyway | `desc_clean` there, with HTML and boilerplate removed |
 
 **Leakage:** every fix uses only what the listing showed when it was posted, so none of them leaks the outcome.
 

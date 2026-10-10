@@ -65,7 +65,7 @@ The listing itself matters more than the job title: two listings in the same fie
 | Freshness | Days since first seen (the crawler finds listings a median of 1.5 days after posting) |
 | Competition | Company hiring volume; reposts (times listed, days since last listed) |
 | Hiring difficulty | Listing age, repeated reposts; ghost listing vs. employer still hiring |
-| Pay | Hourly pay rate, standardized from EDA_SDA_2 on (salaried pay ÷ 2,080 hours; disclosed for about 47% of listings) |
+| Pay | Hourly pay rate, standardized in EDA_SDA_1 6.5 (salaried pay ÷ 2,080 hours; disclosed for about 47% of listings) |
 | Employer intent | Listing text: urgency, remote, description length, evergreen wording |
 | Source | Hiring platform, job board, or company site |
 | Occupation group | O*NET occupation group; also for showing related jobs |
