@@ -26,11 +26,13 @@ Vets every candidate feature, non-text (EDA_SDA_2) and text (EDA_SDA_3), with st
 - Which features are redundant with each other (collinearity), and which genuinely overlap?
 - Which differences between groups are real, and which are large enough to matter to an applicant?
 - Do factor effects hold within each other (for example source within company-volume bands), or reverse (Simpson's paradox)?
-- **Adjusted check:** do the factors that survived EDA_SDA_2's within-group checks still matter in one **Cox survival regression** that adjusts for all the confounders at once (company volume, source and platform, staffing agency, role bucket, seniority, month first seen), with errors clustered by company? Report hazard ratios with 95% intervals, and check the proportional-hazards assumption.
+- **Adjusted check:** do the factors that survived EDA_SDA_2's within-group checks still matter in one **Cox survival regression** that adjusts for all the confounders at once (company volume, source and platform, staffing agency, role bucket, seniority, month first seen, state, company type, has a description), with errors clustered by company? Report hazard ratios with 95% intervals, and check the proportional-hazards assumption.
 - How much does clustering by company inflate apparent certainty?
 - Do the career-change flags carry signal beyond seniority, company size and source, and which parts of `career_open` hold up?
 - Do factor effects differ by role bucket, or hold across them?
 - Are the survival assumptions reasonable (censoring, left truncation)?
+- **Is each feature stable?** Does its effect hold in every month (ML_Rank trains on April–July and tests on September), between listings from the same company, and in every role bucket?
+- **Is each feature safe?** Is it known when a listing first appears (leakage audit), and does its distribution drift with the collection changes (job boards after May, descriptions from June)?
 
 **Data rules:** aggregates only; never `df.head()` or sample rows. Clear outputs before committing.
 
@@ -46,10 +48,11 @@ Vets every candidate feature, non-text (EDA_SDA_2) and text (EDA_SDA_3), with st
 | 6. Uncertainty | **Bootstrap** confidence intervals (1,000 resamples, 2.5% / 97.5% quantiles) | **Company-clustered** bootstrap, so listings from one company don't count as independent |
 | 7. Time structure | `pivot_table` + heatmap (month × occupation group), `pct_change` | Hands off to `TimeSeries` |
 | 8. Survival checks | | Kaplan–Meier with confidence intervals, censoring and left-truncation checks, **competing risks** (filled vs. reposted vs. ghost) described |
-| 9. Feature decisions | Document each decision with data | Each kept / dropped / combined feature recorded with its reason |
-| 10. Final table | | Modeling-ready table, saved for `TimeSeries`, `ML_Fit` and `ML_Rank` |
-| 11. Conclusion | What was done, what it means, limitations | |
+| 9. In-depth feature analysis (full data) | | **Stability over months** (each feature's effect per month); **within-company comparisons** (listings from the same company, which removes company-level confounding); **effects by role bucket**; a **leakage audit** (one row per feature: known when the listing first appears?); **drift checks** (distributions over time vs. the collection changes); **information beyond the confounders** (mutual information, likelihood-ratio tests). Priority: stability, within-company and leakage first |
+| 10. Feature decisions | Document each decision with data | Each kept / dropped / combined feature recorded with its reason, citing sections 3–9 |
+| 11. Final table | | Modeling-ready table, saved for `TimeSeries`, `ML_Fit` and `ML_Rank` |
+| 12. Conclusion | What was done, what it means, limitations | |
 
-## 2.–11.
+## 2.–12.
 
 _To do, once EDA_SDA_3's table exists._
