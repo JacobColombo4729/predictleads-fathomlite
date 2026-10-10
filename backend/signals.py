@@ -130,8 +130,8 @@ class SignalStore:
         return self._row(self.companies.loc[company_id], detail=True)
 
     def patterns(self) -> dict[str, str]:
-        """company_id -> pattern for the companies worth a badge on a job card (burst or sustained)."""
-        sub = self.companies[self.companies["pattern"].isin(["burst", "sustained"])]
+        """company_id -> pattern for the companies worth a badge on a job card (burst, sustained or cooling)."""
+        sub = self.companies[self.companies["pattern"].isin(["burst", "sustained", "cooling"])]
         return dict(zip(sub.index.astype(str), sub["pattern"]))
 
     def overview(self) -> dict[str, Any]:
