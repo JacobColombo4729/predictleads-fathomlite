@@ -79,6 +79,7 @@ Opens full screen on tap or click:
 - Learned from real career switches: people in a public resume dataset who retrained into computer and mathematical roles (`notebooks/Profiles.ipynb`).
 - Each suggested role shows the skills that carry over, the main gaps, how many reachable listings are open now, and median pay.
 - Picking roles sets the queue's occupation filter, which the user can widen or narrow like any other filter.
+- **IT project management is a later move** (decided 2026-10-10): only 9% of its listings show openness to career changers and 2% are entry level. It isn't suggested as a first tech job and isn't in a newcomer's default occupation filter (the user can add it), unless their prior career has a real path straight into it (business: 17% of retrained business people), in which case it's shown with its low openness. Users already in tech see it under moving across and up.
 
 ### Retraining compass
 
@@ -100,7 +101,7 @@ Opens full screen on tap or click:
 ### Moving across and up (already in tech or math)
 
 - For a user already in a computer and mathematical role: the **roles people in that role moved into** (2,049 people in the resumes changed role buckets within tech after at least 12 months), with how many people, and each role's 2026 openings, pay, closing speed and expected growth.
-- Examples from the data: IT support → networks and systems or security; developers → databases or data and analytics.
+- Examples from the data: IT support → networks and systems or security; developers → databases or data and analytics; and IT project management, where 190 of its 264 career changers came from another tech role.
 - Each move shows whether people moved sideways or up (into a senior or manager role), from Profiles 4a.3.
 - Picking a role sets what the priority queue ranks, like role discovery.
 
