@@ -93,6 +93,31 @@ class BatchTests(unittest.TestCase):
         self.assertEqual(out["jobs"]["b"]["state"], "failed")
         self.assertEqual(out["jobs"]["c"]["state"], "failed")
 
+    def test_a_bad_next_step_is_dropped_but_the_assessment_is_kept(self) -> None:
+        def respond(payload):
+            items = [good_item(e) for e in payload["jobs"]]
+            for item in items:
+                item["next_steps"] = [
+                    {"action": "Brush up", "qualification_ids": ["q1"], "evidence_ids": []},          # empty evidence, and q1 is supported
+                    {"action": "Also bad", "qualification_ids": ["q1"], "evidence_ids": ["job0.description_text[0]"]},
+                ]
+            return {"jobs": items}
+        out = explain_matches(CANDIDATE, [job("a"), job("b")], provider=MockProvider(respond))
+        self.assertEqual(out["failed"], 0)
+        for result in out["jobs"].values():
+            self.assertEqual(result["state"], "completed")
+            self.assertEqual(result["assessment"]["next_steps"], [])
+            self.assertEqual(len(result["assessment"]["qualifications"]), 1)
+
+    def test_a_bad_qualification_still_fails_the_job(self) -> None:
+        def respond(payload):
+            items = [good_item(e) for e in payload["jobs"]]
+            items[0]["qualifications"][0]["candidate_evidence_ids"] = []  # "supported" with no profile line
+            return {"jobs": items}
+        out = explain_matches(CANDIDATE, [job("a"), job("b")], provider=MockProvider(respond))
+        self.assertEqual(out["jobs"]["a"]["state"], "failed")
+        self.assertEqual(out["jobs"]["b"]["state"], "completed")
+
     def test_job_without_a_description_is_not_sent(self) -> None:
         seen = {}
         def respond(payload):
