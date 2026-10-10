@@ -8,8 +8,7 @@
 ## Now
 
 - **Jacob (from 2026-10-10):** upload the slide deck (`reports/Team update 2026-10-09.pptx`, local only, already built) to Google Slides; do the data housekeeping and tell the team (both below).
-- **EDA_SDA_2 (non-text), in progress.** Done (2026-10-10): setup and the niche cut (14,019 listings), 2b cleaning and filter fields, 3.1 ghosts and the 90-day line, 3.2 source, 3.3 freshness and crawl timing, 3.4 pay disclosure, 3.5 company volume and copies, 3.6 role buckets, 3.12 the compass's 2026 side. Nine charts, matching EDA_SDA_1. Still to write:
-  - **3.7 Blind spots (code written, needs a run):** the 2-day live tolerance, salaried part-time pay (hourly conversion assumes 2,080 hours), the seniority labels, and state from `location_data` (also needed for the app's location filter).
+- **EDA_SDA_2 (non-text), in progress.** Done (2026-10-10): setup and the niche cut (14,019 listings), 2b cleaning and filter fields, 3.1 ghosts and the 90-day line, 3.2 source, 3.3 freshness and crawl timing, 3.4 pay disclosure, 3.7 blind spots and state, 3.5 company volume and copies, 3.6 role buckets, 3.12 the compass's 2026 side. Nine charts, matching EDA_SDA_1. Still to write:
   - **3.8 Join the companies table** (left join, keys checked).
   - **3.9 Missing data:** the per-field plan; by-group missingness and `isnull().corr()`.
   - **3.10 Outliers:** IQR and boxplots for days open, words, hourly pay, times listed.
