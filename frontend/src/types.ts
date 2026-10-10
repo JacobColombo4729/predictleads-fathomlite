@@ -206,6 +206,7 @@ export interface SignalCompany {
   intent: { family: string; signal: string; meaning: string; new_30: number | null; baseline_monthly: number | null; top_tech: string[] }[];
   evidence?: SignalEvidence[];
   technologies?: { technology: string; new_30: number; still_observed: number }[];
+  week_ends?: string[];
 }
 
 export interface SignalsOverview {

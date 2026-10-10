@@ -64,3 +64,10 @@
   .sg-row__main { grid-template-columns: minmax(0, 1fr) auto; }
   .sg-row__num, .sg-row__fam, .sg-spark { grid-column: 1 / -1; }
 }
+
+.sg-company__nums { display: flex; gap: 20px; flex-wrap: wrap; margin: 8px 0 12px; }
+.sg-company__nums div { display: grid; }
+.sg-company__nums strong { font-size: 20px; line-height: 1.1; }
+.sg-company__nums span { font-size: var(--fs-xs); color: var(--text-muted); }
+.sg-company .sg-detail__intent, .sg-company .cp-chips, .sg-company .cp-sub, .sg-company ul { margin-top: 10px; }
+.sg-company h4 { font-size: var(--fs-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin: 14px 0 4px; }

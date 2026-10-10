@@ -4,6 +4,7 @@ import { api } from "../lib/api";
 import { FAMILY_LABEL, PATTERN_HELP, PATTERN_LABEL, pct, shortDate } from "../lib/signals";
 import PatternBadge from "../components/signals/PatternBadge";
 import Sparkline from "../components/signals/Sparkline";
+import SignalDetail from "../components/signals/SignalDetail";
 
 const PAGE = 25;
 const PATTERNS: SignalPattern[] = ["burst", "sustained", "cooling"];
@@ -162,29 +163,7 @@ function CompanyRow({ company: c, weekEnds, family, open, onToggle }: { company:
         <div className="sg-detail">
           {failed && <p className="cp-sub">Details could not be loaded.</p>}
           {!detail && !failed && <p className="cp-sub">Loading…</p>}
-          {detail && (
-            <>
-              {detail.intent.map((s) => (
-                <p key={s.family} className="sg-detail__intent"><strong>{s.signal}.</strong> {s.meaning[0].toUpperCase() + s.meaning.slice(1)}.</p>
-              ))}
-              {detail.evidence && detail.evidence.length > 0 && (
-                <div>
-                  <h4>Example new openings</h4>
-                  <ul className="sg-detail__list">{detail.evidence.slice(0, 5).map((e) => <li key={e.job_id}>{e.title} <span className="cp-muted">· first seen {shortDate(e.first_seen)}</span></li>)}</ul>
-                </div>
-              )}
-              {detail.technologies && detail.technologies.length > 0 && (
-                <div>
-                  <h4>Technologies named in new openings</h4>
-                  <div className="cp-chips">{detail.technologies.slice(0, 10).map((t) => <span key={t.technology} className="cp-chip">{t.technology} · {t.new_30}</span>)}</div>
-                </div>
-              )}
-              <p className="cp-sub">
-                {detail.active} openings still observed, {detail.gone_30} no longer seen in the last 30 days.
-                {detail.surge_z !== null && detail.pattern === "burst" ? ` The jump is ${detail.surge_z.toFixed(1)} standard deviations above this company's own pace.` : ""}
-              </p>
-            </>
-          )}
+          {detail && <SignalDetail detail={detail} />}
         </div>
       )}
     </li>

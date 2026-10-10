@@ -226,9 +226,9 @@ def company_metrics(frame: pd.DataFrame, cutoff: int, family: str | None = None)
 # --------------------------------------------------------------------------- intent signals
 
 INTENT_FAMILIES = {
-    "ai_ml": ("AI/ML buildout", "hiring ML and AI roles: likely buying data, compute, MLOps and labeling tools"),
-    "data": ("Data stack buildout", "hiring analytics and data roles: likely buying warehouse, BI and pipeline tools"),
-    "technical_sales": ("Technical go-to-market buildout", "hiring solutions and sales engineers: likely buying sales-tech and enablement tools"),
+    "ai_ml": ("AI/ML buildout", "hiring ML and AI roles. Our assumption: teams like this often evaluate data, compute, MLOps and labeling tools"),
+    "data": ("Data stack buildout", "hiring analytics and data roles. Our assumption: teams like this often evaluate warehouse, BI and pipeline tools"),
+    "technical_sales": ("Technical go-to-market buildout", "hiring solutions and sales engineers. Our assumption: teams like this often evaluate sales-tech and enablement tools"),
 }
 
 
