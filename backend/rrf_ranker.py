@@ -137,9 +137,11 @@ class RrfRankingBackend:
         return [self.index_of[job_id] for job_id in job_ids if job_id in self.index_of]
 
     def rank(self, profile: matching.CandidateProfile, limit: int, candidate_indices: Sequence[int], *,
-             liked_job_ids: Sequence[str] = (), disliked_job_ids: Sequence[str] = ()) -> list[dict[str, Any]]:
+             liked_job_ids: Sequence[str] = (), disliked_job_ids: Sequence[str] = (),
+             exclude_job_ids: Sequence[str] = ()) -> list[dict[str, Any]]:
         liked, disliked = self._indices(liked_job_ids), self._indices(disliked_job_ids)
-        rated = set(liked) | set(disliked)
+        adjust = bool(liked or disliked)  # excluded jobs are hidden but do not move the query
+        rated = set(liked) | set(disliked) | set(self._indices(exclude_job_ids))
         indices = [index for index in candidate_indices if index not in rated] if rated else list(candidate_indices)
         eligible, _ = matching._eligible_jobs(self.corpus, profile, indices)
         if not eligible:
@@ -147,7 +149,7 @@ class RrfRankingBackend:
         depth = min(DEPTH, len(eligible))
         # TF-IDF signal, with the query adjusted by rated jobs when there are any
         query_sparse = self.corpus.vectorizer.transform([profile.tfidf_text()])
-        if rated:
+        if adjust:
             query_sparse = feedback.adjusted_sparse_query(query_sparse, self.corpus.job_matrix, liked, disliked)
         eligible_array = np.asarray(eligible)
         # score the whole matrix once and pick the eligible rows (slicing 80k sparse rows per request is far slower)
@@ -155,7 +157,7 @@ class RrfRankingBackend:
         tfidf_top = feedback.top_ranked(tfidf_scores, eligible, self.job_ids, depth)
         # embedding signal
         query = self._encode(self._query_text(profile))
-        if rated:
+        if adjust:
             query = feedback.adjusted_dense_query(
                 query,
                 np.asarray(self.matrix[liked]) if liked else None,

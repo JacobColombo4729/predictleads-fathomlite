@@ -210,11 +210,28 @@ class SavedJobCreate(BaseModel):
     snapshot_id: str = Field(min_length=1, max_length=80)
 
 
+FeedbackReason = Literal["wrong_role", "seniority", "location", "pay", "company", "seen", "other"]
+# A thumbs-down only pushes results away from that job's content when the job itself was the wrong kind of role (or no reason was given).
+# For the other reasons the job is still hidden, but the ranker does not learn "less like this" from a job that was rejected for another reason.
+PUSH_AWAY_REASONS = frozenset({None, "wrong_role", "other"})
+NOTE_MAX = 200
+
+
 class FeedbackPut(BaseModel):
     model_config = ConfigDict(extra="forbid")
     job_id: str = Field(min_length=1, max_length=120)
     snapshot_id: str = Field(min_length=1, max_length=80)
     signal: Literal["good", "bad"]
+    reason: FeedbackReason | None = None
+    note: str | None = Field(default=None, max_length=NOTE_MAX)
+
+    @model_validator(mode="after")
+    def reason_only_for_thumbs_down(self) -> "FeedbackPut":
+        if self.signal != "bad" and (self.reason is not None or self.note):
+            raise ValueError("A reason or note can only go with a thumbs-down.")
+        if self.note is not None:
+            self.note = self.note.strip() or None
+        return self
 
 
 class SavedJobPatch(BaseModel):
@@ -311,9 +328,13 @@ class TfIdfRankingBackend:
         *,
         liked_job_ids: Sequence[str] = (),
         disliked_job_ids: Sequence[str] = (),
+        exclude_job_ids: Sequence[str] = (),
     ) -> list[dict[str, Any]]:
         liked = [self.index_of[j] for j in liked_job_ids if j in self.index_of]
         disliked = [self.index_of[j] for j in disliked_job_ids if j in self.index_of]
+        if exclude_job_ids:  # hidden from the results, but not used to adjust the query
+            hidden = {self.index_of[j] for j in exclude_job_ids if j in self.index_of}
+            candidate_indices = [i for i in candidate_indices if i not in hidden]
         if not liked and not disliked:
             return matching.rank_tfidf(
                 self.corpus,
@@ -393,11 +414,17 @@ class SessionStore:
                     job_id TEXT NOT NULL,
                     signal TEXT NOT NULL CHECK(signal IN ('good','bad')),
                     created_at TEXT NOT NULL,
+                    reason TEXT,
+                    note TEXT,
                     PRIMARY KEY(session_hash, snapshot_id, job_id)
                 );
                 CREATE INDEX IF NOT EXISTS saved_jobs_by_session ON saved_jobs(session_hash, saved_at DESC);
                 """
             )
+            columns = {row["name"] for row in db.execute("PRAGMA table_info(job_feedback)").fetchall()}
+            for column in ("reason", "note"):  # databases created before reasons existed
+                if column not in columns:
+                    db.execute(f"ALTER TABLE job_feedback ADD COLUMN {column} TEXT")
 
     def cleanup_expired(self) -> None:
         now = utc_text()
@@ -529,12 +556,14 @@ class SessionStore:
             if cursor.rowcount != 1:
                 raise APIError(404, "saved_job_not_found", "The saved job does not exist in this session and snapshot.")
 
-    def set_feedback(self, session_hash: str, snapshot_id: str, job_id: str, signal: str) -> sqlite3.Row:
+    def set_feedback(self, session_hash: str, snapshot_id: str, job_id: str, signal: str,
+                     reason: str | None = None, note: str | None = None) -> sqlite3.Row:
         with self.connect() as db:
             db.execute(
-                "INSERT INTO job_feedback(session_hash,snapshot_id,job_id,signal,created_at) VALUES(?,?,?,?,?) "
-                "ON CONFLICT(session_hash,snapshot_id,job_id) DO UPDATE SET signal=excluded.signal, created_at=excluded.created_at",
-                (session_hash, snapshot_id, job_id, signal, utc_text()),
+                "INSERT INTO job_feedback(session_hash,snapshot_id,job_id,signal,created_at,reason,note) VALUES(?,?,?,?,?,?,?) "
+                "ON CONFLICT(session_hash,snapshot_id,job_id) DO UPDATE SET signal=excluded.signal, created_at=excluded.created_at, "
+                "reason=excluded.reason, note=excluded.note",
+                (session_hash, snapshot_id, job_id, signal, utc_text(), reason, note),
             )
             return db.execute(
                 "SELECT * FROM job_feedback WHERE session_hash=? AND snapshot_id=? AND job_id=?",
@@ -722,6 +751,11 @@ def _search_indices(repository: JobRepository, filters: RecommendationFilters, *
             continue
         output.append(index)
     return output
+
+
+def _company_id(source: Mapping[str, Any]) -> str:
+    reference = source.get("company_reference")
+    return str(reference.get("id") or "") if isinstance(reference, Mapping) else ""
 
 
 def _search_scoped(repository: JobRepository, filters: RecommendationFilters) -> tuple[list[int], str]:
@@ -1256,10 +1290,20 @@ def create_app(
         indices, search_scope = _search_scoped(jobs, payload.filters)
         feedback_rows = store.list_feedback(session_hash, payload.snapshot_id)
         liked = [row["job_id"] for row in feedback_rows if row["signal"] == "good"]
-        disliked = [row["job_id"] for row in feedback_rows if row["signal"] == "bad"]
+        disliked_rows = [row for row in feedback_rows if row["signal"] == "bad"]
+        disliked = [row["job_id"] for row in disliked_rows]
+        pushing = [row["job_id"] for row in disliked_rows if row["reason"] in PUSH_AWAY_REASONS]
+        hidden_only = [row["job_id"] for row in disliked_rows if row["reason"] not in PUSH_AWAY_REASONS]
+        # "Not this company" hides that company's other listings too
+        blocked_companies = {
+            _company_id(jobs.by_id[row["job_id"]].source) for row in disliked_rows if row["reason"] == "company" and row["job_id"] in jobs.by_id
+        } - {""}
+        if blocked_companies:
+            indices = [i for i in indices if _company_id(jobs.jobs[i].source) not in blocked_companies]
         ranker = app.state.ranker
         if liked or disliked:
-            ranked = ranker.rank(candidate, payload.limit, indices, liked_job_ids=liked, disliked_job_ids=disliked)
+            extra = {"exclude_job_ids": hidden_only} if hidden_only else {}
+            ranked = ranker.rank(candidate, payload.limit, indices, liked_job_ids=liked, disliked_job_ids=pushing, **extra)
         else:
             ranked = ranker.rank(candidate, payload.limit, indices)
         similar = ranker.most_similar_liked([str(r["job_id"]) for r in ranked], liked) if liked and hasattr(ranker, "most_similar_liked") else {}
@@ -1307,9 +1351,10 @@ def create_app(
             "feedback": {
                 "good": len(liked),
                 "bad": len(disliked),
+                "bad_pushing": len(pushing),
                 "applied": bool(liked or disliked),
                 "method": getattr(ranker, "feedback_version", None) if (liked or disliked) else None,
-                "note": "Rated jobs are left out of new results. Feedback adapts this session's ranking only; it does not retrain the model.",
+                "note": "Rated jobs are left out of new results. Feedback adapts this session's ranking only; it does not retrain the model. A thumbs-down given for a reason other than the kind of role does not push results away from similar jobs.",
             },
             "snapshot": {"snapshot_id": payload.snapshot_id, "date": jobs.snapshot_date},
             "search": {"query": (payload.filters.query or "").strip(), "scope": search_scope},
@@ -1429,7 +1474,7 @@ def create_app(
             job = jobs.by_id.get(row["job_id"])
             items.append({
                 "job_id": row["job_id"], "snapshot_id": row["snapshot_id"], "signal": row["signal"],
-                "created_at": row["created_at"],
+                "created_at": row["created_at"], "reason": row["reason"],
                 "job": _job_summary(JobRow(job.job_id, job.source), row["snapshot_id"], jobs.snapshot_date) if job else None,
             })
         return {"items": items}
@@ -1442,15 +1487,16 @@ def create_app(
     ) -> dict[str, Any]:
         jobs: JobRepository = app.state.job_repository
         jobs.get(payload.job_id, payload.snapshot_id)
-        row = store.set_feedback(session_hash, payload.snapshot_id, payload.job_id, payload.signal)
+        row = store.set_feedback(session_hash, payload.snapshot_id, payload.job_id, payload.signal, payload.reason, payload.note)
         try:
             events, pid = participant_of(request)
             exposure = events.last_exposure(pid, payload.job_id) if events is not None and events.is_consented(pid) else None
             log_event(request, "rating", session_hash, snapshot_id=payload.snapshot_id, job_id=payload.job_id,
-                   payload={"signal": payload.signal, **(exposure or {})})
+                   payload={"signal": payload.signal, **({"reason": payload.reason} if payload.reason else {}),
+                            **({"note": payload.note} if payload.note else {}), **(exposure or {})})
         except Exception as exc:  # noqa: BLE001
             research_log.warning("research log skipped: %s", type(exc).__name__)
-        return {"job_id": row["job_id"], "snapshot_id": row["snapshot_id"], "signal": row["signal"], "created_at": row["created_at"]}
+        return {"job_id": row["job_id"], "snapshot_id": row["snapshot_id"], "signal": row["signal"], "created_at": row["created_at"], "reason": row["reason"]}
 
     @app.delete("/api/v1/feedback/{snapshot_id}/{job_id}", status_code=204)
     def remove_feedback(

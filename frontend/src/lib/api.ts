@@ -10,6 +10,7 @@ import type {
   CompassResult,
   SearchScope,
   EntryKind,
+  FeedbackReason,
   FeedbackSignal,
   Filters,
   HistoricalStatus,
@@ -305,8 +306,8 @@ export const api = {
     return jobFromApi(await request<ApiJob>("GET", `/jobs/${encodeURIComponent(jobId)}?snapshot_id=${encodeURIComponent(snapshotId)}`));
   },
 
-  async setFeedback(jobId: string, snapshotId: string, signal: FeedbackSignal): Promise<void> {
-    await request("PUT", "/feedback", { job_id: jobId, snapshot_id: snapshotId, signal });
+  async setFeedback(jobId: string, snapshotId: string, signal: FeedbackSignal, reason?: FeedbackReason, note?: string): Promise<void> {
+    await request("PUT", "/feedback", { job_id: jobId, snapshot_id: snapshotId, signal, ...(reason ? { reason } : {}), ...(note ? { note } : {}) });
   },
 
   async clearFeedback(jobId: string, snapshotId: string): Promise<void> {

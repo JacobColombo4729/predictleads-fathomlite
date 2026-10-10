@@ -55,6 +55,8 @@ def summarize(events: list[dict[str, Any]]) -> dict[str, Any]:
         "rated_with_known_rank": len(ranked),
         f"share_good_in_top_{TOP_K}": round(sum(r["payload"]["signal"] == "good" for r in top) / len(top), 3) if top else None,
         f"rated_in_top_{TOP_K}": len(top),
+        "thumbs_down_reasons": dict(Counter(r["payload"].get("reason", "none given") for r in ratings if r["payload"].get("signal") == "bad")),
+        "thumbs_down_notes": sum(1 for r in ratings if r["payload"].get("note")),
         "per_participant": {p[:8]: dict(c) for p, c in per_person.items()},
     }
 
@@ -68,9 +70,10 @@ def export(events: list[dict[str, Any]], directory: Path) -> None:
             writer.writerow([e["event_id"], e["ts"], e["participant_id"][:8], e["type"], e["snapshot_id"], e["job_id"], e["profile_hash"], str(e["payload"])])
     with (directory / "ratings.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
-        writer.writerow(["participant", "job_id", "signal", "rank_when_shown", "profile_hash", "ts"])
+        writer.writerow(["participant", "job_id", "signal", "reason", "note", "rank_when_shown", "profile_hash", "ts"])
         for r in final_ratings(events):
-            writer.writerow([r["participant_id"][:8], r["job_id"], r["payload"].get("signal"), r["payload"].get("rank"), r["profile_hash"], r["ts"]])
+            writer.writerow([r["participant_id"][:8], r["job_id"], r["payload"].get("signal"), r["payload"].get("reason", ""), r["payload"].get("note", ""),
+                             r["payload"].get("rank"), r["profile_hash"], r["ts"]])
 
 
 def main() -> None:

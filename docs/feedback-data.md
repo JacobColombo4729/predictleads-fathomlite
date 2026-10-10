@@ -11,13 +11,27 @@ One append-only table of events, in its own SQLite file (`backend/data/feedback-
 | Event | When | What it holds |
 |---|---|---|
 | `impression` | a ranked list is shown on Discover | the job ids with their rank and score, the ranker and version, the search text, how many 👍/👎 were already given |
-| `rating` / `rating_cleared` | 👍/👎 pressed or undone | job id, signal, and **where that job sat the last time it was shown** (rank and which impression) |
+| `rating` / `rating_cleared` | 👍/👎 pressed or undone | job id, signal, **where that job sat the last time it was shown** (rank and which impression), and for a 👎 the **reason** and optional **note** |
 | `save` / `unsave` | a job is saved or removed | job id |
 | `compass_run` | the Compass is built or the stretch slider is released | the picked job ids, the stretch setting, the suggested job ids with their fit |
 
 Each event also carries a time, an anonymous participant id, the snapshot id and a profile hash. A small table keeps the ranker's **embedding of each profile** (a list of numbers, not text), once per profile version, so a later model can learn from "this kind of profile, this kind of job".
 
 **Why log what was shown, not only clicks.** A 👎 only means something if you know the job was in front of the person, and a missing 👍 means nothing at all. Without impressions and ranks, the data is badly biased toward whatever the ranker already prefers.
+
+## Why a thumbs-down was given
+
+After a 👎 the app asks why: one tap (Wrong kind of role, Level doesn't fit, Location or remote, Pay, Not this company, Already seen it, Something else) and an optional note of up to 200 characters. Skipping costs nothing; the 👎 counts either way. The note field says: "What you type here is used for our research on how to improve the matching."
+
+The reason changes what the ranker learns from that rating, not just the data:
+
+| Reason | The job | Other results |
+|---|---|---|
+| Wrong kind of role, Something else, or none given | hidden | pushed away from jobs like it (as before) |
+| Level doesn't fit, Location or remote, Pay, Already seen it | hidden | **not** pushed away, because the job's content was not the problem |
+| Not this company | hidden | the company's other listings are hidden too |
+
+Notes are free text and may contain personal details. In production they need the opt-in, a retention limit and a review step before anyone reads them.
 
 ## What is not recorded
 
