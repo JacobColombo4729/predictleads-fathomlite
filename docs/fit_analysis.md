@@ -41,7 +41,7 @@ How we measure how well a **career changer's** background fits a job listing and
 
 > **Started first: real career switches from a public resume dataset.** `notebooks/Profiles.ipynb` finds people in the Kaggle structured resume dataset (about 54,000 resumes, MIT license) whose job history shows a move into a computer and mathematical role. Its rules (`src/career_switch.py`) are tuned in review rounds until the candidates are right. These give real pre-switch profiles and real labels without waiting for the advisor. The volunteer profiles below add career changers from the team's own backgrounds, in more detail.
 >
-> **Result so far:** 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; almost all with readable job dates) → **2,554 career changers**: 1,848 changed roles within tech, 369 retrained after working in another field, 337 retrained as new grads from another field. The rules were spot-checked on random samples (Profiles 4c). The volunteer profiles below are now a recent test set, not the main source.
+> **Result so far:** 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; almost all with readable job dates) → **2,813 career changers**: 2,049 changed roles within tech, 407 retrained after working in another field, 357 retrained as new grads from another field. The rules were spot-checked on random samples (Profiles 4c). The volunteer profiles below are now a recent test set, not the main source.
 >
 > **The rules label instead of rejecting:** everyone who reached a computer and mathematical job is kept with labels (origin, retrained, first tech job level, every tech role reached). The role model trains on everyone, with origin as a feature, and its results are reported on career changers (retrained from another field, or changed roles within tech; any job level). A check compares training on everyone with training on career changers only.
 >
@@ -117,7 +117,7 @@ The collecting teammate does this locally:
 
 ### Step 4: synthetic profiles, only to balance small roles
 
-**The 1,000-profile plan is dropped (2026-10-09):** it assumed about 50 real profiles, and there are now 2,554 real career changers. Roles are uneven (data and analytics is small: 238 people, only 22 of them retrained into it), so:
+**The 1,000-profile plan is dropped (2026-10-09):** it assumed about 50 real profiles, and there are now 2,813 real career changers. Roles are uneven (data and analytics is small: 237 people, only 19 of them retrained into it), so:
 
 - **The compass and every reported share use real people only.** "30% of developers who changed roles moved into data" is a fact; balancing would make every role look equally common.
 - **The model handles imbalance in training:** class weights first (`class_weight="balanced"`), with per-role scores so a small role isn't hidden in an average.

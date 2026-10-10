@@ -40,12 +40,12 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 ### Clarifying questions
 - Which step of the ladder finds the role real career changers moved into most often, and by how much over the keyword baseline?
-- Does a small neural network beat gradient boosting on this small table (2,554 career changers)? Kept only if it wins on held-out people.
+- Does a small neural network beat gradient boosting on this small table (2,813 career changers)? Kept only if it wins on held-out people.
 - **Why no LLM matching:** listing text can't go to outside AI services, a local LLM on 8 GB is too small and slow for matching, and its judgments can't learn from or be validated against real career moves. LLM agents stay in the app layer (the Coach), working from model outputs and aggregates.
 - Do the similarity methods (1–4) favor the old field, and do skills-based matching and the trained layer fix it?
 - Does knowing what someone trained in predict their first tech role better than their background alone? (The evidence behind the retraining compass.)
 - Does training on everyone who reached tech (with origin as a feature) predict career changers' roles better than training on career changers alone? Results are always reported on career changers.
-- **Results per pool:** within-tech moves are 72% of career changers (1,848 of 2,554), so one overall score mostly measures them; every metric is also reported per pool.
+- **Results per pool:** within-tech moves are 73% of career changers (2,049 of 2,813), so one overall score mostly measures them; every metric is also reported per pool.
 - **Role imbalance** (quality assurance and data and analytics are the smallest roles): class weights first, per-role scores, and probabilities corrected to the real role mix. Synthetic people only for a role still predicted poorly, inside training folds only.
 - Which skills should a career changer build for each suggested role (listing skills their background doesn't show)? This feeds the compass ideas.
 
