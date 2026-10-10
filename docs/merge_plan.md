@@ -82,9 +82,9 @@ flowchart LR
 
 ### Decision 1: which jobs are in the project, and how they're labelled
 
-- **Jacob has:** every listing whose O*NET occupation is in the **Computer and Mathematical** group (codes starting 15-), minus credentialed math (actuaries, mathematicians), sorted into **8 role buckets**: IT support, networks and systems, security, database, software development, quality assurance, data and analytics, IT project management. The same buckets label the career changers in Profiles, which is how the retraining compass joins "where people moved" to "today's openings". About 1.0 million listings in the full file.
+- **Jacob has:** every listing whose O*NET occupation is in the **Computer and Mathematical** group (codes starting 15-), minus credentialed math (actuaries, mathematicians), sorted into **8 role buckets**: IT support, networks and systems, security, database, software development, quality assurance, data science, IT project management. The same buckets label the career changers in Profiles, which is how the retraining compass joins "where people moved" to "today's openings". About 1.0 million listings in the full file.
 - **Jesse has:** listings chosen by job title and occupation for **three target areas: AI/ML, data, and technical sales / solutions engineering** (about 320,000; the app serves about 81,000). A 17-class role classifier exists but isn't used by the app.
-- **Where they differ:** AI/ML and data roles are inside Jacob's scope (mostly "data and analytics" and "software development"). **Technical sales is not:** sales engineers are in O*NET's *Sales* group. Jacob's IT support, networks, security, QA, database and IT project management roles aren't in Jesse's.
+- **Where they differ:** AI/ML and data roles are inside Jacob's scope (mostly "data science" and "software development"). **Technical sales is not:** sales engineers are in O*NET's *Sales* group. Jacob's IT support, networks, security, QA, database and IT project management roles aren't in Jesse's.
 - **Proposed:** one combined set: Jacob's computer and mathematical scope **plus technical sales as a ninth bucket**. Jesse's three areas become app filters that map onto the buckets. Technical sales gets listings but no retraining-compass paths (Profiles has no technical-sales career changers).
 
 ### Decision 2: which listings count as "still open"

@@ -7,6 +7,7 @@
 
 ## Now
 
+- **Jacob: rerun Profiles once** (restart the kernel first; `src/` changed): the "data and analytics" bucket is now "data science", and its saved tables must carry the new label before EDA_SDA_2's compass join (3.12) runs again. Assignments don't change.
 - **Merge with `predictleads-hackathon`** (plan: [`docs/merge_plan.md`](docs/merge_plan.md)): send the plan to Jesse and agree on its six decisions; merge as soon as the four readiness gates are met (decisions agreed, both streams finished, nothing in flight, paths set by a setting); pause `ML_Fit` until then. Claude: gate 4 for this repo.
 - **Full dataset, full scale for every notebook** (decided 2026-10-10; stream test: ≈13.4M listings, ≈1.0M in scope, ≈40 minutes, ≈8.4 GB):
   3. **Jacob (next):** delete `data/flat/stream_test/`, then run the second pass: `PL/bin/python -m src.stream_full --rows` (≈40 minutes, resumable): EDA_SDA_1's cleaned row for every English US listing, typed Parquet, no text (`data/flat/all_fields_rows_full/`). Then `data/flat/all_fields_lean_full/` can be deleted once EDA_SDA_2 reads the rows table.

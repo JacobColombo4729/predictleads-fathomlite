@@ -31,19 +31,19 @@ The point of expected job growth is to **recommend roles with the future in mind
 - **A visible adjustment, not a trained input.** Growth is a future estimate, so it can't be checked against the historical career moves the fit model learns from. `ML_Fit` applies it after the fit model, shows how much it moved each suggestion, and lets the user change its weight.
 - **Never alone.** It's occupation-wide, so it's always shown with the role's entry-level share and today's openings: a fast-growing role with no entry-level listings is still a later move.
 
-**Role buckets** (the same on listings and resumes): IT support, networks and systems, security, database, software development, quality assurance, data and analytics, IT project management.
+**Role buckets** (the same on listings and resumes): IT support, networks and systems, security, database, software development, quality assurance, data science, IT project management.
 
 ## 3. Path questions it answers
 
 From the resume data; the app's Coach explains them in plain language.
-- **Should I retrain for a role directly, or take a first tech role and move from there?** For data and analytics, 218 career changers moved in from another tech role and only 19 retrained straight into it.
+- **Should I retrain for a role directly, or take a first tech role and move from there?** For data science, 218 career changers moved in from another tech role and only 19 retrained straight into it.
 - **Which training led people like me to this role, and how many people is that based on?**
 - **How long did it take?** People who retrained after working took a median of 15 months from their last old-field job to their first tech job.
 - **Which role is the easiest door in?** IT support: the most entry-level listings (22%), the fastest closing and the most openness (44%), but the lowest pay ($32 an hour).
 
 ## 4. Moving across and up within tech
 
-- **2,049 people moved between tech roles** after 12+ months in the first. The strongest paths: IT support → networks and systems (279), networks and systems → IT support (199), IT support → security (163), developers → databases (142) and → data and analytics (137).
+- **2,049 people moved between tech roles** after 12+ months in the first. The strongest paths: IT support → networks and systems (279), networks and systems → IT support (199), IT support → security (163), developers → databases (142) and → data science (137).
 - **Most moves are sideways:** 79% kept the same level, 8.5% moved up, 12.5% moved down (levels read from title words, so rough). "Moving up" needs more evidence before it leads the pitch.
 - **IT project management is a later move, not a first step:** 2% of its listings are entry level and 9% show openness, and 190 of its 264 career changers came from another tech role. Business backgrounds also move there (17% of retrained business people). **Decided 2026-10-10:** not suggested as a first tech job unless the user's prior career has a real path into it; shown to users already in tech as a step up; scope-wide openness figures are also shown without it.
 - **To try:** a "trained, then moved up in the same role" pool (for example a master's before a senior role). Profiles' rules don't capture it yet; it would reopen Profiles.

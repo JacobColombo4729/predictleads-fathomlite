@@ -30,7 +30,7 @@ RULES = {
         "it project management": r"\b(?:it|i\.t\.|technical|technology|software|systems?|infrastructure|erp|digital|data|cloud"
                                  r"|application|web) (?:project|program|delivery) manager\b|\btechnical program manager\b"
                                  r"|\b(?:it|technical) pm\b|\bscrum master\b|\bagile (?:coach|project manager|delivery lead)\b",
-        "data and analytics": r"\bdata (?:analyst|scientist|engineer|architect|specialist|management|modell?er|warehouse)\b"
+        "data science": r"\bdata (?:analyst|scientist|engineer|architect|specialist|management|modell?er|warehouse)\b"
                               r"|\bbusiness intelligence\b|\bbi (?:analyst|developer|engineer)\b|\bpower ?bi\b|\btableau\b"
                               r"|\betl (?:developer|engineer)\b|\banalytics\b|\bquantitative analyst\b|\bmis analyst\b"
                               r"|\bbig data\b|\bhadoop\b|\bdata visuali[sz]ation\b|\bdecision scien"
@@ -85,7 +85,7 @@ RULES = {
     # True also keeps direct switches (changed jobs, or a new grad straight into tech, with no tech or math training).
     "keep_direct_switches": False,
     # Changed roles within tech: someone already in tech who moves into a different role bucket after at least this
-    # many months in the first one (for example IT support -> data and analytics). Their own pool; False turns it off.
+    # many months in the first one (for example IT support -> data science). Their own pool; False turns it off.
     "within_tech_switches": True,
     "min_months_in_first_bucket": 12,
 }
@@ -223,7 +223,7 @@ def _one_person(g, edu, rules):
     first = cm.iloc[0]
     reached = sorted(cm.cm_bucket.unique())
     out.update(switch_month=first.start, target_title=first.title, target_bucket=first.cm_bucket,
-               roles_reached=", ".join(reached), reached_data="data and analytics" in reached,
+               roles_reached=", ".join(reached), reached_data="data science" in reached,
                first_level="manager or above" if first.manager_plus else "senior" if first.senior else "other")
 
     tl = person_timeline(g, edu, first.start, rules)
@@ -333,7 +333,7 @@ ONET_ROLE_BUCKETS = {
     # 2019 SOC
     "15-1211": "networks and systems",       # computer systems analysts
     "15-1212": "security",                   # information security analysts
-    "15-1221": "data and analytics",         # computer and information research scientists
+    "15-1221": "data science",         # computer and information research scientists
     "15-1231": "networks and systems",       # computer network support specialists
     "15-1232": "it support",                 # computer user support specialists
     "15-1241": "networks and systems",       # computer network architects
@@ -348,12 +348,12 @@ ONET_ROLE_BUCKETS = {
     "15-1299": "other computer roles",       # computer occupations, all other
     "15-2011": "credentialed math",          # actuaries
     "15-2021": "credentialed math",          # mathematicians
-    "15-2031": "data and analytics",         # operations research analysts
-    "15-2041": "data and analytics",         # statisticians
-    "15-2051": "data and analytics",         # data scientists
-    "15-2099": "data and analytics",         # mathematical science occupations, all other
+    "15-2031": "data science",         # operations research analysts
+    "15-2041": "data science",         # statisticians
+    "15-2051": "data science",         # data scientists
+    "15-2099": "data science",         # mathematical science occupations, all other
     # 2010 SOC
-    "15-1111": "data and analytics",         # computer and information research scientists
+    "15-1111": "data science",         # computer and information research scientists
     "15-1121": "networks and systems",       # computer systems analysts
     "15-1122": "security",                   # information security analysts
     "15-1131": "software development",       # computer programmers
@@ -448,7 +448,7 @@ def training_field(text):
 # One order for training fields and tech roles, from infrastructure to code to data, so related fields and roles sit
 # near each other and the people in path tables form a band down the diagonal.
 ROLE_ORDER = ["it support", "networks and systems", "security", "database", "software development", "quality assurance",
-              "data and analytics", "it project management"]
+              "data science", "it project management"]
 FIELD_ORDER = ["networking", "cybersecurity", "information technology and systems", "computer engineering and electronics",
                "computer applications (BCA / MCA)", "computer science", "software and web development",
                "data science and analytics", "mathematics and statistics", "tech degree, field not named"]

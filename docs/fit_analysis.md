@@ -117,7 +117,7 @@ The collecting teammate does this locally:
 
 ### Step 4: synthetic profiles, only to balance small roles
 
-**The 1,000-profile plan is dropped (2026-10-09):** it assumed about 50 real profiles, and there are now 2,813 real career changers. Roles are uneven (data and analytics is small: 237 people, only 19 of them retrained into it), so:
+**The 1,000-profile plan is dropped (2026-10-09):** it assumed about 50 real profiles, and there are now 2,813 real career changers. Roles are uneven (data science is small: 237 people, only 19 of them retrained into it), so:
 
 - **The compass and every reported share use real people only.** "30% of developers who changed roles moved into data" is a fact; balancing would make every role look equally common.
 - **The model handles imbalance in training:** class weights first (`class_weight="balanced"`), with per-role scores so a small role isn't hidden in an average.

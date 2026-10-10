@@ -108,7 +108,7 @@ LAYOUTS = {
         "bullets_by_section": {"4a.3": 3},
         "table_groups": [
             ["Duplicate resumes", "From every resume to viable candidates"],
-            ["Data and analytics: everyone vs. the career-changer view", "Level of the job at the switch"],
+            ["Data science: everyone vs. the career-changer view", "Level of the job at the switch"],
             ["Summary statistics, all viable candidates"],
             ["Retrained career changers by path"],
             ["Prior career → first tech job"],
