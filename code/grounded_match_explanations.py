@@ -117,7 +117,7 @@ Practical next steps should help the candidate verify an unknown, address an exp
 
 _BATCH_PROMPT_ADDENDUM = """
 
-You are given ONE candidate and SEVERAL jobs (see expected_results). Return exactly expected_results result objects, one per job, in the same order as the jobs, each echoing that job's own job_id and the candidate's profile_id exactly, and assess every job independently using only that job's own evidence IDs. Keep each result compact so all jobs fit: list at most 8 of the most important qualifications per job (required ones first), at most 3 transferable-experience items and at most 3 next steps, and keep every rationale to one or two short sentences."""
+You are given ONE candidate and SEVERAL jobs (see expected_results). Return exactly expected_results result objects, one per job, in the same order as the jobs, each echoing that job's own job_id and the candidate's profile_id exactly, and assess every job independently using only that job's own evidence IDs. Keep each result compact so all jobs fit: list at most 8 of the most important qualifications per job (required ones first), at most 3 transferable-experience items and at most 3 next steps, and keep every rationale to one or two short sentences. A next step must address only qualifications whose status is unknown or explicit_gap (never supported ones), and its evidence_ids must be a NON-EMPTY list taken from the evidence IDs already cited by those qualifications; if you cannot meet that, leave next_steps empty."""
 
 _OMIT_KEYS = {
     "profile_id", "job_id", "id", "url", "source_url", "source", "status",
@@ -221,8 +221,15 @@ def validate_response(
     job_catalog: list[dict[str, str]],
     profile_id: str,
     job_id: str,
+    *,
+    drop_invalid_next_steps: bool = False,
 ) -> dict[str, Any]:
-    """Validate schema, references, and conservative status/evidence invariants."""
+    """Validate schema, references, and conservative status/evidence invariants.
+
+    With drop_invalid_next_steps, a next step that breaks its rules (empty or unsupported evidence, or addressing a
+    supported requirement) is left out instead of failing the whole job: the requirement assessment is still fully
+    checked, and an ungrounded tip is never shown.
+    """
     required = {"profile_id", "job_id", "evidence_sufficiency", "insufficiency_reason",
                 "transferable_experience", "qualifications", "next_steps"}
     if set(response) != required:
@@ -310,21 +317,29 @@ def validate_response(
 
     status_by_id = {q["qualification_id"]: q["status"] for q in clean_qualifications}
     clean_steps: list[dict[str, Any]] = []
+    dropped_steps = 0
     for item in next_steps:
-        if set(item) != {"action", "qualification_ids", "evidence_ids"}:
-            raise ResponseValidationError("Next-step item has unexpected fields")
-        qids = item["qualification_ids"]
-        if not isinstance(qids, list) or not qids or any(qid not in qualification_ids for qid in qids):
-            raise ResponseValidationError("Next steps must reference known qualification IDs")
-        if any(status_by_id[qid] not in {"unknown", "explicit_gap"} for qid in qids):
-            raise ResponseValidationError("Next steps may address only unknown or explicit-gap qualifications")
-        eids = refs(item["evidence_ids"], all_ids, "next-step evidence IDs")
-        related_candidate_ids = set().union(*(qualification_candidate_ids[qid] for qid in qids))
-        related_job_ids = set().union(*(qualification_job_ids[qid] for qid in qids))
-        if not set(eids).issubset(related_candidate_ids | related_job_ids):
-            raise ResponseValidationError("Next-step evidence must support a referenced qualification")
-        clean_steps.append({"action": _nonblank(item["action"], "next-step action"),
-                            "qualification_ids": qids, "evidence_ids": eids})
+        try:
+            if set(item) != {"action", "qualification_ids", "evidence_ids"}:
+                raise ResponseValidationError("Next-step item has unexpected fields")
+            qids = item["qualification_ids"]
+            if not isinstance(qids, list) or not qids or any(qid not in qualification_ids for qid in qids):
+                raise ResponseValidationError("Next steps must reference known qualification IDs")
+            if any(status_by_id[qid] not in {"unknown", "explicit_gap"} for qid in qids):
+                raise ResponseValidationError("Next steps may address only unknown or explicit-gap qualifications")
+            eids = refs(item["evidence_ids"], all_ids, "next-step evidence IDs")
+            related_candidate_ids = set().union(*(qualification_candidate_ids[qid] for qid in qids))
+            related_job_ids = set().union(*(qualification_job_ids[qid] for qid in qids))
+            if not set(eids).issubset(related_candidate_ids | related_job_ids):
+                raise ResponseValidationError("Next-step evidence must support a referenced qualification")
+            clean_steps.append({"action": _nonblank(item["action"], "next-step action"),
+                                "qualification_ids": qids, "evidence_ids": eids})
+        except ResponseValidationError:
+            if not drop_invalid_next_steps:
+                raise
+            dropped_steps += 1
+    if dropped_steps:
+        log.info("gap: %d next step(s) left out because they did not meet the evidence rules", dropped_steps)
 
     return {
         "schema_version": SCHEMA_VERSION,
@@ -548,7 +563,7 @@ def explain_matches(
                 continue
             raw = {**raw, "job_id": job_id, "profile_id": profile_id}
             try:
-                results[job_id] = {"state": "completed", "assessment": validate_response(raw, candidate_catalog, catalogs[job_id], profile_id, job_id)}
+                results[job_id] = {"state": "completed", "assessment": validate_response(raw, candidate_catalog, catalogs[job_id], profile_id, job_id, drop_invalid_next_steps=True)}
             except ResponseValidationError as exc:
                 log.warning("gap batch: answer for job %d of %d rejected: %s", index + 1, len(expected), exc)
                 results[job_id] = {"state": "failed", "reason": "The AI's answer for this job did not pass the evidence check, so it is not shown."}
