@@ -136,6 +136,12 @@ A long-open listing may be a **ghost listing** (forgotten or no longer monitored
 
 Steps: describe the long-open listings (how many, which occupation groups and sources); **check the 90-day threshold** (do closing rates level off past 90 days? are those listings relisted, or did their company stop posting?) and keep it or adjust it with that evidence; measure each signal; combine them into a **"likely ghost listing" flag**, used to rank lower or label, never to remove. Only listings first seen before July can reach 90 days in this six-month window. Evergreen wording ("always accepting applications") is added in EDA_SDA_3.
 
+**What the data shows**
+- **90 days is a reasonable stale line, but not a sharp break.** Among listings first seen in April–May, the share of open listings that close within the next 30 days falls steadily: 54% in the first month, 42%, 32%, then 26% from day 90 to 120. A 90-day-old listing is about half as likely to close next month as a new one, yet a quarter still close each month, so many stale listings aren't dead; the ghost flag tells them apart.
+- **666 of 3,447 open listings (19%) are more than 90 days old,** from 14% (quality assurance) to 22% (software development). Every open job-board listing (47) is more than 90 days old, likely how job boards keep listings up; 3.2 looks at it.
+- **One signal separates ghosts from active listings:** only 44% of stale listings come from a company that posted anything new in the last 60 days, vs. 92% of younger ones. Relisting, very old posting dates and source barely differ, so the flag rests almost entirely on company activity.
+- **374 likely ghosts (56% of stale) and 292 possibly hard to fill.** Without likely ghosts, median days open drops 1–3 days per bucket and open counts about 10% (3.12a). *To fill in after the next run: whether "possibly hard to fill" listings are more open to career changers; if not, the category is dropped.*
+
 ### 3.2 Source / platform
 
 | Check | If the result is… | Then… |
@@ -293,6 +299,7 @@ Every path carries its people count, and paths under about 10 people are marked 
 - **Openness varies most by bucket:** 44% of IT support listings show a sign of openness to career changers vs. 9% of IT project management; remote work is similar everywhere (17–23%, data and analytics highest).
 - **The strongest paths are within tech:** IT support → networks and systems (279 people), networks and systems → IT support (199), IT support → security (163), developers → databases (142) and → data and analytics (137). From outside tech, the largest are business → networks and systems (31), arts and media → software (30), and computer science → software (75) by training.
 - **Most paths are thin:** 78% of prior-career paths, 67% of training paths and 43% of within-tech paths rest on fewer than 10 people. The compass shows every count and marks thin paths, and `ML_Fit` should fall back to the bucket-level pattern when a user's exact path is thin.
+- **Without likely ghosts** (3.1d), each bucket's median days open drops 1–3 days (security 26.8 → 24.2, software 24.1 → 22.2) and its open count about 10%: ghosts stretch timing a little, so both versions are kept.
 - **Expected growth is still empty:** it fills once the official occupational projections are downloaded (queued). Saved for `ML_Fit`: `role_market.pkl` (8 buckets) and `compass_paths_2026.pkl` (223 paths).
 
 ## 4. EDA_SDA_2 final table
