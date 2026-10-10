@@ -104,6 +104,18 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+**Mac only:** LightGBM and XGBoost need the OpenMP runtime. Install it once with Homebrew:
+
+```bash
+brew install libomp
+```
+
+**For the text notebooks (EDA_SDA_3, ML_Fit):** download spaCy's English model once:
+
+```bash
+python -m spacy download en_core_web_sm
+```
+
 **Adding a new package:**
 1. `pip install <package>`
 2. Add it to `requirements.txt` with a pinned version (e.g. `seaborn==0.13.2`)
