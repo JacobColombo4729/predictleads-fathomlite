@@ -4,6 +4,8 @@ Usage, from the project folder (PL or .venv activated):
     python -m src.stream_full --test 1000000   -> a test run on the first 1,000,000 documents, saved separately under
                                                  data/flat/stream_test/, with projections for the full file
     python -m src.stream_full                  -> the full run (resumable: rerun after a crash or a closed laptop)
+    python -m src.stream_full --rows           -> a second pass that saves EDA_SDA_1's full cleaned row (src/listing_rows.py)
+                                                 for every English US listing, for full-scale EDA_SDA_1 (own progress file)
 
 Saved under data/flat/ (git-ignored; prints aggregates only: counts, sizes, speeds):
     job_openings_full/part_NNNN.pkl            scope listings (English or unlabeled, US or no country, computer and
@@ -12,7 +14,9 @@ Saved under data/flat/ (git-ignored; prints aggregates only: counts, sizes, spee
     job_openings_included_full/part_NNNN.pkl   the related objects of those documents, duplicates removed
     all_fields_lean_full/part_NNNN.parquet     every English US (or no-country) listing in any field, lean typed columns
                                                only (no text): company volume and the occupation summary come from it
-    stream_full_progress.json                  documents done, for resuming
+    all_fields_rows_full/part_NNNN.parquet     (--rows) EDA_SDA_1's cleaned row for every English US (or no-country)
+                                               listing in any field: text flags, source, repost fingerprint; no text
+    stream_full_progress.json                  documents done, for resuming (stream_rows_progress.json for --rows)
 
 Filters match EDA_SDA_1 (English, US or no country) and EDA_SDA_2 1d (the scope); later notebooks apply the rest.
 """
@@ -105,6 +109,29 @@ def lean_rows(flat):
     return out
 
 
+LIST_COLS = ["contract_types", "tags", "categories"]
+
+
+def typed_rows(flat):
+    """EDA_SDA_1's cleaned row (lean_part) for every English (or unlabeled) US (or no-country) listing, typed for Parquet."""
+    from src.listing_rows import lean_part
+    out = lean_part(flat)
+    keep = (out.language.eq("en") | out.language.isna()) & (out.country.eq("United States") | out.country.isna())
+    out = out[keep].copy()
+    for c in ["first_seen", "last_seen", "posted"]:
+        out[c] = pd.to_datetime(out[c], utc=True, errors="coerce")
+    for c in ["salary_low_usd", "salary_high_usd", "years_required"]:
+        out[c] = pd.to_numeric(out[c], errors="coerce").astype("float32")
+    out["desc_words"] = out.desc_words.fillna(0).astype("int32")
+    out["n_locations"] = out.n_locations.astype("int16")
+    for c in LIST_COLS:  # one consistent type for Parquet: a list of strings, or empty
+        out[c] = out[c].map(lambda v: [str(x) for x in v] if isinstance(v, (list, tuple)) else [])
+    for c in ["id", "company_id", "title", "status", "seniority", "language", "onet_code", "occupation_group", "occupation",
+              "salary_unit", "desc_hash", "country", "source_type", "platform"]:
+        out[c] = out[c].astype("string")
+    return out
+
+
 def scope_mask(flat):
     """English or unlabeled, US or no country, computer and mathematical: the group, or a 15- O*NET code (EDA_SDA_2 1d's rule)."""
     col = lambda c: flat.reindex(columns=[c])[c]
@@ -142,10 +169,14 @@ def folder_size(folder):
     return sum(f.stat().st_size for f in folder.glob("*")) if folder.exists() else 0
 
 
-def run(max_docs=None, local=None, out_root=None):
+def run(max_docs=None, local=None, out_root=None, rows=False):
     out_root = Path(out_root) if out_root else (FLAT_DIR / "stream_test" if max_docs else FLAT_DIR)
-    names = {"scope": "job_openings_full", "included": "job_openings_included_full", "lean": "all_fields_lean_full"}
-    progress_file = out_root / "stream_full_progress.json"
+    if rows:  # second pass: only EDA_SDA_1's cleaned rows, for every field
+        names = {"rows": "all_fields_rows_full"}
+        progress_file = out_root / "stream_rows_progress.json"
+    else:
+        names = {"scope": "job_openings_full", "included": "job_openings_included_full", "lean": "all_fields_lean_full"}
+        progress_file = out_root / "stream_full_progress.json"
     out_root.mkdir(parents=True, exist_ok=True)
     progress = json.loads(progress_file.read_text()) if progress_file.exists() else {"docs_done": 0, "records": 0, "scope": 0, "lean": 0}
     if progress.get("finished"):
@@ -153,7 +184,7 @@ def run(max_docs=None, local=None, out_root=None):
         return progress
     # Parts are saved at each chunk boundary, then the checkpoint; a crash in between can repeat one chunk's rows,
     # which the notebooks remove (they drop duplicate ids).
-    writers = {k: PartWriter(out_root / v, "parquet" if k == "lean" else "pkl") for k, v in names.items()}
+    writers = {k: PartWriter(out_root / v, "parquet" if k in ("lean", "rows") else "pkl") for k, v in names.items()}
     seen_included = set()
     lines, counter, total_bytes = open_lines(local)
     start, docs, skipped = time.time(), 0, progress["docs_done"]
@@ -184,12 +215,17 @@ def run(max_docs=None, local=None, out_root=None):
                     inc.append(r)
         flat = pd.json_normalize(recs)
         mask = scope_mask(flat)
-        writers["scope"].add(flat[mask].reset_index(drop=True))
-        lean = lean_rows(flat).reset_index(drop=True)
-        writers["lean"].add(lean)
-        progress["lean"] += len(lean)
-        if inc:
-            writers["included"].add(pd.json_normalize(inc))
+        if rows:
+            r = typed_rows(flat).reset_index(drop=True)
+            writers["rows"].add(r)
+            progress["rows"] = progress.get("rows", 0) + len(r)
+        else:
+            writers["scope"].add(flat[mask].reset_index(drop=True))
+            lean = lean_rows(flat).reset_index(drop=True)
+            writers["lean"].add(lean)
+            progress["lean"] += len(lean)
+            if inc:
+                writers["included"].add(pd.json_normalize(inc))
         progress["records"] += len(flat)
         progress["scope"] += int(mask.sum())
 
@@ -227,22 +263,26 @@ def run(max_docs=None, local=None, out_root=None):
 
     sizes = {k: folder_size(out_root / v) for k, v in names.items()}
     print(f"\ndone: {docs:,} documents, {progress['records']:,} listings in {elapsed / 60:.1f} min; read {share:.1%} of the file")
-    print(f"kept: scope {progress['scope']:,} listings, all-fields lean {progress['lean']:,} rows")
+    if rows:
+        print(f"kept: {progress.get('rows', 0):,} cleaned rows in all fields (scope share of listings: {progress['scope']:,})")
+    else:
+        print(f"kept: scope {progress['scope']:,} listings, all-fields lean {progress['lean']:,} rows")
     print("disk used: " + ", ".join(f"{k} {v / 1e9:.2f} GB" for k, v in sizes.items()))
     if max_docs and share > 0:
         scale = 1 / share
         print(f"\nprojection for the full file (by compressed bytes read; rough):"
               f"\n  documents ≈ {docs * scale:,.0f}, listings ≈ {progress['records'] * scale:,.0f}, scope ≈ {progress['scope'] * scale:,.0f}"
               f"\n  time ≈ {elapsed * scale / 3600:.1f} hours"
-              f"\n  disk ≈ {sum(sizes.values()) * scale / 1e9:.1f} GB (scope {sizes['scope'] * scale / 1e9:.1f} GB, "
-              f"lean {sizes['lean'] * scale / 1e9:.1f} GB, included {sizes['included'] * scale / 1e9:.2f} GB)")
+              f"\n  disk ≈ {sum(sizes.values()) * scale / 1e9:.1f} GB ("
+              + ", ".join(f"{k} {v * scale / 1e9:.2f} GB" for k, v in sizes.items()) + ")")
     return progress
 
 
-def load_lean(columns, root=None):
-    """The all-fields lean table, only the given columns, with repeated text as categories (memory-safe for 13M rows)."""
+def load_lean(columns, root=None, table="all_fields_lean_full"):
+    """An all-fields table, only the given columns, with repeated text as categories (memory-safe for 13M rows).
+    table: "all_fields_lean_full" (first pass) or "all_fields_rows_full" (--rows: EDA_SDA_1's cleaned rows)."""
     import pyarrow.dataset as ds
-    folder = Path(root or FLAT_DIR) / "all_fields_lean_full"
+    folder = Path(root or FLAT_DIR) / table
     return ds.dataset(sorted(folder.glob("part_*.parquet")), format="parquet").to_table(columns=columns).to_pandas(
         strings_to_categorical=True)
 
@@ -250,7 +290,8 @@ def load_lean(columns, root=None):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--test", type=int, metavar="N", help="test run on the first N documents (saved under data/flat/stream_test/)")
+    ap.add_argument("--rows", action="store_true", help="second pass: EDA_SDA_1's cleaned rows for every field")
     ap.add_argument("--local", help=argparse.SUPPRESS)  # a local .jsonl.zst, for tests on synthetic data
     ap.add_argument("--out", help=argparse.SUPPRESS)
     args = ap.parse_args()
-    run(max_docs=args.test, local=args.local, out_root=args.out)
+    run(max_docs=args.test, local=args.local, out_root=args.out, rows=args.rows)

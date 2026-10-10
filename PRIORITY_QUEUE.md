@@ -9,8 +9,8 @@
 
 - **Full dataset, full scale for every notebook** (decided 2026-10-10; stream test: ≈13.4M listings, ≈1.0M in scope, ≈40 minutes, ≈8.4 GB):
   1. **Jacob:** finish the first full stream (`PL/bin/python -m src.stream_full`), paste the summary, delete `data/flat/stream_test/`. Its scope parts (all columns) are kept.
-  2. **Claude:** move EDA_SDA_1's row building and keyword rules (6.1: text flags, source and platform, repost fingerprint) into `src/`, used by the stream and the notebooks alike; check EDA_SDA_1 gives identical results on the sample.
-  3. **Claude, then Jacob:** extend the stream's all-fields table to EDA_SDA_1's full cleaned row (typed Parquet, no text), then rerun the stream once (≈40 minutes).
+  2. ~~Move EDA_SDA_1's row building into `src/`~~ done 2026-10-10: `src/listing_rows.py`, identical output to the notebook's own code; EDA_SDA_1 6.1 imports it.
+  3. **Jacob:** after step 1, run the second pass: `PL/bin/python -m src.stream_full --rows` (≈40 minutes, resumable): EDA_SDA_1's cleaned row for every English US listing, typed Parquet, no text (`data/flat/all_fields_rows_full/`). Then `data/flat/all_fields_lean_full/` can be deleted once EDA_SDA_2 reads the rows table.
   4. **Claude:** rework EDA_SDA_1 to read columns, not the whole table (13.4M rows in 8 GB); repost matching on compact fingerprints; display cells on a sample. Then Jacob reruns it, and Claude updates notes, reports and the deck.
   5. **Claude:** EDA_SDA_2 reads the full scope (≈1M rows, cleaned part by part into a typed table), company volume and the 1c summary from the all-fields table (`load_lean`), memory-safe heavy cells (3.7d location records from the full parts). Jacob reruns; Claude updates notes, reports and the deck.
   6. **Claude:** EDA_SDA_3 for full scale: text read part by part, regex features over every listing, spaCy lemmas on a large stratified sample (about 150,000), cache in parts. Hold EDA_SDA_3's first run until then.
