@@ -247,7 +247,6 @@ export const api = {
     };
   },
 
-  /** Compass analysis of 2-20 picked jobs against the saved profile. Local embeddings only; nothing leaves the machine. */
   /** AI skills gap analysis for the Compass picks: ONE request to OpenAI covering every job, when the server has it enabled. */
   async compassGapAnalysis(snapshotId: string, jobIds: string[]): Promise<GapBatchResult> {
     const current = await api.currentProfile();
@@ -260,7 +259,8 @@ export const api = {
       : { state: "unavailable" };
   },
 
-  async compass(profileId: string, profileVersion: number, snapshotId: string, jobIds: string[]): Promise<CompassResult> {
+  /** Compass analysis of 2-20 picked jobs against the saved profile. `stretch` (0-100) sets how far the suggested roles reach. Local embeddings only; nothing leaves the machine. */
+  async compass(profileId: string, profileVersion: number, snapshotId: string, jobIds: string[], stretch = 0): Promise<CompassResult> {
     const r = await request<{
       picks_analyzed: number;
       duplicates_collapsed: number;
@@ -277,7 +277,7 @@ export const api = {
       next_steps: { requirement_id: string; text: string; n: number; coverage: number; status: "supported" | "partial" | "unknown"; verify?: boolean; action: string }[];
       stats: { jobs: number; themes: number; requirement_groups: number; groups_with_evidence: number; suggestions: number; sentences_read: number };
       method: { limits: string[] };
-    }>("POST", `/profiles/${profileId}/compass`, { snapshot_id: snapshotId, profile_version: profileVersion, job_ids: jobIds });
+    }>("POST", `/profiles/${profileId}/compass`, { snapshot_id: snapshotId, profile_version: profileVersion, job_ids: jobIds, stretch });
     return {
       picksAnalyzed: r.picks_analyzed,
       duplicatesCollapsed: r.duplicates_collapsed,

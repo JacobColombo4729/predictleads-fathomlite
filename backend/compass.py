@@ -43,6 +43,7 @@ MIN_SENTENCE_WORDS = 5         # shorter lines are usually titles or headings, n
 MAX_THEMES = 3
 SUGGESTION_COUNT = 5
 SUGGESTION_POOL = 150
+STRETCH_MAX_SKIP = 14000       # at stretch 100, suggestions come from ranks this far below the closest matches (capped to a quarter of the listings)
 MMR_LAMBDA = 0.7
 REUSE_PENALTY = 0.04           # per earlier use of the same profile line when choosing explanations
 NOVELTY_WEIGHT = 0.35          # how strongly a suggestion is pushed away from near-copies of the picks
@@ -258,7 +259,10 @@ def analyze(
     profile: matching.CandidateProfile,
     profile_data: Mapping[str, Any],
     excluded_job_ids: Sequence[str] = (),
+    stretch: int = 0,
 ) -> dict[str, Any]:
+    """`stretch` (0-100) sets how far beyond the closest matches the suggested roles reach; 0 is the original behaviour."""
+    stretch = max(0, min(100, int(stretch)))
     # 1. collapse duplicate listings among the picks
     distinct: list[matching.JobRecord] = []
     seen_keys: set[str] = set()
@@ -303,7 +307,8 @@ def analyze(
     blocked = set(pick_ids) | set(excluded_job_ids)
     pick_titles = [_title_tokens(_job_title(job.source)) for job in distinct]
     pick_dup_keys = set(seen_keys)
-    pool_order = np.argsort(-blended_scores)[: SUGGESTION_POOL * 3]
+    skip = int(round(min(STRETCH_MAX_SKIP, 0.25 * len(all_jobs)) * stretch / 100))
+    pool_order = np.argsort(-blended_scores)[skip: skip + SUGGESTION_POOL * 3]
     pool: list[int] = []
     pool_relaxed: list[int] = []
     seen_title_company: set[tuple[str, str]] = set()
@@ -521,6 +526,7 @@ def analyze(
     themes_out = [{k_: v for k_, v in info.items() if k_ not in {"centroid", "mean_vec"}} for info in (theme_info[t] for t in ordered_themes)]
     with_evidence = sum(1 for r in requirements if r["status"] != "unknown")
     return {
+        "stretch": stretch,
         "picks_analyzed": total_picks,
         "duplicates_collapsed": duplicates_collapsed,
         "themes": themes_out,

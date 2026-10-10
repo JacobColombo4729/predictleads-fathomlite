@@ -14,13 +14,13 @@ interface Props {
 
 const TIERS: Tier[] = ["best", "reach", "stretch"];
 
-/** Your picks in three tiers. Moving the stretch slider moves the boundaries; cards slide to their new column. */
+/** Your picks and the suggested roles in three tiers by fit. Releasing the stretch slider brings in roles further from your picks; cards slide to their column. */
 export default function TierBoard({ jobs, themeFilter, stretch, selectedId, onSelect }: Props) {
   const board = useRef<HTMLDivElement>(null);
   const rects = useRef(new Map<string, { left: number; top: number }>());
 
   const picks = jobs
-    .filter((j) => j.pick && (themeFilter === "all" || j.themeId === themeFilter))
+    .filter((j) => themeFilter === "all" || j.themeId === themeFilter)
     .sort((a, b) => b.fit - a.fit);
   const byTier: Record<Tier, CompassJob[]> = { best: [], reach: [], stretch: [] };
   picks.forEach((j) => byTier[tierOf(j.fit, stretch)].push(j));
@@ -64,7 +64,7 @@ export default function TierBoard({ jobs, themeFilter, stretch, selectedId, onSe
               onClick={() => onSelect(j.job.id)}
               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(j.job.id); } }}
             >
-              <div className="cp-jcard__t">{j.job.title}</div>
+              <div className="cp-jcard__t">{j.job.title}{!j.pick && <span className="cp-chip cp-chip--tag">Suggested</span>}</div>
               <div className="cp-jcard__c">{j.job.company.name}</div>
               <CompanyHiringBadge companyId={j.job.company.id} />
               <div className="cp-jcard__row">

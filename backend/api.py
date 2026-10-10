@@ -171,6 +171,7 @@ class CompassRequest(BaseModel):
     snapshot_id: str = Field(min_length=1, max_length=80)
     profile_version: int = Field(ge=1)
     job_ids: list[str] = Field(min_length=compass_analysis.MIN_PICKS, max_length=compass_analysis.MAX_PICKS)
+    stretch: int = Field(default=0, ge=0, le=100)
 
 
 class AssessmentRequest(BaseModel):
@@ -1265,7 +1266,7 @@ def create_app(
         try:
             result = compass_analysis.analyze(
                 ranker, picks=picks, all_jobs=jobs.jobs, profile=_candidate_from_profile(profile_id, profile_data),
-                profile_data=profile_data, excluded_job_ids=rated,
+                profile_data=profile_data, excluded_job_ids=rated, stretch=payload.stretch,
             )
         except compass_analysis.CompassError as exc:
             raise APIError(422, exc.code, str(exc)) from None

@@ -27,15 +27,16 @@ export function wedgePath(centerDeg: number, halfWidth: number, r: number): stri
   return `M${MAP.cx} ${MAP.cy} L${x0} ${y0} A${r} ${r} 0 0 1 ${x1} ${y1} Z`;
 }
 
-/* ---------- tiers: the stretch slider moves the Best fit / Reach / Stretch boundaries ---------- */
+/* ---------- tiers: fixed cutoffs on the 0-100 fit; the stretch slider changes which roles are suggested, not the cutoffs ---------- */
 
-export function tierThresholds(stretch: number): { best: number; reach: number } {
-  return { best: 82 - 0.16 * stretch, reach: 64 - 0.2 * stretch };
+export const TIER_CUTOFFS = { best: 75, reach: 55 } as const;
+
+export function tierThresholds(_stretch?: number): { best: number; reach: number } {
+  return { best: TIER_CUTOFFS.best, reach: TIER_CUTOFFS.reach };
 }
 
-export function tierOf(fit: number, stretch: number): Tier {
-  const t = tierThresholds(stretch);
-  return fit >= t.best ? "best" : fit >= t.reach ? "reach" : "stretch";
+export function tierOf(fit: number, _stretch?: number): Tier {
+  return fit >= TIER_CUTOFFS.best ? "best" : fit >= TIER_CUTOFFS.reach ? "reach" : "stretch";
 }
 
 /* ---------- themes and statuses ---------- */
