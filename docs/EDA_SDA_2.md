@@ -172,6 +172,8 @@ Steps: describe the long-open listings (how many, which occupation groups and so
 | Survival curves: listings with vs. without a `posted` date | Similar | `posted` can be used where present |
 | | Different | Stick with `first_seen` only |
 
+**Also (added 2026-10-10): are high-volume companies crawled more often?** The crawler's visit times aren't in the data, so crawler lag (posting date → first seen) stands in for crawl frequency, and the company-volume effect from 3.5a (7 vs. 39 days) is re-measured from the employer's posting date. If it shrinks a lot, part of it was crawl timing.
+
 ### 3.4 Pay disclosed
 
 | Check | If the result is… | Then… |
