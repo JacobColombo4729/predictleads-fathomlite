@@ -116,7 +116,7 @@ A separate tab: a personal outlook built from the user's résumé, with the comp
 - **"Based on your current résumé, we think you should build these skills":** skills that listings in the suggested roles ask for and the résumé doesn't show (EDA_SDA_3's skills mapped to O*NET, compared in `ML_Fit`), most-asked first.
 - **"Here's what your career options could look like down the line":** the roles people with a similar background reached and how long it took them (Profiles; for example a median of 15 months from leaving the old job to the first tech job), with each role's 2026 openings.
 - **"Here's your pay increase":** median hourly pay in each option (EDA_SDA_2 3.12) vs. the user's current field (EDA_SDA_2's occupation summary, 1c), or a rate they enter.
-- **"Here's the job growth we expect in your career":** expected employment growth (%) for each option, from official projections (BLS plugs in directly by occupation code), next to the role's entry-level share.
+- **"Here's the job growth we expect in your career":** expected employment growth (%) for each option, from official projections (BLS plugs in directly by occupation code), next to the role's entry-level share. Shown as a range if the team adopts the error band (`docs/job_growth.md` 4a); IT project management's figure is a proxy (the 15-1299 catch-all), and says so.
 - **Stepping-stone roles:** a role that bridges two functions on the way to a bigger move (for example engineer → pre-sales engineer → director). The resume rules record the level at each move, so the tab can show roles people passed through.
 - **Where it comes from:** the compass tables assembled in `ML_Fit`'s last section.
 
@@ -181,7 +181,7 @@ Each MCP server wraps one capability we build anyway: postings, timing, fit, mar
 | `timing` | Chance still open; apply-by date; check schedule | Our survival and arrival models |
 | `fit` | Suggest roles from a background profile; score it against postings; explain which skills transfer; list gaps | `ML_Fit`'s model: local TF-IDF and BGE, O*NET skills |
 | `priority` | Score and rank postings with the tuned model and the user's weights | Outputs of `timing`, `fit` and competition signals |
-| `market` | Job growth expectations by role; listing volume by month | Job growth expectations; our listings |
+| `market` | Job growth expectations by role (with ranges and scenarios if adopted); listing volume by month | Job growth expectations; our listings |
 | `tracker` | Star, set status, list starred postings, reminders | The user's own data |
 
 ### Agents
@@ -230,7 +230,7 @@ Each stage is usable on its own, so we always have something to demo.
 | **2. Transferable fit and role discovery** | Background profile; suggested roles; retraining compass; Ideas tab; moving across and up within tech; job growth expectations; transferable-fit score and filter; skills that carry over, and gaps | TF-IDF or local embeddings; O*NET skills; job growth expectations |
 | **3. Priority model** | Tuned priority score with adjustable weights; the rating breakdown by feature in the detail view | Full analysis; ML_Rank's per-listing contributions |
 | **4. Agents** | MCP servers, then the agents, starting with Ranker, Coach and Reminder | Stages 1–3; the advisors' answer |
-| **5. Market panel** | Listing volume by month, with each role's expected growth | Stage 1 |
+| **5. Market panel** | Listing volume by month, with each role's expected growth; if the team adopts the scenario extensions (`docs/job_growth.md` 4b/4d), a fan chart per role (baseline, scenario band, uncertainty band) | Stage 1 |
 
 ---
 

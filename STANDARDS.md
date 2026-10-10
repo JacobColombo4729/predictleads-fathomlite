@@ -58,7 +58,7 @@ For a given **career changer** (anyone switching from their current background t
 - **Counts over time use only earlier listings:** company hiring volume and reposts count only listings first seen before the listing (or before the chosen date). Whole-window counts are descriptive only. EDA_SDA_1 Q1d rechecked its company-volume finding this way: 13 vs. 30 days (20+ openings vs. one-off), so it holds.
 - **Date picker (as-of date):** a listing is shown on a date if it was first seen on or before it and last seen on or after it. Its features are computed as of that date; `last_seen_at` only decides which listings were live and never feeds a score. The model that scores a date is trained only on what was known by then: listings still open that day are censored at that day. Dates before the test period need a model retrained as of that date.
 - **Career-switch counts during evaluation:** compass and path counts used as features are built from the training people only, so a test person never counts toward their own answer.
-- **Job growth expectations** are published projections, the same for every listing in a role; they come from outside the listing data, so they don't leak listing outcomes.
+- **Job growth expectations** are published projections, the same for every listing in a role; they come from outside the listing data, so they don't leak listing outcomes. **Growth backtests** (`docs/job_growth.md`, 4a and 4d) use only data published before each origin year: the projection vintage and the rate, postings and openings series as they stood then.
 - **Never tune on the test period**, and use the test set once, at the end.
 - **Applicant profiles:** each synthetic profile stays in the same fold as the real profile it came from, and final results are reported on real profiles only.
 
@@ -106,6 +106,7 @@ For a given **career changer** (anyone switching from their current background t
 | Hiding listings on keyword rules hides some a career changer could get | Hide only on reliable (seniority) or validated (EDA_SDA_3) rules; report how many listings each rule hides |
 | Applicant profiles are personal data | Collect only with written consent and the advisor's approval; keep them under `data/`; never commit them or share them with AI tools; use synthetic profiles in anything presented |
 | Combining PredictLeads data with outside data (job growth projections) | The agreement (4.3) allows it only with PredictLeads' prior written consent: get it before the join and log it in `docs/decisions.md`. Public downloads stay in `data/external/` and count toward the final deletion (`docs/job_growth.md`) |
+| Growth projections read as certain, or the extensions widen scope unnoticed | Word growth as "expected (official projections)" with its stated accuracy; extensions 4a–4e each need a team decision, since they reopen the 2026-10-09 external-data decision (`docs/job_growth.md`) |
 | End-of-project data deletion | Track every local copy (`data/`, downloads) so all of them can be deleted and confirmed in writing |
 
 ## Discussion notes

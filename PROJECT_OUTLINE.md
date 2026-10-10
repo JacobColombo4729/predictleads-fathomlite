@@ -114,7 +114,7 @@ Each notebook answers one question and hands its final table to the next. The Tr
 - The career-change flags are keyword rules until EDA_SDA_3 validates them. Hiding listings on an unvalidated rule could hide listings a career changer could get, so rules hide nothing until they're validated.
 - The career-switch rules were spot-checked on random samples, not every person, and most switches are from 2010–2019 (median 2014), so the resumes teach career paths while the 2026 listings supply the market. O*NET's current Career Changers Matrix checks that the paths still hold.
 
-- Job growth figures are projections, not forecasts we make or check, and they're national, by occupation. They assume a full-employment economy and leave out business cycles. A growing occupation doesn't mean more entry-level openings; our listings measure those.
+- Job growth figures are projections, not forecasts we make or check, and they're national, by occupation. They assume a full-employment economy and leave out business cycles; expected accuracy is moderate for years 1–2 and low to moderate for years 3–5 (`docs/job_growth.md`). IT project management has no projection of its own; it uses the 15-1299 catch-all as a proxy. A growing occupation doesn't mean more entry-level openings; our listings measure those.
 - The resumes only show people who made a switch, not those who tried and didn't, so paths show where switchers went, never how likely a switch is to work.
 - Early dates in the date picker miss long-open listings first seen before 2026-03-30 (the six-month window), so July onward gives fair comparisons: live listings jump from 2,459 on April 1 to about 32,000 by June 1, and their age mix settles from July (EDA_SDA_1 8b).
 
