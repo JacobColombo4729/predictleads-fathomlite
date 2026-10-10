@@ -88,6 +88,7 @@ Some factors travel together, so a raw gap can belong to something else. **Every
 | **Staffing agencies** (`is_staffing`, 2b.1) | They post at volume and repost often | Gaps shown with and without them |
 | **Role bucket and seniority** | A senior data scientist role and an IT support role close at different speeds for unrelated reasons | Within role bucket (3.6) where buckets are big enough; seniority as a split |
 | **Month first seen** | Later months have had less time to close | Survival methods (still-open listings censored); month as a split for timing gaps |
+| **State** (3.7d) | Pay-transparency states disclose pay far more often and have longer windows | Pay-disclosure gaps checked within state |
 | **Ghost listings** (`likely_ghost`, 3.1d) | Forgotten listings inflate days open and the count still open | Timing results also shown without likely ghosts |
 
 **The rule:** each factor shows the **raw gap**, then the **gap within volume band × source type**, and within role bucket where there are enough listings. A factor counts as real only if the gap holds within the groups. EDA_SDA_4 then confirms the survivors with one model that adjusts for all of these at once.
@@ -268,6 +269,13 @@ The listing side is `role_bucket(onet_code)` (`ONET_DETAILED_BUCKETS` for detail
 | `entry_seniority` counts only the `junior` label | Check every seniority label (EDA_SDA_1 Q3b) and add any that are entry level, such as intern, to `ENTRY_LEVELS` |
 
 **As built (2026-10-10):** 3.7a–3.7e cover the live tolerance, salaried part-time pay (`pay_part_time_salaried`), the seniority labels and state (`state`, from the location records), with state-level pay. The reposted-closing question is answered by 3.5 (relisted copies close in 3.5 days, read as crawler refreshes); the companies table's extra fields and the no-country check move to 3.8.
+
+**What the data shows**
+- **The 2-day "still open" rule holds:** 2,583 listings were last seen within a day of the snapshot and 747 within two, then the count drops to 128 at 2–3 days. There's no bump near 7 days, so the crawler isn't weekly, and the rule doesn't count many open listings as closed.
+- **Salaried part-time pay is negligible:** 9 of the 6,030 listings with pay (flagged `pay_part_time_salaried`, kept).
+- **The seniority labels agree with titles:** 76% of `manager` and 93% of `director` titles say so; `junior` titles say junior, entry or associate (35%) or intern (23%); and **36% of `mid_senior` titles say senior, lead, principal or staff**, which confirms splitting it into mid and senior (2b.6). Internships are entry level (315 of 325).
+- **State is known for 80% of the niche** (location records also hold city, zip code and region). California (1,598), Texas (1,060), New York (910), Virginia (700) and Washington (525) lead.
+- **Pay transparency laws show in the data:** California, Washington, Massachusetts and Colorado disclose pay for 61–70% of listings, Texas, Florida and Georgia for 26–30%. Pay is highest in California ($82.74 an hour) and Washington ($81.27). The disclosing states also have longer windows (California 31 days vs. Texas 17), so **state is a confounder for 3.4's "disclosed listings stay open longer"**; EDA_SDA_4 tests disclosure within state.
 
 ### 3.8 Joining the companies table
 
