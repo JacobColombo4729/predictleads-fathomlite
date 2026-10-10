@@ -14,7 +14,7 @@ Finds **real career changers** (anyone switching from their current background t
 
 **Data:** Kaggle `suriyaganesh/resume-dataset-structured` (MIT license, version 2 of 2024-11-14): about 54,000 resume records, converted by OCR and an LLM, so expect extraction errors. Stored in git-ignored `data/external/resume_structured/`.
 
-**Data rules:** names and contact details (`people.csv`), employers and locations are never loaded. Aggregates only, except the cells tagged `data-rows` (the 4a.2d and 5b previews and the 4c review sample): clear them before committing. Never paste rows into AI tools.
+**Data rules:** names and contact details (`people.csv`), employers and locations are never loaded. Aggregates only, except the cells tagged `data-rows` (the 4a.2d and 5b previews, the 4a.2e title list and the 4c review sample): clear them before committing. Never paste rows into AI tools.
 
 **Leakage rule:** the pre-switch profile uses only jobs and education that started before the switch. Undated programs are placed by degree level (flagged in `study_undated`). Skills aren't dated, so they stay out of the pre-switch profile.
 
@@ -84,6 +84,8 @@ One row per viable candidate, stating their **prior career**, the **field they t
 - **Most retrained switches are from 2010–2019 (524 of 706, 74%);** only one is dated 2020 or later. Switch dates are descriptive only and never filter anyone.
 - **Some fields are recent:** 76% of software and web development switches and 61% of cybersecurity switches are from 2015–2019, while information technology and computer science go back further.
 - **Retraining shifted toward people who'd already worked:** the odds of being a new grad fall by about 40% every 5 years (× 0.58). From about 2015, most people who retrained had worked in another field first.
+
+**Widening the prior-career areas.** 4a.2e lists the most common job titles (or first fields of study, for new grads) among retrained people whose prior career is "other": no keyword in `BACKGROUND_AREAS` (`src/career_switch.py`) matched them. Tell Claude which career each common title belongs to, in your own words (for example "titles like X are healthcare"), or add keywords to `BACKGROUND_AREAS` yourself; then rerun from 4a. Changing areas never changes who is a career changer.
 
 ### 4a.3 Changed roles within tech: across and up
 
