@@ -10,7 +10,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 | # | Notebook | Question | Hands off |
 |:-:|:--|:--|:--|
-| **1** | **EDA_SDA_1 (you are here)** | **What's in the data, and what's the scope?** | **Final table: English US listings, April–September 2026, all groups and candidate factors** |
+| **1** | **EDA_SDA_1 (you are here)** | **What's in the data, and what's the scope?** | **Final table: English US listings, April–September 2026 (late March kept, flagged), all groups and candidate factors** |
 | 2 | EDA_SDA_2 | Which listings do we study? Additional cleaning, ghost listings, non-text checks, the niche (computer and mathematical, by role bucket), blockers hidden, the compass's 2026 side | Niche table, non-text features |
 | 3 | EDA_SDA_3 | What does the text add? NLP features; validating the career-change flags | Niche table + text features |
 | 4 | EDA_SDA_4 | Which features hold up? Statistics | Modeling-ready table |
@@ -28,7 +28,7 @@ Each notebook hands its final table to the next. The TripleTen course templates 
 |:--|:--|
 | **Data** | 200,000 listings from 51,006 companies, first seen 2026-03-30 to 2026-09-30 (PredictLeads snapshot of 2026-09-30) |
 | **After cleaning** | 195,801 original listings (no rows removed; 4,199 reposts flagged), 42,399 still open |
-| **Final table** | 182,367 English-language listings from 46,810 companies, April–September 2026 (US, plus flagged listings with no country); 41,825 still open |
+| **Final table** | 184,889 English-language listings from 47,252 companies, first seen April–September 2026 plus the data's first two days in late March (flagged `partial_month`); US, plus flagged listings with no country; 41,984 still open |
 
 ### Key findings
 
@@ -44,7 +44,7 @@ Each notebook hands its final table to the next. The TripleTen course templates 
 What separates a listing worth applying to today is mostly **the listing itself** (employer volume, source, pay disclosure), not the job title: those gaps (2.3–2.5×) are bigger than the gap between fields (1.7×), and all are known the moment a listing appears.
 
 ### Decisions
-- **Scope:** English listings in the United States, first seen April–September 2026. Listings with no language label are dropped, since they can't be confirmed; listings with no country are kept, flagged, since they mention remote work twice as often (10a); EDA_SDA_2 keeps those with a US-based company or remote wording.
+- **Scope:** English listings in the United States, first seen April–September 2026; the 2,522 from the data's first two days (late March) are kept and flagged `partial_month`, left out of per-month counts only (hide, never remove). Listings with no language label are dropped, since they can't be confirmed; listings with no country are kept, flagged, since they mention remote work twice as often (10a); EDA_SDA_2 keeps those with a US-based company or remote wording.
 - **Nothing capped:** every listing keeps its full follow-up (ghost listing vs. struggling employer is Part 2's question), and reposts become a feature.
 - **Target: computer and mathematical**, split into role buckets in EDA_SDA_2. Manager-level listings are hidden only for applicants without management experience; text blockers (years asked, licenses) only after EDA_SDA_3 validates them.
 - **This table keeps every group, seniority level and candidate factor,** so Part 2 can compare before narrowing.
@@ -371,7 +371,7 @@ Every decision about the final table, defended with the evidence from sections 6
 | **Listings with no country** (8.4%) | Keep; drop; keep and place them with the company's location | Keep, flagged `country_missing`, and resolve in EDA_SDA_2 | Keep, flagged | **Applied in EDA_SDA_2** (decided 2026-10-09): kept if the company is US-based (companies table) or the listing mentions remote work or uses the remote contract type, flagged `country_inferred`; the rest are dropped. *Why:* check 10a shows they mention remote twice as often (28.3% vs. 12.6%), and remote roles matter to career changers (35% of computer and mathematical listings) |
 | **Occupation groups** | One **main** group plus **related** groups (Q3) | Main: computer and mathematical (decided 2026-10-09). Related: the team's source-background groups, kept for role discovery and comparison | Computer and mathematical, plus the source-background groups | **Applied in EDA_SDA_2,** so Part 2 can still compare groups first. Inside it, role bucket (from `onet_code`) is a dimension, not a filter; only buckets too thin on both the listings and the profiles side are dropped |
 | **Seniority** | All levels; hide manager level for everyone; hide it per applicant; entry level only | Keep all levels; hide manager-level listings per applicant | Keep all, labelled | **Decided (2026-10-09):** manager-level listings are hidden only for applicants without management or senior experience, since prior experience can qualify a career changer. Entry level only would drop mid-level listings that ask for little experience. Text blockers (years asked, licenses) hide nothing until EDA_SDA_3 validates them |
-| **Time horizon** | Weekly; monthly | Monthly, April–September (drop the 2-day partial March) | Monthly | Decided |
+| **Time horizon** | Weekly; monthly | Monthly, April–September; keep the 2-day partial March, flagged `partial_month` | Monthly | Decided (2026-10-10: late March kept and flagged instead of dropped; hide, never remove) |
 | **Time scales** | Month; week; day of week; hour of day | Month, week and day of week | Month, week, day of week | Decided. Day of week uses `posted` (41%, Central European dates), since `first_seen` days follow the crawler. Hour of day isn't supported |
 | **Follow-up window** | Drop listings open more than 50 days; cap at 50 days; keep the full record | Keep the full record | Keep the full record | Decided: a long-open listing could be a ghost listing (rank lower) **or** an employer still struggling to hire (rank higher). Age alone can't tell them apart; EDA_SDA_2 separates the two |
 | **Prioritization factors (Q1)** | See below | | Keep all candidates for now | **Kept for now:** non-text questions are checked in EDA_SDA_2, text questions in EDA_SDA_3 |
@@ -416,14 +416,14 @@ Applies every decision from section 10, all at once. Nothing earlier filters the
 A short statistical summary of the final table: its size, how its key measures are distributed, and how it splits by month, occupation group and source. Aggregates only.
 
 **What the data shows**
-- **182,367 listings** (91.2% of the 200,000) from 46,810 companies. The filters removed 15,111 for language and 2,522 from March; listings with no country are kept, flagged. **41,825 (22.9%) are still open.**
+- **184,889 listings** (92.4% of the 200,000) from 47,252 companies. The filters removed 15,111 for language; the 2,522 from late March are kept, flagged `partial_month`, and listings with no country are kept, flagged. **41,984 (22.7%) are still open.**
 - **A median 18.2 days open;** 10% stay open longer than 79 days: the long-open listings Part 2 examines.
-- **Coverage:** 87.0% have a description and 45.0% a salary (median $29.20 an hour; middle half $20.00–$50.00).
-- **Mix:** about 35,000 listings in each of April and May, 25,500 in June, 27,400–30,300 in July–September; computer and mathematical is 7.7%; 58.7% company site or other; reposts 2.3%.
+- **Coverage:** 87.1% have a description and 44.8% a salary (median about $29.10 an hour; middle half $20.00–$50.00).
+- **Mix:** about 35,000 listings in each of April and May, 25,500 in June, 27,400–30,300 in July–September, plus 2,522 in late March; computer and mathematical is 7.6%; 58.4% company site or other; reposts 2.3%.
 - **Career-change flags:** 30.1% of the final table is entry level, 12.7% asks for 2 years or fewer, and 47.3% shows any sign of being open to career changers. Among listings with a description, 10.0% use entry-level or training wording, 3.7% require a degree and 0.4% use career-changer wording.
 
 ## 13. Final conclusion
 
 Part 1 loaded and cleaned 200,000 listings (no rows removed), measured every candidate prioritization factor, checked which time information holds up, and compared segments for career changers. The main result: what makes a listing urgent is mostly the listing itself (employer hiring volume, source, pay disclosure), not the job title, and the best-paid field, computer and mathematical, is the hardest to enter. Every decision is defended in section 10 and applied in section 11.
 
-**Handoff:** the final table (182,367 English listings, April–September 2026, including flagged listings with no country, with every group, seniority level and candidate factor) is saved for **EDA_SDA_2**, which cleans it further (2b), narrows it to the computer and mathematical niche by role bucket, and builds the **compass's 2026 side** from it: each role's openings, pay and closing speed, mapped from `onet_code`. Findings at a glance are in the executive summary; details in section 9.
+**Handoff:** the final table (184,889 English listings, April–September 2026 plus late March flagged `partial_month`, including flagged listings with no country, with every group, seniority level and candidate factor) is saved for **EDA_SDA_2**, which cleans it further (2b), narrows it to the computer and mathematical niche by role bucket, and builds the **compass's 2026 side** from it: each role's openings, pay and closing speed, mapped from `onet_code`. Findings at a glance are in the executive summary; details in section 9.
