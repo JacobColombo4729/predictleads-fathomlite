@@ -56,6 +56,10 @@ PredictLeads × TripleTen externship · Jacob Colombo
 4. **EDA_SDA_2 final table:** decisions defended, then applied at the end, with a reason for each step
 5. **Conclusion and next steps** (into EDA_SDA_3)
 
+**What the data shows**
+- **The niche: 14,139 computer and mathematical listings** from 6,723 companies (7.6% of 184,889), 3,484 still open. None needed the O*NET-code fallback. The other 170,750 listings are cut, kept only as a summary of 1,008 occupations in 24 groups (1c).
+- **In that summary, computer and mathematical pays the most** (median $66.63 an hour, original listings) but has among the fewest entry-level listings (9%) and signs of openness to career changers (21%). Its median window, 22.5 days, is close to most groups'.
+
 ## 2. Analysis views
 
 Some analyses are skewed by part of the table. Each analysis states which **view** it uses:
@@ -102,6 +106,13 @@ Some factors travel together, so a raw gap can belong to something else. **Every
 | – | **Description cleanup** | **Moved to EDA_SDA_3:** this table keeps only description features (`desc_words`, `desc_hash`, `has_html`), not the text, to fit in memory; EDA_SDA_3 loads the text anyway | `desc_clean` there, with HTML and boilerplate removed |
 
 **Leakage:** every fix uses only what the listing showed when it was posted, so none of them leaks the outcome.
+
+**What the data shows**
+- **Staffing agencies are rare in the niche:** 248 listings (1.8%) from 96 companies, and their listings close faster (median 14 vs. 22.6 days). Most flags (79 of 96 companies) come from the "about" text alone, so check the 2b.1 review cell before relying on them.
+- **Role level:** entry 9.7%, mid 46.3%, senior 30.4% (split from `mid_senior` by title words), manager 10.0%, leadership 3.6%. Senior and leadership listings stay open longest (median 28 days); manager listings close fastest (17.5).
+- **Work mode and schedule are missing for about half** (47.7% and 45.3%), and those listings close much faster (18 and 14 days vs. 26–31). That's most likely the source: platforms that fill in contract types may also keep listings up longer. It's a confounder to check within source type in section 3 before "not stated" is read as a signal. Where stated: remote 20.0%, hybrid 18.8%, onsite 13.6%; full time 51.3%, part time 2.5%. The description agrees: 94.6% of "remote" listings mention remote, vs. 6.4% of "not stated".
+- **Job types:** 87.3% regular, 8.7% contract, 2.4% internships (337), 1.6% temporary; internships and contract roles close about as fast as regular ones (22–24 days), temporary ones faster (18).
+- **Also:** 3,665 titles cleaned (11,489 distinct titles → 10,978), and matching reposts on clean titles finds the same 156; 50 postings were dated more than a year before first seen. **No listing names more than one location:** a job in several cities appears as separate listings, which the repost and cross-post split in 3.5 has to account for.
 
 ## 3. Checks and analyses
 
@@ -159,6 +170,7 @@ Steps: describe the long-open listings (how many, which occupation groups and so
   - **`is_relisted`:** earlier copies exist, but none is still live: the job came back after closing.
   - **`n_sources_so_far`:** how many different sources carry the job at the moment this listing appears (1 = only here).
   - **Hypothesis: posting on several boards signals urgency.** Test it, don't assume it: days open (Kaplan–Meier) by `n_sources_so_far` and cross-posted vs. relisted vs. single, within company-volume bands and with and without staffing agencies (2b.1). Applicant-tracking systems often send one posting to several boards automatically, so check within platform too: if the gap disappears there, it's the software, not the employer's urgency.
+  - **Copies in different cities aren't cross-posts:** each listing names one location (2b.5), so a job in several cities appears as several listings. Count copies with the same location as the job on another board, and copies in other locations as a multi-city posting (its own count).
   - **Check the matching:** boards sometimes reformat descriptions, so copies may not share a description fingerprint. Compare with a looser match (same company and `title_clean`, first seen within 7 days) and report how many more cross-posts it finds.
 - **Reposts** (a decided feature: how strongly should it count?): days open by `times_listed` and by relisted vs. cross-posted; repost rate in the chosen groups; repost rate within company-volume bands, to see whether it adds anything beyond company volume.
 - **Company hiring volume:** does high volume mean **more competition, or more openings to win?** Its direction in the ranking depends on the answer. Count each company's listings from before each listing only, so the future isn't used. The companies table has no company size or employee count, so listing volume is our only measure of how much a company hires.
