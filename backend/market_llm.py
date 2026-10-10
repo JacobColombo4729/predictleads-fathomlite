@@ -87,6 +87,7 @@ Return only the requested JSON."""
 
 RESEARCH_PROMPT = """Write a short, factual synopsis of one company for a job seeker, using only what the web search returns.
 - 3 to 5 sentences: what the company does, who it serves, and anything notable and recent that a source states.
+- Put the source citation right after every sentence, not only at the end.
 - Use only information that appears in the search results. Do not guess, do not fill gaps from memory, and do not speculate about hiring plans, finances or culture unless a source says so.
 - Make sure the results are about the company at the website given. If you cannot find reliable information about that exact company, say so in one sentence.
 - Plain text, no markdown, no links, no bullet points. The sources are shown separately."""
@@ -104,10 +105,11 @@ def _multipart(fields: Mapping[str, str], filename: str, content_type: str, data
 
 
 def keep_cited_sentences(text: str, annotations: list[Mapping[str, Any]]) -> tuple[str, list[str]]:
-    """Only the sentences that have a web citation attached, and the pages those citations point to.
+    """Only the sentences that a web citation covers, and the pages those citations point to.
 
-    A synopsis written by a model can mix what the search returned with what it remembers. Any sentence without a citation
-    is dropped, so what is shown can be traced to a page.
+    A citation covers the passage before it: the sentence it follows and any sentences since the previous citation, which is how
+    web-search answers are normally cited. Text after the last citation has no source and is dropped, and an answer with no citation
+    at all yields nothing, so what is shown can be traced to a page.
     """
     spans = sorted(
         (int(n["start_index"]), int(n["end_index"]), str(n["url"]))
@@ -122,14 +124,15 @@ def keep_cited_sentences(text: str, annotations: list[Mapping[str, Any]]) -> tup
         cites.append((len(cleaned), url))
         position = end
     cleaned += text[position:]
-    sentences = [(m.start(), m.end(), m.group().strip()) for m in re.finditer(r"[^.!?]+[.!?]+[\"')\]]*|[^.!?]+$", cleaned) if m.group().strip()]
-    cited: dict[int, list[str]] = {}
-    for at, url in cites:
-        index = next((i for i, (_, end, _) in enumerate(sentences) if end + 1 >= at), None)
-        if index is not None:
-            cited.setdefault(index, []).append(url)
+    # offsets of each sentence without its leading spaces, so a citation just before a sentence is not counted as inside it
+    sentences = [(m.start() + len(m.group()) - len(m.group().lstrip()), m.end(), m.group().strip()) for m in re.finditer(r"[^.!?]+[.!?]+[\"')\]]*|[^.!?]+$", cleaned) if m.group().strip()]
+    cited: dict[int, str] = {}
+    for index, (start, _, _) in enumerate(sentences):
+        url = next((u for at, u in cites if at > start), None)  # the first citation that comes after this sentence begins
+        if url is not None:
+            cited[index] = url
     kept = [sentences[i][2] for i in sorted(cited)]
-    urls = list(dict.fromkeys(u for i in sorted(cited) for u in cited[i]))
+    urls = list(dict.fromkeys(cited[i] for i in sorted(cited)))
     return " ".join(kept), urls
 
 
