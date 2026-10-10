@@ -46,7 +46,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 - Does knowing what someone trained in predict their first tech role better than their background alone? (The evidence behind the retraining compass.)
 - Does training on everyone who reached tech (with origin as a feature) predict career changers' roles better than training on career changers alone? Results are always reported on career changers.
 - **Results per pool:** within-tech moves are 73% of career changers (2,049 of 2,813), so one overall score mostly measures them; every metric is also reported per pool.
-- **Role imbalance** (quality assurance and data and analytics are the smallest roles): class weights first, per-role scores, and probabilities corrected to the real role mix. Synthetic people only for a role still predicted poorly, inside training folds only.
+- **Role imbalance** (quality assurance and data science are the smallest roles): class weights first, per-role scores, and probabilities corrected to the real role mix. Synthetic people only for a role still predicted poorly, inside training folds only.
 - Which skills should a career changer build for each suggested role (listing skills their background doesn't show)? This feeds the compass ideas.
 
 **Leakage rules** (`STANDARDS.md`):
