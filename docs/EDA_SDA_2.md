@@ -155,6 +155,13 @@ Steps: describe the long-open listings (how many, which occupation groups and so
 
 **Also (added 2026-10-10):** why every open job-board listing is over 90 days old (3.1b); the domain check compares each listing's web domain with its company's domain (loaded for the niche only, never printed).
 
+**What the data shows**
+- **Sources:** 65.4% of niche listings are on a company site or other domain, 26.7% on a hiring platform and 7.8% on a job board. Workday (1,345) and LinkedIn (1,071) are the biggest named platforms.
+- **Source and company volume interact:** for a company's first listing, company sites and hiring platforms close at a similar pace (48.1 and 42.1 days), but for companies with 20+ earlier listings, company-site listings close in 6.1 days vs. 18.2 on platforms. The volume effect is strongest on company sites, so the model gets both, not source alone. Without likely ghosts, the pattern is the same.
+- **Platforms differ a lot:** SmartRecruiters, LinkedIn and Oracle around 14 days; Greenhouse 54, Ashby 71 and Lever 75. Some of that is likely how each platform shows closures to the crawler, so platform is a timing feature to treat with care.
+- **Job-board listings stop after May:** 494 and 526 first seen in April and May, then 4, 2, 2 and 0 from June to September, while the other sources keep growing. That's a change in collection, not in employers, and it's why every open job-board listing is over 90 days old (3.1b). Job-board timing results cover April–May only; asked of PredictLeads.
+- **Employer's own site:** 58.5% of "company site / other" listings are on the employer's own domain, which is **38% of all niche listings** (a lower bound: careers sites on a different domain don't match). The app's "apply on the employer's site" covers at least 38%, not the 60.7% upper bound from EDA_SDA_1.
+
 ### 3.3 Freshness and crawler lag
 
 | Check | If the result is… | Then… |
