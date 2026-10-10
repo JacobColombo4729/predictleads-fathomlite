@@ -10,18 +10,31 @@ How we measure how well a **career changer's** background fits a job listing and
 
 | | **Option A: similarity matching** | **Option B: trained fit model** (chosen) |
 |:--|:--|:--|
-| **How it works** | Turn the profile and every listing into vectors (TF-IDF or embeddings) and rank listings by cosine similarity | A model learns how to weigh many signals into a fit score from labeled *(profile, listing, label)* examples |
+| **How it works** | Turn the profile and every listing into vectors and rank by similarity: keyword overlap → TF-IDF cosine → BGE embeddings (local) → RRF hybrid of TF-IDF and BGE | A model learns how to weigh many signals into a fit score from labeled *(profile, listing, label)* examples |
 | **Signals** | Text overlap only | Text similarity, skill overlap, career-change accessibility (years asked, degree, training), seniority gap, O*NET distance between the old and new occupations, location and remote |
 | **Profiles needed** | One works; more are only for testing | Many varied profiles, **with labels** |
 | **Labels needed** | None | Yes, the hardest part (section 4) |
-| **Role in the project** | **Baseline** | The fit model in the `ML` notebook |
+| **Role in the project** | **Baselines**, steps 1–4 of the ladder in `ML_Fit` | Step 6 of the ladder in `ML_Fit`, with skills-based matching (step 5) as one of its inputs |
 
 ## 2. Why Option B
 
 1. **Similarity matching works against career changers.** A career changer's résumé is written in their *old* field's language, so Option A ranks old-field jobs highest, which is exactly what they're trying to leave. Option B can learn that transferable skills and openness to newcomers matter more than shared wording.
 2. **Fit is more than text.** Years of experience asked, degree or equivalent experience, seniority and occupation distance all decide whether a career changer can get a job. Only a trained model can combine them with learned weights.
-3. **It's the project's model.** The `ML` notebook needs a trained, validated, explainable ranker (SHAP for "why it's ranked here"), not a single similarity score.
+3. **It's the project's model.** `ML_Fit` needs a trained, validated, explainable model (SHAP for "why this role"), not a single similarity score; `ML_Rank` combines its fit score with the listing model.
 4. **Option A stays as the baseline,** so we can show that Option B actually adds something.
+
+**The ladder in `ML_Fit` (decided 2026-10-10):**
+
+| Step | Method | Role |
+|:-:|:--|:--|
+| 1 | Keyword overlap | Simplest baseline |
+| 2 | TF-IDF cosine | Baseline ML model |
+| 3 | BGE embeddings, cosine (small or base model, run locally) | Stronger similarity |
+| 4 | RRF hybrid (reciprocal rank fusion of TF-IDF and BGE) | Hybrid similarity |
+| 5 | Skills-based matching (both sides mapped to O*NET skills) | Fixes the old-field vocabulary problem |
+| 6 | Trained layer (Option B): steps 2–5 scores plus Profiles features, trained on real career moves | The project's fit model |
+
+**Every step is scored the same way:** using only a career changer's pre-switch background, is the role bucket they actually moved into in the top 3 or top 5? Reported per pool and overall, against a title-keyword baseline, along with how often each step suggests the old field. Expect steps 1–4 to favor the old field; steps 5 and 6 exist to fix that.
 
 ## 3. Applicant profiles
 

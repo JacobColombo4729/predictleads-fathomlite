@@ -6,7 +6,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 ## Purpose
 
-`EDA_SDA_1.ipynb` explored the data, defended the scope decisions, and built its final table (sections 10 and 11). This notebook does the **non-text** in-depth analysis: it checks the factors kept for now, separates ghost listings from desperate employers, analyzes each time scale, narrows the target, **computer and mathematical**, to the listings a career changer can get, splits it into **role buckets** aligned with the career-switch profiles (our niche), pairs it with the team's backgrounds, and builds **its own final table**. The NLP work comes next, in `EDA_SDA_3.ipynb`; statistics in `EDA_SDA_4.ipynb`; then the `TimeSeries` and `ML` notebooks.
+`EDA_SDA_1.ipynb` explored the data, defended the scope decisions, and built its final table (sections 10 and 11). This notebook does the **non-text** in-depth analysis: it checks the factors kept for now, separates ghost listings from desperate employers, analyzes each time scale, narrows the target, **computer and mathematical**, to the listings a career changer can get, splits it into **role buckets** aligned with the career-switch profiles (our niche), pairs it with the team's backgrounds, and builds **its own final table**. The NLP work comes next, in `EDA_SDA_3.ipynb`; statistics in `EDA_SDA_4.ipynb`; then `TimeSeries`, `ML_Fit` and `ML_Rank`.
 
 **Inputs from EDA_SDA_1** (decision tables in its section 10):
 - English-language listings in the United States (no language label: dropped), plus listings with **no country**, kept and flagged `country_missing` for 3.8 to resolve
@@ -26,11 +26,12 @@ PredictLeads × TripleTen externship · Jacob Colombo
 | Notebook | Question | Hands off |
 |:--|:--|:--|
 | EDA_SDA_1 | What's in the data, and what's the scope? | Final table 1 |
-| EDA_SDA_2 | Which listings do we study? The niche cut, non-text checks, ghost listings, the career-change target | Niche table, non-text features, the occupation summary |
-| EDA_SDA_3 | What features does the text add? (NLP) | Niche table + text features |
-| EDA_SDA_4 | Which features hold up? (statistics) | Modeling-ready table |
-| TimeSeries | When do listings appear and close? | Timing patterns and features |
-| ML | How should listings be ranked for a career changer? | The prioritization model |
+| EDA_SDA_2 | Which listings do we study? The niche cut, additional cleaning, non-text checks, ghost listings | Niche table, non-text features, occupation summary |
+| EDA_SDA_3 | What do the descriptions say? Text features, validated blockers, skills mapped to O*NET (no matching models) | Niche table + text features |
+| EDA_SDA_4 | Which features hold up? Statistics, confounders, the adjusted Cox check | Modeling-ready table |
+| TimeSeries | When do listings appear and close? | Timing features |
+| ML_Fit | Which roles and listings fit a career changer? Keyword → TF-IDF → BGE → RRF, skills-based matching, a trained layer on real career moves | Fit scores, role discovery, the compass |
+| ML_Rank | How should listings be ranked? The listing timing model, combined with fit into the priority queue | The priority queue algorithm |
 
 **Standard:** the TripleTen course templates are the baseline (structure, methods, reporting). Every applicable course method is used, and taken further with more advanced techniques where the data calls for them.
 
@@ -270,4 +271,4 @@ _To do after section 3:_ defend each decision with its result from section 3, th
 
 ## 5. Conclusion and next steps
 
-_To do._ Next: `EDA_SDA_3.ipynb`, the NLP features, built on this notebook's niche table.
+_To do._ Next: `EDA_SDA_3.ipynb`, the text features, built on this notebook's niche table.

@@ -56,7 +56,7 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 | `APPLICATION.md` | A **Retraining compass** view next to role discovery: training options → roles people like the user moved into (with counts) → each role's 2026 openings, median pay and closing speed; picking a role feeds the priority queue. The Coach agent explains it; part of build stage 2 |
 | `notebooks/Profiles.ipynb` | A prior career × first tech job table, then a training field × first tech role table (4a.2b), as percents of all retrained people, fields and roles ordered infrastructure → code → data, with the people count and an "all retrained" row; the within-tech table (4a.3) uses the same layout |
 | `notebooks/EDA_SDA_2.ipynb` | A new section, 3.12: each role bucket's 2026 open listings, median pay, median days open and entry-level share; joined to the Profiles table by role bucket |
-| `notebooks/ML.ipynb` | Check whether knowing the training field predicts the first tech role better than the background alone |
+| `notebooks/ML_Fit.ipynb` | Check whether knowing the training field predicts the first tech role better than the background alone |
 | Deck | The pitch on the title slide; a new "What makes this different" slide (reachable, real paths, how fast to move); slide 11 shows the training → role → 2026 openings chain; the two-decades framing replaces the date range |
 
 Added after the team meeting: moving across and up within tech, path questions, job growth expectations, the date picker and compass ideas (in `APPLICATION.md` and `PROJECT_OUTLINE.md`). EDA_SDA_2's 3.12 is written and needs a run; the app views are a design only.
