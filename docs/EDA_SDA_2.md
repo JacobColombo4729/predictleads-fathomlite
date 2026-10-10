@@ -89,6 +89,8 @@ Some factors travel together, so a raw gap can belong to something else. **Every
 | **Role bucket and seniority** | A senior data scientist role and an IT support role close at different speeds for unrelated reasons | Within role bucket (3.6) where buckets are big enough; seniority as a split |
 | **Month first seen** | Later months have had less time to close | Survival methods (still-open listings censored); month as a split for timing gaps |
 | **State** (3.7d) | Pay-transparency states disclose pay far more often and have longer windows | Pay-disclosure gaps checked within state |
+| **Company type** (`is_public`, `has_parent`, 3.8) | At 20+ listings, public companies' listings stay open 20 days vs. 6 for others | Volume effects shown separately for public and other companies |
+| **No description** (`has_desc`, 3.9) | 23% of listings, mostly from June on; they close in 3 days vs. 30 | Timing results shown with and without them |
 | **Ghost listings** (`likely_ghost`, 3.1d) | Forgotten listings inflate days open and the count still open | Timing results also shown without likely ghosts |
 
 **The rule:** each factor shows the **raw gap**, then the **gap within volume band × source type**, and within role bucket where there are enough listings. A factor counts as real only if the gap holds within the groups. EDA_SDA_4 then confirms the survivors with one model that adjusts for all of these at once.
@@ -283,6 +285,13 @@ Merge the companies table into the listings (a **left join** on `company_id` = c
 
 **Then resolve listings with no country** (`country_missing`, kept by EDA_SDA_1): take the country from the company's `location_data`. Keep the listing if the company is US-based **or** the listing mentions remote work or uses the "remote" contract type, and flag it `country_inferred`; drop the rest. Report how many are kept by each route and how many are dropped, and check whether `country_inferred` listings behave differently (days open, source, words per description).
 
+**What the data shows**
+- **The join is clean:** 14,019 listings before and after, 6,684 of the niche's 6,685 companies matched, and no duplicate company ids. 14.7% of companies are publicly traded, 17.7% have a parent company and 81.7% are US-based.
+- **Company type changes the volume effect:** for a company's first few listings, public and other companies close at a similar pace (1 posting: 33.5 vs. 39.3 days; 2–4: 30.5 vs. 27.5). At high volume they split: at 20+ listings, public companies' listings stay open a median of 20.3 days and others' only 6.0 (with a parent 20.1, without 6.1). Most of the "high-volume companies close fast" effect (3.5) comes from private, independent high-volume posters. **Staffing agencies don't explain it:** without them the 20+ median is still 6.0 days (6.1 without a parent). **Missing descriptions explain part of it (3.9d):** 41% of these companies' listings have no description, and those close in about 3 days. With a description only, the 20+ medians are 26.2 days (public) vs. 14.7 (others): the gap shrinks from 14 days to 11 but stays. Relisted copies (3.5) are the next suspect. Public companies are also a bigger share at high volume (9% of first listings, 27% at 20+). `is_public` and `has_parent` are kept as features, and EDA_SDA_4 tests volume × company type, with and without relisted copies.
+- **Most no-country listings resolve to the US:** of 1,549, 1,337 belong to US-based companies and 80 more are remote; 132 (0.9% of the niche) are out of scope and are dropped in section 4.
+- **Inferred-country listings close at the same pace** (22.1 vs. 22.6 days) but **61% have no description** (vs. 19% of other listings), 42% are remote (vs. 18%) and 12% are on hiring platforms (vs. 29%). Their text features in EDA_SDA_3 will be thin, so fit falls back on the title for them.
+- **The out-of-scope listings look like crawl stubs:** median 0 days open, 77% with no description, none remote. Dropping them costs little.
+
 ### 3.9 Missing-data patterns
 
 **First classify each field** (structural, censored, or missing for a reason), then treat it. Most of ours aren't truly missing, so very little is imputed.
@@ -303,9 +312,24 @@ Merge the companies table into the listings (a **left join** on `company_id` = c
 
 **Course standard:** percent missing, missingness **by group** (source, occupation group, role bucket, month, state), and `df.isnull().corr()` to see which fields go missing together. Every imputation or "Unknown" category is justified with plots split by the outcome (closed vs. still open). **Rules:** impute only inside the model `Pipeline`, fit on the training months (leakage rules in `STANDARDS.md`), and add a missing flag whenever a value is filled in, since missingness itself can carry signal (salary disclosure does).
 
+**What the data shows**
+- **25 of 86 columns have blanks, and few are truly missing.** Most are structural (platform: company sites have none), censored, or "not stated" (years, posting date). Each is labelled in 3.9a with its handling, and nothing is imputed here. Fields built from the same source go missing together by design: 10 text fields go blank exactly when the description does, and the pay columns go blank with pay.
+- **23% of the niche has no description, and it's a collection change:** 2–10% of listings first seen in March–April lack one, about 30% from June on. It's mostly company-site listings (34%, vs. 6% on hiring platforms) and private companies (21–41%, vs. 5–15% for public ones).
+- **Listings with no description close in 3 days, vs. 30.** They look like the crawl stubs from 3.8: seen briefly, little content.
+- **That explains the "missing pay" and "missing years" gaps.** Among listings with a description, missing pay (28 vs. 30 days) and no years stated (28 vs. 30) barely differ. Without that check, both would look like strong signals. A missing posting date goes the other way: those listings stay open longer (39 vs. 22 days).
+- **Missingness doesn't depend much on role bucket** (no description 16–28%, no pay 52–59%). It does depend on source: 99% of job-board listings have no pay, but nearly all have a posting date. 81% of entry-level listings state no years.
+- **Decision:** "has a description" joins the standard confounders. Timing results are shown with and without listings that have no description, and ML_Rank checks that `has_desc` is known when a listing is first seen before using it as a feature (otherwise it would leak how the listing ends).
+
 ### 3.10 Outliers
 
 Boxplots and IQR rules for days open, words per description, hourly pay, times listed. Course standard: inspect, explain, and keep or remove with a reason. Advanced: robust (median / IQR) summaries, and log scales for the right-skewed measures.
+
+**What the data shows**
+- **Days open: a real long tail, kept.** 6.6% of closed listings are above the 1.5 × IQR fence (81 days), but none are above the log-scale fence. Listings above the fence look like the rest (old posting date 0.3% vs. 0.1%, staffing agency 1.0% vs. 1.9%, public 19% vs. 20%, has a description 74% vs. 72%). They're slow hires, not errors. Long-open listings that are still open are already handled by the 90-day line (3.1).
+- **Words per description: kept.** 1.2% are above 1,680 words and 0.1% above the log-scale fence. The short end matters more: **5% of company-site descriptions are under 50 words** (vs. 0.3% on hiring platforms). These are likely cut-off pages. EDA_SDA_3 treats text flags from them as weak.
+- **Hourly pay: kept, with 8 implausible values flagged.** 1.5% are above $142.67 an hour (about $297,000 a year), and 0.2% above the log-scale fence ($207). They're mostly senior roles (61% vs. 48%) with salaried pay. That's real top-end pay, not unit errors: none were fixed in EDA_SDA_1. **3 listings below the federal minimum wage ($7.25) and 5 above $250 an hour** are flagged `pay_implausible` in section 4. Those listings stay; their pay is left out of pay summaries and shown as "not disclosed".
+- **Times listed: the IQR rule doesn't fit counts.** 98.6% of the niche are first listings, so the IQR is 0 and every repost counts as an "outlier". Reposts are kept and grouped as 1 / 2–4 / 5 or more in features (0.5% are 5 or more, none from staffing agencies). With so few reposts in the niche, repost features will carry little signal.
+- **Robust summaries are used throughout:** medians and IQRs, with log scales for days open and words (skew 1.8 and 0.5).
 
 ### 3.11 Career-change accessibility, and hiding what a career changer can't get
 
@@ -328,6 +352,15 @@ Report how many listings each rule hides. Then check:
 | Degree required by role bucket | Near-universal in a bucket, with little "or equivalent experience" | That bucket is a poor target |
 | Each part of `career_open` separately | One part (for example, entry-level wording) adds little | Use a stricter rule for the "open to career changers" view |
 
+**What the data shows**
+- **The rules in force hide 22% of open listings from a career changer without management experience:** likely ghosts 10.9% (all 376 are open by definition), manager level or above 11.7%, document management 0.3%. Across the whole niche it's 16%.
+- **The "asks 5+ years" preview would hide another big slice: 31% of open listings.** That's too much for an unvalidated rule. EDA_SDA_3 checks it before it's applied: required vs. preferred, and the year counts the regex picks up.
+- **The degree flag looks too narrow to trust:** only 3–6% of listings per bucket are flagged "degree required", fewer than say "or equivalent experience" (10–18%). The degree pattern probably misses common wording ("Bachelor's in computer science"). EDA_SDA_3 validates it before any degree rule is used. On today's flag, no bucket is a poor target for people without a degree (degree with no equivalent: 2–5%).
+- **Openness isn't company size or source in disguise:** 16–21% in almost every volume × source cell. The one exception is hiring-platform listings from companies with 20+ listings (36%), likely high-volume entry-level hiring programs. Niche-wide it's 19.6%, or 21.4% without IT project management.
+- **Each part of `career_open`:** entry-level seniority (10.3% of listings) and "2 years or fewer" (9.6%) do most of the work, and are usually the only sign (60% and 77%). Entry-level or training wording (3.9%) is the only sign just 32% of the time, so it mostly confirms the others. Career-changer wording is rare (0.6%). A stricter "open to career changers" view can use seniority and years alone.
+- **Reachable listings pay much less, in every bucket:** $11–37 an hour less (software development $43 vs. $78, IT support $26 vs. $37). That's the trade-off the app shows: the pay weight trades off against accessibility, and the compass shows both the entry pay and the pay later on.
+- **Reachable listings close a bit faster at small companies:** 28 vs. 35 days for a company's first listing, 24 vs. 33 at 2–4. There's no difference at 20+. It's a modest urgency signal; EDA_SDA_4 tests it before the ranking uses it.
+
 ### 3.12 The retraining compass: the 2026 side
 
 For each kept role bucket, after blockers are hidden: **open listings at the snapshot, new listings per week, median hourly pay (where disclosed), median days open (Kaplan–Meier), entry-level share, openness to career changers, remote share, and expected job growth** (a placeholder column until the projections are downloaded) (official projections by occupation code; time frame to be decided). Rows in the same role order as Profiles (`ROLE_ORDER` in `src/career_switch.py`: infrastructure → code → data).
@@ -348,8 +381,72 @@ Every path carries its people count, and paths under about 10 people are marked 
 
 ## 4. EDA_SDA_2 final table
 
-_To do after section 3:_ defend each decision with its result from section 3, then apply them all at once, at the end: the niche (computer and mathematical, kept role buckets), labelling manager-level listings (hidden per applicant in the app), the additional cleaning, each factor kept or dropped, and the ghost-listing decision. Record every step with its reason, in the same format as EDA_SDA_1 section 10 and 11. Save it as a separate file, so EDA_SDA_1's table stays unchanged.
+Every decision in this notebook, defended with its result from sections 2b and 3, then applied all at once in 4b. Nothing is removed earlier except the niche cut (1d). Same format as EDA_SDA_1 sections 10 and 11. The table is saved as its own file (`niche_table.pkl`), so EDA_SDA_1's table stays unchanged. **Hide, never remove:** the only rows dropped are listings outside the project's scope; everything else is a flag the app hides or labels by.
+
+### 4.0 Decisions
+
+| Decision | Evidence | Choice | Status |
+|:--|:--|:--|:--|
+| **The niche** | Computer and mathematical is the main group (EDA_SDA_1 Q3); credentialed math (actuaries, statisticians) needs a license or degree a career changer doesn't have | Computer and mathematical, without credentialed math: 14,019 listings | Applied at the start (1d); a per-occupation summary of the full table is kept (1c) |
+| **Role buckets** | Eight buckets with enough listings and career changers on both sides (3.6); document management specialists are records work, not a tech path | Eight buckets plus "other computer roles"; document management flagged `hidden_occupation` | Decided; hidden in the app |
+| **IT project management** | Lowest openness (9%), 2% entry level, 55% manager level or above; 190 of its 264 career changers came from another tech role (3.6, 3.11) | Kept, as a later move: not suggested as a first tech job unless the prior career has a real path into it | Decided (app and ML_Fit) |
+| **Listings with no country** | 1,337 belong to US-based companies and 80 are remote; the other 132 close on first sight, 77% with no description (3.8) | Keep the first two groups, flagged `country_inferred`; **drop the 132** | **Applied in 4b** |
+| **Likely ghosts** | Closing slows sharply after 90 days; a listing over 90 days old from a company gone quiet, or with a posting date over a year old, is likely forgotten (3.1) | Flag `likely_ghost`, hidden in the app; other listings over 90 days old stay visible, labelled and ranked lower (`stale`) | Decided; timing results also shown without them |
+| **Manager level or above** | 11.7% of open listings; prior experience can qualify some career changers (3.11) | Label, hidden per applicant | Decided (app) |
+| **Text blockers** | "Asks 5+ years" would hide 31% of open listings; the degree flag fires on only 3–6% (3.11) | Previews only | Open: EDA_SDA_3 validates them first |
+| **Staffing agencies** | They post at volume and repost often (2b.1); they don't explain the fast closings at high-volume private companies (3.8) | Flag `is_staffing`; the app labels them "posted by a recruiter" | Decided |
+| **Pay** | Converted to hourly (EDA_SDA_1 6.5). 3 listings under the federal minimum wage and 5 over $250 an hour (3.10); 9 part-time listings with salaried pay (3.7) | Flag `pay_implausible` and blank its hourly pay (the posted range stays); flag `pay_part_time_salaried` | **Applied in 4b** (`pay_implausible`) |
+| **Missing values** | Most blanks are structural, censored or "not stated" (3.9) | Nothing imputed here; imputation happens inside the model `Pipeline`, fit on training months, with a missing flag. `has_posted` added | Decided |
+| **No description** | 23% of the niche (about 30% from June: a collection change); these listings close in 3 days vs. 30 (3.9) | Kept, `has_desc` is a standard confounder; timing results shown with and without them | Decided. ML_Rank checks `has_desc` is known at first sighting |
+| **Outliers** | Long days open, long descriptions and high pay are real tails (none above the log-scale fence for days open) (3.10) | Keep; group times listed as 1 / 2–4 / 5 or more (`times_listed_band`) | **Applied in 4b** (`times_listed_band`) |
+| **"Possibly hard to fill"** | Only a small share of stale listings; can't be told apart from a forgotten listing (3.1) | Dropped as a separate label | **Applied in 4b** (column removed) |
+
+### 4.0 Prioritization factors, after this notebook
+
+| Factor | Result | Choice | Status |
+|:--|:--|:--|:--|
+| Company hiring volume | About 1.4–1.5× faster closing like-for-like, not 5.5× (crawl timing explains part, 3.3, 3.5); much larger at private, independent companies (3.8) | Keep, counted from earlier listings only (`company_earlier`, `volume_band`) | Kept; EDA_SDA_4 tests volume × company type |
+| Source and platform | Applying on the employer's site is possible for at least 38% of listings (3.2); job-board listings stop after May (a collection change) | Keep `source_type`, `platform`, `on_employer_domain` | Kept; a standard confounder |
+| Freshness | Crawl timing shapes `first_seen`; the employer's posting date gives a second view where present (3.3) | Keep `first_seen`, with `posted` and `has_posted` alongside | Kept |
+| Pay disclosed | Disclosed listings stay open longer, partly crawl timing; pay-transparency states disclose far more often (3.4, 3.7) | Keep, compared within state | Kept; EDA_SDA_4 tests it within state |
+| Pay level | Reachable listings pay $11–37 an hour less in every bucket (3.11) | Keep, hourly | Decided; the app's pay weight trades off against accessibility |
+| Copies and reposts | Only 13 cross-posts, so the urgency idea can't be tested; relisted copies close in 3.5 days, read as crawler refreshes; 98.6% of the niche are first listings (3.5, 3.10) | Keep `copy_type` and the repost features; expect little signal | Kept |
+| Company type | At 20+ listings, public companies' listings stay open 26 days vs. 15 for others, among listings with a description (3.8, 3.9) | Keep `is_public`, `has_parent` | Kept; a standard confounder |
+| State | Known for 80% of listings; pay transparency laws show (3.7) | Keep `state` | Kept; the app's location filter and a confounder |
+| Career-change accessibility | 19.6% of listings show any sign; seniority and years asked do most of the work; reachable listings close a bit faster at small companies (3.11) | Keep `career_open` and its parts | Kept; EDA_SDA_3 validates the text parts, EDA_SDA_4 tests the timing gap |
+
+**What the final table shows**
+- **13,887 listings from 6,641 companies** (13,732 originals), 3,436 still open at the snapshot. The 132 out-of-scope no-country listings are the only rows removed. Five of them were likely ghosts, which is why 371 remain (376 in 3.11).
+- **3,055 open listings are visible to everyone** once likely ghosts (371) and document management (70) are hidden. For a career changer without management experience, manager-level listings are also hidden, leaving about 78% of open listings (3.11).
+- **Everything else is kept and flagged:** 661 open 90+ days (labelled), 245 from staffing agencies (labelled), 1,417 with an inferred country, 8 with implausible pay (blanked).
+- **86 columns, every one described** in 4e (38 added in this notebook). `times_listed_band` is filled for 77%: the rest have no description to match copies on.
+- **Saved as `niche_table.pkl`** for EDA_SDA_3 (`PART2_TABLE` in `src/eda_helpers.py`). EDA_SDA_1's table is unchanged.
 
 ## 5. Conclusion and next steps
 
-_To do._ Next: `EDA_SDA_3.ipynb`, the text features, built on this notebook's niche table.
+**The niche:** 13,887 computer and mathematical listings in eight role buckets, cleaned, flagged and saved for EDA_SDA_3. The main lesson: **how the data was collected explains many of the biggest gaps.** Crawl timing, job boards stopping after May, and listings with no description from June on (which close in 3 days) all look like signals until they're checked. So "has a description", company type and state join the standard confounders, and timing results are shown with and without likely ghosts and no-description listings.
+
+### Answers to the clarifying questions
+
+| Question | Answer |
+|:--|:--|
+| Which long-open listings are ghosts, and which are still hiring? | Company activity separates them: 44% of stale listings come from a company that posted in the last 60 days, vs. 92% of younger ones. **371 likely ghosts are hidden;** other listings open 90+ days stay visible, labelled and ranked lower, since a quarter of 90-day-old listings still close each month. "Possibly hard to fill" was dropped: those listings are no more open to newcomers (3.1) |
+| Does source matter beyond company volume? | Yes, and the two interact: the volume effect is strongest on company sites (6 vs. 48 days) and weaker on hiring platforms (18 vs. 42). Platforms differ widely (14 to 75 days), partly in how they show closures. Both stay in the model; platform with care (3.2) |
+| How precise is freshness? | Precise enough: a median 1.5 days late, 85% found within a week. Busy companies are crawled more often, which inflates their speed: like-for-like, the volume effect is about 1.4–1.5×, not 5.5× (3.3) |
+| Is pay disclosure about state laws or source rather than intent? | Largely: pay-transparency states disclose 61–70% vs. 26–30% elsewhere, and hiring platforms 55–67% vs. job boards under 1%. Disclosed listings stay open longer, partly crawl timing. EDA_SDA_4 tests disclosure within state and source (3.4, 3.7) |
+| Does high company volume mean competition or more openings? | Busy employers fill faster, by about a third like-for-like, mostly private, independent ones (public companies' listings stay open 26 vs. 15 days at 20+). The data can't show competition (no applicant counts), so volume is read as "apply sooner" (3.3, 3.5, 3.8) |
+| How are values missing? | Tied to source and time, not role bucket. 23% of listings have no description (about 30% from June, mostly company sites), and they close in 3 days, which made missing pay and missing years look like signals until checked. Nothing is imputed here (3.9) |
+| How much is left once blockers are hidden? | About 78% of open listings stay visible to a career changer without management experience (22% hidden: likely ghosts, manager level, document management). The "5+ years" rule would hide another 31%, so it waits for EDA_SDA_3's validation (3.11) |
+| Do high-volume employers post more entry-level listings? | No: 8–11% entry level in every volume band, and openness is 16–21% almost everywhere. Volume is about speed, not access (3.5, 3.11) |
+| Which role buckets are deep enough? | Eight: software development, networks and systems, IT project management, data and analytics, security, IT support, database and quality assurance (the thinnest, 39 career changers). IT project management is kept as a later move, not a first job. Other computer roles stay in the table without their own analysis (3.6) |
+
+### For the career changer
+- **IT support is the clearest entry door** (22% entry level, 44% open to career changers) but pays least ($32 an hour). The well-paid buckets ($61–72) are much less open.
+- **Reachable listings pay $11–37 an hour less in every bucket.** The app shows this trade-off instead of hiding it, and the compass shows where people moved next.
+- **Most paths are thin** (under 10 people), so the compass always shows how many people a path rests on.
+
+### Next steps
+- **EDA_SDA_3 (text):** clean descriptions; validate the "5+ years" and degree rules (the degree pattern fires on only 3–6% of listings) before any text blocker hides listings; treat text flags from very short or missing descriptions as weak; map skills to O*NET; add evergreen wording to the ghost check.
+- **EDA_SDA_4 (statistics):** test volume × company type (with and without relisted copies), pay disclosure within state and source, and whether reachable listings close faster, all in the adjusted Cox model with the full confounder list.
+- **ML_Rank:** check that `has_desc` and the text flags are known when a listing is first seen before using them as features.
+- **Ask PredictLeads:** why job-board listings stop after May, and why descriptions go missing more often from June on.
