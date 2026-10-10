@@ -11,7 +11,7 @@
 - **EDA_SDA_2 (non-text), the next notebook:**
   - **Setup: done** (2026-10-10): 14,139 computer and mathematical listings from 6,723 companies; occupation summary saved (`data/clean/occupation_summary.pkl`, 1,008 occupations).
   - **2b Additional cleaning: done** (2026-10-10); the staffing flags were checked in the 2b.1 review.
-  - **3.1: done** except one check (rerun 3.1d): are "possibly hard to fill" listings more open to career changers? If not, drop the category. **Was:** closing by age (is 90 days the right stale line?), long-open listings by bucket and source, ghost vs. still-hiring signals, a provisional `likely_ghost` / `possibly_hard_to_fill` flag.
+  - **3.1: done** (2026-10-10): 90-day stale line kept; 666 stale, 374 likely ghosts; "possibly hard to fill" dropped (no more open to newcomers).
   - **3.1 details:** hide, never remove: check the 90-day "hide as stale" threshold against the data (closing rates past 90 days, relisting, company still posting); describe the long-open listings, measure each signal (relisted, company still posting, source, `posted` vs. `first_seen`), and combine them into a "likely ghost listing" flag.
   - **3.2 Source:** source within company-volume bands; job-board copies of company-site listings; platform sizes. Add the domain check that refines the 60.7%.
   - **3.3 Freshness:** the late-found tail, survival of late-found vs. prompt listings, with vs. without `posted`.
