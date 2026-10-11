@@ -43,13 +43,13 @@ The core of the app is the **priority queue**: listings ranked for this career c
   - **Training offered:** only listings that offer training or welcome career changers
   - **Transferable fit:** minimum score (needs the user's background profile)
   - **Pay:** minimum hourly rate; pay disclosed only
-  - **Freshness:** first seen within N days
+  - **Freshness:** first seen within N days. **The age shown on a listing** (decided 2026-10-11): "posted X days ago" from the employer's posting date when there is one (39% of scope listings; implausible dates blanked), otherwise "found X days ago" from first seen, so a listing the crawler found late doesn't look fresher than it is (the crawler finds listings a median 1.5 days after posting, EDA_SDA_2 3.3)
   - **Competition:** low, medium or high
   - **Source:** hiring platform or company site; specific platforms
   - **Location:** one or more states (from `location_data`), listings naming several locations included where any matches
   - **Work mode:** remote, hybrid, onsite (`work_mode`; "not stated" shown separately rather than hidden)
   - **Schedule and job type:** full time, part time (`schedule`); internship, temporary, contract, regular (`job_type`)
-  - **Role level:** entry, mid, senior, manager, leadership (`level`; leadership = director, head, vice president, president, c_level, founder, partner). The data's "mid_senior" label lumps mid and senior together, so they're split by title words (senior, lead, principal, staff, architect). Manager and leadership listings stay hidden for users without management experience unless they turn on "show hidden"
+  - **Role level:** entry, mid_senior, manager, leadership (`level`; leadership = director, head, vice president, president, c_level, founder, partner). "mid_senior" stays whole, as PredictLeads labels it (LinkedIn's single level for experienced individual contributors); a "senior title" badge marks titles with senior, lead, principal, staff or architect (`senior_title`, decided 2026-10-11). Manager and leadership listings stay hidden for users without management experience unless they turn on "show hidden"
   - Every filter allows several choices at once (for example remote **or** hybrid, entry **or** mid); different filters narrow each other (remote or hybrid **and** entry or mid **and** data science)
 - **Each row shows:** title, company, priority score, an "open to career changers" badge, apply-by date, transferable fit, pay and a star.
 
