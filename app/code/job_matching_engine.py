@@ -25,15 +25,13 @@ from typing import Any, Iterable, Mapping, Sequence
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from data_paths import DATA_DIR
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_SAMPLE = DATA_DIR / (
-    "discovery/role_exploration/roles_corrected_20261006T000000Z/"
+DEFAULT_SAMPLE = Path(
+    "data/discovery/role_exploration/roles_corrected_20261006T000000Z/"
     "jobs_prepared_random_sample.jsonl"
 )
-DEFAULT_OUTPUT = DATA_DIR / "matching/job_matching_baseline"
-DEFAULT_PRIOR_BASELINE = DATA_DIR / "matching/job_matching_engine_baseline/recommendations.csv"
+DEFAULT_OUTPUT = Path("data/matching/job_matching_baseline")
+DEFAULT_PRIOR_BASELINE = Path("data/matching/job_matching_engine_baseline/recommendations.csv")
 TOP_K = 10
 DESCRIPTION_EVIDENCE_LIMIT = 500
 DESCRIPTION_EVIDENCE_RULE_VERSION = "substantive_description_v1"

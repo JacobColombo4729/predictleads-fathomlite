@@ -17,8 +17,6 @@ import boto3
 import botocore
 import zstandard as zstd
 
-from data_paths import DATA_DIR
-
 
 BUCKET = "tripleten-predictleads-hackathon-109698388873-us-east-2-an"
 KEY = "2026/09/30/job_openings_2026_09_30.jsonl.zst"
@@ -607,7 +605,7 @@ def prepare_slice(workspace: Path, output_dir: Path, limit: int) -> dict[str, An
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit", type=int, default=DEFAULT_LIMIT)
-    parser.add_argument("--output-root", type=Path, default=DATA_DIR / "prepared")
+    parser.add_argument("--output-root", type=Path, default=Path("data/prepared"))
     parser.add_argument("--run-name", default=None)
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args(argv)
