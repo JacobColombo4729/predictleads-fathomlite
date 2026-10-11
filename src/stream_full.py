@@ -6,6 +6,9 @@ Usage, from the project folder (PL or .venv activated):
     python -m src.stream_full                  -> the full run (resumable: rerun after a crash or a closed laptop)
     python -m src.stream_full --rows           -> a second pass that saves EDA_SDA_1's full cleaned row (src/listing_rows.py)
                                                  for every English US listing, for full-scale EDA_SDA_1 (own progress file)
+    python -m src.stream_full --extra          -> a third pass that saves every field for the TripleTen roles outside
+                                                 computer and mathematical (EXTRA_ONET_BUCKETS in
+                                                 src/career_switch.py), like the scope parts (own progress file)
 
 Saved under data/flat/ (git-ignored; prints aggregates only: counts, sizes, speeds):
     job_openings_full/part_NNNN.pkl            scope listings (English or unlabeled, US or no country, computer and
@@ -16,7 +19,10 @@ Saved under data/flat/ (git-ignored; prints aggregates only: counts, sizes, spee
                                                only (no text): company volume and the occupation summary come from it
     all_fields_rows_full/part_NNNN.parquet     (--rows) EDA_SDA_1's cleaned row for every English US (or no-country)
                                                listing in any field: text flags, source, repost fingerprint; no text
-    stream_full_progress.json                  documents done, for resuming (stream_rows_progress.json for --rows)
+    job_openings_extra/part_NNNN.pkl           (--extra) the TripleTen-role listings outside computer and
+                                               mathematical (sales engineers, business and market research analysts), all columns, the same format as job_openings_full/
+    stream_full_progress.json                  documents done, for resuming (stream_rows_progress.json for --rows,
+                                               stream_extra_progress.json for --extra)
 
 Filters match EDA_SDA_1 (English, US or no country) and EDA_SDA_2 1d (the scope); later notebooks apply the rest.
 """
@@ -145,6 +151,16 @@ def typed_rows(flat):
     return out
 
 
+def extra_mask(flat):
+    """English or unlabeled, US or no country, and an O*NET code in EXTRA_ONET_BUCKETS (the TripleTen roles outside
+    computer and mathematical)."""
+    from src.career_switch import EXTRA_ONET_BUCKETS
+    col = lambda c: flat.reindex(columns=[c])[c]
+    lang, code = col("attributes.language"), col("attributes.onet_data.code").fillna("").astype(str).str[:7]
+    country = col("attributes.location_data").map(first_country)
+    return (lang.eq("en") | lang.isna()) & (country.eq("United States") | country.isna()) & code.isin(list(EXTRA_ONET_BUCKETS))
+
+
 def scope_mask(flat):
     """English or unlabeled, US or no country, computer and mathematical: the group, or a 15- O*NET code (EDA_SDA_2 1d's rule)."""
     col = lambda c: flat.reindex(columns=[c])[c]
@@ -182,11 +198,14 @@ def folder_size(folder):
     return sum(f.stat().st_size for f in folder.glob("*")) if folder.exists() else 0
 
 
-def run(max_docs=None, local=None, out_root=None, rows=False):
+def run(max_docs=None, local=None, out_root=None, rows=False, extra=False):
     out_root = Path(out_root) if out_root else (FLAT_DIR / "stream_test" if max_docs else FLAT_DIR)
     if rows:  # second pass: only EDA_SDA_1's cleaned rows, for every field
         names = {"rows": "all_fields_rows_full"}
         progress_file = out_root / "stream_rows_progress.json"
+    elif extra:  # third pass: every field for the TripleTen roles outside computer and mathematical
+        names = {"scope": "job_openings_extra"}
+        progress_file = out_root / "stream_extra_progress.json"
     else:
         names = {"scope": "job_openings_full", "included": "job_openings_included_full", "lean": "all_fields_lean_full"}
         progress_file = out_root / "stream_full_progress.json"
@@ -227,8 +246,10 @@ def run(max_docs=None, local=None, out_root=None, rows=False):
                     seen_included.add(key)
                     inc.append(r)
         flat = pd.json_normalize(recs)
-        mask = scope_mask(flat)
-        if rows:
+        mask = extra_mask(flat) if extra else scope_mask(flat)
+        if extra:
+            writers["scope"].add(flat[mask].reset_index(drop=True))
+        elif rows:
             r = typed_rows(flat).reset_index(drop=True)
             writers["rows"].add(r)
             progress["rows"] = progress.get("rows", 0) + len(r)
@@ -276,7 +297,9 @@ def run(max_docs=None, local=None, out_root=None, rows=False):
 
     sizes = {k: folder_size(out_root / v) for k, v in names.items()}
     print(f"\ndone: {docs:,} documents, {progress['records']:,} listings in {elapsed / 60:.1f} min; read {share:.1%} of the file")
-    if rows:
+    if extra:
+        print(f"kept: {progress['scope']:,} TripleTen-role listings outside computer and mathematical")
+    elif rows:
         print(f"kept: {progress.get('rows', 0):,} cleaned rows in all fields (scope share of listings: {progress['scope']:,})")
     else:
         print(f"kept: scope {progress['scope']:,} listings, all-fields lean {progress['lean']:,} rows")
@@ -304,7 +327,8 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--test", type=int, metavar="N", help="test run on the first N documents (saved under data/flat/stream_test/)")
     ap.add_argument("--rows", action="store_true", help="second pass: EDA_SDA_1's cleaned rows for every field")
+    ap.add_argument("--extra", action="store_true", help="third pass: every field for the TripleTen roles outside computer and mathematical")
     ap.add_argument("--local", help=argparse.SUPPRESS)  # a local .jsonl.zst, for tests on synthetic data
     ap.add_argument("--out", help=argparse.SUPPRESS)
     args = ap.parse_args()
-    run(max_docs=args.test, local=args.local, out_root=args.out, rows=args.rows)
+    run(max_docs=args.test, local=args.local, out_root=args.out, rows=args.rows, extra=args.extra)

@@ -11,7 +11,7 @@
 **Our applicant is a career changer:** anyone switching from their current background to a different role or field. They see far more listings than they can apply to, and most of them ask for experience in the new role that they don't have yet. > **Pitch:** Everyone tells career changers what they match. We tell them what's realistically reachable, which training actually got people like them there, and how fast they have to move, using real career switches and live 2026 listings.
 
 For a given career changer, we're building a tool that does two things:
-- **Role discovery:** suggests which computer and mathematical roles their skills transfer to.
+- **Role discovery:** suggests which roles their skills transfer to, within the scope: **the roles TripleTen trains for, plus adjacent tech roles** (computer and mathematical roles, sales engineers, business and market research analysts; each labelled with its TripleTen program).
 - **Prioritization:** ranks the listings in the roles they choose: which to apply to first, and why.
 
 The ranking weighs two questions for every listing:
@@ -106,7 +106,7 @@ Each notebook answers one question and hands its final table to the next. The Tr
 - **Reposts are a feature, not noise:** a job posted again and again may be hard to fill. In the scope they're rare (98.6% first listings), so they're expected to add little.
 - **Standard confounders, compared within groups:** company volume, source and platform, staffing agencies, role bucket and seniority, month, state, company type and whether the listing has a description; timing results are also shown without likely ghosts.
 - **IT project management is a later move:** kept, but not suggested as a first tech job unless the user's prior career has a real path into it.
-- **Two features:** role discovery (which computer and mathematical roles a career changer's skills transfer to) and prioritization (ranking listings in the chosen roles).
+- **Two features:** role discovery (which roles in the scope, the roles TripleTen trains for plus adjacent tech roles, a career changer's skills transfer to) and prioritization (ranking listings in the chosen roles).
 - **Target: computer and mathematical (US),** for its pay, remote share, rich text and the team's backgrounds. Only 9% of its listings are junior, so listings a career changer can't get are hidden. EDA_SDA_2 splits it into role buckets (data science, IT support, software development, …) aligned with the career-switch profiles, and drops only buckets too thin on both sides.
 - **Source backgrounds: the team's own.**
 - **Hide what a career changer can't get:** validated text blockers (EDA_SDA_3), and per-applicant blockers in the app: a missing degree or license, or manager-level roles for applicants without management experience. Every other factor is weighted by the model during ML training.

@@ -154,6 +154,7 @@ def relabel(s, func):
 # ---------- scope-only fields (from the stream's scope parts, which keep every original field) ----------
 
 SCOPE_TABLE = "job_openings_full"
+EXTRA_TABLE = "job_openings_extra"  # the TripleTen roles outside computer and mathematical (--extra)
 SCOPE_FIELDS = {  # flattened column -> short name; recruiter names and contacts are never kept
     "attributes.recruiter_data.title": "recruiter_title",
     "attributes.salary": "salary_text",
@@ -199,7 +200,7 @@ def scope_fields(ids, desc_path, root=None):
     want = set(ids.dropna())
     pos_by_id = pd.Series(ids.index, index=ids.to_numpy())
     salt = os.urandom(16).hex()
-    files = sorted((Path(root or FLAT_DIR) / SCOPE_TABLE).glob("part_*.pkl"))
+    files = [p for t in (SCOPE_TABLE, EXTRA_TABLE) for p in sorted((Path(root or FLAT_DIR) / t).glob("part_*.pkl"))]
     if not files:
         raise FileNotFoundError(f"No parts in {SCOPE_TABLE}/: run `python -m src.stream_full` first.")
     writer = pq.ParquetWriter(desc_path, pa.schema([("id", pa.string()), ("description", pa.string())]))
