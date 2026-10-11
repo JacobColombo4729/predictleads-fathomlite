@@ -93,7 +93,8 @@ def cell_format(name, values):
     blank = lambda f: (lambda x: "" if pd.isna(x) else f(x))
     in_01 = len(v) > 0 and v.between(0, 1).all()
     whole = len(v) > 0 and (v == v.round()).all()
-    counts = any(k in name for k in ("listings", "companies", "postings", "per week", "count", "people", "sub-groups"))
+    counts = any(k in name for k in ("listings", "companies", "postings", "per week", "count", "people", "sub-groups")) and (
+        whole or not in_01 or "share" not in name and not name.startswith("from "))
     if "rank" in name:
         return blank(lambda x: f"{x:.0f}")
     if "spread" in name:
