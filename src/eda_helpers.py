@@ -2,6 +2,7 @@
 
 Everything here works on aggregates. Nothing prints listing rows.
 """
+import os
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -17,7 +18,7 @@ def project_root(start=None):
     return next(d for d in [start, *start.parents] if (d / "requirements.txt").exists())
 
 ROOT = project_root()
-DATA_DIR = ROOT / "data"          # gitignored
+DATA_DIR = Path(os.environ.get("PL_DATA_DIR") or ROOT / "data")  # gitignored; PL_DATA_DIR overrides (tests on synthetic data)
 CLEAN_DIR = DATA_DIR / "clean"
 PART1_TABLE = CLEAN_DIR / "analysis_table.pkl"  # EDA_SDA_1's final table
 PART2_TABLE = CLEAN_DIR / "scope_table.pkl"  # EDA_SDA_2's final table (the scope), for EDA_SDA_3
