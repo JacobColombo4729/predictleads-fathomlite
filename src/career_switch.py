@@ -392,6 +392,20 @@ EXTRA_ONET_BUCKETS = {
 }
 EXTRA_ORDER = ["technical sales", "business and data analysis"]
 
+# O*NET 13-1161 mixes market research analysts with marketing specialists (decided 2026-10-11). Titles that name analysis
+# or research stay in business and data analysis; the rest are labelled marketing specialists and hidden in the app
+# (kept in the data), like document management: marketing work, not what the Data Analytics program trains for.
+MARKETING_BUCKET = "marketing specialists"
+MARKET_ANALYST_TITLE = (r"analy|research|insight|\bdata\b|intelligence|statistic|measurement|quantitative|reporting"
+                        r"|\bbi\b|metrics|scientist")
+
+
+def marketing_specialist(onet_codes, titles):
+    """True for 13-1161 listings whose title names no analysis or research (marketing specialists, not analysts)."""
+    code = pd.Series(onet_codes).fillna("").astype(str).str.strip().str[:7]
+    title = pd.Series(titles, index=code.index).fillna("").astype(str).str.lower()
+    return code.eq("13-1161") & ~title.str.contains(MARKET_ANALYST_TITLE, regex=True)
+
 # TripleTen program -> the O*NET codes its graduates are trained for (tripleten.com, checked 2026-10-10). Detailed codes
 # (10 characters) win over 7-character codes. Scope listings with no program are "adjacent tech roles" (IT support,
 # networks and systems, database, IT project management, other computer roles): reachable, but no TripleTen program.
