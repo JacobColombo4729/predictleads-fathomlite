@@ -177,7 +177,7 @@ Repeat with a new file called `.env` and fill in:
 ```
 AWS_PROFILE=team_project
 AWS_REGION=us-east-2
-S3_PATH=s3://<bucket>/<YYYY>/<MM>/<DD>/   # ask the team for the bucket and snapshot date
+S3_PATH=s3://<bucket>/<YYYY>/<MM>/<DD>/   # ask the team for the bucket and export date
 ```
 
 Each variable goes on its own line.

@@ -174,7 +174,7 @@ def as_list(v):
 
 def km_curve(days, finished):
     """Share of listings still open after t days, indexed by t.
-    Listings still open at the snapshot count as censored, so they don't bias the window short."""
+    Listings still open on September 30 (the data's end date) count as censored, so they don't bias the window short."""
     d = pd.DataFrame({"t": days, "e": finished}).dropna()
     by_t = d.groupby("t")["e"].agg(["size", "sum"])
     at_risk = len(d) - by_t["size"].cumsum().shift(fill_value=0)

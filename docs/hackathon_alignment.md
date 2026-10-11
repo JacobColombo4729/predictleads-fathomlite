@@ -1,6 +1,6 @@
 # Alignment with `predictleads-hackathon` (Jesse's app)
 
-A read-only snapshot of Jesse's repository, refreshed on request ("check the hackathon repo"), so the analysis here stays aligned with the app. Nothing in his repo is changed from here: Claude reads the local clone at `~/dev/predictleads-hackathon` as it is (never its `data/`, `models/` or `.env`). To see his newest work, pull that clone first.
+A read-only summary of Jesse's repository, refreshed on request ("check the hackathon repo"), so the analysis here stays aligned with the app. Nothing in his repo is changed from here: Claude reads the local clone at `~/dev/predictleads-hackathon` as it is (never its `data/`, `models/` or `.env`). To see his newest work, pull that clone first.
 
 **Last checked:** 2026-10-10, branch `feature/mac-support`, commit `5d6d743` ("demo backend for mac"). Target date in his roadmap: about 2026-10-23.
 
@@ -34,4 +34,4 @@ A read-only snapshot of Jesse's repository, refreshed on request ("check the hac
 
 ## Changes since the last check
 
-- First snapshot.
+- First version.

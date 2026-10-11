@@ -6,7 +6,7 @@
 
 - **One repository,** with both commit histories kept: the app in `app/`, the analysis in `analysis/`, one set of docs, one data layout.
 - **When:** as soon as the five readiness gates in section 5 are met, not on a fixed date. The pace-setters are agreeing on the six decisions and rerunning EDA_SDA_1 and 2 on the full file (done in parallel); the rest takes a day or less. The project's target date is about 2026-10-23.
-- **Why now:** the two projects have converged on the same product (career changers, the 2026-09-30 snapshot, a ranked list, a "Compass"), and each has what the other lacks. Merging early stops us building the same thing twice.
+- **Why now:** the two projects have converged on the same product (career changers, the 2026-09-30 data export, a ranked list, a "Compass"), and each has what the other lacks. Merging early stops us building the same thing twice.
 
 ## 2. The two repositories, and the merged one
 
@@ -56,7 +56,7 @@ predictleads-hackathon/              (name agreed 2026-10-10; in a shared GitHub
 ├── CLAUDE.md           stays at the top (Claude Code reads it there)
 ├── requirements.txt    one pinned list for both
 ├── .env.example        S3 settings and OPENAI_API_KEY as placeholders
-├── data/               git-ignored: one layout, rebuilt from the same snapshot
+├── data/               git-ignored: one layout, rebuilt from the same data export
 └── models/             git-ignored
 ```
 
@@ -64,7 +64,7 @@ predictleads-hackathon/              (name agreed 2026-10-10; in a shared GitHub
 
 ```mermaid
 flowchart LR
-    S3[(PredictLeads snapshot<br/>2026-09-30, 13.4M listings)] --> STREAM[analysis/src: stream and cleaning<br/>one listing set and its flags]
+    S3[(PredictLeads export<br/>2026-09-30, 13.4M listings)] --> STREAM[analysis/src: stream and cleaning<br/>one listing set and its flags]
     STREAM --> NB[analysis notebooks<br/>EDA, TimeSeries, feature screening]
     RES[(Public résumé dataset)] --> PROF[Profiles: 2,813 real career changers]
     NB --> FEAT[Features and tables<br/>timing, ghosts, hiding rules, market per role]
@@ -89,8 +89,8 @@ flowchart LR
 
 ### Decision 2: which listings count as "still open"
 
-- **Jacob has:** a listing is open if it was **last seen within 2 days** of the 2026-09-30 snapshot. The `status` field is only ever "closed" or empty, never "open", so it isn't used. (Checked: the crawler isn't weekly, so the 2-day rule doesn't drop open listings.)
-- **Jesse has:** the app drops `status = closed` and **shows every listing with an empty status**, labelled "unknown, not verified as open". That includes listings last seen weeks or months before the snapshot, which have most likely disappeared.
+- **Jacob has:** a listing is open if it was **last seen within 2 days** of September 30, the data's end date. The `status` field is only ever "closed" or empty, never "open", so it isn't used. (Checked: the crawler isn't weekly, so the 2-day rule doesn't drop open listings.)
+- **Jesse has:** the app drops `status = closed` and **shows every listing with an empty status**, labelled "unknown, not verified as open". That includes listings last seen weeks or months before September 30 (the data's end date), which have most likely disappeared.
 - **Proposed:** the app uses the last-seen rule, so users don't see listings that are already gone, and keeps Jesse's honest "historical listing" wording. With the planned date picker, "open" means live on the chosen date.
 
 ### Decision 3: sending text to outside AI (OpenAI)
