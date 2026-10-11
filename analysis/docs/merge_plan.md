@@ -1,6 +1,6 @@
 # Merge plan: `project_leads` (Jacob) + `predictleads-hackathon` (Jesse)
 
-**A proposal for Jesse and Jacob to confirm.** Updated 2026-10-11. **The histories are joined** (2026-10-11): both repositories now live, unchanged, in a third one, `predictleads-fathomlite`, with `project_leads` in `analysis/` and `predictleads-hackathon` in `app/`. The two originals are kept intact. Nothing has been *combined* yet (data, rules, requirements, docs): that waits for both of us to agree on the six decisions in section 3.
+**Agreed by Jesse and Jacob (2026-10-11): all six decisions as proposed; OpenAI use confirmed allowed.** Updated 2026-10-11. **The histories are joined** (2026-10-11): both repositories now live, unchanged, in a third one, `predictleads-fathomlite`, with `project_leads` in `analysis/` and `predictleads-hackathon` in `app/`. The two originals are kept intact. Nothing has been *combined* yet (data, rules, requirements, docs): that waits for both of us to agree on the six decisions in section 3.
 
 ## 1. The short version
 
@@ -93,7 +93,7 @@ flowchart LR
     API --> UI[app/frontend: Discover, Saved,<br/>Saved-jobs insights, Retraining compass, Signals]
 ```
 
-## 3. Six decisions to confirm first
+## 3. Six decisions (agreed 2026-10-11)
 
 ### Decision 1: which jobs are in the project, and how they're labelled
 
@@ -116,6 +116,7 @@ flowchart LR
   - **Magic fill:** sends a résumé's text (contact details removed) to fill in the profile; the user ticks a consent box each time.
   - **Grounded explanations:** in OpenAI mode, **the listing's description and the candidate's evidence are sent to the provider** (his `docs/grounded-match-explanations.md`).
 - **Proposed:** both stay **off by default**. **Grounded explanations in OpenAI mode are not used** until the advisors allow listing text to go to an outside model (the local mock stays for development). Magic fill only with the person's consent, as now, and pending the advisors' answer on résumés.
+- **Update (2026-10-11):** OpenAI use is confirmed allowed, so the app's OpenAI features (Magic fill, grounded explanations and the gap analysis, typed questions in Ask the market) may be used, still off by default and with the per-use consent. Whether the app may show recruiter names and contact details is still to ask.
 
 ### Decision 4: who ranks the jobs
 
@@ -156,7 +157,7 @@ flowchart LR
 
 | Gate | Ready when | Who |
 |:--|:--|:--|
-| 1. Decisions agreed | Both confirm (or change) decisions 1–6 and log them | Jesse and Jacob |
+| 1. Decisions agreed | Both confirm (or change) decisions 1–6 and log them (**met 2026-10-11**: all six as proposed) | Jesse and Jacob |
 | 2. Streams finished | Jacob's full stream and its second pass (`--rows`) have completed (**met 2026-10-10**) | Jacob |
 | 3. Nothing in flight | Both repos committed and pushed; every branch merged into `main`; no run in progress (**met 2026-10-11**: both repos down to `main` only, clean and pushed) | Jesse and Jacob |
 | 4. Paths ready | Each side finds the project root and `data/` through a setting, not "the folder with `requirements.txt`" (**met 2026-10-11** on `jacob`: notebooks find `analysis/` by `src/eda_helpers.py`; app code reaches the top-level `data/`, `models/` and `.env` through `REPO_ROOT`) | Jacob's side (Claude); Jesse's side |
@@ -177,13 +178,14 @@ Why gate 5: the app rebuilds its corpus and embeddings from the shared listing s
 - [x] Top-level `CLAUDE.md` (paths), `.claude/settings.json` (data rules for both halves), `README.md` (map) and `.gitignore`
 - [x] App tests pass from `app/` (256); the analysis code finds `analysis/` as its root
 - [x] Pushed to GitHub (private, Jacob's account); temporary clones deleted
-- [ ] Jesse added as a collaborator; each of us moves our local `data/`, `models/` and `.env` to the top of the repository and creates the one `.venv`
+- [x] Jesse added as a collaborator (2026-10-11)
+- [ ] Each of us moves our local `data/`, `models/` and `.env` to the top of the repository and creates the one `.venv` (Jacob done 2026-10-11, on the Windows PC; Jesse to do)
 - [ ] Notebooks run on the new layout
 
 **Combining (after gate 1; each person on their own branch, merged into `main` often, per the git workflow decision of 2026-10-11):**
 
-- [ ] Gates 1 and 4 met
-- [ ] Docs into `docs/project/`, `docs/analysis/` and `docs/app/`, links between docs and the paths in `CLAUDE.md` updated in the same commit
+- [x] Gates 1 and 4 met (2026-10-11)
+- ~~Docs into `docs/project/`, `docs/analysis/` and `docs/app/`~~ Dropped 2026-10-11: docs stay in `analysis/` and `app/` (decided with the reorganization)
 - [x] One `requirements.txt`, one `.env.example`, one `.gitignore`, one `.gitattributes`, one `README.md`, one `data/` and `models/` at the top (2026-10-11, on `jacob`; docs stay in each half)
 - [ ] `nbstripout` for the whole repository
 - [ ] Then: shared listing set → corpus and embeddings → backend features
