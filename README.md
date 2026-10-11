@@ -46,7 +46,8 @@ python3.11 --version      # Windows: py -3.11 --version
 aws --version
 ```
 
-> **Where to put the project:** Use a folder that is **not** synced to iCloud, Dropbox, OneDrive, or Google Drive (for example `~/dev`). Synced folders copy data to the cloud, which the agreement does not allow.
+> **Where to put the project:** Use a folder that is **not** synced to iCloud, Dropbox, OneDrive, or Google Drive (for example `~/dev` on Mac or `C:\Users\<you>\dev` on Windows). Synced folders copy data to the cloud, which the agreement does not allow.
+> **Windows:** OneDrive often syncs `Desktop` and `Documents` by default, so don't put the project there.
 
 ---
 
@@ -60,13 +61,16 @@ git clone https://github.com/JacobColombo4729/project_leads.git
 cd project_leads
 ```
 
-You should now see:
+You should now see (plus a few planning files):
 
 ```
 project_leads/
+├── .claude/
+├── .gitattributes
 ├── .gitignore
 ├── .env.example
 ├── .vscode/settings.json
+├── CLAUDE.md
 ├── README.md and the project docs (what each one is for: the table at the top of STANDARDS.md)
 ├── requirements.txt
 ├── docs/          (decision log, data reference, job growth plan, notebook text exports)
@@ -92,18 +96,29 @@ py -3.11 -m venv .venv
 .venv\Scripts\Activate.ps1
 ```
 
-Your prompt should now start with `(.venv)`. **Activate it every time you open a new terminal** for this project.
+**Windows (Git Bash)**
+```bash
+py -3.11 -m venv .venv
+source .venv/Scripts/activate
+```
 
-> `.venv/` is already in `.gitignore`. Never commit it. An existing venv with another name works too (one teammate's is `PL/`, also ignored): use its name in place of `.venv` in the commands below.
+Your prompt should now start with `(.venv)`. **Activate it every time you open a new terminal** for this project. The VS Code terminal activates it for you once you've selected the interpreter (step 8).
+
+Once it's activated, `python` and `pip` refer to the venv on every OS, so the rest of this README uses them.
+
+> `.venv/` is already in `.gitignore`. Never commit it. A venv only works on the machine that made it, so if you work on both a Mac and a Windows PC, create one on each. An existing venv with another name works too (one teammate's is `PL/`, also ignored): use its name in place of `.venv`.
 
 ---
 
 ## 4. Install packages
 
 ```bash
-pip install --upgrade pip
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
+
+> On Windows, upgrade pip with `python -m pip`, not `pip install --upgrade pip`, which fails because pip can't replace itself while it's running.
+> A few packages in the list (e.g. `appnope`) are Mac-only helpers. They install harmlessly on Windows, so use the same file everywhere.
 
 **Mac only:** LightGBM and XGBoost need the OpenMP runtime. Install it once with Homebrew:
 
@@ -148,10 +163,12 @@ aws configure --profile team_project
 Enter:
 - **AWS Access Key ID:** *(your key)*
 - **AWS Secret Access Key:** *(your secret)*
-- **Default region:** `us-east-1` *(confirm with the team)*
+- **Default region:** `us-east-2` *(same as `AWS_REGION` in step 7)*
 - **Output format:** `json`
 
-Your keys are stored in `~/.aws/credentials`, **outside the project folder**, so they can't be committed or read by editor tools.
+Your keys are stored in `~/.aws/credentials` (Windows: `C:\Users\<you>\.aws\credentials`), **outside the project folder**, so they can't be committed or read by editor tools.
+
+> Windows: if `aws` isn't found after installing, close and reopen your terminal (and VS Code) so it picks up the new PATH.
 
 > 🚫 **Never** put access keys in code, notebooks, `.env`, Slack, or AI chats.
 
@@ -159,28 +176,29 @@ Your keys are stored in `~/.aws/credentials`, **outside the project folder**, so
 
 ## 7. Create your `.env` file
 
-`.env` holds **non-secret** settings. Copy the template:
+`.env` holds **non-secret** settings. The repo already includes a blank template, `.env.example`. Copy it to `.env`:
 
-Open the project_leads folder in VS Code (File → Open Folder).
-In the Explorer sidebar, hover over the project name and click the New File icon.
-Name it exactly '.env.example', with the leading dot and no .txt.
-Paste in the following and save with Cmd + S:
-
-```
-AWS_PROFILE=
-AWS_REGION=
-S3_PATH=
+**Mac / Linux / Git Bash**
+```bash
+cp .env.example .env
 ```
 
-Repeat with a new file called `.env` and fill in:
+**Windows (PowerShell)**
+```powershell
+Copy-Item .env.example .env
+```
+
+Open `.env` in VS Code and fill in:
 
 ```
 AWS_PROFILE=team_project
 AWS_REGION=us-east-2
-S3_PATH=s3://<bucket>/<YYYY>/<MM>/<DD>/   # ask the team for the bucket and export date
+S3_PATH=s3://<bucket>/<YYYY>/<MM>/<DD>/
 ```
 
-Each variable goes on its own line.
+Ask the team for the bucket and export date. Each variable goes on its own line. Both `scratch.py` (step 9) and the EDA notebook read it.
+
+> The file must be named exactly `.env`, not `.env.txt`. On Windows, File Explorer hides extensions by default, so create and rename it from VS Code or the terminal, not Explorer.
 
 > `.env` is in `.gitignore`. Only `.env.example` (blank values) is committed.
 
@@ -193,36 +211,51 @@ code .
 ```
 
 > If `code` isn't found on Mac: open VS Code → `Cmd + Shift + P` → **Shell Command: Install 'code' command in PATH** → restart Terminal.
+> On Windows, `code` is added to PATH by the installer ("Add to PATH" option). Restart your terminal after installing.
 > Or use **File → Open Folder** and pick `project_leads`.
 
 Then:
-1. `Cmd/Ctrl + Shift + P` → **Python: Select Interpreter** → choose `.venv`
+1. `Cmd/Ctrl + Shift + P` → **Python: Select Interpreter** → choose the one in `.venv`
+   (Mac: `.venv/bin/python`, Windows: `.venv\Scripts\python.exe`)
 2. Open any notebook → click **Select Kernel** (top right) → **Python (project_leads)**
 
-The shared `.vscode/settings.json` points VS Code to `.venv` and loads `.env` automatically. It also **turns Copilot off for this project** until our advisors confirm the AI policy (see below).
+The shared `.vscode/settings.json` works on Mac and Windows. It:
+- loads `.env` into Python runs,
+- activates the selected venv in new VS Code terminals,
+- **turns Copilot off for this project** until our advisors confirm the AI policy (see below).
+
+It doesn't hard-code the interpreter path, because that path differs between Mac and Windows. The Python extension detects `.venv` automatically.
 
 ---
 
 ## 9. Test your setup
 
-Create a scratch notebook in `notebooks/` called `scratch.py` and run:
+Create a test script in `notebooks/` called `scratch.py` (it's git-ignored: each person keeps their own) with:
 
 ```python
 import os, boto3, pandas as pd, sklearn
 from dotenv import load_dotenv
 
 load_dotenv()
-bucket, _, prefix = os.environ["S3_PATH"].removeprefix("s3://").partition("/")
+s3_path = os.getenv("S3_PATH")
+if not s3_path:
+    raise RuntimeError("S3_PATH is not set — add `S3_PATH=s3://<bucket>/<prefix>/` on its own line in .env")
+BUCKET, _, PREFIX = s3_path.strip().removeprefix("s3://").partition("/")
+
 s3 = boto3.Session(profile_name=os.getenv("AWS_PROFILE")).client("s3")
-resp = s3.list_objects_v2(Bucket=bucket, Prefix=prefix, MaxKeys=5)
+resp = s3.list_objects_v2(Bucket=BUCKET, Prefix=PREFIX, MaxKeys=5)
 
 print("pandas", pd.__version__, "| sklearn", sklearn.__version__)
 print("S3 objects visible:", resp.get("KeyCount"))
 ```
 
-python notebooks/scratch.py
+With `.venv` activated, run it from the project root (same command on every OS):
 
-✅ Versions plus a number means you're ready. Then **clear the output and delete the scratch notebook.**
+```bash
+python notebooks/scratch.py
+```
+
+✅ Versions plus a number means you're ready. It prints only versions and a count, no data.
 
 ---
 
@@ -242,7 +275,9 @@ git checkout -b yourname/short-description     # e.g. jacob/eda-job-openings
 git status                                     # make sure NO data files, .env, or .venv appear
 
 # 4. Clear notebook outputs before committing
-#    VS Code: "Clear All Outputs" button at the top of the notebook
+#    VS Code: "Clear All Outputs" button at the top of the notebook, then save
+#    Or from the terminal (any OS, venv activated):
+#    jupyter nbconvert --clear-output --inplace path/to/notebook.ipynb
 
 # 5. Commit and push
 git add <files>
@@ -298,9 +333,12 @@ Everyone must **permanently delete all copies of the data** (local `data/` folde
 | Problem | Fix |
 |---|---|
 | `code: command not found` | See step 8 |
-| `python3.11: command not found` | Install Python 3.11 (step 1). On Mac: `brew install python@3.11` |
+| `python3.11: command not found` (Mac) | Install Python 3.11 (step 1): `brew install python@3.11` |
+| `py -3.11` says no such version (Windows) | Install Python 3.11 from python.org. `py -0` lists the versions you have |
+| `python` opens the Microsoft Store (Windows) | Settings → Apps → Advanced app settings → App execution aliases → turn off the `python.exe` / `python3.exe` aliases. Or just activate `.venv` first |
 | Kernel not showing in VS Code | Activate `.venv`, re-run step 5, then reload VS Code (`Cmd/Ctrl + Shift + P` → **Reload Window**) |
 | `ModuleNotFoundError` | Wrong kernel or venv not activated. Check the kernel says **Python (project_leads)** |
+| `LF will be replaced by CRLF` warning (Windows) | Harmless. `.gitattributes` keeps the repo's line endings consistent |
 | `NoCredentialsError` / `ProfileNotFound` | Re-run step 6 and check `AWS_PROFILE` in `.env` |
 | `AccessDenied` from S3 | Your credentials don't have access. Ask the team lead |
 | Accidentally staged data or `.venv` | `git restore --staged <file-or-folder>` before committing |
