@@ -141,7 +141,7 @@ flowchart LR
 | Gate | Ready when | Who |
 |:--|:--|:--|
 | 1. Decisions agreed | Both confirm (or change) decisions 1–6 and log them | Jesse and Jacob |
-| 2. Streams finished | Jacob's full stream and its second pass (`--rows`) have completed | Jacob |
+| 2. Streams finished | Jacob's full stream and its second pass (`--rows`) have completed (**met 2026-10-10**) | Jacob |
 | 3. Nothing in flight | Both repos committed and pushed; `feature/mac-support` merged into `main`; no run in progress | Jesse and Jacob |
 | 4. Paths ready | Each side finds the project root and `data/` through a setting, not "the folder with `requirements.txt`"; tested before merging | Jacob's side (Claude); Jesse's side |
 
