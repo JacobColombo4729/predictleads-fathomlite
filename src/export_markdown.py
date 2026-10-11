@@ -85,7 +85,7 @@ LAYOUTS = {
             ["Q2a. How much history", "Q2d. Weekly arrivals"],
             ["11d. Share of scope listings with each key field", "The scope table at a glance", "Scope table: role buckets"],
         ],
-        "charts": ["# 6.1i", "# Q3a chart", "# Q3a charts", "# Q1a chart", "# Q1b chart", "# Q1c chart", "# Q1d charts",
+        "charts": ["# 6.1i", "# Q3a heat map", "# Q3a chart", "# Q3a charts", "# Q1a chart", "# Q1b chart", "# Q1c chart", "# Q1d charts",
                    "# Q1e charts", "# Q1f chart", "# Q1g chart", "# Q2 charts: weekday", "# 9.3a Chart"],
     },
     "EDA_SDA_2": {
