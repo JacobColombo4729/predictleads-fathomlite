@@ -233,6 +233,20 @@ def scope_fields(ids, desc_path, root=None):
     return out.reindex(ids.index)
 
 
+def scope_values(ids, column, fn=None, root=None):
+    """One original field for the given listing ids (a set or Series), read part by part from the stream's scope parts
+    (job_openings_full/ and job_openings_extra/): a Series indexed by id, fn applied to each value if given."""
+    want = set(pd.Series(list(ids)).dropna())
+    out = []
+    for p in [p for t in (SCOPE_TABLE, EXTRA_TABLE) for p in sorted((Path(root or FLAT_DIR) / t).glob("part_*.pkl"))]:
+        d = pd.read_pickle(p).reindex(columns=["id", column])
+        d = d[[i in want for i in d["id"]]]
+        if len(d):
+            out.append(d.drop_duplicates("id").set_index("id")[column].map(fn) if fn else d.drop_duplicates("id").set_index("id")[column])
+    s = pd.concat(out) if out else pd.Series(dtype=object)
+    return s[~s.index.duplicated()]
+
+
 # ---------- saving ----------
 
 def save_final(df, path, root=None, table=ROWS_TABLE, row_group=500_000):
