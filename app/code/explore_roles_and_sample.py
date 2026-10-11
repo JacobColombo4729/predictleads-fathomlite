@@ -28,7 +28,8 @@ MAX_LINE_BYTES = 4 * 1024 * 1024
 PROGRESS_SECONDS = 30
 COMMIT_RECORDS = 5_000
 DISK_RESERVE_BYTES = 2 * 1024**3
-OUTPUT_ROOT = Path("data/discovery/role_exploration")
+REPO_ROOT = Path(__file__).resolve().parents[2]  # data/, models/ and .env are shared with analysis/ at the top
+OUTPUT_ROOT = REPO_ROOT / "data" / "discovery" / "role_exploration"
 STRING_FIELDS = {
     "raw_title", "normalized_title", "onet_occupation", "onet_family", "status", "seniority",
     "language", "categories", "contract_types", "description_availability", "salary_availability",
@@ -776,7 +777,7 @@ def _run_exploration(output_dir: Path, sample_size: int, seed: int, storage_esti
                 next_commit_at += COMMIT_RECORDS
 
     try:
-        source, client, source_meta, source_label = _open_source(Path.cwd())
+        source, client, source_meta, source_label = _open_source(REPO_ROOT)
         reader = _CountingReader(source)
         with zstd.ZstdDecompressor().stream_reader(reader, read_across_frames=True, closefd=False) as decompressor:
             while True:
@@ -931,9 +932,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.sample_size < 1:
         parser.error("--sample-size must be positive")
     available = shutil.disk_usage(Path.cwd()).free
-    prior = Path("data/prepared/jobs_sample_validation_20261005T205936Z/jobs_prepared_sample.jsonl")
+    prior = REPO_ROOT / "data/prepared/jobs_sample_validation_20261005T205936Z/jobs_prepared_sample.jsonl"
     if not prior.exists():
-        prior = Path("data/prepared/jobs_sample_20261005T205936Z/jobs_prepared_sample.jsonl")
+        prior = REPO_ROOT / "data/prepared/jobs_sample_20261005T205936Z/jobs_prepared_sample.jsonl"
     estimated_sample = int(prior.stat().st_size / 10_000 * args.sample_size) if prior.exists() else args.sample_size * 10_000
     estimated_db_and_csv = max(6 * 1024**3, estimated_sample * 16)
     minimum_free_during_scan = DISK_RESERVE_BYTES + estimated_sample

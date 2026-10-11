@@ -183,10 +183,10 @@ class OpenAIMarketProvider:
                 from dotenv import load_dotenv
             except ImportError as exc:  # pragma: no cover
                 raise MarketAIUnavailable("python-dotenv is unavailable; set OPENAI_API_KEY in the environment") from exc
-            load_dotenv(dotenv_path=PROJECT_ROOT / ".env", override=False)
+            load_dotenv(dotenv_path=PROJECT_ROOT.parent / ".env", override=False)
             key = os.environ.get("OPENAI_API_KEY", "").strip()
         if not key:
-            raise MarketAIUnavailable("Set OPENAI_API_KEY in the process environment or project-root .env")
+            raise MarketAIUnavailable("Set OPENAI_API_KEY in the process environment or the repository-root .env")
         return cls(key, str(values.get("PREDICTLEADS_MARKET_MODEL", DEFAULT_MODEL)).strip() or DEFAULT_MODEL)
 
     def transcribe(self, audio: bytes, content_type: str) -> str:

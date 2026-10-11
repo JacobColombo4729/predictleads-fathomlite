@@ -3,7 +3,7 @@
 PredictLeads × TripleTen externship · **How we work.** Last updated 2026-10-09.
 
 > A living document. The career-changer focus is part of the project description; the rest of the current choices are Jacob's working proposal.
-> Follow the [Data & Security Rules](README.md#data--security-rules): no data values, `df.head()` output or screenshots in any doc.
+> Follow the [Data & Security Rules](../README.md#data--security-rules): no data values, `df.head()` output or screenshots in any doc.
 
 ## Where everything lives
 
@@ -18,7 +18,7 @@ PredictLeads × TripleTen externship · **How we work.** Last updated 2026-10-09
 | [`docs/fit_analysis.md`](docs/fit_analysis.md) | Transferable fit: Option A vs. B, and the applicant profiles (real career switches from a public resume dataset; volunteer profiles later) |
 | [`PRIORITY_QUEUE.md`](PRIORITY_QUEUE.md) | What to do next |
 | [`APPLICATION.md`](APPLICATION.md) | The web app's design |
-| [`README.md`](README.md) | Setup and the data rules |
+| [`README.md`](../README.md) (repository root) | Setup and the data rules, for the notebooks and the app |
 | `notebooks/` | EDA_SDA_1–4, TimeSeries, ML: the analysis itself. Each has its own detailed plan. `Profiles.ipynb` finds real career switches in a public resume dataset, for the fit model |
 
 ## Goal and success criteria

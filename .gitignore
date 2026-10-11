@@ -1,10 +1,80 @@
-# Repo-wide safety net; analysis/ and app/ keep their own .gitignore files.
-data/
-models/
+# One ignore list for the whole repository (analysis/ and app/).
+
+# Secrets and credentials: never commit
 .env
 .env.*
 !.env.example
-.venv/
-__pycache__/
-.ipynb_checkpoints/
 .aws/
+credentials/
+.credentials/
+*.pem
+*.key
+.pypirc
+.streamlit/secrets.toml
+
+# Project data and models: local only, never commit
+data/
+models/
+*.csv
+*.parquet
+*.xlsx
+*.jsonl
+*.zst
+*.json.gz
+*.pkl
+*.joblib
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.db
+*.wal
+*.shm
+
+# Résumés (personal data)
+*.resume
+resume*.pdf
+resume*.docx
+*_resume.*
+candidate-resume*.*
+candidate_resume*.*
+resume/
+resumes/
+candidate-resumes/
+
+# Notebook exports with outputs (tables, charts): local only
+reports/
+# Setup test script (README): each person makes their own
+analysis/notebooks/scratch.py
+
+# Python
+.venv/
+venv/
+PL/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+*.log
+
+# App
+app/code/prototype_v1/
+node_modules/
+dist/
+*.tsbuildinfo
+.vite/
+
+# Editors and OS: the shared VS Code settings are committed, personal ones are not
+**/.vscode/*
+!/.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+tempCodeRunnerFile.py
+
+# Claude Code personal settings (not shared)
+.claude/settings.local.json

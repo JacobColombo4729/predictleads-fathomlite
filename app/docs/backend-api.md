@@ -16,7 +16,7 @@ A minimal FastAPI service in `backend/api.py` for the demo. It is deliberately *
 
 ## Run
 
-From the repo root, with the single project `.venv` (see the [README](../README.md)):
+From `app/`, with the repository's `.venv` at the top (see the [README](../../README.md)):
 
 ```powershell
 .\run_demo_backend.ps1                # RRF ranker on data/matching/ai_ml_serving_v1

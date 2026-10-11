@@ -32,7 +32,8 @@ from prepare_jobs import BUCKET, KEY, PROFILE, REGION, SNAPSHOT_DATE, prepare_re
 MAX_LINE_BYTES = 4 * 1024 * 1024
 PROGRESS_SECONDS = 60
 FILTER_VERSION = "targeted_pool_filter_v1"
-SAMPLE_PATH = Path("data/discovery/role_exploration/roles_corrected_20261006T000000Z/jobs_prepared_random_sample.jsonl")
+REPO_ROOT = Path(__file__).resolve().parents[2]  # data/, models/ and .env are shared with analysis/ at the top
+SAMPLE_PATH = REPO_ROOT / "data/discovery/role_exploration/roles_corrected_20261006T000000Z/jobs_prepared_random_sample.jsonl"
 
 TITLE_PATTERNS = {
     "ai_ml_title": re.compile(
@@ -254,7 +255,7 @@ def main(argv: list[str] | None = None) -> int:
         return check_sample()
     if args.scan:
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        return scan(Path("data/matching") / f"targeted_pool_{stamp}")
+        return scan(REPO_ROOT / "data" / "matching" / f"targeted_pool_{stamp}")
     parser.print_help()
     return 2
 

@@ -5,7 +5,7 @@
 param([switch]$Frontend, [switch]$Archive)
 
 $root = $PSScriptRoot
-$py = Join-Path $root ".venv\Scripts\python.exe"
+$py = Join-Path (Split-Path $root -Parent) ".venv\Scripts\python.exe"  # the repository's .venv, at the top
 $env:PYTHONPATH = Join-Path $root "code"
 Set-Location $root
 $failed = $false

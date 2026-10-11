@@ -16,7 +16,7 @@ for arg in "$@"; do
 done
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-py="$root/.venv/bin/python"
+py="$(dirname "$root")/.venv/bin/python"  # the repository's .venv, at the top
 export PYTHONPATH="$root/code"
 cd "$root"
 failed=0

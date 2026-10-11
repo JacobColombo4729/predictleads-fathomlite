@@ -25,6 +25,7 @@ from grounded_match_explanations import ProviderFailure, ProviderUnavailable, Re
 SCHEMA_VERSION = "resume_profile_extraction_v1"
 DEFAULT_MODEL = "gpt-4.1-mini"
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = PROJECT_ROOT.parent  # data/, models/ and .env are shared with analysis/ at the top
 ENTRY_KINDS = ("job", "project", "education")
 MIN_RESUME_CHARS = 200
 MAX_RESUME_CHARS = 30_000
@@ -243,7 +244,7 @@ class OpenAIResumeProvider:
         self.timeout_seconds = timeout_seconds
 
     @classmethod
-    def from_environment(cls, environ: Mapping[str, str] | None = None, *, project_root: Path = PROJECT_ROOT) -> "OpenAIResumeProvider":
+    def from_environment(cls, environ: Mapping[str, str] | None = None, *, project_root: Path = REPO_ROOT) -> "OpenAIResumeProvider":
         values = os.environ if environ is None else environ
         key = str(values.get("OPENAI_API_KEY", "")).strip()
         if not key and environ is None:
@@ -254,7 +255,7 @@ class OpenAIResumeProvider:
             load_dotenv(dotenv_path=project_root / ".env", override=False)
             key = os.environ.get("OPENAI_API_KEY", "").strip()
         if not key:
-            raise ProviderUnavailable("Set OPENAI_API_KEY in the environment or project-root .env")
+            raise ProviderUnavailable("Set OPENAI_API_KEY in the environment or the repository-root .env")
         model = str(values.get("PREDICTLEADS_RESUME_MODEL", DEFAULT_MODEL)).strip() or DEFAULT_MODEL
         return cls(key, model)
 

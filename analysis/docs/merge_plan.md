@@ -159,7 +159,7 @@ flowchart LR
 | 1. Decisions agreed | Both confirm (or change) decisions 1–6 and log them | Jesse and Jacob |
 | 2. Streams finished | Jacob's full stream and its second pass (`--rows`) have completed (**met 2026-10-10**) | Jacob |
 | 3. Nothing in flight | Both repos committed and pushed; every branch merged into `main`; no run in progress (**met 2026-10-11**: both repos down to `main` only, clean and pushed) | Jesse and Jacob |
-| 4. Paths ready | Each side finds the project root and `data/` through a setting, not "the folder with `requirements.txt`" | Jacob's side (Claude); Jesse's side |
+| 4. Paths ready | Each side finds the project root and `data/` through a setting, not "the folder with `requirements.txt`" (**met 2026-10-11** on `jacob`: notebooks find `analysis/` by `src/eda_helpers.py`; app code reaches the top-level `data/`, `models/` and `.env` through `REPO_ROOT`) | Jacob's side (Claude); Jesse's side |
 | 5. EDA_SDA_1 and 2 at full scale | Both notebooks reworked for the full file and rerun: the cleaned listing set, scope, role buckets, the last-seen rule and the hiding rules the app will use are final (**met 2026-10-11**) | Claude (code), Jacob (runs) |
 
 **Why the join went ahead of gates 1 and 4:** joining only moves each repository into its folder; no code, rule or data changes. Each half is still its own project root (the analysis code finds `analysis/`, the app runs from `app/`), so gate 4 is needed only for the single `data/` layout, and gate 1 only for the combining work. Gate 3 is what the join itself needed.
@@ -177,13 +177,14 @@ Why gate 5: the app rebuilds its corpus and embeddings from the shared listing s
 - [x] Top-level `CLAUDE.md` (paths), `.claude/settings.json` (data rules for both halves), `README.md` (map) and `.gitignore`
 - [x] App tests pass from `app/` (256); the analysis code finds `analysis/` as its root
 - [x] Pushed to GitHub (private, Jacob's account); temporary clones deleted
-- [ ] Jesse added as a collaborator; each of us copies our local `data/`, `models/` and `.env` into the matching half and creates its venv
+- [ ] Jesse added as a collaborator; each of us moves our local `data/`, `models/` and `.env` to the top of the repository and creates the one `.venv`
 - [ ] Notebooks run on the new layout
 
 **Combining (after gate 1; everyone commits to `main`, per the git workflow decision of 2026-10-11):**
 
 - [ ] Gates 1 and 4 met
 - [ ] Docs into `docs/project/`, `docs/analysis/` and `docs/app/`, links between docs and the paths in `CLAUDE.md` updated in the same commit
-- [ ] One `requirements.txt`, one `.env.example`, one `data/` layout, `nbstripout` for the whole repository
+- [x] One `requirements.txt`, one `.env.example`, one `.gitignore`, one `.gitattributes`, one `README.md`, one `data/` and `models/` at the top (2026-10-11, on `jacob`; docs stay in each half)
+- [ ] `nbstripout` for the whole repository
 - [ ] Then: shared listing set → corpus and embeddings → backend features
 - [ ] Optional: transfer the repository to a shared GitHub organization; archive the two originals

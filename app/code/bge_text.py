@@ -16,6 +16,7 @@ from typing import Any, Mapping, Sequence
 import job_matching_engine as engine
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = PROJECT_ROOT.parent  # data/, models/ and .env are shared with analysis/ at the top
 
 BGE_ID = "BAAI/bge-base-en-v1.5"
 BGE_REVISION = "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a"
@@ -24,8 +25,8 @@ BGE_REPRESENTATION = "bge_section_priority_v1"
 MAX_BGE_TOKENS = 512
 
 MODEL_DIR_ENV = "PREDICTLEADS_BGE_MODEL_DIR"
-DEFAULT_MODEL_DIR = PROJECT_ROOT / "models" / "bge-base-en-v1.5"
-_LEGACY_MODEL_DIR = PROJECT_ROOT / "data" / "matching" / "bge_transition_20261008T142818Z" / "bge_model_files"
+DEFAULT_MODEL_DIR = REPO_ROOT / "models" / "bge-base-en-v1.5"
+_LEGACY_MODEL_DIR = REPO_ROOT / "data" / "matching" / "bge_transition_20261008T142818Z" / "bge_model_files"
 
 
 def model_dir() -> Path:
