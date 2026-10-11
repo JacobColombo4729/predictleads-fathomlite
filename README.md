@@ -39,6 +39,7 @@ predictleads-fathomlite/
 ├── .env.example              template for your .env (settings and keys)
 ├── .gitattributes  .gitignore
 ├── requirements.txt          one pinned list for everything (Python 3.11)
+├── FLOWCHART.md              how the pieces connect: data → notebooks → app
 ├── .venv/  .env              your own, git-ignored
 ├── data/  models/            local only, git-ignored: source data, corpus, embeddings, the BGE model
 ├── analysis/
@@ -56,7 +57,7 @@ predictleads-fathomlite/
     └── run_demo_backend / run_tests (.ps1 for Windows, .sh for macOS / Linux)
 ```
 
-What each analysis doc is for: the table at the top of [`analysis/STANDARDS.md`](analysis/STANDARDS.md). Where the app stands: [`app/STATUS.md`](app/STATUS.md).
+What each analysis doc is for: the table at the top of [`analysis/STANDARDS.md`](analysis/STANDARDS.md). Where the app stands: [`app/STATUS.md`](app/STATUS.md). How everything connects, as a flowchart: [`FLOWCHART.md`](FLOWCHART.md).
 
 ---
 
@@ -448,7 +449,7 @@ Everyone must **permanently delete all copies of the data** (local `data/` folde
 
 ## Where to read more
 
-**Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we're doing), [`analysis/STANDARDS.md`](analysis/STANDARDS.md) (how we work), [`analysis/DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md), [`analysis/APPLICATION.md`](analysis/APPLICATION.md), [`analysis/PRIORITY_QUEUE.md`](analysis/PRIORITY_QUEUE.md), [`analysis/DECISION_LOG.md`](analysis/DECISION_LOG.md), [`analysis/docs/data.md`](analysis/docs/data.md), [`analysis/docs/merge_plan.md`](analysis/docs/merge_plan.md).
+**Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we're doing), [`analysis/STANDARDS.md`](analysis/STANDARDS.md) (how we work), [`analysis/DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md), [`analysis/APPLICATION.md`](analysis/APPLICATION.md), [`analysis/PRIORITY_QUEUE.md`](analysis/PRIORITY_QUEUE.md), [`analysis/DECISION_LOG.md`](analysis/DECISION_LOG.md), [`analysis/docs/data.md`](analysis/docs/data.md).
 
 **App:**
 1. [app/STATUS.md](app/STATUS.md) and [app/roadmap.md](app/roadmap.md)
