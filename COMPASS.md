@@ -39,7 +39,7 @@ From the resume data; the app's Coach explains them in plain language.
 - **Should I retrain for a role directly, or take a first tech role and move from there?** For data science, 218 career changers moved in from another tech role and only 19 retrained straight into it.
 - **Which training led people like me to this role, and how many people is that based on?**
 - **How long did it take?** People who retrained after working took a median of 15 months from their last old-field job to their first tech job.
-- **Which role is the easiest door in?** IT support: the most entry-level listings (22%), the fastest closing and the most openness (44%), but the lowest pay ($32 an hour).
+- **Which role is the easiest door in?** IT support: the most entry-level listings (23%) and the most openness (44%), but the lowest pay ($31 an hour). Among TripleTen programs, Data Analytics roles are the most open (30%, $47.60 an hour).
 
 ## 4. Moving across and up within tech
 
