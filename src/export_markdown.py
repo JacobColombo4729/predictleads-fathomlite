@@ -93,17 +93,20 @@ LAYOUTS = {
         "hide_headings": {"4a–4e"},  # its tables (the funnel and the summary) still show
         "full_text_sections": {"5."},  # the conclusion opens with the summary and answers the clarifying questions
         "max_bullets": 1,
-        "bullets_by_section": {"3.1": 2, "3.9": 2, "3.11": 2},
+        "bullets_by_section": {"3.1": 2, "3.9": 2, "3.11": 2, "3.13": 3},
         "table_groups": [
             ["1d. The"],  # prefixes match the titles before and after the niche → scope rename
+            ["3.1e The whole scope vs. the career-changer view"],
             ["3.3c Median window (Kaplan–Meier) by company volume"],
             ["3.6b Role buckets in the"],
+            ["3.7c Within mid_senior"],
             ["3.11a What each rule hides"],
             ["3.12a The 2026 market by role bucket"],
+            ["3.13e Verdicts by family"],
             ["4b Final table: listings after each step", "4c Final"],
         ],
         "charts": ["# 3.1 Chart", "# 3.2 Chart", "# 3.3e Chart", "# 3.6 Chart", "# 3.9 Chart", "# 3.11 Chart",
-                   "# 3.12 Chart"],
+                   "# 3.12 Chart", "# 3.13 Chart"],
     },
     "Profiles": {
         "skip_sections": {"1.", "3.", "4b", "5."},
