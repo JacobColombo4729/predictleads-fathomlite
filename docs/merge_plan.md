@@ -5,7 +5,7 @@
 ## 1. The short version
 
 - **One repository,** with both commit histories kept: the app in `app/`, the analysis in `analysis/`, one set of docs, one data layout.
-- **When:** as soon as the four readiness gates in section 5 are met, not on a fixed date. The pace-setter is agreeing on the six decisions; the rest takes a day or less. The project's target date is about 2026-10-23.
+- **When:** as soon as the five readiness gates in section 5 are met, not on a fixed date. The pace-setters are agreeing on the six decisions and rerunning EDA_SDA_1 and 2 on the full file (done in parallel); the rest takes a day or less. The project's target date is about 2026-10-23.
 - **Why now:** the two projects have converged on the same product (career changers, the 2026-09-30 snapshot, a ranked list, a "Compass"), and each has what the other lacks. Merging early stops us building the same thing twice.
 
 ## 2. The two repositories, and the merged one
@@ -136,7 +136,7 @@ flowchart LR
 
 ## 5. Readiness gates
 
-**Before the merge (all four):**
+**Before the merge (all five):**
 
 | Gate | Ready when | Who |
 |:--|:--|:--|
@@ -144,12 +144,15 @@ flowchart LR
 | 2. Streams finished | Jacob's full stream and its second pass (`--rows`) have completed (**met 2026-10-10**) | Jacob |
 | 3. Nothing in flight | Both repos committed and pushed; `feature/mac-support` merged into `main`; no run in progress | Jesse and Jacob |
 | 4. Paths ready | Each side finds the project root and `data/` through a setting, not "the folder with `requirements.txt`"; tested before merging | Jacob's side (Claude); Jesse's side |
+| 5. EDA_SDA_1 and 2 at full scale | Both notebooks reworked for the full file and rerun: the cleaned listing set, scope, role buckets, the last-seen rule and the hiding rules the app will use are final | Claude (code), Jacob (runs) |
 
-**After the merge:** the full-file rerun of the analysis notebooks; rebuilding the app's corpus and embeddings from the shared listing set; wiring timing, hiding rules and the retraining compass into the backend; consolidating code.
+Why gate 5: the app rebuilds its corpus and embeddings from the shared listing set and copies these rules, so they should be final before it does; reworking the notebooks before the move also avoids rewriting code while it's being reorganized. EDA_SDA_3 and 4, TimeSeries, ML_Fit and ML_Rank don't feed the app yet, so they don't hold the merge.
+
+**After the merge:** the full-file rework of the remaining analysis notebooks (EDA_SDA_3 and 4, TimeSeries) inside `analysis/`; rebuilding the app's corpus and embeddings from the shared listing set; wiring timing, hiding rules and the retraining compass into the backend; consolidating code.
 
 ## 6. Steps
 
-- [ ] Gates 1–4 met
+- [ ] Gates 1–5 met
 - [ ] Create a shared GitHub organization; move both repos into it (each owner moves their own)
 - [ ] On a merge branch: each repo's files moved into `app/` or `analysis/` (`git mv`), docs into `docs/project/`, `docs/analysis/` and `docs/app/`, histories joined (`git merge --allow-unrelated-histories`), shared files merged, links between docs updated
 - [ ] App tests pass; notebooks run on the new layout
