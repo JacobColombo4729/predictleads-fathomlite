@@ -30,6 +30,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError as PydanticVa
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CODE_DIR = PROJECT_ROOT / "code"
+REPO_ROOT = PROJECT_ROOT.parent  # data/, models/ and .env are shared with analysis/ at the top
 if str(CODE_DIR) not in sys.path:
     sys.path.insert(0, str(CODE_DIR))
 
@@ -46,7 +47,7 @@ from . import signals as hiring_signals  # noqa: E402
 
 SNAPSHOT_ID_PREFIX = "predictleads-"
 SESSION_COOKIE = "pl_demo_session"
-DEFAULT_SAMPLE = PROJECT_ROOT / "data/matching/ai_ml_serving_v1/jobs_prepared_corpus.jsonl"
+DEFAULT_SAMPLE = REPO_ROOT / "data/matching/ai_ml_serving_v1/jobs_prepared_corpus.jsonl"
 DEFAULT_DB = PROJECT_ROOT / "backend/data/predictleads-demo.sqlite3"
 DEFAULT_EVENTS_DB = PROJECT_ROOT / "backend/data/feedback-events.sqlite3"
 PARTICIPANT_HEADER = "x-participant-id"

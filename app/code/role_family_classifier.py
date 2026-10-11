@@ -27,7 +27,8 @@ import numpy as np
 import rank_candidates as rc
 
 REPO = Path(__file__).resolve().parents[1]
-CORPUS_DIR = REPO / "data" / "matching" / "ai_ml_corpus_v1"
+DATA_DIR = REPO.parent / "data"  # data/ is shared with analysis/ at the top
+CORPUS_DIR = DATA_DIR / "matching" / "ai_ml_corpus_v1"
 OTHER = "Other (outside these families)"
 
 FAMILY_OF_OCCUPATION = {
@@ -196,13 +197,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--corpus-dir", type=Path, default=CORPUS_DIR)
     parser.add_argument("--profiles", type=Path, nargs="+",
                         default=[REPO / "code" / "ai_ml_candidate_profiles.json",
-                                 REPO / "data" / "candidates" / "real_candidate_profiles.json"])
+                                 DATA_DIR / "candidates" / "real_candidate_profiles.json"])
     parser.add_argument("--out-dir", type=Path, default=None)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--tfidf-train-rows", type=int, default=80_000)
     args = parser.parse_args(argv)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    out = args.out_dir or REPO / "data" / "matching" / f"role_family_classifier_{stamp}"
+    out = args.out_dir or DATA_DIR / "matching" / f"role_family_classifier_{stamp}"
     return run(args.corpus_dir, args.profiles, out, args.device, args.tfidf_train_rows)
 
 

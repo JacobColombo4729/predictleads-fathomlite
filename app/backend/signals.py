@@ -16,7 +16,7 @@ from typing import Any
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-SIGNALS_ROOT = ROOT / "data" / "signals"
+SIGNALS_ROOT = ROOT.parent / "data" / "signals"  # data/ is shared with analysis/ at the top
 EPOCH = date(2026, 1, 1)  # day numbers in the tables count from here
 FAMILIES = ("ai_ml", "data", "technical_sales")
 PATTERNS = ("burst", "sustained", "cooling", "quiet")

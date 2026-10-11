@@ -6,12 +6,12 @@
 
 ## Repository layout (cleaned up 2026-10-09)
 
-Experiments no longer used by the app live in `archive/experiments/` (tests included, all passing). The app depends only on `code/bge_text.py`, `job_matching_engine.py`, `grounded_match_explanations.py` and `resume_profile_extraction.py`. One environment (`.venv`, `requirements.txt`) runs everything; run all tests with `.
-un_tests.ps1 [-Frontend] [-Archive]`. The BGE model now lives in `models/bge-base-en-v1.5` (git-ignored, or set `PREDICTLEADS_BGE_MODEL_DIR`). Safety tag `pre-cleanup` (local only) marks the state before the cleanup. See the [README](README.md) for the map.
+Experiments no longer used by the app live in `archive/experiments/` (tests included, all passing). The app depends only on `code/bge_text.py`, `job_matching_engine.py`, `grounded_match_explanations.py` and `resume_profile_extraction.py`. One environment (the repository's `.venv` and `requirements.txt`, at the top, shared with `analysis/`) runs everything; run all tests with `.
+un_tests.ps1 [-Frontend] [-Archive]`. The BGE model now lives in the top-level `models/bge-base-en-v1.5` (git-ignored, or set `PREDICTLEADS_BGE_MODEL_DIR`). Safety tag `pre-cleanup` (local only) marks the state before the cleanup. See the [README](../README.md) for the map.
 
 ## Run the app (live, 2026-10-09)
 
-1. **Backend** (about 3.5 minutes to load 81,284 listings, about 2.5 GB of memory): in PowerShell from the project folder, `.\run_demo_backend.ps1`. It serves `http://127.0.0.1:8000` with the TF-IDF + BGE (RRF) ranker. Use `-Ranker tfidf` for the lighter keyword-only ranker.
+1. **Backend** (about 3.5 minutes to load 81,284 listings, about 2.5 GB of memory): in PowerShell from `app/`, `.\run_demo_backend.ps1`. It serves `http://127.0.0.1:8000` with the TF-IDF + BGE (RRF) ranker. Use `-Ranker tfidf` for the lighter keyword-only ranker.
 2. **Frontend**: `cd frontend; npm run dev`, then open `http://127.0.0.1:5173`.
 3. **What you can do**: edit your profile (or import a profile JSON file, for example your own from `data/candidates/`), see ranked jobs, mark jobs "Good match" / "Not for me" and watch the list adapt, save jobs with stages and notes, and read a rule-based skills check per job ("not evidenced in your profile" means unknown, not missing).
 4. The app now starts with a blank profile (no example person). Discover shows "Create your profile to see matches" until a profile is saved. "Start over (blank profile)" on the Profile page deletes the server session (profile, saved jobs, ratings) so the demo can be run again; a private browser window also gets a fresh session.

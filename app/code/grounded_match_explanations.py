@@ -23,6 +23,7 @@ BATCH_MAX_OUTPUT_TOKENS = 30000
 MAX_BATCH_JOBS = 20
 MAX_DESCRIPTION_CHARS = 8000   # per job in a batch, to keep the request and the cost bounded
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = PROJECT_ROOT.parent  # data/, models/ and .env are shared with analysis/ at the top
 
 
 class ExplanationError(RuntimeError):
@@ -382,7 +383,7 @@ class OpenAIProvider:
 
     @classmethod
     def from_environment(
-        cls, environ: Mapping[str, str] | None = None, *, project_root: Path = PROJECT_ROOT,
+        cls, environ: Mapping[str, str] | None = None, *, project_root: Path = REPO_ROOT,
         timeout_seconds: int = 60,
     ) -> "OpenAIProvider":
         values = os.environ if environ is None else environ
@@ -395,7 +396,7 @@ class OpenAIProvider:
             load_dotenv(dotenv_path=project_root / ".env", override=False)
             key = os.environ.get("OPENAI_API_KEY", "").strip()
         if not key:
-            raise ProviderUnavailable("Set OPENAI_API_KEY in the process environment or project-root .env")
+            raise ProviderUnavailable("Set OPENAI_API_KEY in the process environment or the repository-root .env")
         model = str(values.get("PREDICTLEADS_EXPLANATION_MODEL", DEFAULT_MODEL)).strip() or DEFAULT_MODEL
         return cls(key, model, timeout_seconds)
 
@@ -578,7 +579,7 @@ def explain_matches(
 
 def explain_match_with_openai(
     candidate: Mapping[str, Any], job: Mapping[str, Any], *,
-    environ: Mapping[str, str] | None = None, project_root: Path = PROJECT_ROOT,
+    environ: Mapping[str, str] | None = None, project_root: Path = REPO_ROOT,
     timeout_seconds: int = 60,
 ) -> dict[str, Any]:
     """Convenience integration using process env or root .env credentials."""

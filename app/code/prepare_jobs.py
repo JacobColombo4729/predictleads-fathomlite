@@ -17,6 +17,7 @@ import boto3
 import botocore
 import zstandard as zstd
 
+REPO_ROOT = Path(__file__).resolve().parents[2]  # data/, models/ and .env are shared with analysis/ at the top
 
 BUCKET = "tripleten-predictleads-hackathon-109698388873-us-east-2-an"
 KEY = "2026/09/30/job_openings_2026_09_30.jsonl.zst"
@@ -605,7 +606,7 @@ def prepare_slice(workspace: Path, output_dir: Path, limit: int) -> dict[str, An
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit", type=int, default=DEFAULT_LIMIT)
-    parser.add_argument("--output-root", type=Path, default=Path("data/prepared"))
+    parser.add_argument("--output-root", type=Path, default=REPO_ROOT / "data" / "prepared")
     parser.add_argument("--run-name", default=None)
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args(argv)
@@ -614,7 +615,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.limit < 1:
         parser.error("--limit must be positive")
-    workspace = Path.cwd()
+    workspace = REPO_ROOT
     run_name = args.run_name or datetime.now(timezone.utc).strftime("jobs_sample_%Y%m%dT%H%M%SZ")
     output_dir = args.output_root / run_name
     output_dir.mkdir(parents=True, exist_ok=False)

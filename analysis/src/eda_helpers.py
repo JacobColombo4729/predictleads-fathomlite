@@ -13,12 +13,13 @@ from IPython.display import display
 # ---------- paths ----------
 
 def project_root(start=None):
-    """The nearest folder at or above `start` that holds requirements.txt."""
+    """The analysis folder: the nearest folder at or above `start` that holds src/eda_helpers.py."""
     start = Path(start or Path.cwd()).resolve()
-    return next(d for d in [start, *start.parents] if (d / "requirements.txt").exists())
+    return next(d for d in [start, *start.parents] if (d / "src" / "eda_helpers.py").exists())
 
-ROOT = project_root()
-DATA_DIR = Path(os.environ.get("PL_DATA_DIR") or ROOT / "data")  # gitignored; PL_DATA_DIR overrides (tests on synthetic data)
+ROOT = Path(__file__).resolve().parents[1]  # analysis/
+REPO_ROOT = ROOT.parent  # data/, models/ and .env are shared with app/ at the top
+DATA_DIR = Path(os.environ.get("PL_DATA_DIR") or REPO_ROOT / "data")  # gitignored; PL_DATA_DIR overrides (tests on synthetic data)
 CLEAN_DIR = DATA_DIR / "clean"
 PART1_TABLE = CLEAN_DIR / "analysis_table.pkl"  # EDA_SDA_1's final table
 PART2_TABLE = CLEAN_DIR / "scope_table.parquet"  # EDA_SDA_2's final table (the scope), for EDA_SDA_3
