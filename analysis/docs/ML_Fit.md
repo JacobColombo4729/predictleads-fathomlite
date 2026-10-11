@@ -1,0 +1,77 @@
+<!-- Generated from notebooks/ML_Fit.ipynb by src/export_markdown.py (text only; no code). Regenerate after editing the notebook; don't edit by hand. -->
+
+# Job Listing Prioritization for Career Changers: ML_Fit (fit, role discovery and the compass)
+
+PredictLeads × TripleTen externship · Jacob Colombo
+
+## 0. Purpose
+
+**Which roles and listings fit a career changer?** This notebook builds the **fit model**: from a career changer's pre-switch background, it suggests the role buckets their skills transfer to (**role discovery**), scores how well each listing fits them, and **assembles the retraining compass** and the **Ideas tab's** inputs in its last section: the one place the pieces from Profiles, EDA_SDA_2, EDA_SDA_3 and this notebook come together for the app. `ML_Rank` combines its fit scores with the listing model into the priority queue.
+
+**Inputs:** the **Profiles modeling table** (`data/profiles/modeling_table.pkl`: `feature` columns only, `outcome` columns never), each career changer's **pre-switch text** (job titles and programs before the switch, from the Profiles timeline), EDA_SDA_3's cleaned descriptions and **skills mapped to O*NET**, and O*NET's skills and Career Changers Matrix.
+
+**The series** (each notebook hands its final table to the next):
+
+| Notebook | Question | Hands off |
+|:--|:--|:--|
+| EDA_SDA_1 | What's in the data, and what's the scope? | Final table 1 |
+| EDA_SDA_2 | Which listings do we study? The scope cut, additional cleaning, non-text checks, ghost listings | Scope table, non-text features, occupation summary |
+| EDA_SDA_3 | What do the descriptions say? Text features, validated blockers, skills mapped to O*NET (no matching models) | Scope table + text features |
+| EDA_SDA_4 | Which features hold up? Statistics, confounders, the adjusted Cox check | Modeling-ready table |
+| TimeSeries | When do listings appear and close? | Timing features |
+| ML_Fit | Which roles and listings fit a career changer? Keyword → TF-IDF → BGE → RRF, skills-based matching, a trained layer on real career moves | Fit scores, role discovery, the compass |
+| ML_Rank | How should listings be ranked? The listing timing model, combined with fit into the priority queue | The priority queue algorithm |
+
+**Standard:** the TripleTen course templates are the baseline (structure, methods, reporting). Every applicable course method is used, and taken further with more advanced techniques where the data calls for them.
+
+### The ladder of methods
+
+| Step | Method | Role | Why it's here |
+|:-:|:--|:--|:--|
+| 1 | **Keyword overlap** (shared title and skill words) | Simplest baseline | What a keyword search would find |
+| 2 | **TF-IDF cosine** | Baseline ML model | The course standard for text similarity |
+| 3 | **BGE embeddings, cosine** (a small or base BGE model, run locally) | Stronger model | Catches meaning, not just shared words |
+| 4 | **RRF hybrid** (reciprocal rank fusion of TF-IDF and BGE ranks) | Hybrid | Combines word overlap and meaning without tuning weights |
+| 5 | **Skills-based matching** (résumé and listing both mapped to O*NET skills) | Transferable fit | Steps 1–4 compare words, and a career changer's résumé uses the old field's words, so they favor old-field roles; skills don't |
+| 6 | **Trained layer (Option B)**: steps 2–5 scores plus Profiles features (origin, training field, years before, `from_level`, …) in a model trained on real career moves. Candidates: logistic regression, LightGBM / CatBoost / XGBoost, and a **small neural network (scikit-learn `MLPClassifier`)**, kept only if it wins | **The project's fit model** | Turns similarity into a prediction learned from where career changers actually went; explainable with SHAP |
+| 7 | **Stretch: fine-tuned BGE** (contrastive training so a person's pre-switch background lands near the role they moved into; small model, CPU, a few thousand pairs from the training folds only) | A neural network trained on our own data | Tried only if step 6 plateaus; aimed at the old-field vocabulary problem; scored like every other step |
+
+**How the steps are compared:** for each career changer, rank the role buckets using only their pre-switch background and check whether the role they **actually moved into** is in the top 3 or top 5 (hit rate), **per pool** (retrained after working, retrained as new grads, within tech) and overall, against a title-keyword baseline. For within-tech moves, the person's current role is excluded from the candidates (a move means a different role). Also measured: how often each method suggests the person's **old** field, the bias steps 5 and 6 are meant to fix. Listing-level fit is checked with NDCG@10 on teammates' ratings, once collected. **IT project management** is left out of first-job suggestions unless the person's prior career has a real path into it (decided 2026-10-10); hit rates are reported with this rule, and for the retrained pools also without it, to show what it costs.
+
+### Clarifying questions
+- Which step of the ladder finds the role real career changers moved into most often, and by how much over the keyword baseline?
+- Does a small neural network beat gradient boosting on this small table (2,813 career changers)? Kept only if it wins on held-out people.
+- **Why no LLM matching:** listing text can't go to outside AI services, a local LLM on 8 GB is too small and slow for matching, and its judgments can't learn from or be validated against real career moves. LLM agents stay in the app layer (the Coach), working from model outputs and aggregates.
+- Do the similarity methods (1–4) favor the old field, and do skills-based matching and the trained layer fix it?
+- Does knowing what someone trained in predict their first tech role better than their background alone? (The evidence behind the retraining compass.)
+- Does training on everyone who reached tech (with origin as a feature) predict career changers' roles better than training on career changers alone? Results are always reported on career changers.
+- **Results per pool:** within-tech moves are 73% of career changers (2,049 of 2,813), so one overall score mostly measures them; every metric is also reported per pool.
+- **Role imbalance** (quality assurance and data science are the smallest roles): class weights first, per-role scores, and probabilities corrected to the real role mix. Synthetic people only for a role still predicted poorly, inside training folds only.
+- Which skills should a career changer build for each suggested role (listing skills their background doesn't show)? This feeds the compass ideas.
+
+**Leakage rules** (`STANDARDS.md`):
+- Only **pre-switch** text and `feature` columns. Résumé skills aren't dated, so they may be from after the switch and aren't used.
+- TF-IDF vocabularies, embeddings caches used for training, and the trained layer are fit **inside each training fold**; folds are grouped by person.
+- Compass and path counts used as features are rebuilt inside each training fold, so a test person never counts toward their own answer.
+- **Claims:** results describe where switchers went, never how likely a switch is to work.
+
+**Data rules:** aggregates only. BGE runs **locally** (sentence-transformers); no résumé or listing text goes to outside services. Embeddings are cached under `data/`, keyed by id. About 14,000 scope listings fit a small or base model on an 8 GB laptop. Clear outputs before committing.
+
+### Roadmap
+
+| Section | Course standard | Taken further |
+|:--|:--|:--|
+| 1. Setup | Load the Profiles modeling table, pre-switch text, EDA_SDA_3's listing text and skills | |
+| 2. Targets | The role bucket each career changer moved into | Per pool |
+| 3. Text preparation | Normalize, stopwords, lemmatize; TF-IDF (`ngram_range=(1, 2)`, `sublinear_tf`, `max_df≈0.5`, `min_df` 2–5) fit on training folds only | BGE embeddings, chunked and normalized; O*NET skill mapping |
+| 4. The ladder, steps 1–5 | Keyword overlap and TF-IDF cosine, with a **DummyClassifier** / majority-role baseline | BGE cosine, RRF hybrid, skills-based matching |
+| 5. The trained layer | Logistic regression, random forest, LightGBM / CatBoost / XGBoost and a small neural network (`MLPClassifier`, scaled inputs, early stopping) with `GridSearchCV`, `class_weight`, `Pipeline` + `ColumnTransformer` | LightGBM LambdaRank for listing order; stretch: fine-tuned BGE (step 7) |
+| 6. Evaluation | Accuracy, F1, confusion matrix on held-out people | Hit rate@3 / @5 per pool; old-field bias; NDCG@10 on teammates' ratings |
+| 7. Interpretation | Feature importance | SHAP, for "why this role" in the app, and **per listing** for the detail view's rating breakdown: the top features behind each fit rating (skills that carry over, similarity of the text, the user's prior career), grouped under plain-language names and handed to `ML_Rank` with the fit scores |
+| 7b. **Growth-adjusted recommendations** | | Among the roles a person fits, roles expected to grow over the next 5 years (at most) rank higher: expected growth is applied **after** the fit model as a visible adjustment with a user-adjustable weight, never trained in (it's a future estimate, so historical career moves can't validate it), and always shown with the role's entry-level share and openings. Source: `role_growth.pkl` (BLS 2025–2035, rolled up to buckets by 2025 employment; `docs/job_growth.md`). If the team adopts the proposed error band (`docs/job_growth.md` 4a), the range is shown too; with the scenario extensions (4b/4d), the baseline scenario sets the adjustment and the others are shown alongside. IT project management uses the 15-1299 catch-all's growth, flagged as a proxy |
+| 8. **The compass, assembled** | | The single place the compass is put together for the app: Profiles' paths (prior career → training → first tech job; within-tech moves, sideways or up) with people counts and thin paths marked; each role's 2026 openings, hourly pay, closing speed, entry-level share and expected growth (EDA_SDA_2 3.12); the Ideas tab's inputs: skills to build per suggested role, options and time to switch, pay increase against the current field (EDA_SDA_2 1c) and growth. Saved as compass tables under `data/clean/` |
+| 9. Solution report | Steps, difficulties, final model and score | Hand-off of fit scores to `ML_Rank` |
+
+## 2.–9.
+
+_To do, once EDA_SDA_3's text features and skills exist, and the pre-switch text is built from the Profiles timeline._

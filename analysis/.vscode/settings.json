@@ -1,0 +1,9 @@
+{
+  "python.envFile": "${workspaceFolder}/.env",
+  "python.terminal.activateEnvironment": true,
+  "github.copilot.enable": {
+    "*": false
+  },
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000
+}
