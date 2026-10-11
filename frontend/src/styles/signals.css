@@ -3,7 +3,7 @@
 .shell--signals { grid-template-columns: var(--nav-w) minmax(0, 1fr); }
 
 .sg { --sg-burst: #fab219; --sg-sustained: #1baf7a; --sg-cooling: #8a8f98; --sg-quiet: #8a8f98; }
-:root[data-theme="dark"] .sg { --sg-burst: #f0b469; --sg-sustained: #34b3a6; }
+:root[data-theme="dark"] .sg { --sg-burst: #f0b469; --sg-sustained: #00e5ff; }
 
 .sg-badge {
   display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; border-radius: var(--r-pill);

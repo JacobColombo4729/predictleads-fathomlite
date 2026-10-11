@@ -1,30 +1,25 @@
 import { useEffect, useRef } from "react";
-import fishUrl from "../assets/anglerfish.svg";
+import fishUrl from "../assets/fathomlite-mark.png";
+import wallLeftUrl from "../assets/ocean-wall.svg";
+import wallRightUrl from "../assets/ocean-wall-right.svg";
 import { routeHref } from "../lib/router";
 
-const HEADLINE = "Job searching can feel like navigating deep water.";
-const SUB = "Let us provide the light in the depths of that sea so you can discover what's next.";
-
 const RADII = [230, 175, 128, 88];
-const OPACITY = [0.045, 0.07, 0.11, 0.17];
-
-/** Each word is its own element, so the pool of light can brighten the words it passes over. */
-const words = (text: string) => text.split(" ").flatMap((w, i) => [i > 0 ? " " : null, <span key={`${w}-${i}`} className="landing__w">{w}</span>]);
+const OPACITY = [0.018, 0.028, 0.042, 0.065];
 
 /**
- * The first page a new visitor sees. A pool of light follows the pointer and brightens the words beneath it, like the
- * anglerfish's lure. It rests over the text when the pointer is away, and is switched off for people who prefer less
- * motion and on touch screens, where every word stays fully visible.
+ * The first page a new visitor sees: the anglerfish on the left, the FathomLite name and motto on the right.
+ * A soft pool of light follows the pointer, like the anglerfish's lure. It rests beside the motto when the pointer
+ * is away, and is switched off for people who prefer less motion and on touch screens.
  */
 export default function LandingPage() {
   const hero = useRef<HTMLElement>(null);
   const lights = useRef<HTMLDivElement>(null);
-  const sub = useRef<HTMLParagraphElement>(null);
+  const anchor = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
-    const root = hero.current, layer = lights.current, anchor = sub.current;
-    if (!root || !layer || !anchor) return;
-    const spans = Array.from(root.querySelectorAll<HTMLElement>(".landing__w"));
+    const root = hero.current, layer = lights.current, rest_ = anchor.current;
+    if (!root || !layer || !rest_) return;
     const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches || window.matchMedia("(hover: none)").matches;
     const rings = RADII.map((r, i) => {
       const ring = document.createElement("div");
@@ -34,22 +29,15 @@ export default function LandingPage() {
       return ring;
     });
     if (calm) {
-      spans.forEach((s) => { s.style.opacity = "1"; });
       layer.style.display = "none";
       return () => rings.forEach((r) => r.remove());
     }
     const lightAt = (x: number, y: number) => {
       rings.forEach((ring, i) => { ring.style.left = `${x - RADII[i]}px`; ring.style.top = `${y - RADII[i]}px`; });
-      const box = root.getBoundingClientRect();
-      spans.forEach((s) => {
-        const r = s.getBoundingClientRect();
-        const dx = r.left + r.width / 2 - box.left - x, dy = r.top + r.height / 2 - box.top - y;
-        s.style.opacity = Math.max(0.28, Math.min(1, 1.25 - Math.sqrt(dx * dx + dy * dy) / 300)).toFixed(2);
-      });
     };
     const rest = () => {
-      const box = root.getBoundingClientRect(), r = anchor.getBoundingClientRect();
-      lightAt(r.left - box.left + r.width / 2, r.top - box.top + r.height * 0.1);
+      const box = root.getBoundingClientRect(), r = rest_.getBoundingClientRect();
+      lightAt(r.left - box.left + r.width / 2, r.top - box.top + r.height / 2);
     };
     const move = (e: PointerEvent) => { const box = root.getBoundingClientRect(); lightAt(e.clientX - box.left, e.clientY - box.top); };
     rest();
@@ -65,17 +53,21 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <main className="landing" ref={hero} aria-label="Bright Depth">
-      <div className="landing__lights" ref={lights} aria-hidden="true" />
+    <main className="landing" ref={hero} aria-label="FathomLite">
+      <div className="landing__rays" aria-hidden="true" />
+      <img className="landing__wall landing__wall--left" src={wallLeftUrl} alt="" aria-hidden="true" />
+      <img className="landing__wall landing__wall--right" src={wallRightUrl} alt="" aria-hidden="true" />
+      <div className="landing__lights" aria-hidden="true" ref={lights} />
       <div className="landing__content">
-        <p className="landing__brand">Bright Depth</p>
         <img className="landing__fish" src={fishUrl} alt="An anglerfish with a glowing lure" />
-        <h1>{words(HEADLINE)}</h1>
-        <p className="landing__sub" ref={sub}>{words(SUB)}</p>
-        <a className="landing__cta" href={routeHref("profile")}>Create your profile</a>
-        <p className="landing__skip">Already set up? <a href={routeHref("discover")}>Go to Discover</a></p>
-        <p className="landing__by">— Built for PredictLeads</p>
+        <div className="landing__text">
+          <h1 className="landing__brand">Fathom<span className="landing__lite">Lite</span></h1>
+          <p className="landing__tag" ref={anchor}>Deep dive. Clear light.</p>
+          <a className="landing__cta" href={routeHref("profile")}>Get Started <span aria-hidden="true">→</span></a>
+          <p className="landing__skip">Already set up? <a href={routeHref("discover")}>Go to Discover</a></p>
+        </div>
       </div>
+      <p className="landing__by">Built for PredictLeads</p>
     </main>
   );
 }
