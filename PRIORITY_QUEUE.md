@@ -77,7 +77,7 @@
   - Assign owners for the notebooks above, the app, and the pitch.
   - Set a meeting cadence and a place for async discussion.
   - Confirm the final due date and deliverables.
-- **App:** answer the open questions in `APPLICATION.md`, section 8.
+- **App:** answer the open questions in `APPLICATION.md`, section 9.
 - **Project advisor:** get answers to our questions (scope, deliverables, AI tools and data, applicant profiles, external data, hosting, presenting results, data deletion), then record them in `docs/decisions.md`. Get the AI-and-data answers in writing; the agent stage of the app depends on them, and the answer on collecting career-changer profiles blocks the volunteer profiles.
 - **Applicant profiles** (after the advisor answers): follow `docs/fit_analysis.md`. Assign owners for its task table, draft the consent form, recruit career changers, convert their exports, and build the synthetic generator in `src/`.
 - **PredictLeads:** get answers to our data questions (field definitions, crawl timing, `status`, sources, sampling, duplicates, older daily exports, `seniority`; why job-board listings stop after May and why descriptions go missing more often from June on, from EDA_SDA_2), then record them in `docs/decisions.md`.
