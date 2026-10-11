@@ -56,7 +56,7 @@ A separate tab built on the compass: a personal outlook from the user's résumé
 |:--|:--|:--|
 | **Skills to build** | "Based on your current résumé, we think you should build these skills" | Listing skills mapped to O*NET (EDA_SDA_3) vs. the résumé (`ML_Fit`) |
 | **Career options down the line** | "Here's what your career options could look like" | Roles similar people reached and how long it took (Profiles), with each role's 2026 openings |
-| **Pay increase** | "Here's your pay increase" | Hourly pay in each option (EDA_SDA_2 3.12) vs. the user's current field (EDA_SDA_2 1c), or a rate they enter |
+| **Pay increase** | "Here's your pay increase" | Hourly pay in each option (EDA_SDA_2 3.12) vs. the user's current field (EDA_SDA_1 7.2, the occupation summary), or a rate they enter |
 | **Job growth** | "Here's the job growth we expect in your career" (within 5 years) | Official projections, next to the role's entry-level share |
 | **Stepping-stone roles** | Roles that bridge two functions on the way to a bigger move (for example engineer → pre-sales engineer → director) | Levels at each move (Profiles) |
 

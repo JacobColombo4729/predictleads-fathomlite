@@ -69,20 +69,24 @@ def _outputs(cell, fig_dir, fig_count):
 LAYOUTS = {
     "EDA_SDA_1": {
         "skip_sections": {"Work", "Notebook", "1.", "2.", "3.", "4.", "5.", "6.0", "6.2", "6.3", "6.4", "6.5", "6.6",
-                          "6.7", "8.", "9.", "10.", "10a", "13."},
+                          "6.7", "7.0", "7.2", "8.", "8a", "10.", "13."},
         "full_text_sections": {"Job", "Executive"},
         "max_bullets": 2,  # per "What the data shows" block; the full version keeps them all
         "bullets_by_section": {"6.1": 1, "11.": 1, "12.": 1},
         "hide_headings": {"11."},  # its tables still show, in the row under 12
         "table_groups": [
             ["Text cleaning results", "Years of experience required", "Posting source"],
+            ["Q3a. Where computer and mathematical stands"],
+            ["8b. From the full file to the scope", "8b. The scope by role bucket"],
+            ["8c. Scope-only fields"],
             ["Q1c. Source type", "Q1d. Do high-volume"],
             ["Q1f. Text features vs. application window", "Q1g. Career-change flags vs. application window"],
-            ["Q2a. How much history", "Q2b. Is the file sorted", "Q2d. Weekly arrivals"],
-            ["Final table: listings after each filter", "Final analysis table at a glance", "Final table: listings by month"],
+            ["Q1h. Recruiters in the scope", "Q1h. Window by recruiter"],
+            ["Q2a. How much history", "Q2d. Weekly arrivals"],
+            ["11d. Share of scope listings with each key field", "The scope table at a glance", "Scope table: role buckets"],
         ],
-        "charts": ["# 6.1i", "# Q1a chart", "# Q1b chart", "# Q1c chart", "# Q1d charts", "# Q1e charts", "# Q1f chart",
-                   "# Q1g chart", "# Q2 charts: weekday", "# Q3 chart: seniority mix"],
+        "charts": ["# 6.1i", "# Q3a chart", "# Q3a charts", "# Q1a chart", "# Q1b chart", "# Q1c chart", "# Q1d charts",
+                   "# Q1e charts", "# Q1f chart", "# Q1g chart", "# Q2 charts: weekday", "# 9.3a Chart"],
     },
     "EDA_SDA_2": {
         "skip_sections": {"2.", "2b."},
