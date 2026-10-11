@@ -69,8 +69,8 @@ def _outputs(cell, fig_dir, fig_count):
 LAYOUTS = {
     "EDA_SDA_1": {
         "skip_sections": {"Work", "Notebook", "1.", "2.", "3.", "4.", "5.", "6.0", "6.2", "6.3", "6.4", "6.5", "6.6",
-                          "6.7", "7.0", "7.2", "8.", "8a", "10.", "13."},
-        "full_text_sections": {"Job", "Executive"},
+                          "6.7", "7.0", "7.2", "8.", "8a", "10."},
+        "full_text_sections": {"Job", "13."},  # the purpose, and the conclusion with its summary (as in EDA_SDA_2)
         "max_bullets": 2,  # per "What the data shows" block; the full version keeps them all
         "bullets_by_section": {"6.1": 1, "11.": 1, "12.": 1},
         "hide_headings": {"11."},  # its tables still show, in the row under 12
