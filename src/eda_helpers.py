@@ -97,7 +97,7 @@ def cell_format(name, values):
         whole or not in_01 or "share" not in name and not name.startswith("from "))
     if "rank" in name:
         return blank(lambda x: f"{x:.0f}")
-    if "spread" in name:
+    if "spread (max" in name:
         return blank(lambda x: f"{x:.1f}×")
     named_share = any(k in name for k in ("share", "rate", "closed within", "open after", "still open", "or fewer",
                                           "or more", "states years"))
