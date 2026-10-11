@@ -349,7 +349,7 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 
 ## 14. Daily Git workflow
 
-**Each person works on their own branch** (`jacob`, `jesse`; decided 2026-10-11) and merges it into `main` when something works. Merge `main` into your branch **at least once a day**, so the two branches never drift far apart: a long-running branch once left the team 155 commits behind.
+**Each person works on their own branch** (`jacob`, `jesse`; decided 2026-10-11) and merges it into `main` only when they decide a piece of work is ready (step 5). Merge `main` into your branch **at least once a day**, so the two branches never drift far apart: a long-running branch once left the team 155 commits behind.
 
 ```bash
 # 1. Start on your branch, with everything already merged into main
@@ -371,7 +371,8 @@ git add <files>                                # name the files; avoid `git add 
 git commit -m "Short description of what you did"
 git push
 
-# 5. When it works (app tests pass, notebooks run), merge it into main
+# 5. Only when YOU decide the work is ready for everyone (app tests pass, notebooks run): merge it into main.
+#    This is a deliberate step, never routine. Claude Code won't do it unless you explicitly ask (CLAUDE.md).
 git switch main
 git pull
 git merge jacob                                # or jesse
