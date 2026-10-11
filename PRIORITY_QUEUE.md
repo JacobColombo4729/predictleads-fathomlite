@@ -14,6 +14,8 @@
   2. **Jacob (any time):** delete `data/flat/all_fields_lean_full/` (1.1 GB): nothing reads it any more. After EDA_SDA_3 is adapted, also the sample-era tables in `data/clean/` (`analysis_table.pkl`, `scope_table.pkl`, `job_openings_lean_200000_v2.pkl`).
   3. **New analysis the full data opens** (added to each notebook's plan): real market sizes per role (openings, new per week), role buckets by month × source and by state, a company watch list (employers posting entry-level roles often), rare signals (cross-posts, evergreen wording, licenses, staffing agencies), full-scale daily series for TimeSeries, more training data and a proper test month for ML_Rank.
 - **Jacob (from 2026-10-11):** upload the slide deck `reports/Team update 2026-10-11.pptx` (24 slides, EDA_SDA_1 and 2 at full scale with the feature screening and the 2026-10-11 pass; local only) to Google Slides, then delete the 2026-10-09 and 2026-10-10 decks; tell the team (below).
+- **Check that `.env.example` lists** `AWS_PROFILE`, `AWS_REGION` and a blank `S3_PATH` (no `S3_BUCKET`). Claude can't read it, so check by hand.
+- **Known gaps in `.claude/settings.json`:** `Read(./.env.*)` also blocks `.env.example`; `Read` rules don't stop shell commands such as `cat .env`.
 - **Tell the team** to pull, rerun `pip install -r requirements.txt` (and on a Mac `brew install libomp`), run `python -m spacy download en_core_web_sm`, switch their `.env` to `S3_PATH` (README section 4), and run `nbstripout --install` once (it's in `requirements.txt`): git then strips notebook outputs on every commit.
 
 ## Next
