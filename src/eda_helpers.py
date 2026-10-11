@@ -21,7 +21,7 @@ ROOT = project_root()
 DATA_DIR = Path(os.environ.get("PL_DATA_DIR") or ROOT / "data")  # gitignored; PL_DATA_DIR overrides (tests on synthetic data)
 CLEAN_DIR = DATA_DIR / "clean"
 PART1_TABLE = CLEAN_DIR / "analysis_table.pkl"  # EDA_SDA_1's final table
-PART2_TABLE = CLEAN_DIR / "scope_table.pkl"  # EDA_SDA_2's final table (the scope), for EDA_SDA_3
+PART2_TABLE = CLEAN_DIR / "scope_table.parquet"  # EDA_SDA_2's final table (the scope), for EDA_SDA_3
 
 # ---------- chart style ----------
 
@@ -156,8 +156,29 @@ def finish():
 
 # ---------- summary tables ----------
 
-def show(title, df):
-    """Print a heading, then display a summary table. Aggregates only, never rows."""
+def show(title, df, by="columns"):
+    """Print a heading, then display a summary table. Aggregates only, never rows.
+    Numbers are formatted from the column name (or the row name, by="rows", when rows are measures): shares as
+    percentages, days and years with one decimal, pay in dollars, counts compact (13.0M, 412K). describe() tables keep
+    their count row as a count. Wide group comparisons use show_shaded instead."""
+    df = df.to_frame() if isinstance(df, pd.Series) else df.copy()
+    describe = {"count", "mean", "50%"} <= set(map(str, df.index))
+    numeric = lambda s: pd.api.types.is_numeric_dtype(s) and not pd.api.types.is_bool_dtype(s)
+    if by == "rows":
+        out = df.astype(object)
+        special = [c for c in df.columns if any(k in str(c) for k in ("rank", "spread"))]
+        for r in df.index:
+            f = cell_format(r, pd.to_numeric(df.loc[r].drop(special), errors="coerce"))
+            for c in df.columns:
+                v = df.at[r, c]
+                if isinstance(v, (int, float, np.number)) and not isinstance(v, bool):
+                    out.at[r, c] = cell_format(c, df[c])(v) if c in special else f(v)
+        df = out
+    else:
+        for c in df.columns:
+            if numeric(df[c]):
+                f = cell_format(c, df[c].drop(index="count", errors="ignore") if describe else df[c])
+                df[c] = [compact(v) if describe and str(i) == "count" else f(v) for i, v in df[c].items()]
     print(f"\n{title}")
     display(df)
 
