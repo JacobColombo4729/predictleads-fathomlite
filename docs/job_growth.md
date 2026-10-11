@@ -1,7 +1,7 @@
 # Job Growth Expectations
 
 PredictLeads × TripleTen externship · The plan for the compass's **expected job growth** column. Status as of 2026-10-10.
-*Why it exists: [`COMPASS.md`](../COMPASS.md) 2b · Decisions: [`docs/decisions.md`](decisions.md) (2026-10-09, 2026-10-10) · Data reference: [`docs/data.md`](data.md)*
+*Why it exists: [`APPLICATION.md`](../APPLICATION.md) section 3.3 · Decisions: [`docs/decisions.md`](decisions.md) (2026-10-09, 2026-10-10) · Data reference: [`docs/data.md`](data.md)*
 
 ## 1. What's decided
 

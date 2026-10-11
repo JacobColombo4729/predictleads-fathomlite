@@ -31,7 +31,7 @@ We can't see applications or hires, so the ranking rests on what PredictLeads' d
 - **How fast to move:** an apply-by estimate on every listing; and listings a career changer can't get are hidden.
 - **Pick a date:** the priority list as it stood on any date in the data (for example July vs. September 2026), to show how the best options change over time.
 
-Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md). Every compass idea in one place: [`COMPASS.md`](COMPASS.md).
+Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md). Every compass idea in one place: [`APPLICATION.md`](APPLICATION.md#3-the-retraining-compass), section 3.
 
 ## Data
 

@@ -24,7 +24,7 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 | **5. Where and when to look** | A watch list of employers hiring at volume or posting entry-level roles, plus a check-every-N-days cadence; a date picker shows how the list changed (July vs. September 2026) | Half of scope listings come from companies with 500+ listings in any field; the top 10% of companies post 47–73% of each role bucket's listings; every listing has first-seen and last-seen dates |
 | **6. Ideas tab** | A separate tab built on the compass, from the résumé: skills to build, career options down the line, the pay increase, expected job growth, and stepping-stone roles (to try; time frames kept vague) | Profiles (time to switch, paths, level at the switch), 2026 listing pay by role, job growth expectations |
 
-Every compass idea, with status and where it's built: [`COMPASS.md`](COMPASS.md).
+Every compass idea, with status and where it's built: [`APPLICATION.md`](APPLICATION.md#3-the-retraining-compass), section 3.
 
 ## Planned additions
 
