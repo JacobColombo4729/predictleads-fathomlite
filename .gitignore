@@ -236,3 +236,6 @@ notebooks/scratch.py
 
 # Claude Code personal settings (not shared)
 .claude/settings.local.json
+
+# Local virtual environment
+PL/
