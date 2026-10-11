@@ -1,4 +1,4 @@
-"""Load the PredictLeads snapshot: S3 connection, cached raw documents, resumable flattening, and schemas.
+"""Load the PredictLeads data export of 2026-09-30 (PredictLeads calls each daily export a snapshot): S3 connection, cached raw documents, resumable flattening, and schemas.
 
 Used by notebooks/EDA_SDA_1.ipynb, sections 1-5. Everything prints aggregates only: names, shapes, sizes.
 
@@ -18,7 +18,7 @@ import pandas as pd
 
 from src.eda_helpers import DATA_DIR, ROOT
 
-SNAPSHOT = "2026_09_30"
+SNAPSHOT = "2026_09_30"  # the export date in the file names: the data's end date
 JOBS_N = 200_000      # job-opening documents to read and flatten (the first N in the file)
 PART_ROWS = 20_000    # records per saved part when flattening
 FLAT_DIR = DATA_DIR / "flat"
@@ -209,6 +209,6 @@ def write_schemas(doc=SCHEMA_DOC):
     if body in current.group(0):
         print(f"schemas unchanged, {doc.name} left as is")
         return
-    generated = f"_Generated {pd.Timestamp.now():%Y-%m-%d %H:%M} from the 2026-09-30 snapshot._\n\n" + body
+    generated = f"_Generated {pd.Timestamp.now():%Y-%m-%d %H:%M} from the 2026-09-30 data export._\n\n" + body
     doc.write_text(re.sub(pattern, lambda m: m.group(1) + generated + m.group(2), text, flags=re.S))
     print(f"wrote schemas for 4 tables to {doc.name}")

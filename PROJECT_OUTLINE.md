@@ -35,10 +35,10 @@ Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
 
 ## Data
 
-- **Source:** PredictLeads job openings and companies datasets, snapshot of 2026-09-30.
+- **Source:** PredictLeads job openings and companies datasets, the export of 2026-09-30, the data's end date (PredictLeads exports its whole database every day and calls each export a snapshot; we use one).
 - **Analyzed so far:** 200,000 job listings from 51,006 companies, first seen 2026-03-30 to 2026-09-30.
-- **Analysis table after cleaning and scoping:** 184,889 English-language listings from 47,252 companies, April–September 2026 plus the data's first two days in late March, flagged `partial_month` (US, plus flagged listings with no country); 41,984 still open at the snapshot.
-- **The scope table (EDA_SDA_2):** 13,887 computer and mathematical listings from 6,641 companies in eight role buckets, 3,436 still open at the snapshot; 3,055 open listings are visible to everyone once likely ghosts and document management are hidden.
+- **Analysis table after cleaning and scoping:** 184,889 English-language listings from 47,252 companies, April–September 2026 plus the data's first two days in late March, flagged `partial_month` (US, plus flagged listings with no country); 41,984 still open on September 30.
+- **The scope table (EDA_SDA_2):** 13,887 computer and mathematical listings from 6,641 companies in eight role buckets, 3,436 still open on September 30; 3,055 open listings are visible to everyone once likely ghosts and document management are hidden.
 - **Career switches:** the public Kaggle structured resume dataset (MIT license): 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; almost all with readable job dates) → **2,813 career changers**: 2,049 changed roles within tech, 407 retrained after working in another field, 357 retrained as new grads from another field. Career paths from real switches spanning two decades; the 2026 listings supply today's openings, pay and timing. Built in `notebooks/Profiles.ipynb`.
 - **Job growth expectations:** expected employment growth by occupation over at most the next 5 years, from official occupational projections, used to recommend roles with the future in mind. They're published by occupation code, so they plug straight into the O*NET codes on listings and role buckets. Current release: BLS 2025–2035; plan in [`docs/job_growth.md`](docs/job_growth.md).
 - **Data handling:** stays local; nothing is shared with outside AI services; only aggregates are reported.
@@ -130,4 +130,4 @@ Each notebook answers one question and hands its final table to the next. The Tr
 
 ## Questions for PredictLeads
 
-Crawl frequency and date precision; what `status` and `last_processed_at` mean; the time zone of posting dates; whether older snapshots exist; how duplicates and reposts are handled; how `seniority` is assigned; whether real listings can appear in our final presentation; **why job-board listings stop after May 2026** (494 and 526 in April and May, then almost none; EDA_SDA_2 3.2c); and **why more listings have no description from June on** (about 30%, vs. 2–10% in March–April; EDA_SDA_2 3.9).
+Crawl frequency and date precision; what `status` and `last_processed_at` mean; the time zone of posting dates; whether older daily exports exist; how duplicates and reposts are handled; how `seniority` is assigned; whether real listings can appear in our final presentation; **why job-board listings stop after May 2026** (494 and 526 in April and May, then almost none; EDA_SDA_2 3.2c); and **why more listings have no description from June on** (about 30%, vs. 2–10% in March–April; EDA_SDA_2 3.9).

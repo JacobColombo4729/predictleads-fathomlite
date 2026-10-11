@@ -65,7 +65,7 @@ For a given **career changer** (anyone switching from their current background t
 ## Reproducibility
 
 - Package versions are pinned in `requirements.txt`.
-- Save the list of posting IDs in the analysis table, and the snapshot date.
+- Save the list of posting IDs in the analysis table, and the export date (2026-09-30, the data's end date).
 - Fix random seeds, and record each run's settings with its results.
 
 ## Scope
@@ -95,7 +95,7 @@ For a given **career changer** (anyone switching from their current background t
 | **AI coding tools on project files** | Allowed for coding, brainstorming and debugging, per `CLAUDE.md`. Claude never reads `data/` or `.env`, and works from code, column names, dtypes and shapes only. |
 | **Crawler timing mistaken for employer behavior** | Day-of-week patterns use `posted_at` (read as Central European dates), never `first_seen_at`. |
 | **Disappearing mistaken for filled** | Word every claim as "postings close" or "disappear", never "get filled". State it in the limitations. |
-| **Too little history for seasonality** | Only six months exist, so no seasonal claims unless PredictLeads provides older snapshots. |
+| **Too little history for seasonality** | Only six months exist, so no seasonal claims unless PredictLeads provides older daily exports. |
 | **Look-ahead leakage in timing models** | Follow the leakage rules above: features only from what's known when a posting appears. |
 | Biased sample: the first N documents, not random | EDA_SDA_1 found no sort order by date or company. Recheck if the sample changes. |
 | Too few postings in the chosen segment | EDA_SDA_2's depth check sizes it. Fall back to streaming the full file with filters, or a bigger segment. |
