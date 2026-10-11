@@ -7,17 +7,12 @@
 
 ## Now
 
-- **Create a branch.** You're on `main` with uncommitted changes, and the README says never to commit to `main`: `git checkout -b jacob/eda-and-plan`
-- **Add `PL/` to `.gitignore`.** It only covers `.venv` and `venv/`, so `git add .` would commit your virtual environment.
-- **Clear all outputs in `jacob_eda/jacob_eda.ipynb`** before committing.
-- **Review the existing uncommitted changes** to `.env.example`, `.gitignore` and `README.md`. These were made before this work started, and your Claude settings block reading `.env.example`.
-- **Add `.env.example` to the repo.** README step 7 tells teammates to copy it, but it isn't committed. It should list `AWS_PROFILE`, `AWS_REGION` and a blank `S3_PATH` (no `S3_BUCKET`; `scratch.py`, the notebook and the README now all use `S3_PATH`).
-- **Decide what to do with `.vscode/settings.json`.** Merge autosave into the team's version (Copilot off, `.venv` interpreter, `.env` loading), or keep yours out of git.
-- **Decide whether to commit `.claude/settings.json`.** Committing it applies the deny rules to teammates who use Claude Code. Known gaps:
+- **Get PR #1 (plan + queue) and the cross-platform setup PR reviewed and merged.**
+- **Check that `.env.example` lists** `AWS_PROFILE`, `AWS_REGION` and a blank `S3_PATH` (no `S3_BUCKET`). Claude can't read it, so check by hand.
+- **Tell the team to rerun `pip install -r requirements.txt`** (adds `pyarrow==25.0.1` and `zstandard==0.25.0`).
+- **Known gaps in `.claude/settings.json`:**
   - `Read(./.env.*)` also blocks `.env.example`.
   - `Read` rules don't stop shell commands such as `cat .env`.
-- **Commit `requirements.txt`** (adds `pyarrow==25.0.1` and `zstandard==0.25.0`), and tell the team to rerun `pip install -r requirements.txt`.
-- **Open a pull request** with `PROJECT_PLAN.md` and `PRIORITY_QUEUE.md` for team discussion.
 
 ## Blocked
 
