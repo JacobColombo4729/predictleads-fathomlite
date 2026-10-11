@@ -36,6 +36,11 @@ AI tools are allowed for coding, brainstorming, and debugging. **Do not upload o
 - Report metrics as CV mean ± std, compared against a baseline.
 - Clear notebook outputs before committing.
 
+## Git
+- Each person works on their own branch (`jacob`, `jesse`); commit to the branch you are on, and never commit to or rewrite the other person's branch.
+- **Never merge `jacob` or `jesse` into `main`** (by `git merge`, a pull request or any other way) unless the person explicitly asks for that merge, even when it would change nothing. README section 14 step 5 is the person's decision, not a routine step.
+- Ask before pushing, and before merging `main` into a personal branch.
+
 ## Before every commit
 - Notebook outputs cleared, including every cell tagged `data-rows` (row previews).
 - Nothing from `data/`, `.env`, credentials or venvs staged; no data values, file paths or bucket names in staged files.
