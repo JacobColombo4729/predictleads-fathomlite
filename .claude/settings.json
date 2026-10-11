@@ -3,13 +3,20 @@
     "deny": [
       "Read(./.env)",
       "Read(./.env.*)",
+      "Read(./**/.env)",
+      "Read(./**/.env.*)",
       "Read(./data/**)",
+      "Read(./**/data/**)",
       "Read(./**/*.json.zst)",
+      "Read(./**/*.jsonl)",
       "Read(./**/*.csv)",
       "Read(./**/*.parquet)",
       "Read(./**/*.xlsx)",
       "Read(./**/*.pkl)",
       "Read(./**/*.joblib)",
+      "Read(./**/*.sqlite)",
+      "Read(./**/*.sqlite3)",
+      "Read(./**/*.db)",
       "Read(~/.aws/**)"
     ]
   }

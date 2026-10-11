@@ -1,0 +1,10 @@
+# Repo-wide safety net; analysis/ and app/ keep their own .gitignore files.
+data/
+models/
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+.aws/
