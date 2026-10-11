@@ -145,7 +145,7 @@ flowchart LR
 | 2. Streams finished | Jacob's full stream and its second pass (`--rows`) have completed (**met 2026-10-10**) | Jacob |
 | 3. Nothing in flight | Both repos committed and pushed; `feature/mac-support` merged into `main`; no run in progress | Jesse and Jacob |
 | 4. Paths ready | Each side finds the project root and `data/` through a setting, not "the folder with `requirements.txt`"; tested before merging | Jacob's side (Claude); Jesse's side |
-| 5. EDA_SDA_1 and 2 at full scale | Both notebooks reworked for the full file and rerun: the cleaned listing set, scope, role buckets, the last-seen rule and the hiding rules the app will use are final | Claude (code), Jacob (runs) |
+| 5. EDA_SDA_1 and 2 at full scale | Both notebooks reworked for the full file and rerun: the cleaned listing set, scope, role buckets, the last-seen rule and the hiding rules the app will use are final (**met 2026-10-11**) | Claude (code), Jacob (runs) |
 
 Why gate 5: the app rebuilds its corpus and embeddings from the shared listing set and copies these rules, so they should be final before it does; reworking the notebooks before the move also avoids rewriting code while it's being reorganized. EDA_SDA_3 and 4, TimeSeries, ML_Fit and ML_Rank don't feed the app yet, so they don't hold the merge.
 
