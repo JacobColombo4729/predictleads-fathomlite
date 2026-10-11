@@ -261,31 +261,29 @@ python notebooks/scratch.py
 
 ## 10. Daily Git workflow
 
-**Never commit directly to `main`.** Work on a branch and open a pull request.
+**Everyone commits to `main`** (decided 2026-10-11: one shared branch, no pull requests). Pull before you start and again before you push, so you build on everyone's latest work.
 
 ```bash
 # 1. Start from the latest main
 git checkout main
 git pull
 
-# 2. Create a branch for your task
-git checkout -b yourname/short-description     # e.g. jacob/eda-job-openings
-
-# 3. Work, then check what changed
+# 2. Work, then check what changed
 git status                                     # make sure NO data files, .env, or .venv appear
 
-# 4. Clear notebook outputs before committing
+# 3. Clear notebook outputs before committing (nbstripout does it on commit if you ran `nbstripout --install`)
 #    VS Code: "Clear All Outputs" button at the top of the notebook, then save
 #    Or from the terminal (any OS, venv activated):
 #    jupyter nbconvert --clear-output --inplace path/to/notebook.ipynb
 
-# 5. Commit and push
-git add <files>
+# 4. Commit, pull anyone else's new work on top, then push
+git add <files>                                # name the files; avoid `git add .`
 git commit -m "Short description of what you did"
-git push -u origin yourname/short-description
+git pull --rebase
+git push
 ```
 
-6. On GitHub, open a **Pull Request** into `main` and ask a teammate to review.
+If `git pull --rebase` reports a conflict, fix the files it names, `git add` them, run `git rebase --continue`, then push. Ask the team if you're unsure.
 
 > **Stuck in a strange editor after `git commit`?** That's Vim. Press `Esc`, type `:q!`, and press Enter to cancel, then commit with `-m "message"`.
 > To use VS Code for commit messages instead: `git config --global core.editor "code --wait"`
