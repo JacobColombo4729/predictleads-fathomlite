@@ -349,12 +349,14 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 
 ## 14. Daily Git workflow
 
-**Everyone commits to `main`** (decided 2026-10-11: one shared branch, no pull requests). Pull before you start and again before you push, so you build on everyone's latest work.
+**Each person works on their own branch** (`jacob`, `jesse`; decided 2026-10-11) and merges it into `main` when something works. Merge `main` into your branch **at least once a day**, so the two branches never drift far apart: a long-running branch once left the team 155 commits behind.
 
 ```bash
-# 1. Start from the latest main
-git checkout main
-git pull
+# 1. Start on your branch, with everything already merged into main
+git switch jacob                               # or jesse
+git pull                                       # your branch's latest from GitHub
+git fetch origin
+git merge origin/main
 
 # 2. Work, then check what changed
 git status                                     # make sure NO data files, .env, or .venv appear
@@ -364,14 +366,20 @@ git status                                     # make sure NO data files, .env, 
 #    Or from the terminal (any OS, venv activated):
 #    jupyter nbconvert --clear-output --inplace path/to/notebook.ipynb
 
-# 4. Commit, pull anyone else's new work on top, then push
+# 4. Commit and push your branch
 git add <files>                                # name the files; avoid `git add .`
 git commit -m "Short description of what you did"
-git pull --rebase
 git push
+
+# 5. When it works (app tests pass, notebooks run), merge it into main
+git switch main
+git pull
+git merge jacob                                # or jesse
+git push
+git switch jacob                               # back to your branch
 ```
 
-If `git pull --rebase` reports a conflict, fix the files it names, `git add` them, run `git rebase --continue`, then push. Ask the team if you're unsure.
+If a merge reports a conflict, fix the files it names, `git add` them, run `git commit`, then push. Ask the team if you're unsure.
 
 > **Stuck in a strange editor after `git commit`?** That's Vim. Press `Esc`, type `:q!`, and press Enter to cancel, then commit with `-m "message"`.
 > To use VS Code for commit messages instead: `git config --global core.editor "code --wait"`

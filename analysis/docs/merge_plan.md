@@ -180,7 +180,7 @@ Why gate 5: the app rebuilds its corpus and embeddings from the shared listing s
 - [ ] Jesse added as a collaborator; each of us moves our local `data/`, `models/` and `.env` to the top of the repository and creates the one `.venv`
 - [ ] Notebooks run on the new layout
 
-**Combining (after gate 1; everyone commits to `main`, per the git workflow decision of 2026-10-11):**
+**Combining (after gate 1; each person on their own branch, merged into `main` often, per the git workflow decision of 2026-10-11):**
 
 - [ ] Gates 1 and 4 met
 - [ ] Docs into `docs/project/`, `docs/analysis/` and `docs/app/`, links between docs and the paths in `CLAUDE.md` updated in the same commit
