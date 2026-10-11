@@ -41,7 +41,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 ### Roadmap
 1. **Setup:** EDA_SDA_1's scope table and company activity
 2. **Analysis views and confounders;** **additional cleaning** (2b): staffing agencies and recruiters, dates, contract types and job type, titles (with an AI/ML flag), multi-location, the app's filter fields
-3. **Checks and analyses** (non-text), ending with the compass's 2026 side
+3. **Checks and analyses** (non-text): the compass's 2026 side (3.12) and the **feature screening** (3.13)
 4. **EDA_SDA_2 final table:** decisions defended, then applied, with a reason for each step
 5. **Conclusion and next steps** (into EDA_SDA_3)
 
@@ -96,7 +96,7 @@ Some factors travel together, so a raw gap can belong to something else. **Every
 | 3 | **Contract types, internships and temporary roles** | Contract labels (unified by EDA_SDA_1) split into employment-type flags, several of which can be true, plus title words (intern, temporary, seasonal, contract-to-hire) | `is_full_time`, `is_part_time`, `is_contract`, `is_temporary`, `is_internship`; and `job_type` (internship, temporary, contract, regular), one label for the app's filter. A table of the common label combinations shows the conflicts |
 | 4 | **Title normalization** | Lowercase; strip bracketed text, locations after " - " or " \| ", requisition IDs, pay, and "remote" or "hybrid" tags (kept as a flag) | `title_clean`; the original title stays. Recheck the repost count with it. **`ai_ml_title`:** the title names AI, machine learning or data science (the hackathon app's AI/ML audience, across buckets) |
 | 5 | **Multi-location listings** | `n_locations` (from EDA_SDA_1) above 1 | `multi_location` flag; one row per listing for timing. The state list for the app's location filter comes with `location_data` in 3.7 |
-| 6 | **Filter fields for the app** | Role level from `seniority` (entry = junior; `mid_senior` split into mid and senior by title words, the Profiles rule; manager; leadership = director and above); where the work happens from contract labels ("fully remote", "hybrid", "on site"...) and title words; schedule from the employment flags | `level`, `work_arrangement` (remote, hybrid, onsite, several, not stated), `schedule` (full time, part time, not stated); with `job_type` (2b.3) and the state list (3.7) they back every filter in the app |
+| 6 | **Filter fields for the app** | Role level from `seniority` (entry = junior; `mid_senior` kept whole, as PredictLeads labels it; manager; leadership = director and above), plus `senior_title` (senior, lead, principal, staff or architect in the title; tested in 3.7c and 3.13); where the work happens from contract labels ("fully remote", "hybrid", "on site"...) and title words; schedule from the employment flags | `level`, `work_arrangement` (remote, hybrid, onsite, several, not stated), `schedule` (full time, part time, not stated); with `job_type` (2b.3) and the state list (3.7) they back every filter in the app |
 | – | **Description cleanup** | **Moved to EDA_SDA_3:** this table keeps only description features (`desc_words`, `desc_hash`, `has_html`), not the text, to fit in memory; EDA_SDA_3 loads the text anyway | `desc_clean` there, with HTML and boilerplate removed |
 
 **Leakage:** every fix uses only what the listing showed when it was posted, so none of them leaks the outcome.
@@ -104,11 +104,13 @@ Some factors travel together, so a raw gap can belong to something else. **Every
 **What the data shows**
 - **Staffing agencies are a small, fast group:** 2.0% of listings (800 companies flagged), closing in a median 13.7 days vs. 23.5 for employers. **Recruiters aren't just staffing agencies:** among employers, listings from recruiters with 5+ listings close in 7.6 days vs. 24.1 with no recruiter named (2b.1b), though only 1.2% of listings name one.
 - **Contract labels:** 53% full time, 9.7% contract, 3.7% part time, 3.3% internship, 19% none. Full and part time together is rare (1.1%). Where the work happens is stated for 53% (remote 19%, onsite 14%, hybrid 12%, several 7.8%), and remote labels agree with the description 95% of the time.
-- **Titles and levels:** cleaning changed 26% of titles; **9.1% name AI, machine learning or data science** (26% of data science, 15% of networks and systems). Role levels: mid 47%, senior 30%, entry 10%, manager 9.3%, leadership 3.5%. No listing names more than one location: PredictLeads lists each location separately.
+- **Titles and levels:** cleaning changed 26% of titles; **9.1% name AI, machine learning or data science** (26% of data science, 15% of networks and systems). Role levels: mid_senior 77% (kept whole; 39% of it has a senior title, flagged `senior_title`), entry 10%, manager 9.3%, leadership 3.5%. No listing names more than one location: PredictLeads lists each location separately.
 
 ## 3. Checks and analyses
 
 Record each result and the decision it leads to here, then apply it when building the final table (section 4). **From 3.1 on, every timing result is also shown without likely ghosts** (section 2's views). **Every factor test follows the confounders rule in section 2:** raw gap, then the gap within volume band × source type (and role bucket where possible); only gaps that hold count.
+
+**3.13 closes the section with the feature screening:** every candidate feature through the same checks, one keep/drop table.
 
 ### 3.1 Ghost listings vs. desperate employers
 
@@ -125,6 +127,12 @@ A long-open listing may be a **ghost listing** (forgotten or no longer monitored
 **Decided (2026-10-10): hide, never remove.** **Likely ghosts** (older than **90 days** on the date being viewed and from a company gone quiet, 3.1d) are hidden in the app (a note says how many, and why); other listings older than 90 days stay visible, labelled "open 90+ days" and ranked lower; every listing stays in the analysis and the model, with still-open listings censored as usual. Age on a date is known at that moment, so hiding by it uses no future information. Removing listings by how long they *ended up* open would bias the timing model (it would never see a long window) and throw away struggling employers, who may be the most open to a career changer.
 
 Steps: describe the long-open listings (how many, which occupation groups and sources); **check the 90-day threshold** (do closing rates level off past 90 days? are those listings relisted, or did their company stop posting?) and keep it or adjust it with that evidence; measure each signal; combine them into a **"likely ghost listing" flag**, used to rank lower or label, never to remove. Only listings first seen before July can reach 90 days in this six-month window. Evergreen wording ("always accepting applications") is added in EDA_SDA_3.
+
+#### 3.1e The career-changer view
+
+The app ranks only what a career changer can see, so the key results are also shown on that view: **listings visible to a newcomer without management experience** (no manager level or above, no likely ghost, no hidden occupation). Senior-titled listings stay in it, flagged (`senior_title`): **decided 2026-10-11, the app shows them ranked lower with a "senior" label rather than hiding them** (81% of them ask for 5+ years and 4.8% show openness, vs. 42% and 17% for other mid_senior listings, 3.7c; but a title is a rough signal, and some career changers have senior experience). A third column shows the view without them. The feature screening (3.13) uses this view first.
+
+**Result:** the view keeps 86% of the scope's original listings and looks like the whole scope (25% still open, a median 24.1 days, 29% closed within a week), paying a little less ($61.49 vs. $64.14 an hour). Without senior titles it keeps 56%: lower pay ($50.48), more entry level (17%) and more openness to career changers (34% vs. 22%), with the same timing.
 
 **What the data shows**
 - **Closing slows with age:** of listings first seen in April–May, 52% close in their first 30 days; past 60 days, 28–34% of those still open close each month. Old listings still close, so age alone isn't a ghost.
@@ -252,7 +260,7 @@ The listing side is `role_bucket(onet_code)` (`ONET_DETAILED_BUCKETS` for detail
 
 **What the data shows**
 - **The 2-day "still open" tolerance holds:** 237K listings were last seen within 2 days of September 30, then the counts drop (9K at 2–3 days) with no bump near 7 days.
-- **Seniority labels mostly agree with titles,** but `mid_senior` hides seniors: 35% of its titles say senior, lead, principal or staff, so 2b.6's split is needed. Internships are mostly entry level (28K of 35K).
+- **Seniority labels mostly agree with titles,** but `mid_senior` mixes levels: 35% of its titles say senior, lead, principal or staff. **Kept whole, with a `senior_title` flag:** senior-titled listings ask more (81% want 5+ years where stated vs. 42%), are rarely open to newcomers (4.8% vs. 17%) and pay more ($77.04 vs. $55.29 an hour). Internships are mostly entry level (28K of 35K).
 - **State is known for 81% of listings.** California (12%), Texas (7.9%) and New York (6.7%) lead. **Pay-transparency states disclose pay far more often** (Colorado 68%, Washington 67%, Massachusetts 66%, California 63% vs. Texas 30%, Florida 32%, Georgia 29%).
 
 ### 3.8 Joining the companies table
@@ -341,6 +349,38 @@ Every path carries its people count, and paths under about 10 people are marked 
 - **By TripleTen program:** AI Software Engineering (71K open) and AI & Machine Learning pay the most ($73.50); **Data Analytics roles are the most open** (30%) at $47.60; adjacent tech roles hold 96K open listings.
 - **Most paths are thin:** 78% of prior-career paths and 67% of training paths rest on fewer than 10 people (within-tech moves: 43%), so the compass always shows how many people a path rests on. The largest within-tech move is IT support → networks and systems (279 people).
 
+### 3.13 Feature screening: which candidates go forward
+
+Every candidate feature goes through **the same checks**, so the choice of what EDA_SDA_4, TimeSeries and ML_Rank use rests on evidence, not habit. Ten families of candidates:
+
+| Family | Examples | Built in |
+|:--|:--|:--|
+| 1. Raw listing fields | seniority, source, job type, work arrangement, AI/ML title, recruiter, pay currency | EDA_SDA_1, 2b |
+| 2. The listing's own history | times listed, copies, posting lag, batch first sightings | EDA_SDA_1 6.4, 6.8; 3.5 |
+| 3. Company history (earlier listings only) | past closing speed of its closed listings, entry-level share, repost and pay-disclosure habits, roles open, hiring trend | 3.13a |
+| 4. The market at first sighting | open listings in the same role bucket (and state) that day, new listings that week, weekday and hour | 3.13a |
+| 5. Pay in context | hourly pay, its percentile within role bucket and state, range width, hourly vs. salaried | 3.13a |
+| 6. Text (keyword flags for now) | years asked, degree, entry-level and career-changer wording, remote, length | EDA_SDA_1; EDA_SDA_3 replaces them |
+| 7. Company facts | publicly traded, parent company, subsidiaries | 3.8 |
+| 8. Location | state, a pay-transparency-law state | 3.7, 3.13a |
+| 9. O*NET Job Zone | how much preparation a role needs | Waiting for the O*NET download |
+| 10. Expected job growth | BLS 2025–2035 by occupation | Waiting for PredictLeads' consent to the join |
+
+**The checks, fixed before looking at results:**
+- **Outcome:** closed within 7 days of first sighting, on original listings first seen at least 7 days before September 30 (so every one has a full week of follow-up). **Population: the career-changer view (3.1e) decides; the whole scope and the view without senior titles are shown alongside. Repost features are screened on every listing, reposts included (on originals they can't vary).**
+- **Coverage:** share with a value, and its lowest share by source type and by month.
+- **Leakage:** is the value known when the listing is first seen? Features built from later information are dropped; `last_processed_at` is audited (3.13b).
+- **Signal within the confounders:** each feature is cut into levels (true / false, quintiles, or the 10 most common values, with "missing" as its own level). Within each cell of company volume × source type × has a description, the 7-day close rate's spread across levels (levels with 400+ listings), averaged over cells. Some spread appears by chance, more with more levels, so the same spread is measured with the outcome **shuffled within each cell (the noise floor)**, and the signal is the spread above it. **Under 2 points above the noise floor = no signal beyond the confounders.**
+- **Stability:** the same spread in April–June and in July–September, and whether the levels keep their order. **Unstable** if one half's spread is under a third of the other's, or the order flips.
+- **Redundancy:** Cramér's V between features' levels, on listings where both have a value (a 200,000-listing sample), so sharing blanks (every text flag is blank without a description) doesn't count. **V of 0.7 or more** with a stronger feature = keep one.
+
+A gradient-boosting importance check comes later, at the start of ML_Rank, as a cross-check, not the decision.
+
+**What the data shows**
+- **70 candidates screened, 46 go forward** (2 recomputed on training months, 2 watched as unstable), 12 dropped as redundant with a stronger partner, 8 dropped, 2 held for EDA_SDA_3's text checks and 2 waiting for data. Screened on 771K career-changer listings with a full week of follow-up (29.5% closed within 7 days); the whole scope and the view without senior titles give the same ranking within 1–3 points.
+- **The strongest signals beyond the confounders:** has a description (34 points), the company's past closing speed (30), company volume (27), how many listings it has closed before (19), how many it has open now (18) and the platform (17). **Company history is the strongest new family:** all nine of its features are kept.
+- **Dropped:** AI/ML title (0.7 points) and the recruiter's earlier listings (0.1); the repost counts once copy type is known; `crawl_dropout` (not known at first sighting); and `last_processed`, which leaks the outcome (87% within 7 days of the last sighting, 3.13b). `senior_title` clears the bar narrowly (2.2), so it ranks and labels rather than hides; degree and remote wording (under 2) wait for EDA_SDA_3.
+
 ## 4. EDA_SDA_2 final table
 
 Every decision in this notebook, defended with its result from sections 2b and 3, then applied all at once in 4b. The table is saved as its own file (`scope_table.parquet`), so EDA_SDA_1's table stays unchanged. **Hide, never remove:** no listing is dropped here (the scope cut and the US rule are EDA_SDA_1's); everything is a flag the app hides or labels by.
@@ -358,7 +398,11 @@ Every decision in this notebook, defended with its result from sections 2b and 3
 | **Text blockers** | "Asks 5+ years" would hide 30% of open listings; "degree required, no equivalent" only 2.4% (3.11) | Previews only | Open: EDA_SDA_3 validates them first |
 | **Staffing agencies and recruiters** | 2.0% of listings, closing in 13.7 vs. 23.5 days; recruiters with 5+ listings close fast even at employers (7.6 vs. 24.1 days) (2b.1) | Flag `is_staffing` (the app labels "posted by a recruiter"); `recruiter_key` stays a candidate feature | Decided |
 | **Contract types and where the work happens** | 53% full time, 9.7% contract, 3.3% internship; work arrangement stated for 53% (2b.3, 2b.6) | Employment flags, `job_type`, `work_arrangement`, `schedule` for the app's filters | Decided |
-| **AI/ML titles** | 9.1% of listings, across buckets (26% of data science) (2b.4) | `ai_ml_title` as a view for the hackathon app's AI/ML audience | Decided |
+| **AI/ML titles** | 9.1% of listings, across buckets (26% of data science) (2b.4); no closing-speed signal (0.7 points, 3.13) | `ai_ml_title` as a view for the hackathon app's AI/ML audience, not a ranking feature | Decided |
+| **Senior titles in `mid_senior`** | 35% of `mid_senior` titles; 81% ask 5+ years vs. 42%, 4.8% vs. 17% open to newcomers, $77 vs. $55 an hour (3.7c); 2.2 points of signal (3.13) | `mid_senior` kept whole; `senior_title` flag; the app shows them ranked lower with a "senior" label | Decided (app, ML_Rank) |
+| **The career-changer view** | 86% of original listings, same timing, slightly lower pay; 56% without senior titles (3.1e) | `cc_visible` decides the feature screening; key tables show it beside the whole scope | Decided |
+| **`last_processed`** | 87% within 7 days of the last sighting (3.13b) | Never a feature: it leaks the outcome | Decided |
+| **Feature screening** | 70 candidates: 46 go forward, 12 redundant, 8 dropped, 2 held, 2 waiting for data (3.13) | The verdicts are saved (`feature_screening.pkl`) for EDA_SDA_4, TimeSeries and ML_Rank | Decided; a gradient-boosting check in ML_Rank cross-checks it |
 | **Pay** | 326 listings under $7.25 and 264 over $250 an hour (0.06%); 1,455 part-time listings with salaried pay (3.7, 3.10) | Flag `pay_implausible` and blank its hourly pay; flag `pay_part_time_salaried` | **Applied in 4b** |
 | **Missing values** | Mostly structural or "not stated"; no description for 22% (28–30% from June), closing in 4.4 days (3.9) | Nothing imputed here; `has_desc` a standard confounder; `has_posted` added | Decided |
 | **Outliers** | Real tails (3.10) | Keep; times listed grouped 1 / 2–4 / 5 or more (`times_listed_band`) | **Applied in 4b** |
@@ -373,20 +417,23 @@ Every decision in this notebook, defended with its result from sections 2b and 3
 | Freshness | Median crawler lag 1.5 days; late-found listings have long windows from posting (3.3) | Keep `first_seen`, with `posted` and `has_posted` | Kept |
 | Pay disclosed | Driven by source and state (pay-transparency states 63–68% vs. about 30%) (3.4, 3.7) | Keep, compared within state and source | Kept; EDA_SDA_4 tests it within state |
 | Pay level | Reachable listings pay $9–35 an hour less in every bucket (3.11) | Keep, hourly | Decided; the app shows the trade-off |
-| Recruiters | Fast closing, beyond staffing agencies, but only 1.2% of listings (2b.1b) | Keep `recruiter_key` as a candidate | For the feature screening |
+| Recruiters | Fast closing, beyond staffing agencies, but only 1.2% of listings (2b.1b); naming a recruiter carries 11 points of signal, the recruiter's earlier listings none (3.13) | Keep `has_recruiter`; drop `recruiter_earlier` | Screened |
+| Company history (new) | The company's past closing speed is the strongest new signal (30 points); entry-level share, pay-disclosure habit, open roles and hiring trend all clear the bar (3.13) | Keep all nine, from earlier listings only | Screened |
 | Copies and reposts | 70% single, 21% same-source copies, 7.9% relisted (close in 7.9 days), 1.1% cross-posted (3.5) | Keep `copy_type` and the repost features | Kept; little urgency signal |
 | Company type | Public companies' listings stay open longer at high volume (3.8) | Keep `is_public`, `has_parent` | Kept; a standard confounder |
 | State | Known for 81%; pay transparency shows (3.7) | Keep `state` | Kept; the app's location filter and a confounder |
 | Career-change accessibility | 20% show any sign; similar in every volume band × source cell; seniority and years asked do most of the work (3.11) | Keep `career_open` and its parts | Kept; EDA_SDA_3 validates the text parts |
 
 **What the final table shows**
-- **The final scope table: 1.0M listings (947K originals) from 84K companies in 11 role buckets, 105 columns** (`scope_table.parquet`, 0.25 GB). Nothing was removed; every decision is a flag.
-- **23.2% are open on September 30 and visible to everyone** (no likely ghost or hidden occupation). Flags kept: likely ghosts 1.1%, open 90+ days 4.7%, staffing agencies 2.0%, no country (company in the US) 9.9%, implausible pay 0.06%.
+- **The final scope table: 1.0M listings (947K originals) from 84K companies in 11 role buckets, 128 columns** (`scope_table.parquet`, 0.28 GB). Nothing was removed; every decision is a flag.
+- **23.2% are open on September 30 and visible to everyone** (no likely ghost or hidden occupation). Flags kept: likely ghosts 1.1%, open 90+ days 4.7%, staffing agencies 2.0%, no country (company in the US) 9.9%, implausible pay 0.06%, senior title 35%.
 - **The added fields are complete** except state (81%) and company country (93%).
 
 ## 5. Conclusion and next steps
 
 **The scope:** 1.0M listings (947K originals) from 84K companies in 11 role buckets, cleaned, flagged and saved for EDA_SDA_3 (`scope_table.parquet`). Nothing was removed; every decision is a flag. The full data confirms the sample's main lesson: **how the data was collected explains many of the biggest gaps.** Crawl timing, job boards stopping after May and listings with no description (22%, closing in about 4 days) all look like signals until they're checked, so "has a description", company type and state stay standard confounders.
+
+**What goes forward to modeling:** 46 of 70 candidate features, screened on the career-changer view (3.13). The company's own history is the strongest new signal; AI/ML titles, the recruiter's history and the repost counts add nothing beyond the confounders, and `last_processed` leaks the outcome. `mid_senior` stays whole, with senior titles labelled and ranked lower.
 
 ### Answers to the clarifying questions
 
@@ -400,14 +447,16 @@ Every decision in this notebook, defended with its result from sections 2b and 3
 | How are values missing? | Tied to source and month, not role bucket; no description rises to 28–30% from June. Nothing is imputed here (3.9) |
 | How much is left once blockers are hidden? | 85% of open listings stay visible to a career changer without management experience; the "5+ years" rule would hide another 30%, so it waits for EDA_SDA_3 (3.11) |
 | Which role buckets are deep enough? | All 11 on the listings side; eight also have enough career changers for their own compass paths. Technical sales, business and data analysis and other computer roles are analyzed combined (3.6) |
+| Which features carry signal beyond the confounders? | 46 of 70 go forward. Strongest: has a description, the company's past closing speed, volume, past closings, open roles and platform. Dropped: AI/ML title, the recruiter's history, repost counts, `crawl_dropout`, `last_processed` (3.13) |
 
 ### For the career changer
 - **IT support is the clearest door** (44% open, 23% entry level) at the lowest pay ($31 an hour); **Data Analytics roles** are the most open TripleTen program (30%) at $47.60.
 - **Reachable listings pay $9–35 an hour less in every bucket;** the app shows the trade-off, and the compass shows where people moved next (IT support → networks and systems is the most common move, 279 people).
+- **Senior-titled listings are mostly out of reach** (81% ask 5+ years, 4.8% open to newcomers): shown with a "senior" label and ranked lower, not hidden.
 - **Most paths are thin,** so the compass always shows how many people a path rests on.
 
 ### Next steps
-- **EDA_SDA_2, phase B:** the feature screening (every candidate feature through the same checks, one keep/drop table).
+- **EDA_SDA_2, next pass:** staffing agencies from recruiter titles; split business and data analysis (13-1161) by title; normalized mutual information as a second signal measure in the screening.
 - **EDA_SDA_3 (text):** clean descriptions from `scope_descriptions.parquet`; validate the "5+ years" and degree rules before any text blocker hides listings; urgency read in context; map skills to O*NET; add evergreen wording to the ghost check.
 - **EDA_SDA_4 (statistics):** volume × company type, pay disclosure within state and source, recruiters, and whether reachable listings close faster, in the adjusted Cox model.
 - **Ask PredictLeads:** why job-board listings stop after May, and why descriptions go missing more often from June.
