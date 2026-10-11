@@ -22,6 +22,7 @@
 ## Next
 
 - **Differentiation ideas (2026-10-10), lead with 1, 3 and 5:** seven planned additions, described in [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) (Planned additions): (1) which skill unlocks the most jobs; (2) certification payoff; (3) stepping-stone planner; (4) "apply now" alerts; (5) a backtested ranking claim; (6) pay now vs. one move later; (7) a map of reachable openings.
+- **Set up the GPU PC before ML_Fit** (or before EDA_SDA_3, if it uses transformer models; spaCy's small model is fine on the Mac): BGE embeddings of the scope's ~1.1M descriptions take hours on a GPU (Jesse: 244K in about 45 minutes on an RTX 3070) vs. likely a day or more on the Mac's CPU. Steps: clone the repo; Python 3.11 venv from `requirements.txt` with the CUDA build of PyTorch; `nbstripout --install`; set `PL_DATA_DIR` to the PC's data folder; copy only what's needed (`data/clean/analysis_table.parquet`, `scope_descriptions.parquet`) by external drive, or stream from S3 with the PC's own AWS profile; add the PC's data folder to the end-of-project deletion list. EDA_SDA_1 and 2 stay on the Mac (pandas is CPU-only; no gain).
 - **Hackathon alignment:** read-only summary of Jesse's app in [`docs/hackathon_alignment.md`](docs/hackathon_alignment.md); refresh it before ML_Fit, ranking or app-design work, or on request.
 - **EDA_SDA_3 (text features; no matching models), in progress:**
   - **Sections 1–2 written** (setup, text loaded from the saved parts, HTML to structured text, boilerplate removal, lemmas; cached in `data/clean/eda3_text.pkl`): needs a run, then notes. Section 3 (years and degree rules) is next.
@@ -107,5 +108,5 @@
 ## Finish
 
 - **Polish all seven notebooks (EDA_SDA_1–4, TimeSeries, ML_Fit, ML_Rank) and Profiles so they read as one unit:** consistent titles, numbering, terms and formatting; each opening links back to the previous notebook's conclusion; imports at the top (course standard); no repeated code; every course-template requirement checked. EDA_SDA_1 is already trimmed, with its data loading in `src/pl_data.py`.
-- Permanently delete every copy of the data: `data/` (Parquet, pickle, zip and `.jsonl.zst` files, including `data/flat/`, `data/clean/`, `data/external/` and `data/profiles/`), `reports/`, the copy in `~/dev/predictleads-hackathon/data/`, downloads (including `~/Downloads/1_corpus_and_signals.zip` if it's still there), and any S3 copies.
+- Permanently delete every copy of the data, **including the GPU PC's data folder if it was set up**: `data/` (Parquet, pickle, zip and `.jsonl.zst` files, including `data/flat/`, `data/clean/`, `data/external/` and `data/profiles/`), `reports/`, the copy in `~/dev/predictleads-hackathon/data/`, downloads (including `~/Downloads/1_corpus_and_signals.zip` if it's still there), and any S3 copies.
 - Confirm the deletion in writing if asked.
