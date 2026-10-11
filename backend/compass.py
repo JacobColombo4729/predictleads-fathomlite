@@ -11,6 +11,8 @@ Given 2-20 listings a person picked, their saved profile and the stored BGE embe
 * **scope**: the direction with the most well-fitting jobs, and how wide that scope is at every heading;
 * **suggestions**: listings the person did not pick that sit near the picks and the profile, diversified and
   filtered so they are not near-copies of a pick's title;
+* **skill areas** for each job: its requirement lines sorted into a few broad areas, with how much the job asks for
+  each area and how closely the profile's lines match it (the strengths-and-gaps radar);
 * **next steps**: the requirement groups that appear often and are least supported.
 
 Everything is local (no outside AI call). Evidence is always a verbatim line from the profile or the listing, never
@@ -67,12 +69,36 @@ SCOPE_STEP = 5                 # degrees between precomputed scope widths
 SCOPE_SUPPORT_HALF = 0.4       # fit-weighted job mass that takes the evidence term halfway to full
 SUGGESTION_SCOPE_WEIGHT = 0.6  # a suggestion counts less than a job the person picked
 
+# Skill areas for the strengths radar, in the order they go round it. A requirement line joins the area whose
+# description it reads most like; years, degrees, certifications and eligibility (citizenship, location, travel)
+# always go to Credentials & eligibility, which is never scored.
+SKILL_AREAS = [
+    ("tools", "Technical tools", "Hands-on experience with programming languages, software, platforms, databases and "
+     "tools such as Python, SQL, Excel, cloud services and APIs."),
+    ("analysis", "Analysis & data", "Analyze data, statistics, models, metrics, research and reporting to find insights "
+     "and evaluate results."),
+    ("delivery", "Building & delivery", "Design, build, test, deploy and maintain products, systems, pipelines and "
+     "processes; troubleshoot and improve them."),
+    ("domain", "Domain knowledge", "Knowledge of the industry, business, products, customers, markets and regulations "
+     "in this field."),
+    ("communication", "Communication", "Communicate clearly, write documentation, present to stakeholders, partner with "
+     "customers and collaborate across teams."),
+    ("leadership", "Leadership & ownership", "Lead projects, manage and mentor people, own outcomes, set priorities and "
+     "plan work independently."),
+    ("credentials", "Credentials & eligibility", None),
+]
+CREDENTIALS_AREA = "credentials"
+
 _BOILERPLATE = re.compile(
     r"equal opportunity|\beeo\b|reasonable accommodation|background check|drug[- ]free|e-verify|salary range|base pay|"
     r"\bbenefits?\b|401\s?\(?k\)?|paid time off|\bpto\b|health insurance|visa sponsorship|click apply|apply now|"
     r"about us|our mission|we are an? |\bperks\b|compensation", re.IGNORECASE)
 _VERIFY_YOURSELF = re.compile(
     r"\b\d+\+?\s*(?:years?|yrs)\b|\bdegree\b|\bbachelor|\bmaster|\bmba\b|\bcertifi|\bclearance\b|\blicen[sc]e",
+    re.IGNORECASE)
+_ELIGIBILITY = re.compile(
+    r"\bcitizen|permanent resident|work authori[sz]|authori[sz]ed to work|sponsorship|\brelocat|\bbased in\b|"
+    r"\btravel\b|\bon-?site\b|\bin-office\b|\bcommut|\bshifts?\b|\bweekends?\b|\bdriver'?s licen",
     re.IGNORECASE)
 _TITLE_TOKEN = re.compile(r"[a-z0-9+#.]+")
 _STOP_TITLE = {"the", "and", "of", "for", "to", "in", "a", "an", "at", "with", "senior", "junior", "sr", "jr", "i", "ii", "iii", "lead", "associate"}
@@ -295,6 +321,33 @@ def _circular_mean(degrees: Sequence[float], weights: Sequence[float] | None = N
     return round(math.degrees(math.atan2(x, y)) % 360.0, 2)
 
 
+def _skill_areas(sentences: Sequence[str], vectors: np.ndarray, unit_vectors: np.ndarray,
+                 area_vectors: np.ndarray) -> list[dict[str, Any]]:
+    """Sort one job's requirement lines into skill areas and score each area, in SKILL_AREAS order.
+
+    `asked` is how much of the job's requirement text falls in the area, scaled so the most-asked scored area is 100;
+    `shown` is the mean coverage of the area's lines by the closest profile line, or None when the area has no lines
+    or is credentials, which similarity cannot judge.
+    """
+    scored = [area[0] for area in SKILL_AREAS if area[2] is not None]
+    lines: dict[str, list[np.ndarray]] = {area[0]: [] for area in SKILL_AREAS}
+    for text, vector in zip(sentences, vectors):
+        if _VERIFY_YOURSELF.search(text) or _ELIGIBILITY.search(text):
+            lines[CREDENTIALS_AREA].append(vector)
+        else:
+            lines[scored[int(np.argmax(area_vectors @ vector))]].append(vector)
+    most = max([len(lines[a]) for a in scored] + [1])
+    out = []
+    for area_id, name, _ in SKILL_AREAS:
+        own = lines[area_id]
+        shown = None
+        if own and area_id != CREDENTIALS_AREA and len(unit_vectors):
+            best = (np.vstack(own) @ unit_vectors.T).max(axis=1)
+            shown = int(round(float(np.mean([_coverage(float(c)) for c in best]))))
+        out.append({"id": area_id, "name": name, "asked": int(round(100 * len(own) / most)), "lines": len(own), "shown": shown})
+    return out
+
+
 def _title_tokens(title: str) -> set[str]:
     return {t for t in _TITLE_TOKEN.findall(title.casefold()) if t not in _STOP_TITLE}
 
@@ -486,6 +539,8 @@ def analyze(
     flat_texts: list[str] = [u.text for u in units]
     for group in (*pick_sentences, *suggestion_sentences):
         flat_texts.extend(group)
+    area_texts = [text for _, _, text in SKILL_AREAS if text is not None]
+    flat_texts.extend(area_texts)
     encoded = _unit_rows(np.asarray(backend.encode_documents(flat_texts), dtype=np.float32)) if flat_texts else np.zeros((0, 1), dtype=np.float32)
     unit_vectors = encoded[: len(units)]
     cursor = len(units)
@@ -493,6 +548,7 @@ def analyze(
     for group in (*pick_sentences, *suggestion_sentences):
         sentence_vectors.append(encoded[cursor: cursor + len(group)])
         cursor += len(group)
+    area_vectors = encoded[cursor: cursor + len(area_texts)]
     pick_sentence_vectors = sentence_vectors[: len(distinct)]
     suggestion_sentence_vectors = sentence_vectors[len(distinct):]
 
@@ -656,6 +712,7 @@ def analyze(
             "role": role_of[("p", j)], "angle": angles[f"p{j}"],
             "why": why_for(pick_sentence_vectors[j], pick_sentences[j]),
             "stretch": [g["id"] for g in gaps[:3]],
+            "areas": _skill_areas(pick_sentences[j], pick_sentence_vectors[j], unit_vectors, area_vectors),
         })
     for i, job in enumerate(suggestions):
         t = suggestion_theme[i]
@@ -670,6 +727,7 @@ def analyze(
             "role": role_of[("s", i)], "angle": angles[f"s{i}"],
             "why": why_for(suggestion_sentence_vectors[i], suggestion_sentences[i]),
             "builds": builds,
+            "areas": _skill_areas(suggestion_sentences[i], suggestion_sentence_vectors[i], unit_vectors, area_vectors),
         })
 
     # 8. next steps

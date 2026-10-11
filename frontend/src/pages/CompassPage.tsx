@@ -29,7 +29,8 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
   // If an analysis already exists when the page opens, skip the reveal; a fresh run plays it.
   const [revealDone, setRevealDone] = useState(state.status === "ready");
   const [shown, setShown] = useState(0);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // undefined: the best pick; null: nothing (the panel lists the jobs in scope)
+  const [selectedId, setSelectedId] = useState<string | null | undefined>(undefined);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [themeFilter, setThemeFilter] = useState("all");
   const [stretch, setStretch] = useState(50);
@@ -39,7 +40,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
   useEffect(() => {
     if (state.status === "loading") {
       setRevealDone(false);
-      setSelectedId(null);
+      setSelectedId(undefined);
       setThemeFilter("all");
       setTable(false);
     }
@@ -69,7 +70,8 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
   const showReveal = state.status !== "ready" || !revealDone;
   const result = state.status === "ready" ? state.result : null;
   const stale = state.status === "ready" && state.profileVersion !== currentProfileVersion;
-  const selected: CompassJob | null = result ? result.jobs.find((j) => j.job.id === (selectedId ?? defaultSelection(result))) ?? null : null;
+  const selectedJobId = result ? (selectedId === undefined ? defaultSelection(result) : selectedId) : null;
+  const selected: CompassJob | null = result?.jobs.find((j) => j.job.id === selectedJobId) ?? null;
   const picks = result?.picksAnalyzed ?? state.jobIds.length;
 
   return (
@@ -147,16 +149,18 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
                   />
                 )}
               </div>
-              <JobDetailPanel
-                result={result}
-                job={selected}
-                stretch={stretch}
-                saved={selected ? savedIds.has(selected.job.id) : false}
-                onSave={(j) => onSave(j.job)}
-                scopeJobs={table ? null : scopeIds.map((id) => result.jobs.find((j) => j.job.id === id)).filter((j) => j !== undefined)}
-                onSelect={setSelectedId}
-                onClear={() => setSelectedId(null)}
-              />
+              <div className="cp-detailwrap">
+                <JobDetailPanel
+                  result={result}
+                  job={selected}
+                  stretch={stretch}
+                  saved={selected ? savedIds.has(selected.job.id) : false}
+                  onSave={(j) => onSave(j.job)}
+                  scopeJobs={table ? null : scopeIds.map((id) => result.jobs.find((j) => j.job.id === id)).filter((j) => j !== undefined)}
+                  onSelect={setSelectedId}
+                  onClear={() => setSelectedId(null)}
+                />
+              </div>
             </div>
           </section>
 
