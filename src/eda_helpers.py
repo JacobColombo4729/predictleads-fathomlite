@@ -86,24 +86,31 @@ def compact(n):
 
 
 def cell_format(name, values):
-    """A formatter for one column, from its name and values."""
+    """A formatter for one column (or row), from its name and values: shares as percentages (small shares with
+    decimals), pay in dollars, days and years with one decimal, counts compact (13.0M, 412K)."""
     name = str(name).lower()
     v = pd.to_numeric(pd.Series(values), errors="coerce").dropna()
     blank = lambda f: (lambda x: "" if pd.isna(x) else f(x))
+    in_01 = len(v) > 0 and v.between(0, 1).all()
+    whole = len(v) > 0 and (v == v.round()).all()
+    counts = any(k in name for k in ("listings", "companies", "postings", "per week", "count", "people", "sub-groups"))
     if "rank" in name:
         return blank(lambda x: f"{x:.0f}")
     if "spread" in name:
         return blank(lambda x: f"{x:.1f}×")
-    if any(k in name for k in ("share", "rate", "closed within", "open after", "still open", "or fewer", "or more", "states years")) or (len(v) and v.between(0, 1).all() and not (v == v.round()).all() and not any(
-            k in name for k in ("listings", "companies", "postings", "per week", "days", "years", "words", "usd"))):
+    named_share = any(k in name for k in ("share", "rate", "closed within", "open after", "still open", "or fewer",
+                                          "or more", "states years"))
+    looks_share = not whole and not any(k in name for k in ("median", "mean", "lag", "width", "usd", "pay", "words",
+                                                            "skew", "iqr", "fence", "gap"))
+    if in_01 and not counts and (named_share or looks_share):
         return blank(lambda x: f"{x:.2%}" if 0 < abs(x) < 0.01 else f"{x:.1%}" if abs(x) < 0.1 else f"{x:.0%}")
-    if "usd" in name or "pay ($" in name:
+    if not in_01 and any(k in name for k in ("usd", "pay ($", "hourly pay")):
         return blank(lambda x: f"${x:,.2f}")
-    if "words" in name:
-        return blank(lambda x: f"{x:,.0f}")
-    if "days" in name or "years" in name:
-        return blank(lambda x: f"{x:,.1f}")
-    if len(v) and not (v == v.round()).all() and v.abs().max() < 10_000:
+    if "words" in name or whole:
+        return compact
+    if len(v) and v.abs().max() < 1:
+        return blank(lambda x: f"{x:.3f}")
+    if len(v) and v.abs().max() < 10_000:
         return blank(lambda x: f"{x:,.1f}")
     return compact
 
