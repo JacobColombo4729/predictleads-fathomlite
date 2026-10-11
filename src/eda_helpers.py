@@ -94,7 +94,7 @@ def cell_format(name, values):
         return blank(lambda x: f"{x:.0f}")
     if "spread" in name:
         return blank(lambda x: f"{x:.1f}×")
-    if any(k in name for k in ("share", "rate", "closed within", "open after", "still open", "or fewer", "or more")) or (len(v) and v.between(0, 1).all() and not (v == v.round()).all() and not any(
+    if any(k in name for k in ("share", "rate", "closed within", "open after", "still open", "or fewer", "or more", "states years")) or (len(v) and v.between(0, 1).all() and not (v == v.round()).all() and not any(
             k in name for k in ("listings", "companies", "postings", "per week", "days", "years", "words", "usd"))):
         return blank(lambda x: f"{x:.2%}" if 0 < abs(x) < 0.01 else f"{x:.1%}" if abs(x) < 0.1 else f"{x:.0%}")
     if "usd" in name or "pay ($" in name:
