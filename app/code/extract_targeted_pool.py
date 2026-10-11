@@ -27,12 +27,13 @@ import boto3
 import botocore
 import zstandard as zstd
 
+from data_paths import DATA_DIR
 from prepare_jobs import BUCKET, KEY, PROFILE, REGION, SNAPSHOT_DATE, prepare_resource
 
 MAX_LINE_BYTES = 4 * 1024 * 1024
 PROGRESS_SECONDS = 60
 FILTER_VERSION = "targeted_pool_filter_v1"
-SAMPLE_PATH = Path("data/discovery/role_exploration/roles_corrected_20261006T000000Z/jobs_prepared_random_sample.jsonl")
+SAMPLE_PATH = DATA_DIR / "discovery/role_exploration/roles_corrected_20261006T000000Z/jobs_prepared_random_sample.jsonl"
 
 TITLE_PATTERNS = {
     "ai_ml_title": re.compile(
@@ -254,7 +255,7 @@ def main(argv: list[str] | None = None) -> int:
         return check_sample()
     if args.scan:
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        return scan(Path("data/matching") / f"targeted_pool_{stamp}")
+        return scan(DATA_DIR / "matching" / f"targeted_pool_{stamp}")
     parser.print_help()
     return 2
 

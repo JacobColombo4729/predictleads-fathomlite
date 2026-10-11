@@ -1,5 +1,6 @@
 # Starts the demo API on http://127.0.0.1:8000 with the TF-IDF + BGE (RRF) ranker on the serving corpus.
 # Needs: data/matching/ai_ml_serving_v1 (built by `python code/rank_candidates.py export-serving`).
+# The data folder is app\data, or $env:PREDICTLEADS_DATA_DIR when set (for example one folder shared with analysis\).
 # Uses the single project .venv (pip install -r requirements.txt) and the BGE model in models/bge-base-en-v1.5.
 # First start takes a few minutes (it fits TF-IDF over the corpus once). Stop it with Ctrl+C.
 # Use -Ranker tfidf to start the lighter TF-IDF-only ranker instead.
@@ -9,7 +10,8 @@
 param([string]$Ranker = "rrf", [int]$Port = 8000, [switch]$ResumeFill, [switch]$Assess, [switch]$Market)
 
 $root = $PSScriptRoot
-$serving = Join-Path $root "data\matching\ai_ml_serving_v1"
+$data = if ($env:PREDICTLEADS_DATA_DIR) { $env:PREDICTLEADS_DATA_DIR } else { Join-Path $root "data" }
+$serving = Join-Path $data "matching\ai_ml_serving_v1"
 $env:PREDICTLEADS_API_JOBS_PATH = Join-Path $serving "jobs_prepared_corpus.jsonl"
 $env:PREDICTLEADS_API_CORPUS_DIR = $serving
 $env:PREDICTLEADS_API_RANKER = $Ranker

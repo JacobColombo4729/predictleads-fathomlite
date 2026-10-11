@@ -30,7 +30,7 @@ Commands below are PowerShell (Windows). On **macOS / Linux** use the `.sh` equi
    cd frontend; npm install; cd ..
    ```
    macOS / Linux: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt && (cd frontend && npm install)`
-2. **Data and model** (not in git): the serving corpus at `data/matching/ai_ml_serving_v1` (built by the pipeline below) and the BGE model `BAAI/bge-base-en-v1.5` (revision pinned in `code/bge_text.py`) in `models/bge-base-en-v1.5`, or set `PREDICTLEADS_BGE_MODEL_DIR`.
+2. **Data and model** (not in git): the serving corpus at `data/matching/ai_ml_serving_v1` (built by the pipeline below) and the BGE model `BAAI/bge-base-en-v1.5` (revision pinned in `code/bge_text.py`) in `models/bge-base-en-v1.5`, or set `PREDICTLEADS_BGE_MODEL_DIR`. Data lives in `data/` here unless `PREDICTLEADS_DATA_DIR` points elsewhere (for example one folder shared with `analysis/`, whose own setting is `PL_DATA_DIR`); the backend, the run scripts and the pipeline all follow it.
 3. **Backend** (about 3.5 minutes to load, about 2.5 GB of memory):
    ```powershell
    .\run_demo_backend.ps1            # add -ResumeFill to enable Magic fill; -Ranker tfidf for the lighter ranker

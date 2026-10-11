@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import sys
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 from pathlib import Path
@@ -16,7 +17,12 @@ from typing import Any
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-SIGNALS_ROOT = ROOT / "data" / "signals"
+if str(ROOT / "code") not in sys.path:
+    sys.path.insert(0, str(ROOT / "code"))
+
+from data_paths import DATA_DIR  # noqa: E402
+
+SIGNALS_ROOT = DATA_DIR / "signals"
 EPOCH = date(2026, 1, 1)  # day numbers in the tables count from here
 FAMILIES = ("ai_ml", "data", "technical_sales")
 PATTERNS = ("burst", "sustained", "cooling", "quiet")
