@@ -66,7 +66,7 @@
 - **Ideas tab** (`APPLICATION.md`, a separate tab): skills to build (EDA_SDA_3 skills vs. a résumé, in `ML_Fit`), career options and time to switch (Profiles), pay increase (EDA_SDA_1 7.2 current-field pay vs. EDA_SDA_2 3.12 role pay, hourly), expected growth, and stepping-stone roles; built from `ML_Fit`'s compass tables. Time frames stay vague until the team decides.
 - **Decide the time frames** for career options and job growth in the compass (team; growth at most 5 years), and whether to adopt the proposed growth extensions (`docs/job_growth.md` section 4: error band, rate scenarios, listing momentum, horizon-weighted blend, state level).
 - **O*NET (in scope, small):** check the terms of use, then download only the **Career Changers Matrix** (latest release), the **skills** for computer and mathematical occupations plus the team's background occupations, and the **Job Zones** (O*NET's level of education and experience per occupation: an accessibility prior for the feature screening). Listings already carry O*NET codes, so they join directly.
-- **Retraining compass app view** (`APPLICATION.md`, `COMPASS.md`); its 2026 side is ready (EDA_SDA_2 3.12).
+- **Retraining compass app view** (`APPLICATION.md` sections 2 and 3); its 2026 side is ready (EDA_SDA_2 3.12).
 - **App MVP** (stage 1 in `APPLICATION.md`): list view with search, sort and filters; detail view with apply link; stars.
 - **Write up the analysis** and **choose the final format** (write-up, notebook demo, or app).
 

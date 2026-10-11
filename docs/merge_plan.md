@@ -25,7 +25,7 @@ project_leads/  (Jacob: analysis)            predictleads-hackathon/  (Jesse: ap
 │   ├── eda_helpers.py, pl_data.py           ├── docs/           API, data prep, matching engine, signals
 │   └── export_markdown.py                   ├── archive/        earlier experiments
 ├── docs/        decisions, data, plans      ├── README.md, STATUS.md, roadmap.md
-├── PROJECT_OUTLINE, STANDARDS, COMPASS,     ├── requirements.txt (19 packages)
+├── PROJECT_OUTLINE, STANDARDS,              ├── requirements.txt (19 packages)
 │   APPLICATION, DIFFERENTIATORS,            ├── run_demo_backend / run_tests (.ps1, .sh)
 │   PRIORITY_QUEUE, CLAUDE.md                ├── .env.example (OPENAI_API_KEY)
 ├── requirements.txt (187 packages)          ├── data/    (git-ignored)
@@ -46,7 +46,7 @@ predictleads-hackathon/              (name agreed 2026-10-10; in a shared GitHub
 │   ├── notebooks/      EDA_SDA_1–4, TimeSeries, Profiles, ML_Fit, ML_Rank
 │   └── src/            stream, cleaning rules, role buckets, helpers
 ├── docs/
-│   ├── project/        Jacob's docs, unchanged: PROJECT_OUTLINE, STANDARDS, COMPASS,
+│   ├── project/        Jacob's docs, unchanged: PROJECT_OUTLINE, STANDARDS,
 │   │                   APPLICATION, DIFFERENTIATORS
 │   ├── analysis/       decisions, data, job growth, fit analysis, merge plan, notebook exports
 │   └── app/            Jesse's docs: API, data prep, matching engine, signals, roadmap
