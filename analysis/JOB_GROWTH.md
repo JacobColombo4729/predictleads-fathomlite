@@ -1,7 +1,7 @@
 # Job Growth Expectations
 
 PredictLeads × TripleTen externship · The plan for the compass's **expected job growth** column. Status as of 2026-10-10.
-*Why it exists: [`APPLICATION.md`](../APPLICATION.md) section 3.3 · Decisions: [`docs/decisions.md`](decisions.md) (2026-10-09, 2026-10-10) · Data reference: [`docs/data.md`](data.md)*
+*Why it exists: [`APPLICATION.md`](APPLICATION.md) section 3.3 · Decisions: [`DECISION_LOG.md`](DECISION_LOG.md) (2026-10-09, 2026-10-10) · Data reference: [`docs/data.md`](docs/data.md)*
 
 ## 1. What's decided
 
@@ -117,10 +117,10 @@ Fast-changing roles (data, AI and ML) carry extra uncertainty.
 - [ ] Check the BLS terms of use; download the 2025–2035 occupation table into `data/external/`
 - [ ] Join on occupation code, roll up to role buckets (employment-weighted), save `role_growth.pkl`
 - [ ] Add the growth column to EDA_SDA_2 3.12 and rerun
-- [ ] Team picks the horizon (at most 5 years) and decides on options 4a–4e; log in `docs/decisions.md`
+- [ ] Team picks the horizon (at most 5 years) and decides on options 4a–4e; log in `DECISION_LOG.md`
 - [ ] `ML_Fit`: apply growth as a visible, adjustable adjustment after the fit model; show how much it moved each suggestion
 - [ ] Limitations in the write-up: projections, national, occupation-wide, no business cycles
 
 ## 6. Data handling
 
-BLS, FRED and Federal Reserve data are public. Store downloads in `data/external/` (git-ignored) like other external data, and track them for the final deletion. Nothing from our listings goes into any outside service. **Joining BLS figures to PredictLeads listings combines their data with third-party material, which the agreement allows only with PredictLeads' prior written consent (4.3):** get it in writing before the join, and log it in `docs/decisions.md`.
+BLS, FRED and Federal Reserve data are public. Store downloads in `data/external/` (git-ignored) like other external data, and track them for the final deletion. Nothing from our listings goes into any outside service. **Joining BLS figures to PredictLeads listings combines their data with third-party material, which the agreement allows only with PredictLeads' prior written consent (4.3):** get it in writing before the join, and log it in `DECISION_LOG.md`.

@@ -11,11 +11,10 @@ PredictLeads × TripleTen externship · **How we work.** Last updated 2026-10-09
 |:--|:--|
 | [`PROJECT_OUTLINE.md`](PROJECT_OUTLINE.md) | **What we're doing:** the idea, findings so far, factors, the notebook series. Start here |
 | `STANDARDS.md` (this file) | **How we work:** standards, scope, roles, risks |
-| [`docs/decisions.md`](docs/decisions.md) | Every decision, with its reasoning |
+| [`DECISION_LOG.md`](DECISION_LOG.md) | Every decision, with its reasoning |
 | [`docs/data.md`](docs/data.md) | Data sources, fields, quirks and auto-generated schemas |
 | [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) | **How we stand out:** the five angles, the pitch, how we talk about the data, and what we never claim |
-| [`docs/job_growth.md`](docs/job_growth.md) | Expected job growth: source, conversion to at most 5 years, proposed extensions |
-| [`docs/fit_analysis.md`](docs/fit_analysis.md) | Transferable fit: Option A vs. B, and the applicant profiles (real career switches from a public resume dataset; volunteer profiles later) |
+| [`JOB_GROWTH.md`](JOB_GROWTH.md) | Expected job growth: source, conversion to at most 5 years, proposed extensions |
 | [`PRIORITY_QUEUE.md`](PRIORITY_QUEUE.md) | What to do next |
 | [`APPLICATION.md`](APPLICATION.md) | The web app's design |
 | [`README.md`](../README.md) (repository root) | Setup and the data rules, for the notebooks and the app |
@@ -36,7 +35,7 @@ For a given **career changer** (anyone switching from their current background t
 ## Working standards
 
 - **Course baseline:** the TripleTen course templates set the structure and methods for every notebook (intro, clarifying questions, a comment after every chart, documented decisions, baselines, train/validation/test used once, a conclusion). Every applicable course method is used, then taken further.
-- **Reasoning for every decision,** recorded where the decision is made and in `docs/decisions.md`.
+- **Reasoning for every decision,** recorded where the decision is made and in `DECISION_LOG.md`.
 - **Fix data quality as we go; apply scope filters at the end.** Cleaning fixes broken values. Scope decisions are defended first, then applied all at once in a final-filters section.
 - **Hide, never remove.** Listings that are likely ghosts (over 90 days old on the date viewed and from a company gone quiet), out of a user's reach, or in an occupation that isn't a tech path are hidden in the app; other listings over 90 days old stay visible, labelled "open 90+ days" and ranked lower. Hidden listings are shown with a count and a reason, and stay in the analysis and the model. Never drop listings by how long they ended up open: that uses the future and biases the timing model.
 - **Each analysis states its view of the table** (for example, originals only for counts; listings with `posted` for day of week) to avoid skew.
@@ -58,7 +57,7 @@ For a given **career changer** (anyone switching from their current background t
 - **Counts over time use only earlier listings:** company hiring volume and reposts count only listings first seen before the listing (or before the chosen date). Whole-window counts are descriptive only. EDA_SDA_1 Q1d rechecked its company-volume finding this way: 13 vs. 30 days (20+ openings vs. one-off), so it holds.
 - **Date picker (as-of date):** a listing is shown on a date if it was first seen on or before it and last seen on or after it. Its features are computed as of that date; `last_seen_at` only decides which listings were live and never feeds a score. The model that scores a date is trained only on what was known by then: listings still open that day are censored at that day. Dates before the test period need a model retrained as of that date.
 - **Career-switch counts during evaluation:** compass and path counts used as features are built from the training people only, so a test person never counts toward their own answer.
-- **Job growth expectations** are published projections, the same for every listing in a role; they come from outside the listing data, so they don't leak listing outcomes. **Growth backtests** (`docs/job_growth.md`, 4a and 4d) use only data published before each origin year: the projection vintage and the rate, postings and openings series as they stood then.
+- **Job growth expectations** are published projections, the same for every listing in a role; they come from outside the listing data, so they don't leak listing outcomes. **Growth backtests** (`JOB_GROWTH.md`, 4a and 4d) use only data published before each origin year: the projection vintage and the rate, postings and openings series as they stood then.
 - **Never tune on the test period**, and use the test set once, at the end.
 - **Applicant profiles:** each synthetic profile stays in the same fold as the real profile it came from, and final results are reported on real profiles only.
 
@@ -71,10 +70,10 @@ For a given **career changer** (anyone switching from their current background t
 ## Scope
 
 - **Applicant side only.** "Best time to post" for employers would need hiring outcomes we don't have.
-- **English-language listings in the United States, first seen April–September 2026,** plus the data's first two days (2026-03-30 and 31), kept and flagged `partial_month` (decisions and reasons in `docs/decisions.md`).
+- **English-language listings in the United States, first seen April–September 2026,** plus the data's first two days (2026-03-30 and 31), kept and flagged `partial_month` (decisions and reasons in `DECISION_LOG.md`).
 - **Applicants are career changers:** anyone switching from their current background to a different role or field. Source backgrounds are the team's own. Listings a career changer can't get are hidden; the model weighs everything else.
 - **Target: computer and mathematical (US).** EDA_SDA_2 splits it into role buckets shared with the career-switch profiles (not one role, since role discovery needs several), keeping buckets with enough data on both sides once unreachable listings are hidden: eight buckets, 13,887 listings in the scope table (`scope_table.pkl`).
-- **Transferable fit and role discovery** learn from real career switches in a public resume dataset (`notebooks/Profiles.ipynb`: 2,813 career changers; details in [`docs/data.md`](docs/data.md)). Volunteer profiles, collected with consent once the advisor approves, are a recent test set. Approach: [`docs/fit_analysis.md`](docs/fit_analysis.md).
+- **Transferable fit and role discovery** learn from real career switches in a public resume dataset (`notebooks/Profiles.ipynb`: 2,813 career changers; details in [`docs/data.md`](docs/data.md)). Volunteer profiles, collected with consent once the advisor approves, are a recent test set. Approach: the 2026-10-09 entry in [`DECISION_LOG.md`](DECISION_LOG.md).
 
 **How to describe the machine learning:** survival and time series analysis of listing activity, plus supervised learning (classification, survival and learning-to-rank models) on listing features and text, including career-change accessibility, validated on later months.
 
@@ -105,8 +104,8 @@ For a given **career changer** (anyone switching from their current background t
 | Accessibility read from what listings ask, not from who gets hired | Word claims as "open to newcomers on paper", never "hires career changers". State it in the limitations |
 | Hiding listings on keyword rules hides some a career changer could get | Hide only on reliable (seniority) or validated (EDA_SDA_3) rules; report how many listings each rule hides |
 | Applicant profiles are personal data | Collect only with written consent and the advisor's approval; keep them under `data/`; never commit them or share them with AI tools; use synthetic profiles in anything presented |
-| Combining PredictLeads data with outside data (job growth projections) | The agreement (4.3) allows it only with PredictLeads' prior written consent: get it before the join and log it in `docs/decisions.md`. Public downloads stay in `data/external/` and count toward the final deletion (`docs/job_growth.md`) |
-| Growth projections read as certain, or the extensions widen scope unnoticed | Word growth as "expected (official projections)" with its stated accuracy; extensions 4a–4e each need a team decision, since they reopen the 2026-10-09 external-data decision (`docs/job_growth.md`) |
+| Combining PredictLeads data with outside data (job growth projections) | The agreement (4.3) allows it only with PredictLeads' prior written consent: get it before the join and log it in `DECISION_LOG.md`. Public downloads stay in `data/external/` and count toward the final deletion (`JOB_GROWTH.md`) |
+| Growth projections read as certain, or the extensions widen scope unnoticed | Word growth as "expected (official projections)" with its stated accuracy; extensions 4a–4e each need a team decision, since they reopen the 2026-10-09 external-data decision (`JOB_GROWTH.md`) |
 | End-of-project data deletion | Track every local copy (`data/`, downloads) so all of them can be deleted and confirmed in writing |
 
 ## Discussion notes
@@ -118,7 +117,7 @@ Add the newest meeting at the top. Copy this template:
 **Attendees:**
 **Discussed:**
 -
-**Decisions:** (also add these to `docs/decisions.md`)
+**Decisions:** (also add these to `DECISION_LOG.md`)
 -
 **Action items:**
 - [ ] <task> (owner, due date)

@@ -4,14 +4,14 @@ How the project stands out from other career-changer projects in the hackathon, 
 
 ## What most teams will build
 
-A résumé compared with job descriptions, returning a match score, maybe with an AI coach on top. That is text similarity (Option A in [`docs/fit_analysis.md`](docs/fit_analysis.md)), and on its own it works against career changers: their résumé is written in their **old** field's language, so it ranks old-field jobs highest.
+A résumé compared with job descriptions, returning a match score, maybe with an AI coach on top. That is text similarity (Option A in the 2026-10-09 entry in [`DECISION_LOG.md`](DECISION_LOG.md)), and on its own it works against career changers: their résumé is written in their **old** field's language, so it ranks old-field jobs highest.
 
 ## What only this project has
 
 - **Live 2026 listings with timing:** when each listing appeared and when it closed (PredictLeads), so we can say how fast to act, not only what fits.
 - **Real career switches:** people who retrained into computer and mathematical roles, found in a public resume dataset (`notebooks/Profiles.ipynb`): 2,813 career changers ([`docs/data.md`](docs/data.md)).
 - **Role buckets that connect the two:** the same buckets on listings (O*NET codes) and on career switches (job titles).
-- **Job growth expectations per role:** expected growth over at most the next 5 years, from official occupational projections (BLS 2025–2035) joined on the same occupation codes, so role recommendations look ahead. Plan: [`docs/job_growth.md`](docs/job_growth.md).
+- **Job growth expectations per role:** expected growth over at most the next 5 years, from official occupational projections (BLS 2025–2035) joined on the same occupation codes, so role recommendations look ahead. Plan: [`JOB_GROWTH.md`](JOB_GROWTH.md).
 
 ## Angles
 
