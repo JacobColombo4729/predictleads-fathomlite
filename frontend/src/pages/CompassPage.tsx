@@ -35,7 +35,8 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
   // If an analysis already exists when the page opens, skip the reveal; a fresh run plays it.
   const [revealDone, setRevealDone] = useState(state.status === "ready");
   const [shown, setShown] = useState(0);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // undefined: the best pick; null: nothing (the panel lists the jobs in scope)
+  const [selectedId, setSelectedId] = useState<string | null | undefined>(undefined);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [themeFilter, setThemeFilter] = useState("all");
   const [added, setAdded] = useState<CompassJob[]>([]);
@@ -47,7 +48,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
   useEffect(() => {
     if (state.status === "loading") {
       setRevealDone(false);
-      setSelectedId(null);
+      setSelectedId(undefined);
       setThemeFilter("all");
       setTable(false);
       setStretch(0);
@@ -104,7 +105,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
   const addedIds = new Set(added.map((j) => j.job.id));
   const viewResult: CompassResult | null = result ? { ...result, jobs: [...result.jobs.filter((j) => !addedIds.has(j.job.id)), ...added] } : null;
   const listResult: CompassResult | null = result ? { ...result, jobs: result.jobs.filter((j) => j.pick || !addedIds.has(j.job.id)) } : null;
-  const selected: CompassJob | null = viewResult ? viewResult.jobs.find((j) => j.job.id === (selectedId ?? defaultSelection(viewResult))) ?? null : null;
+  const selected: CompassJob | null = viewResult ? viewResult.jobs.find((j) => j.job.id === (selectedId === undefined ? defaultSelection(viewResult) : selectedId)) ?? null : null;
   const picks = result?.picksAnalyzed ?? state.jobIds.length;
 
   return (
@@ -182,20 +183,22 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
                   />
                 )}
               </div>
-              <JobDetailPanel
-                result={viewResult!}
-                job={selected}
-                stretch={stretch}
-                saved={selected ? savedIds.has(selected.job.id) : false}
-                onSave={(j) => onSave(j.job)}
-                added={selected ? addedIds.has(selected.job.id) : false}
-                onAdd={addRole}
-                onRemove={removeRole}
-                scopeJobs={table ? null : scopeIds.map((id) => viewResult!.jobs.find((j) => j.job.id === id)).filter((j) => j !== undefined)}
-                onSelect={setSelectedId}
-                onClear={() => setSelectedId(null)}
-                onHighlight={setHighlightId}
-              />
+              <div className="cp-detailwrap">
+                <JobDetailPanel
+                  result={viewResult!}
+                  job={selected}
+                  stretch={stretch}
+                  saved={selected ? savedIds.has(selected.job.id) : false}
+                  onSave={(j) => onSave(j.job)}
+                  added={selected ? addedIds.has(selected.job.id) : false}
+                  onAdd={addRole}
+                  onRemove={removeRole}
+                  scopeJobs={table ? null : scopeIds.map((id) => viewResult!.jobs.find((j) => j.job.id === id)).filter((j) => j !== undefined)}
+                  onSelect={setSelectedId}
+                  onClear={() => setSelectedId(null)}
+                  onHighlight={setHighlightId}
+                />
+              </div>
             </div>
           </section>
 

@@ -72,6 +72,8 @@ interface ApiJob {
   source_status: { raw: string | null; state: string };
 }
 
+interface ApiAreaScore { id: string; name: string; asked: number; lines: number; shown: number | null }
+
 interface ApiProfile {
   profile_id: string;
   version: number;
@@ -301,6 +303,7 @@ export const api = {
       jobs: {
         job: ApiJob; pick: boolean; theme_id: string; fit: number; role: string; angle: number;
         why: { evidence: string; source: string; requirement: string }[]; stretch?: string[]; builds?: string[];
+        areas?: ApiAreaScore[];
       }[];
       requirements: {
         id: string; text: string; n: number; coverage: number; status: "supported" | "partial" | "unknown";
@@ -319,7 +322,7 @@ export const api = {
       scope: { heading: r.scope.heading, step: r.scope.step, halfWidths: r.scope.half_widths },
       jobs: r.jobs.map((j) => ({
         job: jobFromApi(j.job), pick: j.pick, themeId: j.theme_id, fit: j.fit, role: j.role, angle: j.angle, why: j.why,
-        stretch: j.stretch ?? [], builds: j.builds ?? [],
+        stretch: j.stretch ?? [], builds: j.builds ?? [], areas: j.areas ?? [],
       })),
       requirements: r.requirements.map((q) => ({
         id: q.id, text: q.text, n: q.n, coverage: q.coverage, status: q.status, verify: q.verify ?? false, jobIds: q.job_ids,
