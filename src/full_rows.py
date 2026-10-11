@@ -141,12 +141,95 @@ def cat_map(s, mapping):
 
 
 def relabel(s, func):
-    """Apply func to each category (e.g. trim and lowercase); categories that become equal are merged."""
-    new = pd.Index([func(c) for c in s.cat.categories])
-    uniq = pd.Index(new.unique())
+    """Apply func to each category (e.g. trim and lowercase, or O*NET code -> role bucket); categories that become equal
+    are merged, and a category func maps to None becomes missing."""
+    new = [func(c) for c in s.cat.categories]
+    uniq = pd.Index(pd.unique(pd.Series([v for v in new if v is not None and not pd.isna(v)], dtype=object)))
+    lookup = np.array([uniq.get_loc(v) if v is not None and not pd.isna(v) else -1 for v in new] + [-1], dtype="int64")
     codes = s.cat.codes.to_numpy()
-    mapped = np.where(codes >= 0, uniq.get_indexer(new)[np.maximum(codes, 0)], -1)
+    mapped = lookup[np.where(codes >= 0, codes, len(new))]
     return pd.Series(pd.Categorical.from_codes(mapped, categories=uniq), index=s.index, name=s.name)
+
+
+# ---------- scope-only fields (from the stream's scope parts, which keep every original field) ----------
+
+SCOPE_TABLE = "job_openings_full"
+SCOPE_FIELDS = {  # flattened column -> short name; recruiter names and contacts are never kept
+    "attributes.recruiter_data.title": "recruiter_title",
+    "attributes.salary": "salary_text",
+    "attributes.location": "location_text",
+    "attributes.url": "url",
+    "type": "record_type",
+    "relationships.company.data.type": "company_record_type",
+}
+
+
+def ids_at(positions, root=None, table=ROWS_TABLE):
+    """Listing ids for the given row positions of the rows table (a Series indexed by position)."""
+    pos = np.sort(np.asarray(positions))
+    out, start = [], 0
+    for p in parts(root, table):
+        n = pq.read_metadata(p).num_rows
+        lo, hi = np.searchsorted(pos, [start, start + n])
+        if hi > lo:
+            ids = pq.read_table(p, columns=["id"]).column(0).take(pa.array(pos[lo:hi] - start)).to_pylist()
+            out.append(pd.Series(ids, index=pos[lo:hi], dtype="string"))
+        start += n
+    return pd.concat(out) if out else pd.Series(dtype="string")
+
+
+def _text(v):
+    """A text field as a string; lists and other values written out, missing stays missing."""
+    if isinstance(v, str):
+        return v
+    if v is None or (isinstance(v, float) and np.isnan(v)):
+        return None
+    return str(list(v) if isinstance(v, np.ndarray) else v)
+
+
+def scope_fields(ids, desc_path, root=None):
+    """Fields only the scope listings carry (ids: a Series of listing ids indexed by row position), read part by part from
+    the stream's scope parts:
+      recruiter_key   an anonymous key per recruiter (fingerprint of name and company with a random salt that is made
+                      fresh each run and never saved, so names can't be recovered); missing when no recruiter is named
+      SCOPE_FIELDS    recruiter title, pay and location as written, the url, and the two record types
+    The full description goes to desc_path (Parquet: id, description), not into memory. Returns a DataFrame indexed by
+    row position (missing where a listing isn't in the scope parts)."""
+    import os
+    want = set(ids.dropna())
+    pos_by_id = pd.Series(ids.index, index=ids.to_numpy())
+    salt = os.urandom(16).hex()
+    files = sorted((Path(root or FLAT_DIR) / SCOPE_TABLE).glob("part_*.pkl"))
+    if not files:
+        raise FileNotFoundError(f"No parts in {SCOPE_TABLE}/: run `python -m src.stream_full` first.")
+    writer = pq.ParquetWriter(desc_path, pa.schema([("id", pa.string()), ("description", pa.string())]))
+    frames, seen = [], set()
+    try:
+        for p in files:
+            d = pd.read_pickle(p)
+            keep = [i in want and i not in seen for i in d["id"]]  # set lookups: fast for a million ids
+            d = d[keep].drop_duplicates("id")
+            if d.empty:
+                continue
+            seen.update(d["id"])
+            col = lambda c: d.reindex(columns=[c])[c]
+            name = col("attributes.recruiter_data.name").map(_text).astype("string").str.strip().str.lower()
+            key = salt + "\x1f" + name + "\x1f" + col("relationships.company.data.id").astype("string")
+            out = pd.DataFrame({"id": d["id"].to_numpy(), "recruiter_key": fingerprint(key.reset_index(drop=True))})
+            for c, short in SCOPE_FIELDS.items():
+                out[short] = col(c).map(_text).to_numpy()
+            frames.append(out)
+            writer.write_table(pa.table({"id": d["id"].astype(str).to_numpy(),
+                                         "description": col("attributes.description").map(_text).to_numpy()},
+                                        schema=writer.schema))
+            del d
+    finally:
+        writer.close()
+    out = pd.concat(frames, ignore_index=True)
+    out.index = pos_by_id.loc[out.pop("id")].to_numpy()
+    for short in SCOPE_FIELDS.values():
+        out[short] = out[short].astype("string")
+    return out.reindex(ids.index)
 
 
 # ---------- saving ----------

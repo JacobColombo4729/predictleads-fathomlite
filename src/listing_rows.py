@@ -120,3 +120,31 @@ def lean_part(d):
     out["source_type"] = src.str[0]
     out["platform"] = src.str[1]
     return out
+
+
+# ---------- pay written as text (scope listings: attributes.salary) ----------
+# Used only where salary_data has no numbers. Dollar amounts only; a range's two ends, "k" for thousands.
+AMOUNT = r"\$\s?(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s?([kK])?"
+PAY_RE = re.compile(AMOUNT + r"(?:\s?(?:-|–|—|to)\s?(?:\$\s?)?(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)\s?([kK])?)?")
+PAY_UNITS = [("hour", r"\b(?:hour|hourly|hr|hrs)\b"), ("year", r"\b(?:year|yearly|annual|annually|annum|yr|salary)\b"),
+             ("month", r"\b(?:month|monthly|mo)\b"), ("week", r"\b(?:week|weekly|wk)\b"), ("day", r"\b(?:day|daily)\b")]
+
+
+def pay_from_text(text):
+    """(low, high, unit) from pay written as text ("$85,000 - $95,000 a year", "$40-50/hr", "$120K"); None without a
+    dollar amount. Without a unit word, the size decides: $200 or less is hourly, $10,000 or more is yearly, else None."""
+    if not isinstance(text, str):
+        return None
+    m = PAY_RE.search(text)
+    if not m:
+        return None
+    def amount(num, k):
+        return float(num.replace(",", "")) * (1000 if k else 1)
+    low = amount(m.group(1), m.group(2))
+    high = amount(m.group(3), m.group(4) or m.group(2)) if m.group(3) else low  # "$80-90k": the k applies to both
+    if m.group(3) and m.group(4) and not m.group(2) and low < 1000:
+        low *= 1000
+    unit = next((u for u, pattern in PAY_UNITS if re.search(pattern, text, re.IGNORECASE)), None)
+    if unit is None:
+        unit = "hour" if high <= 200 else "year" if low >= 10_000 else None
+    return (min(low, high), max(low, high), unit) if unit else None
