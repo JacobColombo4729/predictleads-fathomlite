@@ -372,7 +372,7 @@ git commit -m "Short description of what you did"
 git push
 
 # 5. Only when YOU decide the work is ready for everyone (app tests pass, notebooks run): merge it into main.
-#    This is a deliberate step, never routine. Claude Code won't do it unless you explicitly ask (CLAUDE.md).
+#    This is a deliberate step, never routine.
 git switch main
 git pull
 git merge jacob                                # or jesse
