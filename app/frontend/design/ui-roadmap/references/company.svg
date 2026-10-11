@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="550" viewBox="0 0 1100 550">
+<rect width="1100" height="550" fill="#f3f6f7"/>
+<rect width="180" height="550" fill="#173d43"/>
+<text x="20" y="45" fill="white" font-family="Arial" font-size="18">Career Compass</text>
+<text x="20" y="94" fill="white" font-family="Arial" font-size="14">Discover Jobs</text>
+<text x="20" y="143" fill="white" font-family="Arial" font-size="14">Saved Jobs</text>
+<text x="20" y="192" fill="white" font-family="Arial" font-size="14">My Profile</text>
+<text x="20" y="241" fill="white" font-family="Arial" font-size="14">Skills &amp; Paths</text>
+<text x="212" y="48" fill="#173d43" font-family="Arial" font-size="26" font-weight="bold">Job &amp; Company Details</text>
+<text x="212" y="78" fill="#52616b" font-family="Arial" font-size="14">Company-context concept inspired by Welcome to the Jungle; not a site screenshot.</text>
+<rect x="212" y="110" width="850" height="77" rx="10" fill="white" stroke="#dbe4e6"/>
+<text x="231" y="139" font-family="Arial" font-size="17" fill="#173d43" font-weight="bold">Technical Support Specialist — Example Company</text>
+<text x="231" y="165" font-family="Arial" font-size="14" fill="#52616b">Location: Austin | Pay: Not provided | Historical listing; live availability unverified</text>
+<rect x="212" y="201" width="850" height="77" rx="10" fill="white" stroke="#dbe4e6"/>
+<text x="231" y="230" font-family="Arial" font-size="17" fill="#173d43" font-weight="bold">Why this could fit</text>
+<text x="231" y="256" font-family="Arial" font-size="14" fill="#52616b">Ticket handling matches your support experience. View candidate and job evidence.</text>
+<rect x="212" y="292" width="850" height="77" rx="10" fill="white" stroke="#dbe4e6"/>
+<text x="231" y="321" font-family="Arial" font-size="17" fill="#173d43" font-weight="bold">About the company</text>
+<text x="231" y="347" font-family="Arial" font-size="14" fill="#52616b">What the company does · Domain · Source description · Unknown values visible</text>
+<rect x="212" y="383" width="850" height="77" rx="10" fill="white" stroke="#dbe4e6"/>
+<text x="231" y="412" font-family="Arial" font-size="17" fill="#173d43" font-weight="bold">Requirements to check</text>
+<text x="231" y="438" font-family="Arial" font-size="14" fill="#52616b">Networking experience required | Training evidenced; professional experience unclear</text>
+<text x="212" y="523" font-family="Arial" font-size="12" fill="#52616b">Original layout sketch • Fictional content • Adapt to the approved app styling</text></svg>

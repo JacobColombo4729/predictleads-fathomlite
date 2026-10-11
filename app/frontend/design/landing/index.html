@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Landing page preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0d0d0d; --text:#f2f2ee; --muted:#b6c9c5; --accent:#34b3a6; --accent-strong:#5fd0c4; --ink:#06201d; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font-family: "DM Sans", system-ui, sans-serif; }
+  .hero { position: relative; min-height: 100vh; overflow: hidden; display: grid; place-items: center; padding: 32px 20px 48px; cursor: none; }
+  #lights { position: absolute; inset: 0; pointer-events: none; }
+  .content { position: relative; text-align: center; max-width: 880px; }
+  .fish { display: block; width: min(92vw, 760px); margin: 0 auto; animation: bob 6s ease-in-out infinite; }
+  h1 { font-family: "Chakra Petch", system-ui, sans-serif; font-weight: 700; font-size: clamp(30px, 5.2vw, 52px); line-height: 1.12; margin: 4px 0 16px; letter-spacing: 0.2px; }
+  p.sub { font-size: clamp(16px, 2.2vw, 20px); line-height: 1.65; color: var(--muted); max-width: 640px; margin: 0 auto 28px; }
+  .cta { display: inline-block; font-family: "Chakra Petch", system-ui, sans-serif; font-weight: 700; font-size: 17px; letter-spacing: 0.7px; text-transform: uppercase; background: var(--accent); color: var(--ink); padding: 14px 30px; border-radius: 6px; border: 2px solid var(--accent-strong); text-decoration: none; cursor: pointer; }
+  .cta:hover { background: var(--accent-strong); }
+  .cta:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  .by { font-family: "Chakra Petch", system-ui, sans-serif; font-weight: 500; font-size: 13px; letter-spacing: 1.8px; text-transform: uppercase; color: var(--accent-strong); margin-top: 26px; }
+  .w { transition: opacity 0.15s; }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+  @media (hover: none) { .hero { cursor: auto; } }
+  @media (prefers-reduced-motion: reduce) { .fish { animation: none; } .w { transition: none; } }
+</style>
+</head>
+<body>
+<main class="hero" id="hero">
+  <div id="lights" aria-hidden="true"></div>
+  <div class="content">
+    <img id="fish" class="fish" src="./anglerfish.svg" alt="A teal anglerfish with a glowing lure">
+    <h1><span class="w">Job</span> <span class="w">searching</span> <span class="w">can</span> <span class="w">feel</span> <span class="w">like</span> <span class="w">navigating</span> <span class="w">deep</span> <span class="w">water.</span></h1>
+    <p class="sub"><span class="w">Let</span> <span class="w">us</span> <span class="w">provide</span> <span class="w">the</span> <span class="w">light</span> <span class="w">in</span> <span class="w">the</span> <span class="w">depths</span> <span class="w">of</span> <span class="w">that</span> <span class="w">sea</span> <span class="w">so</span> <span class="w">you</span> <span class="w">can</span> <span class="w">discover</span> <span class="w">what's</span> <span class="w">next.</span></p>
+    <a class="cta" href="#/profile">Create your profile</a>
+    <div class="by w">— Built for PredictLeads</div>
+  </div>
+</main>
+<script>
+(function () {
+  var hero = document.getElementById("hero"), fish = document.getElementById("fish"), lights = document.getElementById("lights");
+  var words = hero.querySelectorAll(".w"), radii = [230, 175, 128, 88], opacity = [0.045, 0.07, 0.11, 0.17], rings = [];
+  var calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  radii.forEach(function (r, i) {
+    var c = document.createElement("div");
+    c.style.cssText = "position:absolute;border-radius:50%;background:#5fd0c4;width:" + r * 2 + "px;height:" + r * 2 + "px;opacity:" + opacity[i];
+    lights.appendChild(c); rings.push(c);
+  });
+  function lightAt(x, y) {
+    rings.forEach(function (c, i) { c.style.left = x - radii[i] + "px"; c.style.top = y - radii[i] + "px"; });
+    var b = hero.getBoundingClientRect();
+    words.forEach(function (w) {
+      var r = w.getBoundingClientRect(), cx = r.left + r.width / 2 - b.left, cy = r.top + r.height / 2 - b.top;
+      var d = Math.sqrt((cx - x) * (cx - x) + (cy - y) * (cy - y));
+      w.style.opacity = Math.max(0.28, Math.min(1, 1.25 - d / 300)).toFixed(2);
+    });
+  }
+  var sub = hero.querySelector(".sub");
+  function rest() { var h = hero.getBoundingClientRect(), r = sub.getBoundingClientRect(); lightAt(r.left - h.left + r.width / 2, r.top - h.top + r.height * 0.1); }
+  function start() { rest(); }
+  if (fish.complete) start(); else fish.addEventListener("load", start);
+  window.addEventListener("resize", rest);
+  if (calm) { words.forEach(function (w) { w.style.opacity = 1; }); return; }
+  hero.addEventListener("mousemove", function (e) { var b = hero.getBoundingClientRect(); lightAt(e.clientX - b.left, e.clientY - b.top); });
+  hero.addEventListener("mouseleave", rest);
+})();
+</script>
+</body>
+</html>
