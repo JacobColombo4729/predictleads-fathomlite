@@ -246,6 +246,22 @@ class CompassAnalysisTests(unittest.TestCase):
         self.assertIn(opposite["a2"], {"b", "b2"})
         self.assertEqual(compass._pole_layout(["a"], centroids), {"a": 0.0})
 
+    def test_every_job_gets_skill_areas_in_a_fixed_order(self) -> None:
+        result = self.run_analysis(self.PICKS)
+        order = [a[0] for a in compass.SKILL_AREAS]
+        for job in result["jobs"]:
+            areas = job["areas"]
+            self.assertEqual([a["id"] for a in areas], order)
+            self.assertEqual(max(a["asked"] for a in areas if a["id"] != compass.CREDENTIALS_AREA), 100)
+            for area in areas:
+                if area["id"] == compass.CREDENTIALS_AREA or area["lines"] == 0:
+                    self.assertIsNone(area["shown"])
+                else:
+                    self.assertTrue(0 <= area["shown"] <= 100)
+        # "At least 5 years of experience ..." is a credential line, never scored
+        sales = next(j for j in result["jobs"] if j["job_id"] == "sales-0")
+        self.assertGreater(next(a for a in sales["areas"] if a["id"] == compass.CREDENTIALS_AREA)["lines"], 0)
+
     def test_boilerplate_never_becomes_a_requirement(self) -> None:
         result = self.run_analysis(self.PICKS)
         for req in result["requirements"]:

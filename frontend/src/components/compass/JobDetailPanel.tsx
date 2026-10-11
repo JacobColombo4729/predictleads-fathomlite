@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { CompassJob, CompassResult } from "../../types";
 import { STATUS_LABEL, TIER_NAME, requirementShortName, themeColor, tierOf } from "../../lib/compass";
 import { ExternalIcon } from "../Icons";
+import StrengthRadar from "./StrengthRadar";
 
 interface Props {
   result: CompassResult;
@@ -71,6 +72,9 @@ export default function JobDetailPanel({ result, job, stretch, saved, onSave, sc
       <div className="cp-sub">Fit to your profile</div>
       <div className="cp-meter" role="img" aria-label={`Fit ${job.fit} out of 100`}><i style={{ width: `${meter}%` }} /></div>
       <p className="cp-sub cp-gap-sm">{job.fit}% similarity to your profile, scaled against all listings. This is a similarity score, not a chance of being hired.</p>
+
+      <div className="cp-eyebrow">Strengths and gaps</div>
+      <StrengthRadar job={job} />
 
       <div className="cp-eyebrow">Why it fits</div>
       {job.why.length === 0 ? (

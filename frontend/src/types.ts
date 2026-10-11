@@ -154,6 +154,21 @@ export interface CompassRequirement {
   jobIds: string[];
 }
 
+/** One spoke of a job's strengths radar: a broad area of the listing's requirement lines. */
+export interface CompassAreaScore {
+  id: string;
+  name: string;
+  /** How much of the listing's requirement text is in this area; the most-asked scored area is 100. */
+  asked: number;
+  /** Requirement lines in this area. */
+  lines: number;
+  /** 0-100 closeness of the profile's lines to this area's requirements; null with no lines or for credentials, which similarity can't judge. */
+  shown: number | null;
+}
+
+/** Credentials & eligibility: never scored, so it gets no spoke. */
+export const CREDENTIALS_AREA = "credentials";
+
 export interface CompassWhy {
   evidence: string;
   source: string;
@@ -175,6 +190,8 @@ export interface CompassJob {
   stretch: string[];
   /** For suggestions: requirement groups the job would help build. */
   builds: string[];
+  /** This job's requirement lines by skill area. */
+  areas: CompassAreaScore[];
 }
 
 export interface CompassStep {
