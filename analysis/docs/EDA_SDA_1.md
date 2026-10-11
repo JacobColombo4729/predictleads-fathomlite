@@ -196,7 +196,7 @@ The share of postings missing each field we plan to use. It shows what each anal
 
 ### 6.8 Crawl artifacts (flagged, kept)
 
-Two ways the crawler, not the employer, shapes the dates (measured on the hackathon app's corpus too, `docs/hackathon_alignment.md`):
+Two ways the crawler, not the employer, shapes the dates (measured on the hackathon app's corpus too):
 - **Batch first sightings:** when PredictLeads adds a company to its crawl, every listing already on its site is "first seen" the same day. That's not a hiring surge, but it inflates company volume, weekly arrivals and freshness.
 - **Crawl dropouts:** when the crawler loses a site, its listings "disappear" the same day. That's not jobs closing, and it cuts days open short.
 
