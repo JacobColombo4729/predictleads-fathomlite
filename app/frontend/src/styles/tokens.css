@@ -1,0 +1,88 @@
+:root {
+  /* Color */
+  --bg: #f4f6f8;
+  --surface: #ffffff;
+  --surface-muted: #f8fafb;
+  --border: #e2e7ec;
+  --border-strong: #c9d1d9;
+  --text: #17202a;
+  --text-muted: #5b6672;
+  --accent: #0069c8;
+  --accent-strong: #004e96;
+  --accent-soft: #e3f1ff;
+  --info: #1d4ed8;
+  --info-soft: #e8effd;
+  --neutral-soft: #eef1f4;
+  --warn-text: #8a4b08;
+  --warn-soft: #fdf1e1;
+  --focus: #0086ff;
+  --accent-ink: #ffffff;            /* text on an accent-coloured button */
+  --accent-border: #a9d0f5;
+  --info-border: #bfd0f7;
+  --warn-border: #f1d9b5;
+  --violet: #5b3aa8; --violet-soft: #efe9fb; --violet-border: #d3c5f2;
+  --danger: #b42318; --danger-soft: #fdecea; --danger-ink: #7a1c14; --danger-border: #f3b9b3;
+  /* inverse surfaces (toast, send bar, chart tooltip) */
+  --inverse-bg: #17202a; --inverse-fg: #ffffff; --inverse-accent: #7fd8ff; --inverse-quiet: #b6c0cb;
+  --shadow-card: 0 1px 2px rgba(23, 32, 42, 0.05), 0 8px 24px rgba(23, 32, 42, 0.05);
+  --shadow-pop: 0 6px 20px rgba(0, 0, 0, 0.25);
+  color-scheme: light;
+
+  /* Type */
+  --font: "Montserrat", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 20px;
+  --lh: 1.5;
+
+  /* Space */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+
+  /* Radius */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(23, 32, 42, 0.06);
+  --nav-w: 76px;
+}
+
+
+/* FathomLite dark theme (default; the toggle in the side nav switches to light).
+   Palette: Electric Blue #00E5FF, Sky Blue #0086FF, Deep Navy #0B2A4A, Midnight #05101F, White, Light Cyan #9EEBFF. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #05101f;
+  --surface: #081a2e;
+  --surface-muted: #0b2543;
+  --border: #123556;
+  --border-strong: #1e4f7f;
+  --text: #f2faff;
+  --text-muted: #8fb6d4;
+  --accent: #00e5ff;
+  --accent-strong: #9eebff;
+  --accent-soft: #08354f;
+  --info: #4da3ff;
+  --info-soft: #0b2a4d;
+  --neutral-soft: #0f2a45;
+  --warn-text: #f0b469;
+  --warn-soft: #2b2414;
+  --focus: #00e5ff;
+  --accent-ink: #03121f;
+  --accent-border: #0e5a78;
+  --info-border: #1b4c86;
+  --warn-border: #5a4426;
+  --violet: #b9a3f5; --violet-soft: #1d2147; --violet-border: #3d3f85;
+  --danger: #ff8a80; --danger-soft: #33191f; --danger-ink: #ffb4ab; --danger-border: #6b2b34;
+  --inverse-bg: #e6f7ff; --inverse-fg: #05101f; --inverse-accent: #0069c8; --inverse-quiet: #3c5870;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.45), 0 8px 24px rgba(0, 8, 24, 0.45);
+  --shadow-pop: 0 6px 20px rgba(0, 0, 0, 0.6);
+  --glow: 0 0 0 1px rgba(0, 229, 255, 0.28), 0 0 22px rgba(0, 229, 255, 0.16);
+}

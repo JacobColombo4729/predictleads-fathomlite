@@ -1,0 +1,47 @@
+/* Ask the market. Placeholder text is light gray, as a sample question. */
+.mk { margin-bottom: var(--s4); }
+.mk-form { display: flex; gap: 10px; flex-wrap: wrap; }
+.mk-input { flex: 1 1 320px; padding: 11px 14px; border: 1px solid var(--border-strong); border-radius: var(--r-md); background: var(--surface-muted); color: var(--text); font: inherit; font-size: var(--fs-md); }
+.mk-input::placeholder { color: var(--text-muted); opacity: 0.55; }
+.mk-input:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+.mk-examples { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+.mk-disclosure { margin-top: 8px; }
+.mk-answer, .mk-unsupported { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; }
+.mk-q { margin: 0 0 8px; font-weight: 650; }
+.mk-read .cp-chips { margin: 6px 0 12px; }
+.mk-chip { display: inline-flex; align-items: center; gap: 6px; padding: 2px 6px 2px 10px; border-radius: 999px; border: 1px solid var(--border-strong); background: var(--surface-muted); font-size: var(--fs-sm); }
+.mk-chip b { font-weight: 600; color: var(--text-muted); }
+.mk-chip button { background: none; border: 0; color: var(--text-muted); font-size: 16px; line-height: 1; cursor: pointer; padding: 0 4px; border-radius: 50%; }
+.mk-chip button:hover:not(:disabled) { color: var(--text); background: var(--border); }
+.mk-notes { margin: 0 0 12px; padding: 8px 12px 8px 28px; border: 1px solid var(--warn-border); background: var(--warn-soft); color: var(--warn-text); border-radius: var(--r-md); font-size: var(--fs-sm); display: grid; gap: 4px; }
+.mk-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+.mk-item { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 12px 14px; }
+.mk-item__main { display: grid; grid-template-columns: minmax(150px, 1.3fr) auto minmax(130px, 1fr) 132px; gap: 14px; align-items: center; }
+.mk-item__who { display: grid; min-width: 0; }
+.mk-item__name { font-weight: 650; overflow: hidden; text-overflow: ellipsis; }
+.mk-item__sub { font-size: var(--fs-xs); color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mk-item__num { display: grid; }
+.mk-item__num strong { font-size: 20px; line-height: 1.1; }
+.mk-item__num span { font-size: var(--fs-xs); color: var(--text-muted); }
+.mk-item__meta { margin: 8px 0 0; font-size: var(--fs-sm); }
+.mk-item__actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.mk-research { display: grid; gap: 8px; }
+.mk-research__label { margin: 0; font-size: var(--fs-xs); font-weight: 600; color: var(--violet); background: var(--violet-soft); border: 1px solid var(--violet-border); border-radius: var(--r-pill); padding: 2px 10px; width: fit-content; }
+.mk-research__src ul { margin: 4px 0 0; padding-left: 18px; display: grid; gap: 2px; }
+.mk-compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 10px; }
+.mk-compare__col { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 14px; display: grid; gap: 8px; align-content: start; }
+.mk-compare__col h3 { margin: 0; font-size: 17px; }
+.mk-compare__col h4 { margin: 6px 0 0; font-size: var(--fs-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.mk-table { width: 100%; margin-top: 8px; }
+.mk-bar { display: inline-block; width: 90px; height: 8px; background: var(--neutral-soft); border-radius: 4px; vertical-align: middle; overflow: hidden; margin-right: 6px; }
+.mk-bar i { display: block; height: 100%; background: var(--accent); }
+.mk-asof { margin-top: 12px; }
+@media (max-width: 900px) { .mk-item__main { grid-template-columns: minmax(0, 1fr) auto; } .mk-item__num, .mk-item__main svg { grid-column: 1 / -1; } }
+
+/* Talk button */
+.mk-talk { display: inline-flex; align-items: center; gap: 8px; }
+.mk-talk.is-recording { background: var(--danger-soft); color: var(--danger-ink); border-color: var(--danger-border); font-weight: 600; }
+.mk-talk.is-recording svg { animation: mk-pulse 1.1s ease-in-out infinite; }
+.mk-listening { margin: 8px 0 0; color: var(--danger-ink); }
+@keyframes mk-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .mk-talk.is-recording svg { animation: none; } }

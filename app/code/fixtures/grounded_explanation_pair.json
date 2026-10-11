@@ -1,0 +1,28 @@
+{
+  "candidate": {
+    "profile_id": "synthetic_customer_support_technical_training",
+    "experience": [
+      "customer service, issue triage, account support, and escalation handling"
+    ],
+    "evidenced_skills": [
+      "customer communication",
+      "ticket documentation",
+      "basic networking coursework",
+      "C++ training project"
+    ],
+    "desired_roles": [
+      "technical support specialist",
+      "help desk analyst",
+      "customer success engineer"
+    ],
+    "location": "Chicago",
+    "preferences": {
+      "keywords": ["troubleshooting", "technical training"]
+    }
+  },
+  "job": {
+    "job_id": "synthetic_technical_support_001",
+    "title": "Technical Support Specialist",
+    "description_text": "Responsibilities\n- Triage customer-reported software issues and document reproducible steps.\n- Explain troubleshooting steps to customer teams.\n\nRequired Qualifications\n- Demonstrated experience supporting customers with software products.\n- Familiarity with TCP/IP networking.\n\nPreferred Qualifications\n- Experience with SQL queries is preferred.\n\nAbout the company\nFictional software provider for small businesses."
+  }
+}

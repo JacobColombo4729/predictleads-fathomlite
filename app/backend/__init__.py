@@ -1,0 +1,1 @@
+"""Minimal demo API for the PredictLeads job seeker prototype."""

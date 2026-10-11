@@ -1,0 +1,481 @@
+{
+ "note": "Fictional candidates written before any retrieval for the AI/ML and technical-sales direction. Drafts: edit freely. Real consented profiles live under data/candidates/ (ignored by Git).",
+ "profiles": [
+  {
+   "profile_id": "ai_teacher_to_ai_training",
+   "fixture_type": "career_transition",
+   "synthetic_fixture": true,
+   "work_history": [
+    "Eight years teaching high school mathematics and statistics, building lesson sequences and grading rubrics.",
+    "Analyzed class assessment results in spreadsheets to adjust instruction and report to the department.",
+    "Completed a part-time online introduction to Python and data analysis course."
+   ],
+   "accomplishments": [
+    "Wrote a rubric used across the department to score open-ended problem solutions consistently.",
+    "Built a spreadsheet tracker of student growth by standard."
+   ],
+   "experience_level": "experienced educator, 8 years; beginner in programming",
+   "skills_with_evidence": [
+    {
+     "skill": "rubric design and consistent scoring",
+     "evidence": "wrote a department scoring rubric for open-ended solutions"
+    },
+    {
+     "skill": "spreadsheet analysis",
+     "evidence": "tracked assessment results by standard in spreadsheets"
+    },
+    {
+     "skill": "explaining technical ideas",
+     "evidence": "taught statistics to high school students"
+    },
+    {
+     "skill": "introductory Python",
+     "evidence": "completed a part-time online Python and data analysis course"
+    }
+   ],
+   "education_certifications": [
+    "Bachelor of Science in mathematics education",
+    "State teaching license"
+   ],
+   "qualification_disclosures": {
+    "explicit_absence": [],
+    "unknown": [
+     "SQL",
+     "Machine learning model building",
+     "Annotation or data labeling tool experience"
+    ]
+   },
+   "desired_roles": [
+    "AI training specialist",
+    "data analyst",
+    "learning and development specialist"
+   ],
+   "career_transition_goal": "Use teaching, rubric writing and statistics to move into AI data training, evaluation or entry-level data work.",
+   "location": "Columbus, Ohio",
+   "work_arrangement_preferences": [
+    "remote or hybrid"
+   ],
+   "soft_preferences": [],
+   "hard_constraints": {
+    "exclude_explicitly_closed": true,
+    "require_location_match": false,
+    "location_requirement": null
+   }
+  },
+  {
+   "profile_id": "ai_nurse_to_health_data",
+   "fixture_type": "career_transition",
+   "synthetic_fixture": true,
+   "work_history": [
+    "Six years as a hospital registered nurse on a medical-surgical unit using an electronic health record daily.",
+    "Charted patient assessments, flagged abnormal results and escalated to physicians.",
+    "Precepted new nurses and helped test a new medication-scanning workflow before rollout."
+   ],
+   "accomplishments": [
+    "Reported documentation errors that led to a revised charting template.",
+    "Participated in a unit quality project tracking fall rates."
+   ],
+   "experience_level": "experienced clinician, 6 years; no formal data role",
+   "skills_with_evidence": [
+    {
+     "skill": "electronic health record documentation",
+     "evidence": "daily charting in a hospital EHR"
+    },
+    {
+     "skill": "clinical workflow testing",
+     "evidence": "helped test a medication-scanning workflow"
+    },
+    {
+     "skill": "quality tracking",
+     "evidence": "participated in a fall-rate quality project"
+    },
+    {
+     "skill": "basic SQL",
+     "evidence": "completed an online SQL beginner course"
+    }
+   ],
+   "education_certifications": [
+    "Bachelor of Science in nursing",
+    "Registered nurse license"
+   ],
+   "qualification_disclosures": {
+    "explicit_absence": [],
+    "unknown": [
+     "Python",
+     "Health data standards such as HL7 or FHIR",
+     "Statistics beyond basics"
+    ]
+   },
+   "desired_roles": [
+    "clinical data analyst",
+    "health informatics analyst",
+    "clinical AI implementation specialist"
+   ],
+   "career_transition_goal": "Move from bedside nursing into health data analysis or implementing clinical AI tools.",
+   "location": "Nashville, Tennessee",
+   "work_arrangement_preferences": [
+    "remote or hybrid"
+   ],
+   "soft_preferences": [],
+   "hard_constraints": {
+    "exclude_explicitly_closed": true,
+    "require_location_match": false,
+    "location_requirement": null
+   }
+  },
+  {
+   "profile_id": "ai_support_lead_to_solutions_engineer",
+   "fixture_type": "career_transition",
+   "synthetic_fixture": true,
+   "work_history": [
+    "Five years in SaaS customer support, the last two as support team lead.",
+    "Reproduced customer bugs, read API logs and wrote clear reproduction steps for engineering.",
+    "Ran product walkthroughs for enterprise customers during onboarding."
+   ],
+   "accomplishments": [
+    "Reduced repeat tickets by writing a troubleshooting guide for the public API.",
+    "Mentored four new support agents."
+   ],
+   "experience_level": "mid-level, 5 years support",
+   "skills_with_evidence": [
+    {
+     "skill": "API troubleshooting",
+     "evidence": "used API logs and Postman to reproduce customer issues"
+    },
+    {
+     "skill": "customer walkthroughs",
+     "evidence": "ran onboarding product walkthroughs"
+    },
+    {
+     "skill": "technical writing",
+     "evidence": "wrote a public API troubleshooting guide"
+    },
+    {
+     "skill": "SQL basics",
+     "evidence": "wrote simple queries to pull account data"
+    }
+   ],
+   "education_certifications": [
+    "Associate degree in business"
+   ],
+   "qualification_disclosures": {
+    "explicit_absence": [],
+    "unknown": [
+     "Scripting or programming beyond SQL",
+     "Cloud platform certification",
+     "Quota-carrying sales experience"
+    ]
+   },
+   "desired_roles": [
+    "solutions engineer",
+    "technical support engineer",
+    "customer success engineer"
+   ],
+   "career_transition_goal": "Move from support leadership into pre-sales or solutions engineering at an AI or data product company.",
+   "location": "Denver, Colorado",
+   "work_arrangement_preferences": [
+    "remote or hybrid"
+   ],
+   "soft_preferences": [],
+   "hard_constraints": {
+    "exclude_explicitly_closed": true,
+    "require_location_match": false,
+    "location_requirement": null
+   }
+  },
+  {
+   "profile_id": "ai_finance_analyst_to_data_scientist",
+   "fixture_type": "career_transition",
+   "synthetic_fixture": true,
+   "work_history": [
+    "Four years as a financial planning analyst building monthly forecasts and variance reports.",
+    "Built Excel models and wrote SQL queries against the finance data warehouse.",
+    "Used Python in a notebook to test a simple revenue forecast."
+   ],
+   "accomplishments": [
+    "Automated a monthly reporting pack, saving analyst hours each close.",
+    "Presented forecast results to finance leadership."
+   ],
+   "experience_level": "mid-level analyst, 4 years",
+   "skills_with_evidence": [
+    {
+     "skill": "financial forecasting",
+     "evidence": "built monthly forecasts and variance reports"
+    },
+    {
+     "skill": "SQL",
+     "evidence": "wrote queries against a finance data warehouse"
+    },
+    {
+     "skill": "Excel modeling",
+     "evidence": "built forecast models"
+    },
+    {
+     "skill": "introductory Python",
+     "evidence": "tested a revenue forecast in a notebook"
+    }
+   ],
+   "education_certifications": [
+    "Bachelor of Business Administration, finance",
+    "Completed an online machine learning fundamentals course"
+   ],
+   "qualification_disclosures": {
+    "explicit_absence": [],
+    "unknown": [
+     "Machine learning model deployment",
+     "Advanced statistics",
+     "Cloud data tools"
+    ]
+   },
+   "desired_roles": [
+    "data scientist",
+    "data analyst",
+    "business intelligence analyst"
+   ],
+   "career_transition_goal": "Move from financial analysis to data science using forecasting, SQL and early Python skills.",
+   "location": "Charlotte, North Carolina",
+   "work_arrangement_preferences": [
+    "remote or hybrid"
+   ],
+   "soft_preferences": [],
+   "hard_constraints": {
+    "exclude_explicitly_closed": true,
+    "require_location_match": false,
+    "location_requirement": null
+   }
+  },
+  {
+   "profile_id": "ai_ops_manager_untitled",
+   "fixture_type": "career_transition",
+   "synthetic_fixture": true,
+   "work_history": [
+    "Ran a regional warehouse operation for nine years, managing about forty people across shifts.",
+    "Looked at daily dashboards for pick rates and late orders, and changed schedules based on them.",
+    "Worked with a vendor to set up a new scanning system and an automated report."
+   ],
+   "accomplishments": [
+    "Cut late orders after changing slotting and shift handoffs.",
+    "Learned a dashboard tool on my own to build a weekly metrics view."
+   ],
+   "experience_level": "senior operations manager, 9 years",
+   "skills_with_evidence": [
+    {
+     "skill": "operations metrics",
+     "evidence": "tracked pick rates and late orders on dashboards"
+    },
+    {
+     "skill": "process improvement",
+     "evidence": "changed slotting and shift handoffs to cut late orders"
+    },
+    {
+     "skill": "dashboard building",
+     "evidence": "built a weekly metrics view in a dashboard tool"
+    },
+    {
+     "skill": "vendor implementation",
+     "evidence": "worked with a vendor on a new scanning system"
+    }
+   ],
+   "education_certifications": [
+    "High school diploma",
+    "Some community college coursework"
+   ],
+   "qualification_disclosures": {
+    "explicit_absence": [],
+    "unknown": [
+     "SQL",
+     "Python",
+     "Statistics"
+    ]
+   },
+   "desired_roles": [],
+   "career_transition_goal": "I want to work more with data and automation and less with day-to-day firefighting.",
+   "location": "Memphis, Tennessee",
+   "work_arrangement_preferences": [
+    "on-site or hybrid"
+   ],
+   "soft_preferences": [],
+   "hard_constraints": {
+    "exclude_explicitly_closed": true,
+    "require_location_match": false,
+    "location_requirement": null
+   }
+  },
+  {
+   "profile_id": "ai_marketer_untitled",
+   "fixture_type": "career_transition",
+   "synthetic_fixture": true,
+   "work_history": [
+    "Five years in content and email marketing for a software company.",
+    "Ran A/B tests on email subject lines and landing pages and read the results in analytics dashboards.",
+    "Wrote product explainers about new features with the product team."
+   ],
+   "accomplishments": [
+    "Grew newsletter signups by testing page layouts.",
+    "Learned basic SQL to pull campaign data myself."
+   ],
+   "experience_level": "mid-level marketer, 5 years",
+   "skills_with_evidence": [
+    {
+     "skill": "A/B testing",
+     "evidence": "ran subject line and landing page tests"
+    },
+    {
+     "skill": "analytics reporting",
+     "evidence": "read campaign results in analytics dashboards"
+    },
+    {
+     "skill": "product communication",
+     "evidence": "wrote feature explainers with product managers"
+    },
+    {
+     "skill": "basic SQL",
+     "evidence": "pulled campaign data with SQL"
+    }
+   ],
+   "education_certifications": [
+    "Bachelor of Arts in communications"
+   ],
+   "qualification_disclosures": {
+    "explicit_absence": [],
+    "unknown": [
+     "Python",
+     "Statistical testing methods",
+     "Machine learning"
+    ]
+   },
+   "desired_roles": [],
+   "career_transition_goal": "I am interested in AI products and want a job closer to building or explaining them.",
+   "location": "Seattle, Washington",
+   "work_arrangement_preferences": [
+    "remote or hybrid"
+   ],
+   "soft_preferences": [],
+   "hard_constraints": {
+    "exclude_explicitly_closed": true,
+    "require_location_match": false,
+    "location_requirement": null
+   }
+  },
+  {
+   "profile_id": "ai_lab_tech_to_ml",
+   "fixture_type": "career_transition",
+   "synthetic_fixture": true,
+   "work_history": [
+    "Seven years as a laboratory technician running assays and logging instrument results.",
+    "Cleaned and plotted experiment data in R and Excel; ran t-tests and regressions for project reports.",
+    "Documented standard operating procedures and validated new instruments."
+   ],
+   "accomplishments": [
+    "Spotted a calibration drift by plotting control samples over time.",
+    "Wrote an R script that replaced a manual data cleanup step."
+   ],
+   "experience_level": "experienced technician, 7 years",
+   "skills_with_evidence": [
+    {
+     "skill": "experimental data analysis",
+     "evidence": "cleaned and plotted assay data in R and Excel"
+    },
+    {
+     "skill": "statistical testing",
+     "evidence": "ran t-tests and regressions for reports"
+    },
+    {
+     "skill": "R scripting",
+     "evidence": "wrote an R script to automate a cleanup step"
+    },
+    {
+     "skill": "procedure documentation",
+     "evidence": "wrote standard operating procedures"
+    }
+   ],
+   "education_certifications": [
+    "Bachelor of Science in biology"
+   ],
+   "qualification_disclosures": {
+    "explicit_absence": [],
+    "unknown": [
+     "Python",
+     "Machine learning",
+     "Version control"
+    ]
+   },
+   "desired_roles": [
+    "data scientist",
+    "research associate machine learning",
+    "data analyst"
+   ],
+   "career_transition_goal": "Move from laboratory work to data science or applied machine learning using statistics and R.",
+   "location": "Boston, Massachusetts",
+   "work_arrangement_preferences": [
+    "remote or hybrid"
+   ],
+   "soft_preferences": [],
+   "hard_constraints": {
+    "exclude_explicitly_closed": true,
+    "require_location_match": false,
+    "location_requirement": null
+   }
+  },
+  {
+   "profile_id": "ai_inside_sales_to_presales",
+   "fixture_type": "career_transition",
+   "synthetic_fixture": true,
+   "work_history": [
+    "Three years as an inside sales representative selling software subscriptions to small businesses.",
+    "Ran product demos by video and answered technical questions with help from a sales engineer.",
+    "Qualified leads and kept CRM records."
+   ],
+   "accomplishments": [
+    "Hit quota in eight of twelve quarters.",
+    "Built a one-page comparison sheet used by the team in demos."
+   ],
+   "experience_level": "early career, 3 years sales",
+   "skills_with_evidence": [
+    {
+     "skill": "product demos",
+     "evidence": "delivered video demos to prospects"
+    },
+    {
+     "skill": "lead qualification",
+     "evidence": "qualified leads and kept CRM records"
+    },
+    {
+     "skill": "customer discovery",
+     "evidence": "asked discovery questions on calls"
+    },
+    {
+     "skill": "competitive comparison",
+     "evidence": "built a one-page comparison sheet"
+    }
+   ],
+   "education_certifications": [
+    "Bachelor of Arts in business"
+   ],
+   "qualification_disclosures": {
+    "explicit_absence": [],
+    "unknown": [
+     "Programming",
+     "Cloud or networking knowledge",
+     "Technical certification"
+    ]
+   },
+   "desired_roles": [
+    "pre-sales engineer",
+    "sales engineer",
+    "technical sales specialist"
+   ],
+   "career_transition_goal": "Move from inside sales into a technical pre-sales role for AI or data software.",
+   "location": "Atlanta, Georgia",
+   "work_arrangement_preferences": [
+    "remote or hybrid"
+   ],
+   "soft_preferences": [],
+   "hard_constraints": {
+    "exclude_explicitly_closed": true,
+    "require_location_match": false,
+    "location_requirement": null
+   }
+  }
+ ]
+}

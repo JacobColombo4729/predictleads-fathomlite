@@ -1,0 +1,258 @@
+{
+  "development": [
+    {
+      "profile_id": "dev_museum_collections_to_records_control",
+      "fixture_type": "career_transition",
+      "synthetic_fixture": true,
+      "work_history": [
+        "Six years coordinating museum object intake, location records, condition photographs, and researcher requests across a small collections store.",
+        "Checked accession paperwork against object labels, flagged discrepancies, and routed conservation concerns to the registrar.",
+        "Prepared monthly inventory exception lists and coordinated supervised moves between storage and gallery locations."
+      ],
+      "accomplishments": [
+        "Introduced a shelf-location cross-check that reduced time spent resolving missing-object requests.",
+        "Created a handoff log connecting object moves to staff owners and return dates."
+      ],
+      "experience_level": "experienced, 6 years",
+      "skills_with_evidence": [
+        {"skill": "records accuracy", "evidence": "matched accession paperwork, labels, and location records"},
+        {"skill": "inventory exceptions", "evidence": "prepared monthly exception lists and routed discrepancies"},
+        {"skill": "controlled handoffs", "evidence": "logged supervised object moves with owners and return dates"}
+      ],
+      "education_certifications": ["Bachelor of arts in art history", "No formal records-management certification claimed"],
+      "qualification_disclosures": {"explicit_absence": [], "unknown": ["Government records-retention schedule experience", "Electronic document-management platform experience"]},
+      "desired_roles": ["records control assistant", "document control coordinator", "inventory records specialist"],
+      "career_transition_goal": "Transfer item traceability and discrepancy resolution into structured records work without claiming government compliance experience.",
+      "location": "Albany, New York",
+      "work_arrangement_preferences": ["on-site or hybrid", "day schedule preferred"],
+      "soft_preferences": ["accurate records", "clear audit trails", "public-serving organization"],
+      "hard_constraints": {"exclude_explicitly_closed": true, "require_location_match": false, "location_requirement": null}
+    },
+    {
+      "profile_id": "dev_brewery_cellar_to_water_operations",
+      "fixture_type": "career_transition",
+      "synthetic_fixture": true,
+      "work_history": [
+        "Five years supporting a small beverage production cellar, tracking batch steps, cleaning schedules, tank transfers, and packaging handoffs.",
+        "Recorded temperature and sanitation checks, isolated out-of-range readings, and alerted the production lead before release.",
+        "Coordinated ingredient deliveries and shift coverage around scheduled production runs."
+      ],
+      "accomplishments": [
+        "Reorganized a daily check sheet so readings were tied to vessel IDs, timestamps, and the person completing the task.",
+        "Documented a recurring transfer-hose issue for maintenance follow-up."
+      ],
+      "experience_level": "mid-level, 5 years",
+      "skills_with_evidence": [
+        {"skill": "process monitoring", "evidence": "recorded temperature and sanitation checks by vessel and time"},
+        {"skill": "exception escalation", "evidence": "isolated out-of-range readings and alerted the production lead"},
+        {"skill": "shift coordination", "evidence": "matched ingredient deliveries and coverage to production runs"}
+      ],
+      "education_certifications": ["Associate degree in applied science", "No drinking-water operator license claimed"],
+      "qualification_disclosures": {"explicit_absence": ["Drinking-water operator license"], "unknown": ["Wastewater process experience", "Municipal control-system experience"]},
+      "desired_roles": ["water operations assistant", "utility process monitoring technician", "environmental operations coordinator"],
+      "career_transition_goal": "Explore regulated utility operations support using process checks and escalation while obtaining any required operator credentials.",
+      "location": "Grand Rapids, Michigan",
+      "work_arrangement_preferences": ["on-site", "rotating shifts acceptable"],
+      "soft_preferences": ["documented procedures", "instrument readings", "technical training"],
+      "hard_constraints": {"exclude_explicitly_closed": true, "require_location_match": false, "location_requirement": null}
+    },
+    {
+      "profile_id": "dev_hotel_banquet_ops_to_supply_coordination",
+      "fixture_type": "career_transition",
+      "synthetic_fixture": true,
+      "work_history": [
+        "Seven years coordinating hotel banquet setup, room-turn schedules, linen counts, equipment requests, and event-day changes.",
+        "Maintained function sheets and communicated quantity or timing changes to culinary, housekeeping, and event-service teams.",
+        "Reconciled returned equipment counts and documented damaged or missing items for the next shift."
+      ],
+      "accomplishments": [
+        "Created a room-reset checklist that tied equipment needs to event start times and assigned staff.",
+        "Helped standardize a linen count handoff between banquet and laundry shifts."
+      ],
+      "experience_level": "experienced, 7 years",
+      "skills_with_evidence": [
+        {"skill": "event resource coordination", "evidence": "matched room setup quantities and equipment requests to event schedules"},
+        {"skill": "cross-team communication", "evidence": "shared changes with culinary, housekeeping, and service teams"},
+        {"skill": "asset reconciliation", "evidence": "counted returned equipment and logged damage or loss"}
+      ],
+      "education_certifications": ["High school diploma", "No procurement certification claimed"],
+      "qualification_disclosures": {"explicit_absence": [], "unknown": ["ERP purchasing platform experience", "Forklift operation"]},
+      "desired_roles": ["supply coordination assistant", "materials control clerk", "inventory operations coordinator"],
+      "career_transition_goal": "Move event resource planning and equipment accountability into ongoing supply operations without claiming warehouse systems experience.",
+      "location": "Richmond, Virginia",
+      "work_arrangement_preferences": ["on-site", "some evening shifts acceptable"],
+      "soft_preferences": ["team coordination", "reliable handoffs", "visible inventory"],
+      "hard_constraints": {"exclude_explicitly_closed": true, "require_location_match": false, "location_requirement": null}
+    }
+  ],
+  "heldout": [
+    {
+      "profile_id": "heldout_sterile_processing_to_lab_accessioning",
+      "fixture_type": "career_transition",
+      "synthetic_fixture": true,
+      "work_history": [
+        "Six years preparing reusable surgical instruments, checking tray contents against count sheets, and documenting sterilization-cycle release records.",
+        "Held incomplete trays for correction and escalated indicator failures to the department lead before items returned to service.",
+        "Coordinated case-cart staging with operating-room schedules and restocked common supplies between shifts."
+      ],
+      "accomplishments": [
+        "Added a tray discrepancy field to the handoff log so repeat missing items could be traced by set and shift.",
+        "Helped train new staff on label checks and escalation documentation."
+      ],
+      "experience_level": "experienced, 6 years",
+      "skills_with_evidence": [
+        {"skill": "controlled documentation", "evidence": "recorded sterilization-cycle release and tray count results"},
+        {"skill": "exception handling", "evidence": "held incomplete trays and escalated indicator failures"},
+        {"skill": "schedule coordination", "evidence": "staged case carts against operating-room schedules"}
+      ],
+      "education_certifications": ["Certificate in sterile processing", "No laboratory science degree claimed"],
+      "qualification_disclosures": {"explicit_absence": [], "unknown": ["Specimen accessioning experience", "Laboratory information system experience", "Phlebotomy credential"]},
+      "desired_roles": ["laboratory accessioning assistant", "specimen processing technician", "clinical records coordinator"],
+      "career_transition_goal": "Transfer chain-of-custody habits and exception documentation into supervised specimen intake while learning laboratory procedures.",
+      "location": "Columbus, Ohio",
+      "work_arrangement_preferences": ["on-site", "day or evening shift"],
+      "soft_preferences": ["clear protocols", "traceable handoffs", "health services"],
+      "hard_constraints": {"exclude_explicitly_closed": true, "require_location_match": false, "location_requirement": null}
+    },
+    {
+      "profile_id": "heldout_library_circulation_to_public_records",
+      "fixture_type": "career_transition",
+      "synthetic_fixture": true,
+      "work_history": [
+        "Eight years managing public-library circulation desk workflows, patron account corrections, holds, inter-branch transfers, and overdue-item exceptions.",
+        "Verified item identifiers and transaction records, resolved routine account discrepancies, and referred privacy-sensitive issues to supervisors.",
+        "Prepared daily service summaries and coordinated coverage during high-volume community programs."
+      ],
+      "accomplishments": [
+        "Developed a transfer-bin checklist that reduced items sent to the wrong branch.",
+        "Documented a repeat account-correction issue and shared a consistent resolution path with the team."
+      ],
+      "experience_level": "experienced, 8 years",
+      "skills_with_evidence": [
+        {"skill": "record verification", "evidence": "checked item identifiers, patron accounts, and transaction history"},
+        {"skill": "exception resolution", "evidence": "corrected routine account discrepancies and escalated privacy-sensitive issues"},
+        {"skill": "service reporting", "evidence": "prepared daily service summaries and coordinated coverage"}
+      ],
+      "education_certifications": ["Bachelor of arts in history", "No paralegal credential claimed"],
+      "qualification_disclosures": {"explicit_absence": [], "unknown": ["Public-records law experience", "Case-management database experience", "Records retention schedule administration"]},
+      "desired_roles": ["public records assistant", "document services coordinator", "records intake specialist"],
+      "career_transition_goal": "Apply careful record lookup and privacy-aware escalation to public records operations without claiming legal interpretation experience.",
+      "location": "Madison, Wisconsin",
+      "work_arrangement_preferences": ["hybrid", "public counter duties acceptable"],
+      "soft_preferences": ["accurate retrieval", "consistent procedures", "public service"],
+      "hard_constraints": {"exclude_explicitly_closed": true, "require_location_match": false, "location_requirement": null}
+    },
+    {
+      "profile_id": "heldout_irrigation_technician_to_utility_field_ops",
+      "fixture_type": "career_transition",
+      "synthetic_fixture": true,
+      "work_history": [
+        "Seven seasons servicing farm irrigation lines, checking pump performance, recording pressure readings, and scheduling repairs around crop cycles.",
+        "Inspected valves and filters, documented leaks by field location, and referred electrical motor work to licensed contractors.",
+        "Explained repair status and parts delays to growers and tracked return visits until the system was operating."
+      ],
+      "accomplishments": [
+        "Mapped repeat leak locations so the service lead could plan grouped repair routes.",
+        "Built a parts restock list from recurring service-call records."
+      ],
+      "experience_level": "experienced, 7 seasons",
+      "skills_with_evidence": [
+        {"skill": "field inspection", "evidence": "checked valves, filters, leaks, and pump pressure by field location"},
+        {"skill": "work-order follow-up", "evidence": "tracked parts delays and return visits to operating condition"},
+        {"skill": "safe scope escalation", "evidence": "referred electrical motor work to licensed contractors"}
+      ],
+      "education_certifications": ["Technical certificate in agricultural systems", "No electrical license claimed"],
+      "qualification_disclosures": {"explicit_absence": ["Electrical license"], "unknown": ["Municipal water distribution certification", "SCADA experience", "Confined-space credential"]},
+      "desired_roles": ["utility field operations assistant", "water system inspection technician", "infrastructure work-order coordinator"],
+      "career_transition_goal": "Move field checks and location-based service records into utility operations under established safety rules and supervision.",
+      "location": "Fort Collins, Colorado",
+      "work_arrangement_preferences": ["field-based", "local travel"],
+      "soft_preferences": ["outdoor work", "equipment checks", "clear escalation ownership"],
+      "hard_constraints": {"exclude_explicitly_closed": true, "require_location_match": false, "location_requirement": null}
+    },
+    {
+      "profile_id": "heldout_event_av_to_telecom_field_install",
+      "fixture_type": "career_transition",
+      "synthetic_fixture": true,
+      "work_history": [
+        "Six years preparing conference-room audio and projection systems, labeling cables, checking signal paths, and documenting room readiness before events.",
+        "Resolved basic connector and configuration issues within authorization and escalated network or electrical faults to venue technicians.",
+        "Coordinated equipment deliveries, setup windows, and return inventories with event staff and vendors."
+      ],
+      "accomplishments": [
+        "Created a room sign-off sheet connecting equipment serial numbers to installation locations.",
+        "Reduced missed adapters by adding a pre-event cable and accessory count."
+      ],
+      "experience_level": "experienced, 6 years",
+      "skills_with_evidence": [
+        {"skill": "equipment readiness", "evidence": "checked audio, projection, connectors, and signal paths before events"},
+        {"skill": "issue escalation", "evidence": "referred network or electrical faults outside authorization"},
+        {"skill": "asset tracking", "evidence": "logged serial numbers, locations, deliveries, and returns"}
+      ],
+      "education_certifications": ["Associate degree in media technology", "No fiber-optic certification claimed"],
+      "qualification_disclosures": {"explicit_absence": ["Fiber-optic certification"], "unknown": ["Outside-plant construction experience", "Telecom splicing experience", "Bucket-truck qualification"]},
+      "desired_roles": ["telecom field installation assistant", "network equipment deployment technician", "communications site support coordinator"],
+      "career_transition_goal": "Transfer equipment staging, signal checks, and documented handoffs into supervised communications installation without claiming splicing or outside-plant experience.",
+      "location": "Raleigh, North Carolina",
+      "work_arrangement_preferences": ["field and site work", "regional travel acceptable"],
+      "soft_preferences": ["technical troubleshooting", "checklists", "team installations"],
+      "hard_constraints": {"exclude_explicitly_closed": true, "require_location_match": false, "location_requirement": null}
+    },
+    {
+      "profile_id": "heldout_bakery_production_to_materials_planning",
+      "fixture_type": "career_transition",
+      "synthetic_fixture": true,
+      "work_history": [
+        "Seven years coordinating a commercial bakery production floor, tracking ingredient staging, batch timing, packaging availability, and changeovers.",
+        "Compared planned and actual batch counts, documented shortages, and alerted purchasing when substitute ingredients needed approval.",
+        "Coordinated sanitation release and finished-goods handoffs with quality and shipping teams."
+      ],
+      "accomplishments": [
+        "Introduced a daily ingredient-shortage board tied to production orders and expected delivery times.",
+        "Built a changeover checklist that clarified when packaging materials were ready for the next line."
+      ],
+      "experience_level": "experienced, 7 years",
+      "skills_with_evidence": [
+        {"skill": "materials readiness", "evidence": "tracked ingredients and packaging against batch timing and production orders"},
+        {"skill": "shortage escalation", "evidence": "documented shortages and contacted purchasing for approved substitutions"},
+        {"skill": "production handoffs", "evidence": "coordinated sanitation release and finished-goods transfer"}
+      ],
+      "education_certifications": ["Certificate in food production operations", "No APICS certification claimed"],
+      "qualification_disclosures": {"explicit_absence": [], "unknown": ["MRP system experience", "Non-food manufacturing material planning", "Advanced spreadsheet certification"]},
+      "desired_roles": ["materials planning assistant", "production control coordinator", "inventory replenishment specialist"],
+      "career_transition_goal": "Transfer production sequencing and shortage documentation into broader materials planning while learning non-food supply systems.",
+      "location": "Des Moines, Iowa",
+      "work_arrangement_preferences": ["on-site", "day or early shift"],
+      "soft_preferences": ["visible work queues", "cross-team handoffs", "process improvement"],
+      "hard_constraints": {"exclude_explicitly_closed": true, "require_location_match": false, "location_requirement": null}
+    },
+    {
+      "profile_id": "heldout_tree_care_to_environmental_survey_support",
+      "fixture_type": "career_transition",
+      "synthetic_fixture": true,
+      "work_history": [
+        "Eight years coordinating municipal tree-care crews, recording work locations, site access, tree condition observations, and completion notes.",
+        "Photographed hazards, marked follow-up locations, and escalated possible utility conflicts before crews began work.",
+        "Scheduled small field teams around traffic control, weather, and resident access requirements."
+      ],
+      "accomplishments": [
+        "Added map references and before/after photos to work orders, reducing repeat visits caused by vague location notes.",
+        "Created a seasonal route sheet grouping inspections by access window."
+      ],
+      "experience_level": "experienced, 8 years",
+      "skills_with_evidence": [
+        {"skill": "field observation records", "evidence": "documented tree conditions, hazards, work locations, and completion"},
+        {"skill": "location documentation", "evidence": "added map references and photos to work orders"},
+        {"skill": "crew scheduling", "evidence": "planned field routes around traffic control, weather, and access"}
+      ],
+      "education_certifications": ["Associate degree in forestry", "No environmental sampling credential claimed"],
+      "qualification_disclosures": {"explicit_absence": ["Environmental sampling credential"], "unknown": ["Wetland delineation experience", "GIS editing experience", "Pesticide applicator credential"]},
+      "desired_roles": ["environmental field survey assistant", "conservation inspection coordinator", "public works field documentation technician"],
+      "career_transition_goal": "Explore field survey support using safe access planning and location-specific records without claiming ecological sampling or regulatory delineation experience.",
+      "location": "Knoxville, Tennessee",
+      "work_arrangement_preferences": ["field-based", "local travel"],
+      "soft_preferences": ["outdoor work", "public infrastructure", "documented procedures"],
+      "hard_constraints": {"exclude_explicitly_closed": true, "require_location_match": false, "location_requirement": null}
+    }
+  ]
+}
