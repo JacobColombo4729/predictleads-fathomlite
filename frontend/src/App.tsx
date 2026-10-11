@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { COMPASS_MAX, COMPASS_MIN } from "./lib/compass";
 import { routeHref } from "./lib/router";
 import { useCompass } from "./state/useCompass";
@@ -14,12 +14,15 @@ import { useLive } from "./state/useLive";
 import SideNav from "./components/SideNav";
 import Toast, { type ToastState } from "./components/Toast";
 import ReasonPrompt from "./components/ReasonPrompt";
+import LandingPage from "./pages/LandingPage";
 import DiscoverPage, { defaultFilters } from "./pages/DiscoverPage";
 import SavedJobsPage from "./pages/SavedJobsPage";
 import ProfilePage from "./pages/ProfilePage";
 
 export default function App() {
   const route = useRoute();
+  // A first visit (no address in the link) with no profile yet opens on the landing page.
+  const firstVisit = useRef(!window.location.hash);
 
   // Discover state lives here so it survives navigation.
   const [filters, setFilters] = useState<Filters>(defaultFilters);
@@ -30,6 +33,11 @@ export default function App() {
   const [reasonFor, setReasonFor] = useState<Recommendation | null>(null);
 
   const live = useLive(filters);
+  useEffect(() => {
+    if (live.boot.status !== "ready" || !firstVisit.current) return;
+    firstVisit.current = false;
+    if (isBlankProfile(live.profile)) window.location.hash = routeHref("welcome");
+  }, [live.boot.status, live.profile]);
   const signalPatterns = useSignalPatterns(live.boot.status === "ready");
 
   // Saved jobs ticked for the Compass (kept in the order ticked), and the analysis built from them.
@@ -113,6 +121,8 @@ export default function App() {
       </div>
     );
   }
+
+  if (route === "welcome") return <LandingPage />;
 
   const panelOpen = route === "saved" && savedSelectedId !== null && savedSelectedId in live.tracker;
   const shellClass =

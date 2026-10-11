@@ -7,6 +7,7 @@ import "./styles/compass.css";
 import "./styles/signals.css";
 import "./styles/gapanalysis.css";
 import "./styles/market.css";
+import "./styles/landing.css";
 import { applyTheme, readTheme } from "./components/ThemeToggle";
 
 applyTheme(readTheme(), false);

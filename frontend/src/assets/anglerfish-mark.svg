@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="28 24 640 396" width="640" height="396" role="img">
+<title>Anglerfish mascot</title>
+<desc>A teal anglerfish mascot with a mint double outline, flame-like striped fins, an angry eye, jagged teeth and a glowing lure.</desc>
+<defs>
+<g id="body"><path d="M556 268 C556 216 522 168 466 146 C410 124 346 132 296 160 C262 180 232 200 198 206 L168 226 L168 242 L198 256 C228 270 252 284 282 302 C332 344 414 366 478 342 C528 322 556 300 556 268 Z"/></g>
+<g id="fins">
+<path d="M190 214 C150 172 112 126 54 104 C80 140 70 168 98 194 C68 194 52 214 40 238 C74 232 94 240 106 254 C80 264 72 286 62 312 C110 302 156 282 190 250 Z"/>
+<path d="M298 160 C292 120 306 82 330 50 C336 84 346 104 364 116 C370 88 388 62 418 46 C412 80 420 108 438 126 C452 106 472 94 496 92 C484 114 486 136 500 156 C440 132 350 134 298 160 Z"/>
+<path d="M336 336 C316 366 286 386 244 396 C268 372 272 352 278 326 Z"/>
+<path d="M400 352 C392 380 372 396 344 402 C356 380 358 364 358 344 Z"/>
+</g>
+<g id="sidefin"><path d="M384 272 C354 292 328 310 296 316 C316 302 324 284 328 266 Z"/></g>
+</defs>
+<circle cx="614" cy="84" r="46" fill="#5fd0c4" opacity="0.18"/><use href="#fins" fill="#5fd0c4" stroke="#5fd0c4" stroke-width="24" stroke-linejoin="round"/>
+<use href="#body" fill="#5fd0c4" stroke="#5fd0c4" stroke-width="24" stroke-linejoin="round"/>
+<use href="#body" fill="#1f9a91" stroke="#0d0d0d" stroke-width="10" stroke-linejoin="round"/>
+<use href="#fins" fill="#2fb3a5" stroke="#0d0d0d" stroke-width="10" stroke-linejoin="round"/>
+<g stroke="#0a3f3a" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.85">
+<path d="M186 226 C140 190 96 150 62 114 M186 232 C130 216 84 214 50 238 M186 240 C136 254 100 270 70 306"/>
+<path d="M310 154 C310 120 318 88 332 60 M356 140 C362 110 380 80 410 54 M416 136 C420 106 436 98 450 108 M450 144 C460 118 476 104 492 98"/>
+<path d="M326 326 C312 354 292 376 256 390 M336 332 C334 352 322 372 304 384 M390 346 C384 372 370 388 350 398"/>
+</g>
+<path d="M282 302 C332 344 414 366 478 342 C528 322 556 300 556 268 C530 304 482 322 424 320 C370 318 316 304 282 302 Z" fill="#0e5753"/>
+<path d="M296 160 C346 132 410 124 466 146 C522 168 556 216 556 268 C540 224 500 188 450 176 C400 164 340 170 296 160 Z" fill="#127a74"/>
+<path d="M312 170 C356 150 420 148 470 170 C420 160 360 162 312 170 Z" fill="#8cf0e3" opacity="0.8"/>
+<path d="M240 298 C292 334 400 352 462 328 C400 338 300 322 240 298 Z" fill="#b6f6ee"/>
+<g stroke="#0d0d0d" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.55"><path d="M236 232 q10 -10 22 -4 M262 220 q10 -10 22 -4 M290 212 q10 -10 22 -4 M244 252 q10 -10 22 -4 M272 242 q10 -10 22 -4 M300 234 q10 -10 22 -4 M330 226 q10 -10 22 -4 M372 246 q10 -10 22 -4"/></g>
+<g fill="#c9fff7"><circle cx="250" cy="238" r="3"/><circle cx="286" cy="226" r="3"/><circle cx="322" cy="220" r="3"/><circle cx="356" cy="222" r="3"/></g>
+<use href="#sidefin" fill="#2fb3a5" stroke="#0d0d0d" stroke-width="7" stroke-linejoin="round"/>
+<path d="M376 274 L306 312 M366 272 L316 298 M352 268 L326 282" stroke="#0a3f3a" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.8"/>
+<path d="M412 216 C438 244 438 288 414 320" stroke="#0d0d0d" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M430 224 C452 248 452 284 434 312" stroke="#0d0d0d" stroke-width="3.5" fill="none" stroke-linecap="round" opacity="0.75"/><path d="M446 234 C462 252 462 276 450 298" stroke="#0d0d0d" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.6"/>
+<path d="M552 256 C528 270 484 274 446 268 C448 304 476 330 514 334 C548 330 564 302 556 270 Z" fill="#080b0b" stroke="#0d0d0d" stroke-width="6" stroke-linejoin="round"/>
+<path d="M470 322 C486 330 506 332 520 326 C514 316 496 312 478 314 Z" fill="#1d5c58"/>
+<g fill="#f4f6f2" stroke="#0d0d0d" stroke-width="1.8" stroke-linejoin="round">
+<path d="M452 268 L465 270 L457 298 Z"/><path d="M468 270 L482 270 L475 304 Z"/><path d="M485 270 L499 268 L492 296 Z"/><path d="M502 266 L516 263 L510 292 Z"/><path d="M519 262 L533 258 L528 284 Z"/><path d="M536 257 L548 252 L545 276 Z"/>
+<path d="M458 306 L470 304 L463 276 Z"/><path d="M476 318 L489 314 L482 282 Z"/><path d="M496 326 L509 322 L503 290 Z"/><path d="M516 327 L529 321 L524 290 Z"/><path d="M534 318 L546 310 L542 284 Z"/>
+</g>
+<ellipse cx="464" cy="214" rx="31" ry="27" fill="#0e5753" opacity="0.85"/>
+<ellipse cx="464" cy="214" rx="22" ry="21" fill="#e9fffb" stroke="#0d0d0d" stroke-width="5"/>
+<ellipse cx="466" cy="216" rx="13" ry="14" fill="#7fe3d6"/>
+<ellipse cx="470" cy="216" rx="6" ry="13" fill="#0d0d0d"/><circle cx="466" cy="208" r="4.5" fill="#ffffff"/>
+<path d="M404 184 C436 158 488 168 516 220 C486 208 450 198 414 202 C406 198 402 190 404 184 Z" fill="#127a74" stroke="#0d0d0d" stroke-width="6" stroke-linejoin="round"/>
+<path d="M420 182 C446 168 478 174 498 200" stroke="#8cf0e3" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.75"/>
+<path d="M376 150 C396 140 420 138 446 148" stroke="#c9fff7" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.7"/>
+<path d="M480 150 C486 92 530 48 584 54 C602 56 616 66 622 80" stroke="#0d0d0d" stroke-width="13" fill="none" stroke-linecap="round"/><path d="M480 150 C486 92 530 48 584 54 C602 56 616 66 622 80" stroke="#5fd0c4" stroke-width="6" fill="none" stroke-linecap="round"/>
+<g stroke="#9ff5e8" stroke-width="3.4" fill="none" stroke-linecap="round"><path d="M600 70 Q590 56 580 62"/><path d="M598 88 Q584 90 582 102"/><path d="M614 102 Q614 116 624 120"/><path d="M628 92 Q640 96 644 106"/></g>
+<circle cx="614" cy="84" r="18" fill="#effffc" stroke="#5fd0c4" stroke-width="4.5"/><circle cx="609" cy="79" r="5" fill="#ffffff"/>
+<g fill="none" stroke="#5fd0c4" stroke-width="2"><circle cx="590" cy="274" r="5" opacity="0.55"/><circle cx="606" cy="248" r="3" opacity="0.45"/><circle cx="592" cy="232" r="2" opacity="0.4"/><circle cx="130" cy="330" r="4" opacity="0.4"/><circle cx="150" cy="352" r="2.5" opacity="0.35"/></g>
+</svg>
