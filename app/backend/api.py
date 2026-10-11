@@ -34,6 +34,7 @@ if str(CODE_DIR) not in sys.path:
     sys.path.insert(0, str(CODE_DIR))
 
 import grounded_match_explanations as grounded  # noqa: E402
+from data_paths import DATA_DIR  # noqa: E402
 import job_matching_engine as matching  # noqa: E402
 import resume_profile_extraction as resume_extraction  # noqa: E402
 from . import compass as compass_analysis  # noqa: E402
@@ -46,7 +47,7 @@ from . import signals as hiring_signals  # noqa: E402
 
 SNAPSHOT_ID_PREFIX = "predictleads-"
 SESSION_COOKIE = "pl_demo_session"
-DEFAULT_SAMPLE = PROJECT_ROOT / "data/matching/ai_ml_serving_v1/jobs_prepared_corpus.jsonl"
+DEFAULT_SAMPLE = DATA_DIR / "matching/ai_ml_serving_v1/jobs_prepared_corpus.jsonl"
 DEFAULT_DB = PROJECT_ROOT / "backend/data/predictleads-demo.sqlite3"
 DEFAULT_EVENTS_DB = PROJECT_ROOT / "backend/data/feedback-events.sqlite3"
 PARTICIPANT_HEADER = "x-participant-id"

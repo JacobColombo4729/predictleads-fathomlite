@@ -34,11 +34,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import numpy as np  # noqa: E402
 
 import job_matching_engine as engine  # noqa: E402
+from data_paths import DATA_DIR  # noqa: E402
 import bge_text as bge  # noqa: E402
 
-SAMPLE_PATH = PROJECT_ROOT / "data/discovery/role_exploration/roles_corrected_20261006T000000Z/jobs_prepared_random_sample.jsonl"
+SAMPLE_PATH = DATA_DIR / "discovery/role_exploration/roles_corrected_20261006T000000Z/jobs_prepared_random_sample.jsonl"
 BGE_SNAPSHOT = bge.model_dir()  # models/bge-base-en-v1.5, or $PREDICTLEADS_BGE_MODEL_DIR
-DEFAULT_CORPUS_DIR = PROJECT_ROOT / "data/matching/ai_ml_corpus_v1"
+DEFAULT_CORPUS_DIR = DATA_DIR / "matching/ai_ml_corpus_v1"
 DEPTH = 50
 RRF_K = 60
 TOP_K = 10
@@ -399,7 +400,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     e.add_argument("--batch-size", type=int, default=32)
     x = sub.add_parser("export-serving", help="write the not-closed subset used by the demo backend")
     x.add_argument("--corpus-dir", type=Path, default=DEFAULT_CORPUS_DIR)
-    x.add_argument("--out-dir", type=Path, default=PROJECT_ROOT / "data/matching/ai_ml_serving_v1")
+    x.add_argument("--out-dir", type=Path, default=DATA_DIR / "matching/ai_ml_serving_v1")
     f = sub.add_parser("finalize-encode", help="merge saved chunks only (no re-encoding)")
     f.add_argument("--corpus-dir", type=Path, default=DEFAULT_CORPUS_DIR)
     r = sub.add_parser("rank")

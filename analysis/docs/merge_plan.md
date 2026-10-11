@@ -159,7 +159,7 @@ flowchart LR
 | 1. Decisions agreed | Both confirm (or change) decisions 1–6 and log them | Jesse and Jacob |
 | 2. Streams finished | Jacob's full stream and its second pass (`--rows`) have completed (**met 2026-10-10**) | Jacob |
 | 3. Nothing in flight | Both repos committed and pushed; every branch merged into `main`; no run in progress (**met 2026-10-11**: both repos down to `main` only, clean and pushed) | Jesse and Jacob |
-| 4. Paths ready | Each side finds the project root and `data/` through a setting, not "the folder with `requirements.txt`" | Jacob's side (Claude); Jesse's side |
+| 4. Paths ready | Each side finds the project root and `data/` through a setting, not "the folder with `requirements.txt`" (**`data/` met 2026-10-11**: analysis reads `PL_DATA_DIR`, the app reads `PREDICTLEADS_DATA_DIR` in `app/code/data_paths.py`, its run scripts and pipeline; both default to their own `data/`. The analysis project root is still found by `requirements.txt`, which only matters once there is one `requirements.txt`) | Jacob's side (Claude); Jesse's side |
 | 5. EDA_SDA_1 and 2 at full scale | Both notebooks reworked for the full file and rerun: the cleaned listing set, scope, role buckets, the last-seen rule and the hiding rules the app will use are final (**met 2026-10-11**) | Claude (code), Jacob (runs) |
 
 **Why the join went ahead of gates 1 and 4:** joining only moves each repository into its folder; no code, rule or data changes. Each half is still its own project root (the analysis code finds `analysis/`, the app runs from `app/`), so gate 4 is needed only for the single `data/` layout, and gate 1 only for the combining work. Gate 3 is what the join itself needed.

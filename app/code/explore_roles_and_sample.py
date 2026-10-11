@@ -21,6 +21,7 @@ import boto3
 import botocore
 import zstandard as zstd
 
+from data_paths import DATA_DIR
 from prepare_jobs import BUCKET, KEY, PROFILE, REGION, SNAPSHOT_DATE, prepare_resource
 
 SAMPLE_SIZE = 30_000
@@ -28,7 +29,7 @@ MAX_LINE_BYTES = 4 * 1024 * 1024
 PROGRESS_SECONDS = 30
 COMMIT_RECORDS = 5_000
 DISK_RESERVE_BYTES = 2 * 1024**3
-OUTPUT_ROOT = Path("data/discovery/role_exploration")
+OUTPUT_ROOT = DATA_DIR / "discovery" / "role_exploration"
 STRING_FIELDS = {
     "raw_title", "normalized_title", "onet_occupation", "onet_family", "status", "seniority",
     "language", "categories", "contract_types", "description_availability", "salary_availability",
@@ -931,9 +932,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.sample_size < 1:
         parser.error("--sample-size must be positive")
     available = shutil.disk_usage(Path.cwd()).free
-    prior = Path("data/prepared/jobs_sample_validation_20261005T205936Z/jobs_prepared_sample.jsonl")
+    prior = DATA_DIR / "prepared/jobs_sample_validation_20261005T205936Z/jobs_prepared_sample.jsonl"
     if not prior.exists():
-        prior = Path("data/prepared/jobs_sample_20261005T205936Z/jobs_prepared_sample.jsonl")
+        prior = DATA_DIR / "prepared/jobs_sample_20261005T205936Z/jobs_prepared_sample.jsonl"
     estimated_sample = int(prior.stat().st_size / 10_000 * args.sample_size) if prior.exists() else args.sample_size * 10_000
     estimated_db_and_csv = max(6 * 1024**3, estimated_sample * 16)
     minimum_free_during_scan = DISK_RESERVE_BYTES + estimated_sample
