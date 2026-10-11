@@ -22,8 +22,6 @@ import boto3
 import botocore
 import zstandard as zstd
 
-from data_paths import DATA_DIR
-
 
 BUCKET = "tripleten-predictleads-hackathon-109698388873-us-east-2-an"
 PREFIX = "2026/09/30/"
@@ -872,7 +870,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--seed", type=int, default=20261001)
     parser.add_argument("--connect-timeout", type=float, default=10)
     parser.add_argument("--read-timeout", type=float, default=20)
-    parser.add_argument("--output-dir", type=Path, default=DATA_DIR / "discovery")
+    parser.add_argument("--output-dir", type=Path, default=Path("data/discovery"))
     parser.add_argument("--section-size", type=int, default=100_000)
     parser.add_argument("--audit-max-line-bytes", type=int, default=4 * 1024 * 1024)
     parser.add_argument("--field-path-cap", type=int, default=20_000)
