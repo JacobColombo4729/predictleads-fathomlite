@@ -68,6 +68,88 @@ def heatmap(ax, table, title, fmt="{:,.0f}", cmap="Blues", vmin=None, vmax=None)
     ax.set_title(title)
     ax.grid(False)
 
+# ---------- shaded comparison tables ----------
+# Wide tables comparing groups across measures: each column shaded on its own scale (darker = higher), numbers kept, and
+# formats chosen from the column name: shares as whole percentages, days and years with one decimal, pay in dollars,
+# counts compact. In the Markdown reports the shading drops out and the formatted numbers remain.
+
+def compact(n):
+    """13,017,464 -> 13.0M; 412,345 -> 412K; under 10,000 with commas."""
+    if pd.isna(n):
+        return ""
+    n = float(n)
+    if abs(n) >= 1e6:
+        return f"{n / 1e6:.1f}M"
+    if abs(n) >= 1e4:
+        return f"{n / 1e3:.0f}K"
+    return f"{n:,.0f}"
+
+
+def cell_format(name, values):
+    """A formatter for one column, from its name and values."""
+    name = str(name).lower()
+    v = pd.to_numeric(pd.Series(values), errors="coerce").dropna()
+    blank = lambda f: (lambda x: "" if pd.isna(x) else f(x))
+    if "rank" in name:
+        return blank(lambda x: f"{x:.0f}")
+    if "spread" in name:
+        return blank(lambda x: f"{x:.1f}×")
+    if any(k in name for k in ("share", "rate", "closed within", "open after", "still open")) or (len(v) and v.between(0, 1).all() and not (v == v.round()).all() and not any(
+            k in name for k in ("listings", "companies", "postings", "per week", "days", "years", "words", "usd"))):
+        return blank(lambda x: f"{x:.2%}" if 0 < abs(x) < 0.01 else f"{x:.1%}" if abs(x) < 0.1 else f"{x:.0%}")
+    if "usd" in name or "pay ($" in name:
+        return blank(lambda x: f"${x:,.2f}")
+    if "words" in name:
+        return blank(lambda x: f"{x:,.0f}")
+    if "days" in name or "years" in name:
+        return blank(lambda x: f"{x:,.1f}")
+    if len(v) and not (v == v.round()).all() and v.abs().max() < 10_000:
+        return blank(lambda x: f"{x:,.1f}")
+    return compact
+
+
+def shaded(df, highlight=None, cmap="Blues"):
+    """A Styler: numeric columns shaded per column, formatted by cell_format, the highlight row in bold."""
+    num = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c]) and not pd.api.types.is_bool_dtype(df[c])]
+    sty = df.style.format({c: cell_format(c, df[c]) for c in num})
+    for c in num:
+        if df[c].notna().sum() > 1 and df[c].nunique() > 1:
+            sty = sty.background_gradient(cmap=cmap, subset=[c], low=0.05, high=0.35)
+    if highlight is not None and highlight in df.index:
+        sty = sty.apply(lambda row: ["font-weight: bold; border-top: 2px solid #eb6834; border-bottom: 2px solid #eb6834"
+                                     if row.name == highlight else "" for _ in row], axis=1)
+    return sty
+
+
+def show_shaded(title, df, highlight=None):
+    """Print a heading, then a shaded comparison table. Aggregates only, never rows."""
+    print(f"\n{title}")
+    display(shaded(df, highlight))
+
+
+def column_heatmap(ax, df, title, highlight=None, cmap="Blues"):
+    """A heat map of a comparison table for the reports: each column on its own scale, values written in, one row
+    outlined. Columns are measures, rows are groups."""
+    num = df[[c for c in df.columns if pd.api.types.is_numeric_dtype(df[c]) and not pd.api.types.is_bool_dtype(df[c])]]
+    span = (num.max() - num.min()).replace(0, np.nan)
+    depth = ((num - num.min()) / span).fillna(0.5)
+    ax.imshow(depth.to_numpy(dtype=float), cmap=cmap, vmin=-0.15, vmax=1.6, aspect="auto")
+    import textwrap
+    ax.set_xticks(range(num.shape[1]), ["\n".join(textwrap.wrap(str(c), 16)) for c in num.columns], fontsize=7.5)
+    ax.xaxis.tick_top()
+    ax.set_yticks(range(num.shape[0]), [str(i)[:34] for i in num.index], fontsize=8)
+    for j, c in enumerate(num.columns):
+        f = cell_format(c, num[c])
+        for i, v in enumerate(num[c]):
+            if pd.notna(v):
+                ax.text(j, i, f(v), ha="center", va="center", fontsize=7, color="white" if depth.iloc[i, j] > 0.75 else INK)
+    if highlight is not None and highlight in num.index:
+        r = list(num.index).index(highlight)
+        ax.add_patch(plt.Rectangle((-0.5, r - 0.5), num.shape[1], 1, fill=False, edgecolor=ORANGE, lw=2.2))
+    ax.set_title(title)
+    ax.grid(False)
+
+
 def finish():
     plt.tight_layout()
     plt.show()
