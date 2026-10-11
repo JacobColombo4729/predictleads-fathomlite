@@ -13,10 +13,10 @@
   1. **Claude:** EDA_SDA_3 for full scale (also: a second ghost sign, since "company still posting" no longer separates forgotten listings at big companies (78% of stale listings): the same company and title still open after 90 days while newer copies of that title keep appearing) (reads `scope_table.parquet` and `scope_descriptions.parquet`): text read part by part, regex features over every listing, spaCy lemmas on a large stratified sample (about 150,000), cache in parts. Hold EDA_SDA_3's first run until then.
   2. **Jacob (any time):** delete `data/flat/all_fields_lean_full/` (1.1 GB): nothing reads it any more. After EDA_SDA_3 is adapted, also the sample-era tables in `data/clean/` (`analysis_table.pkl`, `scope_table.pkl`, `job_openings_lean_200000_v2.pkl`).
   3. **New analysis the full data opens** (added to each notebook's plan): real market sizes per role (openings, new per week), role buckets by month × source and by state, a company watch list (employers posting entry-level roles often), rare signals (cross-posts, evergreen wording, licenses, staffing agencies), full-scale daily series for TimeSeries, more training data and a proper test month for ML_Rank.
-- **Jacob (from 2026-10-11):** upload the slide deck `reports/Team update 2026-10-11.pptx` (24 slides, EDA_SDA_1 and 2 at full scale with the feature screening and the 2026-10-11 pass; local only) to Google Slides, then delete the 2026-10-09 and 2026-10-10 decks; tell the team (below).
+- **Jacob (from 2026-10-11):** upload the slide deck `reports/Team update 2026-10-11.pptx` (24 slides, EDA_SDA_1 and 2 at full scale with the feature screening and the 2026-10-11 pass; local only) to Google Slides, then delete the 2026-10-09 and 2026-10-10 decks; share the link with the team.
 - **Check that `.env.example` lists** `AWS_PROFILE`, `AWS_REGION` and a blank `S3_PATH` (no `S3_BUCKET`). Claude can't read it, so check by hand.
 - **Known gaps in `.claude/settings.json`:** `Read(./.env.*)` also blocks `.env.example`; `Read` rules don't stop shell commands such as `cat .env`.
-- **Tell the team** to pull, rerun `pip install -r requirements.txt` (and on a Mac `brew install libomp`), run `python -m spacy download en_core_web_sm`, switch their `.env` to `S3_PATH` (README section 4), and run `nbstripout --install` once (it's in `requirements.txt`): git then strips notebook outputs on every commit.
+- **Set up every copy of this repo** (done on the Windows PC 2026-10-11; still to do on the Mac and the GPU PC, if they have copies): pull, rerun `pip install -r requirements.txt` (and on a Mac `brew install libomp`), run `python -m spacy download en_core_web_sm`, switch `.env` to `S3_PATH` (README section 4), and run `nbstripout --install` once (it's in `requirements.txt`): git then strips notebook outputs on every commit. On Windows, Smart App Control may block a new package's DLL the first time it loads ("An Application Control policy has blocked this file"); rerunning usually works. After the merge with `predictleads-hackathon`, Jesse needs the same steps.
 
 ## Next
 
@@ -26,8 +26,8 @@
 - **EDA_SDA_3 (text features; no matching models), in progress:**
   - **Sections 1–2 written** (setup, text loaded from the saved parts, HTML to structured text, boilerplate removal, lemmas; cached in `data/clean/eda3_text.pkl`): needs a run, then notes. Section 3 (years and degree rules) is next.
   - **Check EDA_SDA_2's two title rules (decided 2026-10-11: first-pass keyword rules stay in EDA_SDA_2, EDA_SDA_3 checks them):** (1) staffing agencies from recruiter titles (`agency_recruiter`, `staffing_by_title`, 2b.1); (2) 13-1161 split into analysts vs. marketing specialists by job title (`marketing_specialist`, 3.0; marketing specialists hidden). Hand-check a sample of each, measure precision and recall, and replace a rule only if a text model does clearly better.
-  - **Hand-checking:** decide who marks the validation samples (section 5), about 100–150 matches per rule, locally.
-  - Validate the keyword flags: a teammate checks a random sample of matches locally (career-change flags, `urgency`, `mentions_remote`); precision and recall against EDA_SDA_1's rules.
+  - **Hand-checking:** Jacob marks the validation samples (section 5), about 100–150 matches per rule, locally.
+  - Validate the keyword flags: Jacob checks a random sample of matches locally (career-change flags, `urgency`, `mentions_remote`); precision and recall against EDA_SDA_1's rules.
   - Hard-blocker rules per role bucket (years-asked threshold, required credentials), hidden in the app with a count of what each hides. The "asks 5+ years" preview would hide 31% of open listings (EDA_SDA_2 3.11): check required vs. preferred and the year counts first. The degree flag fires on only 3–6% of listings: widen and validate its pattern ("Bachelor's in …") before any degree rule.
   - Evergreen wording (feeds the ghost-listing flag), required vs. preferred qualifications, **skills mapped to O*NET** (the input to `ML_Fit`'s skills-based matching).
   - **New text rules (added 2026-10-10):** security clearance required, "no visa sponsorship", travel percentage, shift or on-call work, contract-to-hire. Clearance and sponsorship are hard blockers for some career changers (per applicant in the app).
@@ -74,10 +74,10 @@
 
 - **Team:**
   - Each teammate writes down their background (current field and roles; no personal details), to fix the source backgrounds.
-  - Assign owners for the notebooks above, the app, and the pitch.
+  - Assign owners for the app and the pitch (the notebooks in this repo are Jacob's).
   - Set a meeting cadence and a place for async discussion.
   - Confirm the final due date and deliverables.
-- **App:** answer the open questions in `APPLICATION.md`, section 8.
+- **App:** answer the open questions in `APPLICATION.md`, section 9.
 - **Project advisor:** get answers to our questions (scope, deliverables, AI tools and data, applicant profiles, external data, hosting, presenting results, data deletion), then record them in `docs/decisions.md`. Get the AI-and-data answers in writing; the agent stage of the app depends on them, and the answer on collecting career-changer profiles blocks the volunteer profiles.
 - **Applicant profiles** (after the advisor answers): follow `docs/fit_analysis.md`. Assign owners for its task table, draft the consent form, recruit career changers, convert their exports, and build the synthetic generator in `src/`.
 - **PredictLeads:** get answers to our data questions (field definitions, crawl timing, `status`, sources, sampling, duplicates, older daily exports, `seniority`; why job-board listings stop after May and why descriptions go missing more often from June on, from EDA_SDA_2), then record them in `docs/decisions.md`.
@@ -101,7 +101,7 @@
 - Follow the working standards in `STANDARDS.md` and the course-template baseline in every notebook.
 - If the notebook looks out of date in VS Code, run **File: Revert File**. Don't save the older copy over newer changes.
 - Record every decision, with its reasoning, in `docs/decisions.md`.
-- When you add a package: pin it in `requirements.txt`, commit, and tell the team.
+- When you add a package: pin it in `requirements.txt`, commit, and install it on every copy of the repo (after the merge, tell Jesse too).
 - Keep track of every local copy of the data, for the final deletion.
 - Regenerate a notebook's `docs/` export after editing it (`python -m src.export_markdown notebooks/<name>.ipynb`).
 
