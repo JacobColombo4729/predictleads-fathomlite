@@ -1,7 +1,7 @@
 import { BookmarkIcon, CompassIcon, FindIcon, SignalsIcon, UserIcon } from "./Icons";
 import { routeHref, type Route } from "../lib/router";
 import ThemeToggle from "./ThemeToggle";
-import markUrl from "../assets/anglerfish-mark.svg";
+import markUrl from "../assets/fathomlite-icon.png";
 
 interface Props {
   route: Route;
@@ -19,7 +19,7 @@ const items: { route: Route; label: string; Icon: typeof CompassIcon }[] = [
 export default function SideNav({ route, savedCount }: Props) {
   return (
     <nav className="sidenav" aria-label="Primary">
-      <a className="sidenav__brand" href={routeHref("welcome")} aria-label="Bright Depth home" title="Bright Depth"><img src={markUrl} alt="" /></a>
+      <a className="sidenav__brand" href={routeHref("welcome")} aria-label="FathomLite home" title="FathomLite: Deep dive. Clear light."><img src={markUrl} alt="" /></a>
       <ul className="sidenav__list">
         {items.map(({ route: r, label, Icon }) => (
           <li key={r}>

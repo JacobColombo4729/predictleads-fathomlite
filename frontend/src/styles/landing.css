@@ -1,31 +1,67 @@
-/* Landing page. It is always the deep-sea look (near-black and teal), whatever theme the app is set to. */
+/* Landing page. Always the deep-ocean FathomLite look, whatever theme the app is set to. */
 
 .landing {
-  --l-bg: #0d0d0d; --l-text: #f2f2ee; --l-muted: #b6c9c5; --l-accent: #34b3a6; --l-accent-strong: #5fd0c4; --l-ink: #06201d;
-  position: fixed; inset: 0; overflow-x: hidden; overflow-y: auto; background: var(--l-bg); color: var(--l-text);
-  display: grid; place-items: center; padding: 28px 20px 44px; font-family: "DM Sans", var(--font);
+  --wall-w: clamp(120px, 24vw, 380px); --l-bg: #05101f; --l-text: #f2faff; --l-muted: #a9c7de; --l-accent: #00e5ff; --l-accent-strong: #9eebff; --l-ink: #03121f;
+  position: fixed; inset: 0; overflow-x: hidden; overflow-y: auto; color: var(--l-text);
+  display: grid; place-items: center; padding: 28px calc(var(--wall-w) * 0.46 + 16px) 56px; font-family: "Montserrat", var(--font);
+  background:
+    radial-gradient(ellipse 60% 45% at 34% 30%, rgba(0, 229, 255, 0.16), transparent 70%),
+    linear-gradient(180deg, #08213d 0%, #061729 45%, #030b16 100%);
 }
+/* drifting specks of light, like particles in deep water */
+.landing::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.55;
+  background-image:
+    radial-gradient(circle, rgba(158, 235, 255, 0.55) 0 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(0, 229, 255, 0.35) 0 1px, transparent 1.5px),
+    radial-gradient(circle, rgba(158, 235, 255, 0.25) 0 2px, transparent 2.5px);
+  background-size: 140px 140px, 97px 97px, 211px 211px; background-position: 12px 20px, 55px 70px, 90px 10px;
+}
+/* light shafts from the surface, drifting slowly */
+.landing__rays {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0.9;
+  background:
+    conic-gradient(from 184deg at 42% -14%, transparent 0 6%, rgba(0, 229, 255, 0.17) 8% 10.5%, transparent 12.5% 16%, rgba(0, 134, 255, 0.20) 18% 21.5%, transparent 24% 28%, rgba(158, 235, 255, 0.12) 30% 32%, transparent 34% 100%);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 92%); mask-image: linear-gradient(180deg, #000 0%, rgba(0, 0, 0, 0.55) 55%, transparent 92%);
+  animation: landing-sway 16s ease-in-out infinite alternate;
+}
+@keyframes landing-sway { from { transform: translateX(-1.5%) scaleX(1); opacity: 0.75; } to { transform: translateX(1.5%) scaleX(1.03); opacity: 1; } }
+/* dark rock walls framing the water on both sides */
+.landing__wall { position: absolute; top: 0; bottom: 0; height: 100%; width: var(--wall-w); pointer-events: none; }
+.landing__wall--left { left: 0; }
+.landing__wall--right { right: 0; }
+@media (max-width: 760px) { .landing { --wall-w: 30vw; } .landing__wall { opacity: 0.9; } }
+@media (prefers-reduced-motion: reduce) { .landing__rays { animation: none; } }
 .landing__lights { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .landing__ring { position: absolute; border-radius: 50%; background: var(--l-accent-strong); }
-.landing__content { position: relative; text-align: center; max-width: 880px; width: 100%; }
+.landing__content {
+  position: relative; display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); align-items: center;
+  gap: clamp(20px, 5vw, 72px); max-width: 1060px; width: 100%;
+}
+.landing__fish { display: block; width: 100%; max-width: 540px; justify-self: end; filter: drop-shadow(0 0 30px rgba(0, 229, 255, 0.30)); animation: landing-bob 6s ease-in-out infinite; }
+.landing__text { text-align: left; }
 .landing__brand {
-  margin: 0 0 4px; font-family: "Chakra Petch", var(--font); font-weight: 700; font-size: 15px; letter-spacing: 0.34em; text-transform: uppercase; color: var(--l-accent-strong);
+  margin: 0 0 4px; font-family: "Montserrat", var(--font); font-weight: 800; font-size: clamp(38px, 6.4vw, 84px); letter-spacing: -1px; line-height: 1.02; color: #fff;
 }
-.landing__fish { display: block; width: min(92vw, 720px); margin: 0 auto; animation: landing-bob 6s ease-in-out infinite; }
-.landing h1 { font-family: "Chakra Petch", var(--font); font-weight: 700; font-size: clamp(30px, 5.2vw, 52px); line-height: 1.12; margin: 2px 0 16px; letter-spacing: 0.2px; }
-.landing__sub { font-size: clamp(16px, 2.2vw, 20px); line-height: 1.65; color: var(--l-muted); max-width: 640px; margin: 0 auto 28px; }
-.landing__w { transition: opacity 0.15s; }
+.landing__lite { color: var(--l-accent); }
+.landing__tag { margin: 0 0 30px; font-weight: 500; white-space: nowrap; font-size: clamp(15px, 2.3vw, 30px); letter-spacing: 0.02em; color: var(--l-accent-strong); }
 .landing__cta {
-  display: inline-block; font-family: "Chakra Petch", var(--font); font-weight: 700; font-size: 17px; letter-spacing: 0.7px; text-transform: uppercase;
-  background: var(--l-accent); color: var(--l-ink); padding: 14px 30px; border-radius: 6px; border: 2px solid var(--l-accent-strong); text-decoration: none;
+  display: inline-flex; align-items: center; gap: 10px; font-family: "Montserrat", var(--font); font-weight: 700; font-size: 17px; letter-spacing: 0.3px;
+  background: #0072e0; color: #fff; padding: 14px 34px; border-radius: 999px; border: 1px solid rgba(158, 235, 255, 0.65); text-decoration: none;
+  box-shadow: 0 0 26px rgba(0, 150, 255, 0.45);
 }
-.landing__cta:hover { background: var(--l-accent-strong); }
+.landing__cta:hover { background: #0086ff; }
 .landing__cta:focus-visible, .landing__skip a:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
-.landing__skip { margin: 16px 0 0; font-size: 14px; color: var(--l-muted); }
+.landing__skip { margin: 18px 0 0; font-size: 14px; color: var(--l-muted); }
 .landing__skip a { color: var(--l-accent-strong); text-decoration: underline; text-underline-offset: 3px; }
-.landing__by { margin: 22px 0 0; font-family: "Chakra Petch", var(--font); font-weight: 500; font-size: 13px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--l-accent-strong); }
-@keyframes landing-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
-@media (prefers-reduced-motion: reduce) { .landing__fish { animation: none; } .landing__w { transition: none; } }
+.landing__by { position: absolute; bottom: 18px; left: 0; right: 0; margin: 0; text-align: center; font-weight: 500; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(158, 235, 255, 0.7); }
+@keyframes landing-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@media (max-width: 760px) {
+  .landing__content { grid-template-columns: 1fr; text-align: center; }
+  .landing__fish { justify-self: center; max-width: min(78vw, 380px); }
+  .landing__text { text-align: center; }
+}
+@media (prefers-reduced-motion: reduce) { .landing__fish { animation: none; } }
 
 /* The sidebar mark: the small anglerfish links back to the landing page. */
 .sidenav__brand { width: 48px; height: auto; background: none; display: block; line-height: 0; border-radius: var(--r-md); }
