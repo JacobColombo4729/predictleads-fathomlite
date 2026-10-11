@@ -236,14 +236,15 @@ def scope_fields(ids, desc_path, root=None):
 # ---------- saving ----------
 
 def save_final(df, path, root=None, table=ROWS_TABLE, row_group=500_000):
-    """Write df (indexed by row position in the rows table) as Parquet, adding DISK_COLS and title_norm from the rows
+    """Write df (categorical columns as plain text: a dictionary per row group would repeat every category) (indexed by row position in the rows table) as Parquet, adding DISK_COLS and title_norm from the rows
     table, part by part in file order. Contract types are saved with unified labels."""
     df = df.sort_index()
+    cats = [c for c in df.columns if isinstance(df[c].dtype, pd.CategoricalDtype)]
     pos = df.index.to_numpy()
     files = parts(root, table)
     disk = pq.read_schema(files[0])
     schema = pa.schema([disk.field("id"), pa.field("row", pa.int64()),
-                        *pa.Schema.from_pandas(df.iloc[:0], preserve_index=False),
+                        *pa.Schema.from_pandas(df.iloc[:0].astype({c: "string" for c in cats}), preserve_index=False),
                         *[disk.field(c) for c in DISK_COLS if c != "id"], pa.field("title_norm", pa.string())])
     writer, start = pq.ParquetWriter(path, schema), 0
     try:
@@ -252,7 +253,7 @@ def save_final(df, path, root=None, table=ROWS_TABLE, row_group=500_000):
             end = start + extra.num_rows
             lo, hi = np.searchsorted(pos, [start, end])
             if hi > lo:
-                chunk = df.iloc[lo:hi]
+                chunk = df.iloc[lo:hi].astype({c: "string" for c in cats})  # categories as text (see above)
                 take = pa.array(pos[lo:hi] - start)
                 extra = extra.take(take).to_pandas()
                 extra["title_norm"] = extra.title.astype("string").str.lower().str.split().str.join(" ")
