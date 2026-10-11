@@ -382,12 +382,47 @@ ONET_DETAILED_BUCKETS = {
 }
 
 
-def role_bucket(onet_code):
-    """The role bucket of a listing's O*NET-SOC code; None if it isn't a mapped computer and mathematical code."""
+# The scope is the roles TripleTen trains for, plus adjacent tech roles (decided 2026-10-10): a neutral, outside definition,
+# not any team member's background. Two TripleTen roles sit outside the computer and mathematical group; each is its own
+# bucket, listings side only (the career-switch profiles, frozen, have no paths into them).
+EXTRA_ONET_BUCKETS = {
+    "41-9031": "technical sales",              # sales engineers (Forward Deployed Engineering, AI Automation)
+    "13-1111": "business and data analysis",   # management analysts, often titled business analyst (Data Analytics)
+    "13-1161": "business and data analysis",   # market research analysts and marketing specialists (Data Analytics)
+}
+EXTRA_ORDER = ["technical sales", "business and data analysis"]
+
+# TripleTen program -> the O*NET codes its graduates are trained for (tripleten.com, checked 2026-10-10). Detailed codes
+# (10 characters) win over 7-character codes. Scope listings with no program are "adjacent tech roles" (IT support,
+# networks and systems, database, IT project management, other computer roles): reachable, but no TripleTen program.
+TRIPLETEN_PROGRAMS = {
+    "AI Software Engineering": ["15-1251", "15-1252", "15-1254", "15-1131", "15-1132", "15-1133", "15-1134", "15-1299.07"],
+    "UX/UI Design": ["15-1255"],
+    "AI & Machine Learning": ["15-1221", "15-1111", "15-2051.00"],
+    "Data Analytics": ["15-2051.01", "15-2051.02", "15-2031", "15-2041", "15-2099", "13-1111", "13-1161"],
+    "Quality Assurance": ["15-1253"],
+    "Cybersecurity": ["15-1212", "15-1122", "15-1299.04", "15-1299.05", "15-1299.06"],
+    "Forward Deployed Engineering / AI Automation": ["41-9031"],
+}
+PROGRAM_ORDER = list(TRIPLETEN_PROGRAMS) + ["adjacent tech role"]
+_PROGRAM_OF = {code: program for program, codes in TRIPLETEN_PROGRAMS.items() for code in codes}
+
+
+def tripleten_program(onet_code):
+    """The TripleTen program that trains for a listing's O*NET code; None if no program does (an adjacent role)."""
     if not isinstance(onet_code, str):
         return None
     code = onet_code.strip()
-    return ONET_DETAILED_BUCKETS.get(code[:10]) or ONET_ROLE_BUCKETS.get(code[:7])
+    return _PROGRAM_OF.get(code[:10]) or _PROGRAM_OF.get(code[:7])
+
+
+def role_bucket(onet_code):
+    """The role bucket of a listing's O*NET-SOC code: a computer and mathematical bucket, or one of the TripleTen roles
+    outside that group (EXTRA_ONET_BUCKETS); None if the code isn't mapped."""
+    if not isinstance(onet_code, str):
+        return None
+    code = onet_code.strip()
+    return ONET_DETAILED_BUCKETS.get(code[:10]) or ONET_ROLE_BUCKETS.get(code[:7]) or EXTRA_ONET_BUCKETS.get(code[:7])
 
 
 # Broad areas for describing where career changers come from (analysis only: changing these never changes who is a
