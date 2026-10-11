@@ -77,8 +77,8 @@ LAYOUTS = {
         "table_groups": [
             ["Text cleaning results", "Years of experience required", "Posting source"],
             ["Q3a. Where computer and mathematical stands"],
-            ["8b. From the full file to the scope", "8b. The scope by role bucket"],
-            ["8c. Scope-only fields"],
+            ["8c. How English US listings enter the scope", "8c. From the full file to the scope", "8c. The scope by role bucket"],
+            ["8d. Scope-only fields"],
             ["Q1c. Source type", "Q1d. Do high-volume"],
             ["Q1f. Text features vs. application window", "Q1g. Career-change flags vs. application window"],
             ["Q1h. Recruiters in the scope", "Q1h. Window by recruiter"],
