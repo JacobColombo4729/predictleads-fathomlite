@@ -4,7 +4,7 @@ PredictLeads × TripleTen externship project: role discovery and job listing pri
 
 > ⚠️ **This repo is private and confidential.** Everything in it is covered by our Training Services Agreements. Read the [Data & Security Rules](#data--security-rules) before you start working.
 
-This repository joins two earlier ones with their full commit histories: `analysis/` (was `project_leads`, Jacob) and `app/` (was `predictleads-hackathon`, Jesse). They share one environment, one `.env`, one `data/` and one `models/` at the top.
+This repository joins two earlier ones with their full commit histories: `analysis/` (was `project_leads`, Jacob) and `app/` (was `predictleads-hackathon`, Jesse). They share one environment, one `.env`, one `data/` and one `pretrained/` at the top.
 
 ---
 
@@ -41,7 +41,7 @@ predictleads-fathomlite/
 ├── requirements.txt          one pinned list for everything (Python 3.11)
 ├── fetch/                    where every dataset comes from and lives: one download script each, the shared folders
 ├── .venv/  .env              your own, git-ignored
-├── data/  models/            local only, git-ignored: raw/ (PredictLeads), external/ (outside data), the notebooks'
+├── data/  pretrained/        local only, git-ignored: raw/ (PredictLeads), external/ (outside data), the notebooks'
 │                             tables, the corpus and embeddings; the BGE model
 ├── analysis/
 │   ├── notebooks/            EDA_SDA_1–4, TimeSeries, Profiles, ML_Fit, ML_Rank
@@ -234,7 +234,7 @@ Ask the team for the bucket and export date. Each variable goes on its own line.
 Everything lives in two git-ignored folders at the top, shared by the notebooks and the app:
 
 - **`data/`:** the notebooks' tables (`clean/`, `flat/`, `profiles/`) and the app's corpus and signals (`matching/`, `discovery/`, `prepared/`, `signals/`, `preview/`). The notebooks download what they need from S3; the app's corpus is built by the pipeline in step 13 or shared within the team. The raw snapshot is not stored locally, so deleting `data/matching/targeted_pool_*` or the random sample under `data/discovery/` means re-reading it from S3.
-- **`models/`:** the BGE model `BAAI/bge-base-en-v1.5` (revision pinned in `app/code/bge_text.py`) in `models/bge-base-en-v1.5`, or set `PREDICTLEADS_BGE_MODEL_DIR`.
+- **`pretrained/`:** the BGE model `BAAI/bge-base-en-v1.5` (revision pinned in `app/code/bge_text.py`) in `pretrained/bge-base-en-v1.5`, or set `PREDICTLEADS_BGE_MODEL_DIR`.
 
 **Getting the data on any machine** (from the repository root, `.venv` activated). Every dataset has one script in `fetch/` and one standard folder in `data/`: `data/raw/` for the PredictLeads export, `data/external/<name>/` for outside data. Code reaches all of them through `fetch` (`DATA_DIR`, `RAW_DIR`, `external("<name>")`), never through a written-out path:
 

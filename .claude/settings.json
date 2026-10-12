@@ -7,6 +7,8 @@
       "Read(./**/.env.*)",
       "Read(./data/**)",
       "Read(./**/data/**)",
+      "Read(./pretrained/**)",
+      "Read(./models/**)",
       "Read(./**/*.json.zst)",
       "Read(./**/*.jsonl)",
       "Read(./**/*.csv)",

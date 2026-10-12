@@ -30,7 +30,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError as PydanticVa
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CODE_DIR = PROJECT_ROOT / "code"
-REPO_ROOT = PROJECT_ROOT.parent  # data/, models/ and .env are shared with analysis/ at the top
+REPO_ROOT = PROJECT_ROOT.parent  # data/, pretrained/ and .env are shared with analysis/ at the top
 if str(CODE_DIR) not in sys.path:
     sys.path.insert(0, str(CODE_DIR))
 

@@ -9,7 +9,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 ENV_FILE = REPO_ROOT / ".env"                                   # settings and keys, git-ignored
 DATA_DIR = Path(os.environ.get("PL_DATA_DIR") or REPO_ROOT / "data")  # git-ignored; never read by Claude
-MODELS_DIR = REPO_ROOT / "models"                               # downloaded models (the BGE model), git-ignored
+PRETRAINED_DIR = REPO_ROOT / "pretrained"                       # downloaded models (the BGE model), git-ignored
 
 # The standard folders, by where the data comes from
 RAW_DIR = DATA_DIR / "raw"            # the PredictLeads export files (fetch.get_predictleads)

@@ -7,7 +7,7 @@
 ## Repository layout (cleaned up 2026-10-09)
 
 Experiments no longer used by the app live in `archive/experiments/` (tests included, all passing). The app depends only on `code/bge_text.py`, `job_matching_engine.py`, `grounded_match_explanations.py` and `resume_profile_extraction.py`. One environment (the repository's `.venv` and `requirements.txt`, at the top, shared with `analysis/`) runs everything; run all tests with `.
-un_tests.ps1 [-Frontend] [-Archive]`. The BGE model now lives in the top-level `models/bge-base-en-v1.5` (git-ignored, or set `PREDICTLEADS_BGE_MODEL_DIR`). Safety tag `pre-cleanup` (local only) marks the state before the cleanup. See the [README](../README.md) for the map.
+un_tests.ps1 [-Frontend] [-Archive]`. The BGE model now lives in the top-level `pretrained/bge-base-en-v1.5` (git-ignored, or set `PREDICTLEADS_BGE_MODEL_DIR`). Safety tag `pre-cleanup` (local only) marks the state before the cleanup. See the [README](../README.md) for the map.
 
 ## Run the app (live, 2026-10-09)
 

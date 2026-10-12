@@ -17,7 +17,7 @@ from typing import Any, Mapping, Sequence
 import job_matching_engine as engine
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-REPO_ROOT = PROJECT_ROOT.parent  # data/, models/ and .env are shared with analysis/ at the top
+REPO_ROOT = PROJECT_ROOT.parent  # data/, pretrained/ and .env are shared with analysis/ at the top
 
 BGE_ID = "BAAI/bge-base-en-v1.5"
 BGE_REVISION = "a5beb1e3e68b9ab74eb54cfd186867f64f240e1a"
@@ -26,14 +26,14 @@ BGE_REPRESENTATION = "bge_section_priority_v1"
 MAX_BGE_TOKENS = 512
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for fetch/ (shared with analysis/)
-from fetch.paths import DATA_DIR, MODELS_DIR  # noqa: E402  shared with analysis/: one definition of where data lives
+from fetch.paths import DATA_DIR, PRETRAINED_DIR  # noqa: E402  shared with analysis/: one definition of where data lives
 MODEL_DIR_ENV = "PREDICTLEADS_BGE_MODEL_DIR"
-DEFAULT_MODEL_DIR = MODELS_DIR / "bge-base-en-v1.5"
+DEFAULT_MODEL_DIR = PRETRAINED_DIR / "bge-base-en-v1.5"
 _LEGACY_MODEL_DIR = DATA_DIR / "matching" / "bge_transition_20261008T142818Z" / "bge_model_files"
 
 
 def model_dir() -> Path:
-    """Local BGE model files: $PREDICTLEADS_BGE_MODEL_DIR, else models/bge-base-en-v1.5, else the legacy experiment copy."""
+    """Local BGE model files: $PREDICTLEADS_BGE_MODEL_DIR, else pretrained/bge-base-en-v1.5, else the legacy experiment copy."""
     configured = os.environ.get(MODEL_DIR_ENV, "").strip()
     if configured:
         return Path(configured).expanduser()

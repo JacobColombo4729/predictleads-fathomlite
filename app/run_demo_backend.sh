@@ -2,7 +2,7 @@
 # macOS / Linux version of run_demo_backend.ps1.
 # Starts the demo API on http://127.0.0.1:8000 with the TF-IDF + BGE (RRF) ranker on the serving corpus.
 # Needs: data/matching/ai_ml_serving_v1 (built by `python code/rank_candidates.py export-serving`).
-# Uses the repository's .venv (pip install -r requirements.txt at the top) and the BGE model in the top-level models/bge-base-en-v1.5.
+# Uses the repository's .venv (pip install -r requirements.txt at the top) and the BGE model in the top-level pretrained/bge-base-en-v1.5.
 # First start takes a few minutes (it fits TF-IDF over the corpus once). Stop it with Ctrl+C.
 #   --ranker tfidf   start the lighter TF-IDF-only ranker instead
 #   --port N         listen on another port
@@ -32,7 +32,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-repo="$(dirname "$root")"  # data/, models/, .env and .venv are shared with analysis/ at the top
+repo="$(dirname "$root")"  # data/, pretrained/, .env and .venv are shared with analysis/ at the top
 serving="$repo/data/matching/ai_ml_serving_v1"
 if [[ $preview -eq 1 ]]; then
   jobs="$repo/data/preview/jobs.jsonl"
@@ -44,7 +44,7 @@ if [[ $preview -eq 1 ]]; then
   fi
   export PREDICTLEADS_API_JOBS_PATH="$jobs"
   # With matching embeddings and the BGE model present, use the full ranker (Compass works); otherwise TF-IDF.
-  if [[ -f "$repo/data/preview/bge_embeddings.npy" && -d "$repo/models/bge-base-en-v1.5" ]]; then
+  if [[ -f "$repo/data/preview/bge_embeddings.npy" && -d "$repo/pretrained/bge-base-en-v1.5" ]]; then
     export PREDICTLEADS_API_CORPUS_DIR="$repo/data/preview"
     export PREDICTLEADS_API_RANKER="rrf"
   else
