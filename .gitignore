@@ -84,3 +84,6 @@ tempCodeRunnerFile.py
 # Archives and arrays anywhere (a downloaded dataset zip, embeddings), even outside data/
 *.zip
 *.npy
+
+# Claude Code agent worktrees (temporary checkouts)
+.claude/worktrees/
