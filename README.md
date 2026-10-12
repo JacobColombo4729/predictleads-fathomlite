@@ -69,7 +69,7 @@ predictleads-fathomlite/
     ├── frontend/             React + Vite app
     ├── code/                 corpus and ranking pipeline, BGE text, role classifier, résumé fill, signals
     ├── tests/                live tests (plus backend/tests/)
-    ├── docs/  notebooks/  archive/
+    ├── docs/  notebooks/
     ├── APP.md  DESIGN.md     the app's priority queue and its design
     ├── STATUS.md  roadmap.md
     └── run_demo_backend / run_tests (.ps1 for Windows, .sh for macOS / Linux)
@@ -331,10 +331,9 @@ python analysis/notebooks/scratch.py
 ```powershell
 .\app\run_tests.ps1                  # live Python tests
 .\app\run_tests.ps1 -Frontend        # also type-check and build the React app
-.\app\run_tests.ps1 -Archive         # also the archived experiment tests
 ```
 
-macOS / Linux: `./app/run_tests.sh`, with `--frontend` and `--archive`.
+macOS / Linux: `./app/run_tests.sh`, with `--frontend`.
 
 ---
 
@@ -362,7 +361,6 @@ What is in `app/`:
 | `app/frontend/` | React + Vite app wired to the API (Discover, Saved, Compass, Signals, Profile). See [app/frontend/README.md](app/frontend/README.md). |
 | `app/code/` | Python modules: matching engine (`job_matching_engine`), BGE text builders (`bge_text`), corpus and ranking pipeline (`rank_candidates`, `extract_targeted_pool`, `prepare_jobs`), role-family classifier, grounded explanations, résumé extraction, review tooling, and the early data-discovery scripts. |
 | `app/tests/`, `app/backend/tests/` | Live tests (step 11). |
-| `app/archive/experiments/` | Earlier experiments, kept as history. Nothing live imports them. See its [README](app/archive/experiments/README.md). |
 | `app/docs/` | Data discovery and preparation notes, API contracts, the grounded-explanation contract. `app/docs/archive/` holds historical documents. |
 | `app/notebooks/` | Data discovery notebook (local-only view). |
 
@@ -489,4 +487,4 @@ Everyone must **permanently delete all copies of the data** (local `data/` folde
 1. [app/APP.md](app/APP.md) and [app/roadmap.md](app/roadmap.md)
 2. [Discovery summary](app/docs/discovery-summary.md), [data preparation](app/docs/data-preparation.md), [preparation review](app/docs/preparation-review.md), [role exploration](app/docs/role-exploration.md), [artifact index](app/docs/artifact-index.md), [what the first/last-seen dates mean](app/docs/signal-semantics.md), [hiring signals](app/docs/hiring-signals.md), [ML inventory (what is ML, why, how validated)](app/docs/ml-inventory.md), [feedback data and the path to production](app/docs/feedback-data.md)
 3. [Backend API](app/docs/backend-api.md), [API contracts](app/docs/api-contracts.md), [grounded match explanations](app/docs/grounded-match-explanations.md), [matching engine notes](app/docs/job-matching-engine.md)
-4. History: [app/docs/archive/](app/docs/archive/) and [app/archive/experiments/](app/archive/experiments/README.md)
+4. History: [app/docs/archive/](app/docs/archive/)

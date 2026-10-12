@@ -1,6 +1,6 @@
 # Local Artifact Index
 
-> **Note (2026-10-09):** an index of local data outputs from the discovery and early matching stages. For the current corpus, embeddings and rankings see [roadmap.md](../roadmap.md). Experiment scripts referred to here are in `archive/experiments/`.
+> **Note (2026-10-09):** an index of local data outputs from the discovery and early matching stages. For the current corpus, embeddings and rankings see [roadmap.md](../roadmap.md). The experiment scripts referred to here were deleted on 2026-10-12; they're in the git history.
 
 Artifact paths below are workspace-relative and remain under ignored `data/`. These are local machine outputs, not files included in a team contribution. Do not use sample-slot counts alone as completion evidence; check saved `run_summary.json` or `preparation_summary.json` fields such as `stop_reason` and `complete_file_scanned`.
 
