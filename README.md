@@ -56,11 +56,12 @@ predictleads-fathomlite/
     ├── code/                 corpus and ranking pipeline, BGE text, role classifier, résumé fill, signals
     ├── tests/                live tests (plus backend/tests/)
     ├── docs/  notebooks/  archive/
-    ├── STATUS.md  roadmap.md
+    ├── APP.md  DESIGN.md     the app's priority queue and its design
+    ├── roadmap.md
     └── run_demo_backend / run_tests (.ps1 for Windows, .sh for macOS / Linux)
 ```
 
-What each analysis doc is for: the table at the top of [`analysis/STANDARDS.md`](analysis/STANDARDS.md). Where the app stands: [`app/STATUS.md`](app/STATUS.md).
+What each analysis doc is for: the table at the top of [`analysis/STANDARDS.md`](analysis/STANDARDS.md). What the app has left to do: [`app/APP.md`](app/APP.md).
 
 ---
 
@@ -471,7 +472,7 @@ Everyone must **permanently delete all copies of the data** (local `data/` folde
 **Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we're doing), [`analysis/STANDARDS.md`](analysis/STANDARDS.md) (how we work), [`analysis/DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md), [`app/DESIGN.md`](app/DESIGN.md), [`analysis/ANALYSIS.md`](analysis/ANALYSIS.md), [`analysis/docs/volunteer_profiles.md`](analysis/docs/volunteer_profiles.md) (the on-hold plan for volunteer career-changer profiles, with its blank form).
 
 **App:**
-1. [app/STATUS.md](app/STATUS.md) and [app/roadmap.md](app/roadmap.md)
+1. [app/APP.md](app/APP.md) and [app/roadmap.md](app/roadmap.md)
 2. [Discovery summary](app/docs/discovery-summary.md), [data preparation](app/docs/data-preparation.md), [preparation review](app/docs/preparation-review.md), [role exploration](app/docs/role-exploration.md), [artifact index](app/docs/artifact-index.md), [what the first/last-seen dates mean](app/docs/signal-semantics.md), [hiring signals](app/docs/hiring-signals.md), [ML inventory (what is ML, why, how validated)](app/docs/ml-inventory.md), [feedback data and the path to production](app/docs/feedback-data.md)
 3. [Backend API](app/docs/backend-api.md), [API contracts](app/docs/api-contracts.md), [grounded match explanations](app/docs/grounded-match-explanations.md), [matching engine notes](app/docs/job-matching-engine.md)
 4. History: [app/docs/archive/](app/docs/archive/) and [app/archive/experiments/](app/archive/experiments/README.md)

@@ -17,7 +17,7 @@ This repository joins two earlier ones with their full histories: `analysis/` (w
 
 **`app/`**
 - `APP.md`: the app priority queue. `DESIGN.md`: the app design, including the retraining compass (section 3).
-- `backend/` (FastAPI), `frontend/` (React + Vite), `code/` (corpus, BGE text, ranking, role classifier, résumé fill, signals), `tests/`. How to run and test: `README.md` (steps 11–13); where it stands: `app/STATUS.md`; design docs in `app/docs/`.
+- `backend/` (FastAPI), `frontend/` (React + Vite), `code/` (corpus, BGE text, ranking, role classifier, résumé fill, signals), `tests/`. How to run and test: `README.md` (steps 11–13); what's left: `app/APP.md`; design docs in `app/docs/`.
 - App scripts (`app/run_*.ps1`, `.sh`) run from anywhere; pipeline commands run from `app/`. App code finds the shared folders through `REPO_ROOT` (`app/`'s parent).
 
 **Top level (shared)**
