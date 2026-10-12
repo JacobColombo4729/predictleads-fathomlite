@@ -6,6 +6,19 @@ PredictLeads × TripleTen externship project: role discovery and job listing pri
 
 This repository joins two earlier ones with their full commit histories: `analysis/` (was `project_leads`, Jacob) and `app/` (was `predictleads-hackathon`, Jesse). They share one environment, one `.env`, one `data/` and one `pretrained/` at the top.
 
+
+## Quick start
+
+New to the repo? About 20 minutes; each step links to its details below.
+
+1. **Accept the GitHub invitation**, clone the repo, then `git switch <your branch>` and `git merge origin/main` ([step 3](#3-clone-the-repo)).
+2. **One Python 3.11 `.venv`** at the top, from `requirements.txt` ([steps 4–6](#4-create-your-virtual-environment)).
+3. **`.env`** from `.env.example`: the AWS settings and your `OPENAI_API_KEY` ([steps 7–8](#7-set-up-aws-credentials)).
+4. **Data:** `python -m fetch.get_bge` for the BGE model, the app's serving corpus in `data/matching/ai_ml_serving_v1` (move your copy there, or rebuild it), and optionally `python -m fetch.get_predictleads` ([step 9](#9-data-and-models), [step 13](#13-rebuild-the-apps-corpus)).
+5. **Turn on Eve**, the reviewer that tidies and checks every push: `git config core.hooksPath .githooks` ([step 14](#14-daily-git-workflow)).
+6. **Run the app** ([step 12](#12-run-the-app)).
+7. **Catch up:** the other person's change log (`JACOB.md` or `JESSE.md`) and any asks waiting for you in [`.claude/ASKS.md`](.claude/ASKS.md).
+
 ---
 
 ## Contents
@@ -39,7 +52,6 @@ predictleads-fathomlite/
 ├── .env.example              template for your .env (settings and keys)
 ├── .gitattributes  .gitignore
 ├── requirements.txt          one pinned list for everything (Python 3.11)
-├── SETUP.md                  start here if you're new: setup, Eve, where things live
 ├── JACOB.md  JESSE.md        each person's change log, most important first
 ├── .claude/ASKS.md           what each of us wants the other to make sure of (Eve keeps it)
 ├── fetch/                    where every dataset comes from and lives: one download script each, the shared folders
