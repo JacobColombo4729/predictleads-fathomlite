@@ -1,6 +1,6 @@
 # predictleads-fathomlite
 
-PredictLeads × TripleTen externship project: role discovery and job listing prioritization for career changers, built on PredictLeads job data. Which tech roles a person's background transfers to, which listings they can realistically get, and which to apply to first. What's built: [`STATUS.md`](analysis/STATUS.md). What's planned: [`VISION.md`](analysis/VISION.md). Every doc: [Where to read more](#where-to-read-more).
+PredictLeads × TripleTen externship project: role discovery and job listing prioritization for career changers, built on PredictLeads job data. Which tech roles a person's background transfers to, which listings they can realistically get, and which to apply to first. See [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md).
 
 > ⚠️ **This repo is private and confidential.** Everything in it is covered by our Training Services Agreements. Read the [Data & Security Rules](#data--security-rules) before you start working.
 
@@ -44,19 +44,19 @@ predictleads-fathomlite/
 ├── analysis/
 │   ├── notebooks/            EDA_SDA_1–4, TimeSeries, Profiles, ML_Fit, ML_Rank
 │   ├── src/                  shared code imported by the notebooks
-│   ├── docs/                 data reference, notebook text exports
-│   └── STATUS, VISION, PRIORITY_QUEUE, DECISION_LOG, DIFFERENTIATORS, STANDARDS
-│                             the project docs (see Where to read more)
+│   ├── docs/                 decision log, data reference, job growth plan, notebook text exports
+│   └── PROJECT_OUTLINE, STANDARDS, APPLICATION, DIFFERENTIATORS, PRIORITY_QUEUE
 └── app/
     ├── backend/              FastAPI demo API
     ├── frontend/             React + Vite app
     ├── code/                 corpus and ranking pipeline, BGE text, role classifier, résumé fill, signals
     ├── tests/                live tests (plus backend/tests/)
     ├── docs/  notebooks/  archive/
+    ├── STATUS.md  roadmap.md
     └── run_demo_backend / run_tests (.ps1 for Windows, .sh for macOS / Linux)
 ```
 
-What each doc is for: [Where to read more](#where-to-read-more).
+What each analysis doc is for: the table at the top of [`analysis/STANDARDS.md`](analysis/STANDARDS.md). Where the app stands: [`app/STATUS.md`](app/STATUS.md).
 
 ---
 
@@ -236,8 +236,6 @@ Everything lives in two git-ignored folders at the top, shared by the notebooks 
 
 `PL_DATA_DIR` points the notebooks at another data folder (used for tests on synthetic data).
 
-Teammates share `data/` and `models/` as zip files over a private channel; the agreement forbids public posting.
-
 ---
 
 ## 10. Open the project in VS Code
@@ -309,7 +307,7 @@ macOS / Linux: `./app/run_tests.sh`, with `--frontend` and `--archive`.
 
 ## 12. Run the app
 
-**FathomLite** is the app: profile (with optional **Magic fill** from a résumé), ranked jobs with 👍/👎 feedback, saved jobs, the **Compass** (analysis of picked jobs, with an optional AI skills gap analysis) and **Signals** (who is hiring, with **Ask the market**). What each piece does and how well it's verified: [`STATUS.md`](analysis/STATUS.md#app-fathomlite).
+**Bright Depth** is a demo that helps career changers (starting with TripleTen AI/ML graduates) find realistic roles in AI/ML, data and technical sales / solutions engineering. A user builds a profile (optionally with **Magic fill** from a résumé), sees ranked jobs from the September 30, 2026 PredictLeads snapshot, rates them 👍/👎 to refine the list, saves the ones they like, and can send up to 20 saved jobs to the **Compass**, which finds what they have in common, how the profile lines up (with the closest line of the person's own profile as evidence) and other roles that might fit. The Compass includes an **AI skills gap analysis for each job** (off unless started with `-Assess`). A **Signals** tab (with **Ask the market**: ask who is hiring in plain words, answered only from our data; see [app/docs/ask-the-market.md](app/docs/ask-the-market.md)) ranks companies by hiring bursts and steady hiring (see [app/docs/hiring-signals.md](app/docs/hiring-signals.md)).
 
 Everything in the app is a hackathon prototype. Listings are **historical records, not verified open positions**, and no ranking-quality claim is made: the ranker has not been compared against alternatives on this audience.
 
@@ -412,7 +410,6 @@ These come from the Training Services Agreements we each signed. Breaking them c
 - 🚫 Don't use AI coding extensions on files in this project (Copilot is disabled in `.vscode/settings.json`).
 - ✅ It's fine to ask AI general questions ("how do I groupby in pandas?") or use **synthetic** example data.
 - The app sends nothing to an outside AI service unless the person whose text it is agrees first. Magic fill removes emails, phone numbers and links before sending.
-- OpenAI use is allowed for the app's features (confirmed 2026-10-11), off by default. The shared spend cap is used up: any paid call needs a new decision.
 
 ### Notebooks
 - ✅ **Clear all outputs before every commit.** Outputs can contain data.
@@ -451,22 +448,10 @@ Everyone must **permanently delete all copies of the data** (local `data/` folde
 
 ## Where to read more
 
-Each fact has one home; other docs link to it. Only this README and `CLAUDE.md` sit at the top; the project docs are in `analysis/`.
+**Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we're doing), [`analysis/STANDARDS.md`](analysis/STANDARDS.md) (how we work), [`analysis/DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md), [`analysis/APPLICATION.md`](analysis/APPLICATION.md), [`analysis/PRIORITY_QUEUE.md`](analysis/PRIORITY_QUEUE.md), [`analysis/DECISION_LOG.md`](analysis/DECISION_LOG.md), [`analysis/docs/data.md`](analysis/docs/data.md), [`analysis/docs/merge_plan.md`](analysis/docs/merge_plan.md).
 
-| Doc | Its one job |
-|:--|:--|
-| `README.md` (this file) | Setup, running, Git workflow and the data rules |
-| [`STATUS.md`](analysis/STATUS.md) | **What's built and verified,** for the analysis (data, notebooks, findings) and the app; known limits. Start here |
-| [`VISION.md`](analysis/VISION.md) | **Everything not built yet:** the agreed merge changes, screens, the retraining compass (section 3, with the job growth plan in 3.3), the priority model, agents, stages, open questions and later ideas |
-| [`PRIORITY_QUEUE.md`](analysis/PRIORITY_QUEUE.md) | **The one task list** for both halves |
-| [`DECISION_LOG.md`](analysis/DECISION_LOG.md) | Every decision, with its reasoning |
-| [`DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md) | **How we stand out:** the angles, the pitch, how we talk about the data, and what we never claim |
-| [`analysis/STANDARDS.md`](analysis/STANDARDS.md) | How the analysis works: success criteria, working standards, validation and **leakage rules**, scope, roles, risks |
-| [`analysis/docs/data.md`](analysis/docs/data.md) | Data sources, fields, quirks and auto-generated schemas |
-| `analysis/docs/*.md` (EDA_SDA_*, ML_*, Profiles, TimeSeries) | Text exports of the notebooks, generated by `src/export_markdown.py`; don't edit by hand |
-| `CLAUDE.md` | Instructions for Claude Code |
-
-**App reference** (`app/docs/`):
-1. Components: [backend API](app/docs/backend-api.md), [API contracts](app/docs/api-contracts.md), [hiring signals](app/docs/hiring-signals.md), [Ask the market](app/docs/ask-the-market.md), [feedback data and the path to production](app/docs/feedback-data.md), [grounded match explanations](app/docs/grounded-match-explanations.md), [matching engine notes](app/docs/job-matching-engine.md), [ML inventory (what is ML, why, how validated)](app/docs/ml-inventory.md), [what the first/last-seen dates mean](app/docs/signal-semantics.md), [frontend](app/frontend/README.md)
-2. Early data discovery (the scripts still in `app/code/`): [discovery summary](app/docs/discovery-summary.md), [data preparation](app/docs/data-preparation.md), [preparation review](app/docs/preparation-review.md), [preparation proposal](app/docs/data-preparation-proposal.md), [role exploration](app/docs/role-exploration.md), [artifact index](app/docs/artifact-index.md)
-3. History: [app/docs/archive/](app/docs/archive/) (including the review page and run log) and [app/archive/experiments/](app/archive/experiments/README.md)
+**App:**
+1. [app/STATUS.md](app/STATUS.md) and [app/roadmap.md](app/roadmap.md)
+2. [Discovery summary](app/docs/discovery-summary.md), [data preparation](app/docs/data-preparation.md), [preparation review](app/docs/preparation-review.md), [role exploration](app/docs/role-exploration.md), [artifact index](app/docs/artifact-index.md), [what the first/last-seen dates mean](app/docs/signal-semantics.md), [hiring signals](app/docs/hiring-signals.md), [ML inventory (what is ML, why, how validated)](app/docs/ml-inventory.md), [feedback data and the path to production](app/docs/feedback-data.md)
+3. [Backend API](app/docs/backend-api.md), [API contracts](app/docs/api-contracts.md), [grounded match explanations](app/docs/grounded-match-explanations.md), [matching engine notes](app/docs/job-matching-engine.md)
+4. History: [app/docs/archive/](app/docs/archive/) and [app/archive/experiments/](app/archive/experiments/README.md)

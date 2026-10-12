@@ -9,9 +9,9 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 ## What only this project has
 
 - **Live 2026 listings with timing:** when each listing appeared and when it closed (PredictLeads), so we can say how fast to act, not only what fits.
-- **Real career switches:** people who retrained into computer and mathematical roles, found in a public resume dataset (`analysis/notebooks/Profiles.ipynb`): 2,813 career changers ([`analysis/docs/data.md`](docs/data.md)).
+- **Real career switches:** people who retrained into computer and mathematical roles, found in a public resume dataset (`notebooks/Profiles.ipynb`): 2,813 career changers ([`docs/data.md`](docs/data.md)).
 - **Role buckets that connect the two:** the same buckets on listings (O*NET codes) and on career switches (job titles).
-- **Job growth expectations per role:** expected growth over at most the next 5 years, from official occupational projections (BLS 2025–2035) joined on the same occupation codes, so role recommendations look ahead. Plan: [`VISION.md` section 3.3](VISION.md#33-expected-job-growth).
+- **Job growth expectations per role:** expected growth over at most the next 5 years, from official occupational projections (BLS 2025–2035) joined on the same occupation codes, so role recommendations look ahead. Plan: [`JOB_GROWTH.md`](JOB_GROWTH.md).
 
 ## Angles
 
@@ -24,7 +24,7 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 | **5. Where and when to look** | A watch list of employers hiring at volume or posting entry-level roles, plus a check-every-N-days cadence; a date picker shows how the list changed (July vs. September 2026) | Half of scope listings come from companies with 500+ listings in any field; the top 10% of companies post 47–73% of each role bucket's listings; every listing has first-seen and last-seen dates |
 | **6. Ideas tab** | A separate tab built on the compass, from the résumé: skills to build, career options down the line, the pay increase, expected job growth, and stepping-stone roles (to try; time frames kept vague) | Profiles (time to switch, paths, level at the switch), 2026 listing pay by role, job growth expectations |
 
-Every compass idea, with status and where it's built: [`VISION.md`](VISION.md#3-the-retraining-compass), section 3.
+Every compass idea, with status and where it's built: [`APPLICATION.md`](APPLICATION.md#3-the-retraining-compass), section 3.
 
 ## Planned additions
 
@@ -66,7 +66,3 @@ Same claim rules as below: idea 2 shows where certified switchers went, never th
 - **Not success rates:** the resumes only show people who made a switch, not those who tried and didn't. The compass shows where switchers went, never the odds that a switch works.
 - **Not entry-level growth:** job growth projections cover a whole occupation; entry-level openings come from our listings.
 - **Not a certain future:** growth is "expected (official projections)", never "will grow", with its accuracy stated (moderate for years 1–2, low to moderate for 3–5) and a range if the error band is adopted.
-- **Not that employers hire career changers:** accessibility is read from what listings *ask for*, so a listing is "open to newcomers on paper", never one that "hires career changers".
-- **Not inferred statements** (app rule, 2026-10-10): anything shown is a count, a quote, or a clearly labelled model measurement. No "likely buying", no guessed intent, and no blanks filled with estimates unless labelled as a model estimate and agreed first.
-- **Not application counts, employer intent or hiring odds:** we don't see applications. Timing (chance still open, the apply-by date) and competition are labelled estimates from listing activity, never a time-to-fill or a chance of being hired.
-- **Not validated quality without a measurement:** automated or model-generated judgments, passing tests and plausible-looking results are never presented as validated recommendation quality. The app's ranker comparison hasn't been run (`STATUS.md`).

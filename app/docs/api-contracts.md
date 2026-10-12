@@ -2,7 +2,7 @@
 
 > **Note (2026-10-09):** these are the planned contracts; the implemented routes are in [backend-api.md](backend-api.md), which is the source of truth where they differ.
 
-**Status: implemented demo API.** The routes below are served by the FastAPI prototype documented in [backend API](backend-api.md). This is not production authentication; the React app remains fixture/localStorage-backed until connected. Ranking uses the existing `job_matching_engine.rank_tfidf` implementation. Live assessment generation is disabled by default. See [frontend/backend map](archive/frontend-backend-map.md), [status](../../analysis/STATUS.md), [frontend types](../frontend/src/types.ts), [matching engine](../code/job_matching_engine.py), and [grounded explanation service](../code/grounded_match_explanations.py).
+**Status: implemented demo API.** The routes below are served by the FastAPI prototype documented in [backend API](backend-api.md). This is not production authentication; the React app remains fixture/localStorage-backed until connected. Ranking uses the existing `job_matching_engine.rank_tfidf` implementation. Live assessment generation is disabled by default. See [frontend/backend map](archive/frontend-backend-map.md), [roadmap](../roadmap.md), [frontend types](../frontend/src/types.ts), [matching engine](../code/job_matching_engine.py), and [grounded explanation service](../code/grounded_match_explanations.py).
 
 Use JSON over HTTPS at `/api/v1`. Keep the ranker behind a server interface so keyword, TF-IDF, embedding, or hybrid implementations can be replaced without changing client request shapes. Examples are illustrative, not claims about current data availability.
 
