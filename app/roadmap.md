@@ -1,7 +1,7 @@
 # PredictLeads Career Intelligence Roadmap
 
 Updated: October 10, 2026  
-Status: Working roadmap, rewritten to match the app as built. For the live state of each piece, [STATUS.md](STATUS.md) is the source of truth and wins over this file if they differ. For what each ML piece is and how well it is validated, see [docs/ml-inventory.md](docs/ml-inventory.md).
+Status: Working roadmap, rewritten to match the app as built. What's left to do is in the app's priority queue, [APP.md](APP.md). For what each ML piece is and how well it is validated, see [docs/ml-inventory.md](docs/ml-inventory.md).
 
 **Audience:** career changers, starting with ourselves (TripleTen AI/ML graduates), looking for realistic roles in AI/ML, data, and technical sales / solutions engineering. The same hiring data also serves PredictLeads' own customers (see Signals).  
 **Target date:** about 2026-10-23. Deployment target and demo format are not yet decided.
@@ -119,7 +119,7 @@ Ranked on: value to the demo and to PredictLeads, effort, whether we can check i
 
 ## Evidence Index
 
-- [STATUS.md](STATUS.md) (current state, how to run, pending items) and [docs/ml-inventory.md](docs/ml-inventory.md) (every ML piece, its validation, what not to claim)
+- [APP.md](APP.md) (what's left to do), README step 12 (how to run), and [docs/ml-inventory.md](docs/ml-inventory.md) (every ML piece, its validation, what not to claim)
 - [Hiring signals report](docs/hiring-signals.md) and [what the first/last-seen dates mean](docs/signal-semantics.md)
 - [Corpus report](data/matching/ai_ml_corpus_v1/corpus_report.json) and [classifier results](data/matching/role_family_classifier_20261009T205400Z/metrics.json)
 - [Journal and experiment chronology](docs/archive/journal.md) and [data artifacts](docs/artifact-index.md)
