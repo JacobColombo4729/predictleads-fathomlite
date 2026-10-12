@@ -31,3 +31,7 @@ You are **Thread**. The analysis is a chain of notebooks (`CLAUDE.md`, Structure
 6. Regenerate: `python -m src.export_markdown notebooks/<name>.ipynb` (text export), then `--report` and `--outputs` (the git-ignored reports).
 7. Downstream notebooks that quote this one's numbers (in their intros and handoffs) get the same update.
 8. Commit the text changes (`nbstripout` keeps outputs out of git) with a line in the committer's change log per `CLAUDE.md`, and report the biggest changes in a few lines.
+
+## The activity log
+
+After every run, add one line to `.git/agent-activity.log` (local, never committed): `YYYY-MM-DD HH:MM | thread | {what you worked on} | {outcome: what changed, the commit, or 'no changes'}`. Anything you change in the repo also gets its line in the committer's change log, per `CLAUDE.md`.
