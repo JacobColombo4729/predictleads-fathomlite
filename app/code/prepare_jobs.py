@@ -16,56 +16,15 @@ from typing import Any, BinaryIO
 
 import boto3
 import botocore
-import botocore.exceptions
 import zstandard as zstd
-from dotenv import load_dotenv
 
-REPO_ROOT = Path(__file__).resolve().parents[2]  # data/, models/ and .env are shared with analysis/ at the top
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for data_sources/ (shared with analysis/)
+from data_sources.paths import DATA_DIR, RAW_DIR, REPO_ROOT  # noqa: F401  shared with analysis/ (one definition)
+from data_sources.predictleads import (BUCKET, KEY, PREFIX, PROFILE, REGION, SNAPSHOT_DATE,  # noqa: F401
+                                       raw_file, require_bucket, s3_session)
 
-SNAPSHOT_DATE = "2026-09-30"
-# The S3 location and AWS profile come from the top-level .env (S3_PATH, AWS_PROFILE; README steps 7-8), the same as the
-# analysis, so the bucket name stays out of the code. A downloaded copy in data/raw/ (python -m src.get_predictleads,
-# from analysis/) is read instead of S3 when it's there.
-load_dotenv(REPO_ROOT / ".env", override=False)
-BUCKET, _, _S3_PREFIX = os.environ.get("S3_PATH", "").strip().removeprefix("s3://").partition("/")
-PREFIX = (_S3_PREFIX.rstrip("/") or SNAPSHOT_DATE.replace("-", "/")) + "/"
-KEY = PREFIX + f"job_openings_{SNAPSHOT_DATE.replace('-', '_')}.jsonl.zst"
-PROFILE = os.environ.get("AWS_PROFILE") or None
-REGION = os.environ.get("AWS_REGION") or "us-east-2"
-RAW_DIR = REPO_ROOT / "data" / "raw"
-
-
-DATA_HELP = """
-How this project reaches the PredictLeads data changed (2026-10-12): nothing about it is written into the code.
-Why: one setup for both halves (analysis/ and app/); no bucket names or AWS profiles in committed files (our data
-agreement); and no duplicate copies, since the download script reuses files you already have.
-
-Steps:
-  1. In the top-level .env (copy .env.example if you don't have one; README step 8), set
-       S3_PATH=s3://<bucket>/<YYYY>/<MM>/<DD>/     the S3 folder of the export
-       AWS_PROFILE=<your AWS profile name>          the profile you set up with `aws configure` (README step 7)
-  2. Optional, to read from disk instead of streaming from S3: from analysis/, run
-       python -m src.get_predictleads --check      what's on S3 and what you already have
-       python -m src.get_predictleads              downloads into data/raw/ (checks disk space and asks first;
-                                                  a copy you downloaded by hand is moved there, not downloaded again)
-  3. Rerun your command. Details: README step 9.
-"""
-
-
-def require_bucket() -> str:
-    """The bucket from S3_PATH, or an explanation of the setup before any S3 call."""
-    if not BUCKET:
-        raise SystemExit("S3_PATH isn't set in the top-level .env, and there's no local copy in data/raw/." + DATA_HELP)
-    return BUCKET
-
-
-def s3_session() -> "boto3.Session":
-    """The AWS session from AWS_PROFILE; a profile that doesn't exist (e.g. an old hard-coded name) gets the setup steps."""
-    require_bucket()
-    try:
-        return boto3.Session(profile_name=PROFILE, region_name=REGION)
-    except botocore.exceptions.ProfileNotFound:
-        raise SystemExit(f"The AWS profile in AWS_PROFILE ({PROFILE!r}) isn't set up on this machine." + DATA_HELP) from None
+# The S3 location and AWS profile come from the top-level .env and the local copies from data/raw/, all through
+# data_sources.predictleads (never written into this code). The pipeline scripts import them from here.
 DEFAULT_LIMIT = 10_000
 MAX_LINE_BYTES = 4 * 1024 * 1024
 PROGRESS_EVERY = 1_000
@@ -412,12 +371,8 @@ def _write_summary(path: Path, summary: dict[str, Any]) -> None:
 
 
 def _discover_local_source(workspace: Path) -> Path | None:
-    candidates = (
-        workspace / Path(KEY),
-        workspace / "data" / Path(KEY).name,
-        workspace / "data" / "raw" / Path(KEY).name,
-    )
-    return next((path for path in candidates if path.is_file()), None)
+    """The job-openings file in data/raw/, if downloaded (data_sources.get_predictleads)."""
+    return raw_file(Path(KEY).name)
 
 
 def _run_self_tests() -> None:
@@ -648,7 +603,7 @@ def prepare_slice(workspace: Path, output_dir: Path, limit: int) -> dict[str, An
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit", type=int, default=DEFAULT_LIMIT)
-    parser.add_argument("--output-root", type=Path, default=REPO_ROOT / "data" / "prepared")
+    parser.add_argument("--output-root", type=Path, default=DATA_DIR / "prepared")
     parser.add_argument("--run-name", default=None)
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args(argv)

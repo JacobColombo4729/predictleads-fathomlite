@@ -1,4 +1,4 @@
-"""Shared by the download scripts (get_predictleads, get_resumes): a disk-space check before anything is written."""
+"""Shared by every download script (data_sources.get_*): a disk-space check and a question before anything is written."""
 import shutil
 import sys
 from pathlib import Path

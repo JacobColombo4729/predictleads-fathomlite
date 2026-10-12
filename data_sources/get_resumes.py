@@ -1,15 +1,14 @@
 """Download the public structured-resume dataset from Kaggle into data/external/resume_structured/ (for Profiles.ipynb).
 
-Usage, from analysis/ (.venv activated):
-    python -m src.get_resumes            -> download version 2 and unpack the tables the project uses
-    python -m src.get_resumes --force    -> download again even if the tables are already there
-    python -m src.get_resumes --yes      -> don't ask before downloading (the disk-space check still runs)
+Usage, from the repository root (.venv activated):
+    python -m data_sources.get_resumes            -> download version 2 and unpack the tables the project uses
+    python -m data_sources.get_resumes --force    -> download again even if the tables are already there
+    python -m data_sources.get_resumes --yes      -> don't ask before downloading (the disk-space check still runs)
 Profiles.ipynb calls ensure() at the start, so running the notebook is enough.
 
 Kaggle `suriyaganesh/resume-dataset-structured`, version 2 (2024-11-14), MIT license. It's public, so no Kaggle
-account or API key is needed. Nothing is downloaded twice: tables already unpacked are kept, and a zip already under
-data/ (a hand download) is unpacked instead. Otherwise the zip goes to data/external/ (git-ignored), only the tables
-the project uses are unpacked, and the zip is deleted afterwards. The people table (names and contact details) is never unpacked: nothing
+account or API key is needed. If the tables are already there, it does nothing. Otherwise the zip goes to
+data/external/ (git-ignored), only the tables the project uses are unpacked, and the zip is deleted afterwards. The people table (names and contact details) is never unpacked: nothing
 reads it. Prints file names and sizes only, never contents.
 """
 import argparse
@@ -23,13 +22,13 @@ from pathlib import Path, PurePosixPath
 import requests
 from tqdm import tqdm
 
-from src.downloads import confirm_space
-from src.eda_helpers import DATA_DIR
+from data_sources.downloads import confirm_space
+from data_sources.paths import DATA_DIR, external
 
 DATASET = "suriyaganesh/resume-dataset-structured"
 VERSION = 2
 URL = f"https://www.kaggle.com/api/v1/datasets/download/{DATASET}?datasetVersionNumber={VERSION}"
-RESUME_DIR = DATA_DIR / "external" / "resume_structured"
+RESUME_DIR = external("resume_structured")
 # Tables unpacked (file names in the zip carry a number prefix, e.g. 04_experience.csv). Profiles reads experience and
 # education; the skill tables are kept for the skills work in EDA_SDA_3 and ML_Fit.
 KEEP = {"experience.csv", "education.csv", "person_skills.csv", "skills.csv", "abilities.csv"}
@@ -47,18 +46,6 @@ def present():
     if not RESUME_DIR.exists():
         return set()
     return {table_name(p) for p in RESUME_DIR.rglob("*.csv")} & REQUIRED
-
-
-def local_zip():
-    """A Kaggle zip already somewhere under data/ (a hand download) holding the tables, or None: unpacked, not downloaded again."""
-    for zp in sorted(DATA_DIR.rglob("*.zip")):
-        try:
-            with zipfile.ZipFile(zp) as z:
-                if REQUIRED <= {table_name(n) for n in z.namelist()}:
-                    return zp
-        except zipfile.BadZipFile:
-            continue
-    return None
 
 
 def download(target, yes=False):
@@ -108,18 +95,12 @@ def ensure(force=False, yes=False):
         return RESUME_DIR
     RESUME_DIR.mkdir(parents=True, exist_ok=True)
     start = time.time()
-    found = None if force else local_zip()
-    if found:  # never download what's already here
-        print(f"found the dataset's zip at {found.relative_to(DATA_DIR.parent).as_posix()}: unpacking it instead of downloading")
-        written = unpack(found)
-        print(f"the zip at {found.relative_to(DATA_DIR.parent).as_posix()} is no longer needed; delete it to save space")
-    else:
-        zip_path = DATA_DIR / "external" / "resume_structured.zip"
-        download(zip_path, yes=yes)
-        try:
-            written = unpack(zip_path)
-        finally:
-            zip_path.unlink(missing_ok=True)
+    zip_path = RESUME_DIR.parent / "resume_structured.zip"
+    download(zip_path, yes=yes)
+    try:
+        written = unpack(zip_path)
+    finally:
+        zip_path.unlink(missing_ok=True)
     missing = REQUIRED - written.keys()
     if missing:
         raise SystemExit(f"the download is missing {sorted(missing)}: the dataset may have changed on Kaggle")

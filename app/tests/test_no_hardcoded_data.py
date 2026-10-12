@@ -1,7 +1,7 @@
-"""Guards the data rules across the whole repository (analysis/ and app/), not just the app.
+"""Guards the data rules across the whole repository (analysis/, app/ and data_sources/), not just the app.
 
-Data locations and credentials come only from the top-level .env (S3_PATH, AWS_PROFILE) and the download scripts
-(analysis/src/get_predictleads.py, get_resumes.py). This test fails if a tracked file hard-codes an S3 location, an AWS
+Data locations and credentials come only from the top-level .env (S3_PATH, AWS_PROFILE) and data_sources/ (the shared
+folders and one download script per dataset). This test fails if a tracked file hard-codes an S3 location, an AWS
 profile or access key, or a personal folder path. It reports the file and line, never the matched text.
 """
 import re
@@ -20,17 +20,7 @@ CODE_ONLY = {  # personal paths are allowed in docs as examples, not in code
     "a personal folder path (use paths relative to the repository)": re.compile(r"[A-Za-z]:\\{1,2}Users\\{1,2}|/Users/[A-Za-z]|/home/[a-z]"),
 }
 CODE_SUFFIXES = {".py", ".ipynb", ".ps1", ".sh", ".ts", ".tsx", ".js"}
-HOW_TO_FIX = """
-
-How to fix: take the value out of the file and read it from the setup instead.
-  - S3 location: S3_PATH from the top-level .env (in app/code, import BUCKET, PREFIX and KEY from prepare_jobs;
-    in analysis/src, use src.pl_data.connect_s3()).
-  - AWS profile: AWS_PROFILE from .env (prepare_jobs.s3_session() in the app, connect_s3() in the analysis).
-  - The raw files on disk: download them once with `python -m src.get_predictleads` (from analysis/); every reader
-    finds them in data/raw/. Never point code at your own folders: use REPO_ROOT / "data" or DATA_DIR.
-Why: one setup for both halves, no bucket names or credentials in committed files (our data agreement), and no
-duplicate downloads. Details: README step 9 and the "Getting data" rules in CLAUDE.md.
-"""
+HOW_TO_FIX = "\nRead these from the top-level .env and data_sources/ instead: README step 9."
 
 
 def tracked_files():

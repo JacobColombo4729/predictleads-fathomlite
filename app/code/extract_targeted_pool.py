@@ -27,13 +27,12 @@ import boto3
 import botocore
 import zstandard as zstd
 
-from prepare_jobs import BUCKET, KEY, RAW_DIR, SNAPSHOT_DATE, prepare_resource, s3_session
+from prepare_jobs import BUCKET, DATA_DIR, KEY, SNAPSHOT_DATE, prepare_resource, raw_file, s3_session
 
 MAX_LINE_BYTES = 4 * 1024 * 1024
 PROGRESS_SECONDS = 60
 FILTER_VERSION = "targeted_pool_filter_v1"
-REPO_ROOT = Path(__file__).resolve().parents[2]  # data/, models/ and .env are shared with analysis/ at the top
-SAMPLE_PATH = REPO_ROOT / "data/discovery/role_exploration/roles_corrected_20261006T000000Z/jobs_prepared_random_sample.jsonl"
+SAMPLE_PATH = DATA_DIR / "discovery/role_exploration/roles_corrected_20261006T000000Z/jobs_prepared_random_sample.jsonl"
 
 TITLE_PATTERNS = {
     "ai_ml_title": re.compile(
@@ -162,10 +161,10 @@ def scan(output_dir: Path) -> int:
             matched += 1
             reason_counts.update(reasons)
 
-    local = RAW_DIR / Path(KEY).name  # a downloaded copy (python -m src.get_predictleads, from analysis/) is read instead of S3
-    source = str(local) if local.is_file() else f"s3://{BUCKET}/{KEY}"
+    local = raw_file(Path(KEY).name)  # a downloaded copy (data_sources.get_predictleads) is read instead of S3
+    source = str(local) if local else f"s3://{BUCKET}/{KEY}"
     try:
-        if local.is_file():
+        if local:
             print(f"reading the local copy: {local.name}", flush=True)
             body = local.open("rb")
             source_meta = {"local_size_bytes": local.stat().st_size}
@@ -262,7 +261,7 @@ def main(argv: list[str] | None = None) -> int:
         return check_sample()
     if args.scan:
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        return scan(REPO_ROOT / "data" / "matching" / f"targeted_pool_{stamp}")
+        return scan(DATA_DIR / "matching" / f"targeted_pool_{stamp}")
     parser.print_help()
     return 2
 
