@@ -40,6 +40,7 @@ predictleads-fathomlite/
 ├── .gitattributes  .gitignore
 ├── requirements.txt          one pinned list for everything (Python 3.11)
 ├── DATA.md                   data reference: sources, fields, quirks, auto-generated schemas
+├── JACOB.md  JESSE.md        each person's change log, newest first
 ├── fetch/                    where every dataset comes from and lives: one download script each, the shared folders
 ├── .venv/  .env              your own, git-ignored
 ├── data/  pretrained/        local only, git-ignored: raw/ (PredictLeads), external/ (outside data), the notebooks'
@@ -364,12 +365,7 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 
 ## 14. Daily Git workflow
 
-**Each person works on their own branch** (`jacob`, `jesse`; decided 2026-10-11) and merges it into `main` when they decide a piece of work is ready (step 5), **after messaging the other person** (decided 2026-10-12), so we're both on the same page before `main` changes. Merge `main` into your branch **at least once a day**, so the two branches never drift far apart: a long-running branch once left the team 155 commits behind.
-
-**The rules, the same for both of us** (both are collaborators with write access):
-- Commit and push only your own branch, plus `main` when you merge into it. Never push to the other person's branch, and never force-push.
-- To get work into `main`: merge `main` into your branch, fix any conflicts there, run the tests, push, **message the other person** ("merging X into main"), then merge your branch into `main` (step 5).
-- **Merge conflicts are fixed on your own branch, never on `main`**, by whoever runs the merge. If a conflict touches the other person's code (`analysis/` is Jacob's, `app/` is Jesse's) or a shared top-level file (`requirements.txt`, `README.md`, `fetch/`, `.gitignore`, `.claude/`) and the right answer isn't obvious, ask them before committing. With Claude, it stops at the conflict, shows both versions and a suggested fix, and waits for you.
+**Each person works on their own branch** (`jacob`, `jesse`) and merges it into `main` when the work is ready (step 5). **Log your changes** in your own file, [`JACOB.md`](JACOB.md) or [`JESSE.md`](JESSE.md), so the other person can catch up at a glance (decided 2026-10-12). There are no other rules. Merging `main` into your branch often keeps the two branches close: a long-running branch once left the team 155 commits behind.
 
 ```bash
 # 1. Start on your branch, with everything already merged into main
@@ -386,14 +382,13 @@ git status                                     # make sure NO data files, .env, 
 #    Or from the terminal (any OS, venv activated):
 #    jupyter nbconvert --clear-output --inplace path/to/notebook.ipynb
 
-# 4. Commit and push your branch
+# 4. Log the change in JACOB.md or JESSE.md, then commit and push your branch
 git add <files>                                # name the files; avoid `git add .`
 git commit -m "Short description of what you did"
 git push
 
 # 5. Only when YOU decide the work is ready for everyone (app tests pass, notebooks run): merge it into main.
-#    Merge main into your branch first (step 1) so any conflict is fixed there, not on main.
-#    Message the other person first ("merging X into main"). This is a deliberate step, never routine.
+#    This is a deliberate step, never routine.
 git switch main
 git pull
 git merge jacob                                # or jesse
@@ -401,7 +396,7 @@ git push
 git switch jacob                               # back to your branch
 ```
 
-If a merge reports a conflict, fix the files it names, `git add` them, run `git commit`, then push. If it touches the other person's code or a shared file, ask them first (the rules above).
+If a merge reports a conflict, fix the files it names, `git add` them, run `git commit`, then push.
 
 > **Stuck in a strange editor after `git commit`?** That's Vim. Press `Esc`, type `:q!`, and press Enter to cancel, then commit with `-m "message"`.
 > To use VS Code for commit messages instead: `git config --global core.editor "code --wait"`

@@ -19,15 +19,7 @@
       "Read(./**/*.sqlite)",
       "Read(./**/*.sqlite3)",
       "Read(./**/*.db)",
-      "Read(~/.aws/**)",
-      "Bash(git push *:*)",
-      "Bash(git push *--force*)",
-      "Bash(git push *-f *)",
-      "Bash(git push *-f)",
-      "PowerShell(git push *:*)",
-      "PowerShell(git push *--force*)",
-      "PowerShell(git push *-f *)",
-      "PowerShell(git push *-f)"
+      "Read(~/.aws/**)"
     ]
   }
 }
