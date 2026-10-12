@@ -8,24 +8,19 @@
 #   --port N         listen on another port
 #   --preview        light preview for a laptop: TF-IDF on a small job sample in data/preview/jobs.jsonl
 #                    (no BGE model or embeddings needed; starts in ~20 s; Compass is unavailable)
-#   --assess         enable the Compass "skills gap analysis" (sends the profile's experience and skills and the job descriptions to OpenAI after a consent; needs OPENAI_API_KEY in .env; off by default)
-#   --market         enable typed questions in "Ask the market" and the optional "Research this company" web step (sends the question, or a company name and website, to OpenAI; needs OPENAI_API_KEY; off by default)
-#   --resume-fill    enable the Profile page's "Magic fill" (sends the resume text you pick to OpenAI; needs OPENAI_API_KEY in .env; off by default)
+#   --no-ai          start with the OpenAI features off. They're on by default (each needs OPENAI_API_KEY in .env and asks for consent in
+#                    the app first): Magic fill, the AI gap analysis, and Ask the market's typed questions and company research
 set -euo pipefail
 
 ranker="rrf"
 port=8000
-resume_fill=0
-assess=0
-market=0
+ai=1
 preview=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --ranker) ranker="$2"; shift 2 ;;
     --port) port="$2"; shift 2 ;;
-    --resume-fill) resume_fill=1; shift ;;
-    --assess) assess=1; shift ;;
-    --market) market=1; shift ;;
+    --no-ai) ai=0; shift ;;
     --preview) preview=1; shift ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
   esac
@@ -58,9 +53,9 @@ else
   export PREDICTLEADS_API_DB_PATH="$root/backend/data/predictleads-demo.sqlite3"
 fi
 export PREDICTLEADS_API_COOKIE_SECURE="0"
-if [[ $resume_fill -eq 1 ]]; then export PREDICTLEADS_RESUME_EXTRACTION="openai"; fi
-if [[ $assess -eq 1 ]]; then export PREDICTLEADS_ASSESSMENT="openai"; fi
-if [[ $market -eq 1 ]]; then export PREDICTLEADS_MARKET="openai"; fi
+if [[ $ai -eq 1 ]]; then
+  export PREDICTLEADS_RESUME_EXTRACTION="openai" PREDICTLEADS_ASSESSMENT="openai" PREDICTLEADS_MARKET="openai"
+fi
 export PYTHONUNBUFFERED="1"
 mkdir -p "$root/backend/data"
 cd "$root"

@@ -55,7 +55,7 @@ export default function GapSection({ picks, gap, snapshotReady }: Props) {
       )}
 
       {mine?.status === "unavailable" && (
-        <p className="notice" role="alert">The AI skills gap analysis is turned off on this server, so nothing was sent. Ask whoever runs the demo to start it with the -Assess option.</p>
+        <p className="notice" role="alert">The AI skills gap analysis is turned off on this server, so nothing was sent. Ask whoever runs the demo to start it without the -NoAI option.</p>
       )}
       {mine?.status === "error" && <p className="field__error" role="alert">{mine.message}</p>}
       {mine?.status === "done" && <Results picks={picks} result={mine.result} onAgain={gap.clear} />}

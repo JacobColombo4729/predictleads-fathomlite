@@ -95,7 +95,7 @@ export default function ProfilePage({ profile, edited, onSave, onReset }: Props)
     try {
       const result = await api.extractFromResume(resume.source);
       if (result.state === "unavailable") {
-        setFillMessage({ kind: "error", text: "Magic fill is turned off on this server, so nothing was sent. Ask whoever runs the demo to enable it." });
+        setFillMessage({ kind: "error", text: "Magic fill is turned off on this server, so nothing was sent. Ask whoever runs the demo to start it without the -NoAI option." });
         return;
       }
       const p = result.profile;

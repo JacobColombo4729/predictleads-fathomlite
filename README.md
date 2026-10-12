@@ -222,7 +222,7 @@ S3_PATH=s3://<bucket>/<YYYY>/<MM>/<DD>/
 
 Ask the team for the bucket and export date. Each variable goes on its own line. `scratch.py` (step 11), the notebooks and the app all read it.
 
-`OPENAI_API_KEY` is only needed for the app's optional OpenAI features (step 12), which are off by default.
+`OPENAI_API_KEY` is needed for the app's OpenAI features (step 12), which are on by default.
 
 > The file must be named exactly `.env`, not `.env.txt`. On Windows, File Explorer hides extensions by default, so create and rename it from VS Code or the terminal, not Explorer.
 
@@ -332,11 +332,11 @@ It needs the serving corpus at `data/matching/ai_ml_serving_v1` (step 13) and th
 
 1. **Backend** (about 3.5 minutes to load, about 2.5 GB of memory):
    ```powershell
-   .\app\run_demo_backend.ps1            # add -ResumeFill to enable Magic fill; -Ranker tfidf for the lighter ranker
+   .\app\run_demo_backend.ps1            # -NoAI turns the OpenAI features off; -Ranker tfidf for the lighter ranker
    ```
-   macOS / Linux: `./app/run_demo_backend.sh` (flags `--resume-fill`, `--ranker tfidf`, `--port N`). On a laptop, `--preview` runs TF-IDF on a 5,000-job sample in `data/preview/jobs.jsonl` (starts in ~20 s, no model needed, Compass unavailable); the script prints how to build the sample if it is missing.
+   macOS / Linux: `./app/run_demo_backend.sh` (flags `--no-ai`, `--ranker tfidf`, `--port N`). On a laptop, `--preview` runs TF-IDF on a 5,000-job sample in `data/preview/jobs.jsonl` (starts in ~20 s, no model needed, Compass unavailable); the script prints how to build the sample if it is missing.
 2. **Frontend**: `cd app/frontend; npm run dev` (macOS / Linux: `cd app/frontend && npm run dev`), then open http://127.0.0.1:5173.
-3. **OpenAI features** (all off by default): **Magic fill** (`-ResumeFill`) sends the résumé text you choose to OpenAI after you tick a consent box; `-Assess` turns on the skills gap analysis; `-Market` turns on typed questions in Ask the market. Each needs `OPENAI_API_KEY` in `.env`.
+3. **OpenAI features** (all on by default; `-NoAI` / `--no-ai` turns them off): **Magic fill** sends the résumé text you choose to OpenAI after you tick a consent box; the **skills gap analysis**; and **typed questions in Ask the market**. Each needs `OPENAI_API_KEY` in `.env`.
 
 What is in `app/`:
 
