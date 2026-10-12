@@ -1,0 +1,53 @@
+#!/bin/sh
+# Keel: before each push to a personal branch, Claude tidies and reviews the commits going up
+# (instructions in .claude/agents/keel.md). Turn on once per clone: git config core.hooksPath .githooks
+# Skip it for one push: KEEL_SKIP=1 git push
+
+[ -n "$KEEL_SKIP" ] && exit 0
+
+zero=0000000000000000000000000000000000000000
+head=$(git rev-parse HEAD)
+range=""
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ "$local_sha" = "$zero" ] && continue        # deleting a branch
+  [ "$remote_ref" = "refs/heads/main" ] && continue  # main only gets merges of work already reviewed
+  [ "$local_sha" = "$head" ] || continue        # Keel edits the checked-out branch only
+  if [ "$remote_sha" = "$zero" ]; then
+    base=$(git merge-base "$local_sha" origin/main 2>/dev/null) || continue
+  else
+    base=$remote_sha
+  fi
+  range="$base..$local_sha"
+done
+[ -z "$range" ] && exit 0
+
+# Commits up to Keel's last tidy commit are already reviewed: start after it
+last_keel=$(git log --format=%H --grep='^Keel: ' -n 1 "$range")
+[ -n "$last_keel" ] && range="$last_keel..${range#*..}"
+[ -z "$(git rev-list "$range")" ] && exit 0
+
+if ! command -v claude >/dev/null 2>&1; then
+  echo "Keel: Claude Code isn't installed, so this push goes up unreviewed."
+  exit 0
+fi
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Keel: commit or stash your uncommitted changes first, so Keel's tidy commit stays separate."
+  echo "      (KEEL_SKIP=1 git push skips Keel.)"
+  exit 1
+fi
+
+branch=$(git rev-parse --abbrev-ref HEAD)
+echo "Keel: reviewing $(git rev-list --count "$range") commit(s) on $branch..."
+claude -p --agent keel --permission-mode acceptEdits \
+  --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
+    "Bash(git diff:*)" "Bash(git log:*)" "Bash(git show:*)" "Bash(git status:*)" \
+    "Bash(git add:*)" "Bash(git commit:*)" "Bash(git config user.name)" \
+  "Review and tidy the commits in $range on branch $branch, following your instructions." \
+  | tee "$(git rev-parse --git-dir)/keel-last-review.md"
+
+if [ "$(git rev-parse HEAD)" != "$head" ]; then
+  echo
+  echo "Keel added a tidy commit (git show HEAD). Look it over, then push again."
+  exit 1
+fi
+exit 0
