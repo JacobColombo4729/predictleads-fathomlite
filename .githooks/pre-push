@@ -36,30 +36,29 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
+# Runs Keel with the given prompt; the tool list is Keel's whole reach (read files, git only)
+keel() {
+  claude -p "$1" --agent keel --permission-mode acceptEdits \
+    --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
+      "Bash(git diff:*)" "Bash(git log:*)" "Bash(git show:*)" "Bash(git status:*)" \
+      "Bash(git add:*)" "Bash(git rm:*)" "Bash(git mv:*)" "Bash(git commit:*)" "Bash(git config user.name)" \
+    < /dev/null
+}
+
 branch=$(git rev-parse --abbrev-ref HEAD)
+report="$(git rev-parse --git-dir)/keel-last-review.md"
 echo "Keel: reviewing $(git rev-list --count "$range") commit(s) on $branch..."
-claude -p "Review and tidy the commits in $range on branch $branch, following your instructions." \
-  --agent keel --permission-mode acceptEdits \
-  --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
-    "Bash(git diff:*)" "Bash(git log:*)" "Bash(git show:*)" "Bash(git status:*)" \
-    "Bash(git add:*)" "Bash(git rm:*)" "Bash(git mv:*)" "Bash(git commit:*)" "Bash(git config user.name)" \
-  < /dev/null | tee "$(git rev-parse --git-dir)/keel-last-review.md"
+keel "Review and tidy the commits in $range on branch $branch, following your instructions." | tee "$report"
 
 # Answer Keel's questions here when pushing from a terminal; Keel applies the choices in a commit of its own
-report="$(git rev-parse --git-dir)/keel-last-review.md"
 if grep -q '^ *a) ' "$report" && [ -r /dev/tty ] && { : < /dev/tty; } 2>/dev/null; then
   echo
   printf "Your answers (e.g. 1a 2c 3 keep it), or Enter to skip: "
   read -r answers < /dev/tty
   if [ -n "$answers" ]; then
-    claude -p "Apply the person's answers to your last review. Answers: $answers
+    keel "Apply the person's answers to your last review. Answers: $answers
 Your last report:
-$(cat "$report")" \
-      --agent keel --permission-mode acceptEdits \
-      --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
-        "Bash(git diff:*)" "Bash(git log:*)" "Bash(git show:*)" "Bash(git status:*)" \
-        "Bash(git add:*)" "Bash(git rm:*)" "Bash(git mv:*)" "Bash(git commit:*)" "Bash(git config user.name)" \
-      < /dev/null
+$(cat "$report")"
   fi
 fi
 
