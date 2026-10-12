@@ -24,10 +24,7 @@ import zstandard as zstd
 
 REPO_ROOT = Path(__file__).resolve().parents[2]  # data/, models/ and .env are shared with analysis/ at the top
 
-BUCKET = "tripleten-predictleads-hackathon-109698388873-us-east-2-an"
-PREFIX = "2026/09/30/"
-REGION = "us-east-2"
-PROFILE = "predictleads"
+from prepare_jobs import BUCKET, PREFIX, s3_session  # S3_PATH and AWS_PROFILE from the top-level .env
 FILES = {
     "jobs": "job_openings_2026_09_30.jsonl.zst",
     "companies": "companies_2026_09_30.jsonl.zst",
@@ -893,7 +890,7 @@ def main(argv: list[str] | None = None) -> int:
 
     datasets = list(FILES) if args.dataset == "both" else [args.dataset]
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    session = boto3.Session(profile_name=PROFILE, region_name=REGION)
+    session = s3_session()
     config = botocore.config.Config(
         connect_timeout=args.connect_timeout,
         read_timeout=args.read_timeout,
@@ -1968,7 +1965,7 @@ def _run_full_audit(args: argparse.Namespace) -> int:
         existing = [name for name in expected if (output_dir / name).exists()]
         if existing:
             raise FileExistsError(f"Refusing to overwrite existing full-audit outputs: {', '.join(existing)}")
-    session = boto3.Session(profile_name=PROFILE, region_name=REGION)
+    session = s3_session()
     config = botocore.config.Config(
         connect_timeout=args.connect_timeout,
         read_timeout=args.read_timeout,

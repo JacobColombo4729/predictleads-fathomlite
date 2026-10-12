@@ -1,6 +1,6 @@
 # Full-File Job Role Exploration
 
-`code/explore_roles_and_sample.py` streams the September 30, 2026 jobs JSONL.zst from a local copy when found at the workspace key path, `data/`, or `data/raw/`; otherwise it uses the `predictleads` AWS profile in `us-east-2`. It does not download the complete compressed file or call AI/model APIs.
+`code/explore_roles_and_sample.py` streams the September 30, 2026 jobs JSONL.zst from a local copy when found at the workspace key path, `data/`, or `data/raw/`; otherwise it streams from S3 with `S3_PATH` and `AWS_PROFILE` from the top-level `.env`. It does not download the complete compressed file or call AI/model APIs.
 
 The completed saved run is `data/discovery/role_exploration/roles_corrected_20261006T000000Z/`. Its summary verifies EOF, 13,415,388 eligible job records, and a 30,000-record seeded reservoir. The stream and exports completed, but the first report-render attempt exited with a compressed-label decoding error. The decoder and report CSV row-count labels were corrected, and the report/complete metadata were rebuilt offline from the saved SQLite database and summary; the source scan was not repeated. See `docs/discovery-summary.md` and `docs/artifact-index.md` for evidence and artifact paths.
 

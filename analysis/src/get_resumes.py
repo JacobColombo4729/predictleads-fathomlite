@@ -3,11 +3,13 @@
 Usage, from analysis/ (.venv activated):
     python -m src.get_resumes            -> download version 2 and unpack the tables the project uses
     python -m src.get_resumes --force    -> download again even if the tables are already there
+    python -m src.get_resumes --yes      -> don't ask before downloading (the disk-space check still runs)
 Profiles.ipynb calls ensure() at the start, so running the notebook is enough.
 
 Kaggle `suriyaganesh/resume-dataset-structured`, version 2 (2024-11-14), MIT license. It's public, so no Kaggle
-account or API key is needed. The zip goes to data/external/ (git-ignored), only the tables the project uses are
-unpacked, and the zip is deleted afterwards. The people table (names and contact details) is never unpacked: nothing
+account or API key is needed. Nothing is downloaded twice: tables already unpacked are kept, and a zip already under
+data/ (a hand download) is unpacked instead. Otherwise the zip goes to data/external/ (git-ignored), only the tables
+the project uses are unpacked, and the zip is deleted afterwards. The people table (names and contact details) is never unpacked: nothing
 reads it. Prints file names and sizes only, never contents.
 """
 import argparse
@@ -21,6 +23,7 @@ from pathlib import Path, PurePosixPath
 import requests
 from tqdm import tqdm
 
+from src.downloads import confirm_space
 from src.eda_helpers import DATA_DIR
 
 DATASET = "suriyaganesh/resume-dataset-structured"
@@ -46,14 +49,28 @@ def present():
     return {table_name(p) for p in RESUME_DIR.rglob("*.csv")} & REQUIRED
 
 
-def download(target):
-    """Stream the zip to `target` (resumes nothing: a failed download is deleted and must be rerun)."""
+def local_zip():
+    """A Kaggle zip already somewhere under data/ (a hand download) holding the tables, or None: unpacked, not downloaded again."""
+    for zp in sorted(DATA_DIR.rglob("*.zip")):
+        try:
+            with zipfile.ZipFile(zp) as z:
+                if REQUIRED <= {table_name(n) for n in z.namelist()}:
+                    return zp
+        except zipfile.BadZipFile:
+            continue
+    return None
+
+
+def download(target, yes=False):
+    """Stream the zip to `target` after the space check (resumes nothing: a failed download is deleted and must be rerun)."""
     target.parent.mkdir(parents=True, exist_ok=True)
     partial = target.with_suffix(".part")
     try:
         with requests.get(URL, stream=True, timeout=60) as r:
             r.raise_for_status()
             total = int(r.headers.get("content-length", 0)) or None
+            # The zip, plus the tables it unpacks to (checked exactly before unpacking; about 3x the zip here)
+            confirm_space(4 * (total or 200_000_000), target.parent, "downloading the Kaggle resume tables (zip + unpacked)", yes=yes)
             with open(partial, "wb") as f, tqdm(total=total, unit="B", unit_scale=True, desc="download") as bar:
                 for chunk in r.iter_content(chunk_size=1 << 20):
                     f.write(chunk)
@@ -67,6 +84,8 @@ def unpack(zip_path):
     """Unpack the KEEP tables flat into RESUME_DIR; refuse unsafe paths. Returns {table: bytes}."""
     written = {}
     with zipfile.ZipFile(zip_path) as z:
+        size = sum(i.file_size for i in z.infolist() if table_name(i.filename) in KEEP)
+        confirm_space(size, RESUME_DIR, "unpacking the resume tables", yes=True)
         for info in z.infolist():
             parts = PurePosixPath(info.filename).parts
             if info.filename.startswith(("/", "\\")) or ".." in parts:
@@ -82,19 +101,25 @@ def unpack(zip_path):
     return written
 
 
-def ensure(force=False):
+def ensure(force=False, yes=False):
     """Download and unpack the tables unless they're already there (Profiles.ipynb calls this first). Returns RESUME_DIR."""
     if present() == REQUIRED and not force:
         print(f"already there: {RESUME_DIR.relative_to(DATA_DIR.parent)} has {', '.join(sorted(REQUIRED))} (use --force to download again)")
         return RESUME_DIR
     RESUME_DIR.mkdir(parents=True, exist_ok=True)
-    zip_path = DATA_DIR / "external" / "resume_structured.zip"
     start = time.time()
-    download(zip_path)
-    try:
-        written = unpack(zip_path)
-    finally:
-        zip_path.unlink(missing_ok=True)
+    found = None if force else local_zip()
+    if found:  # never download what's already here
+        print(f"found the dataset's zip at {found.relative_to(DATA_DIR.parent).as_posix()}: unpacking it instead of downloading")
+        written = unpack(found)
+        print(f"the zip at {found.relative_to(DATA_DIR.parent).as_posix()} is no longer needed; delete it to save space")
+    else:
+        zip_path = DATA_DIR / "external" / "resume_structured.zip"
+        download(zip_path, yes=yes)
+        try:
+            written = unpack(zip_path)
+        finally:
+            zip_path.unlink(missing_ok=True)
     missing = REQUIRED - written.keys()
     if missing:
         raise SystemExit(f"the download is missing {sorted(missing)}: the dataset may have changed on Kaggle")
@@ -105,14 +130,16 @@ def ensure(force=False):
     for name in sorted(written):
         print(f"  {name:<18} {written[name] / 1e6:8.1f} MB")
     print(f"saved {len(written)} tables to {RESUME_DIR.relative_to(DATA_DIR.parent)} in {time.time() - start:.0f}s; "
-          f"the zip was deleted; the people table (names, contacts) was not unpacked")
+          f"the people table (names, contacts) was not unpacked")
     return RESUME_DIR
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--force", action="store_true", help="download again even if the tables are already there")
-    ensure(parser.parse_args().force)
+    parser.add_argument("--yes", action="store_true", help="don't ask before downloading (the space check still runs)")
+    args = parser.parse_args()
+    ensure(args.force, args.yes)
 
 
 if __name__ == "__main__":

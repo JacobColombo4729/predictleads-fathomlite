@@ -4,10 +4,9 @@ import json
 import boto3
 import zstandard as zstd
 
-BUCKET = "tripleten-predictleads-hackathon-109698388873-us-east-2-an"
-PREFIX = "2026/09/30/"
+from prepare_jobs import BUCKET, PREFIX, s3_session  # S3_PATH and AWS_PROFILE from the top-level .env
 
-session = boto3.Session(profile_name="predictleads")
+session = s3_session()
 s3 = session.client("s3")
 
 files = [

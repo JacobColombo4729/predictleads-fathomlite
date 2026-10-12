@@ -1,0 +1,20 @@
+# Runs on every push and pull request: fails if a committed file hard-codes an S3 location, an AWS profile or key,
+# or a personal folder path (app/tests/test_no_hardcoded_data.py; the fix is explained in its failure message).
+# Needs no secrets and no data: it only reads the committed files.
+name: Data rules
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  no-hardcoded-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check for hard-coded data locations and credentials
+        run: python -m unittest app/tests/test_no_hardcoded_data.py -v
