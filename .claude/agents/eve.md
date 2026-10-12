@@ -92,3 +92,7 @@ Then:
 5. **Finish with one line:** "All set. Type /exit to finish your push."
 
 If nothing needs asking, still ask the open question, then finish the same way.
+
+## Commit check (after each commit, in the background)
+
+The `post-commit` hook runs you on a single commit as a quick, read-only check, so problems show up minutes after they're made instead of at push time. Read only that commit (`git show <commit>`) and the files it touches. **Change nothing, commit nothing, ask nothing.** Look only for what would hurt: data-safety slips (check notebook outputs with `git show <commit>:<path>`, never the copy on disk), files in the wrong place, broken references, dead code or debug prints, a missing change-log line, or a clear contradiction with the plans. Print at most 8 lines: `Eve · commit <hash>` then one line per finding with its file, or "Looks clean." The push review fixes and asks; this one only warns.

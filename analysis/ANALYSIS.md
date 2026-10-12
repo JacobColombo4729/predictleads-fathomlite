@@ -1,13 +1,13 @@
 # Analysis
 
 > The analysis priority queue. Top = next. Delete a task when it's done. Add new tasks to the tier where they belong. The app has its own queue in [`../app/APP.md`](../app/APP.md).
+> **🤖 = Foreman may draft it in the background** (code only, tested on synthetic data, on its own branch for review; README step 14). Add or remove 🤖 to control what it takes.
 > Each notebook's full plan is in the notebook itself; how we work is in [`STANDARDS.md`](STANDARDS.md).
 
 ---
 
 ## Now
 
-- **Rerun EDA_SDA_1, then EDA_SDA_2, on the new layout** (one `data/` at the top) **with the US-only filter** (no-country listings dropped, 2026-10-12): refresh the counts quoted in each notebook's results and conclusion.
 - **Full dataset, full scale for every notebook** (decided 2026-10-10; stream test: ≈13.4M listings, ≈1.0M in scope, ≈40 minutes, ≈8.4 GB):
   1. **Claude:** EDA_SDA_3 for full scale (also: a second ghost sign, since "company still posting" no longer separates forgotten listings at big companies (78% of stale listings): the same company and title still open after 90 days while newer copies of that title keep appearing) (reads `scope_table.parquet` and `scope_descriptions.parquet`): text read part by part, regex features over every listing, spaCy lemmas on a large stratified sample (about 150,000), cache in parts. Hold EDA_SDA_3's first run until then.
   2. **Jacob (any time):** delete `data/flat/all_fields_lean_full/` (1.1 GB): nothing reads it any more. After EDA_SDA_3 is adapted, also the sample-era tables in `data/clean/` (`analysis_table.pkl`, `scope_table.pkl`, `job_openings_lean_200000_v2.pkl`).
@@ -50,7 +50,7 @@
   - Score each step on hit rate@3/@5 for the role people actually moved into, per pool and overall, against a title-keyword baseline; measure old-field bias; exclude the current role for within-tech moves; folds grouped by person.
   - SHAP, including each listing's top fit features for the detail view's rating breakdown; hand fit scores and their breakdown to `ML_Rank`.
   - **Assemble the compass (last section):** Profiles' paths with people counts, each role's 2026 market and growth (EDA_SDA_2 3.12), and the Ideas tab's inputs (skills to build, options and time to switch, pay increase vs. the current field from 1c, growth); save the compass tables for the app.
-- **ML_Rank (the priority queue):**
+- 🤖 **ML_Rank (the priority queue):**
   - Write the hypotheses with thresholds **before** any modeling.
   - Targets: closes within N days, days open, and the survival target.
   - Split by time (train April–July, validate August, test September), folds grouped by company; test used once.
@@ -67,7 +67,7 @@
   5. Save `role_growth.pkl` (role bucket, occupation codes, 2025 employment, 10-year growth, yearly rate, *n*-year growth, vintage) and add the expected-growth column to the compass (EDA_SDA_2 3.12), then rerun.
   6. `ML_Fit`: apply growth **after** the fit model as a visible, user-adjustable adjustment (not a trained input), and show how much it moved each suggestion. Always show it next to the role's entry-level share and today's openings.
   7. Write-up: say "expected growth (official projections)", never "will grow"; limitations: national, occupation-wide, assumes full employment, no business cycles.
-- **Date picker (as-of date):** a helper in `src/` that returns the listings live on a date with features computed as of that date; check it on July 1 vs. September 1, 2026 (counts only; EDA_SDA_1 8b shows dates before July are skewed young). The model for a date is trained only on what was known by then; the demo can start with test-period dates.
+- 🤖 **Date picker (as-of date):** a helper in `src/` that returns the listings live on a date with features computed as of that date; check it on July 1 vs. September 1, 2026 (counts only; EDA_SDA_1 8b shows dates before July are skewed young). The model for a date is trained only on what was known by then; the demo can start with test-period dates.
 - **Decide the time frames** for career options and job growth in the compass (team; growth at most 5 years), and which growth extensions to adopt (each reopens the 2026-10-09 decision to drop other external data):
   - **Error band** from BLS's own track record (an earlier projection vs. OEWS actuals), shown as a range: recommended, small.
   - **Listing momentum:** each bucket's new-listings trend from TimeSeries, shown next to growth, never blended in: recommended, small.
@@ -94,7 +94,7 @@
 - **predictleads-hackathon:** its `.venv` was removed 2026-10-10 to free space; rebuild it (`python -m venv .venv && pip install -r requirements.txt`) before working there.
 
 - **Profiles is frozen** (refrozen 2026-10-10). Reopen only if needed: a pool for moving up within the same role (training, then a senior or manager role; levels are already tagged), or more prior-career keywords ("other" is 115 of 706; 4a.2e lists the common titles). Any change means a rerun, then the ML notebook reloads `modeling_table.pkl`.
-- **Run log:** settings, seeds and metrics for every run, in a CSV or a local MLflow store. Never listing text.
+- 🤖 **Run log:** settings, seeds and metrics for every run, in a CSV or a local MLflow store. Never listing text.
 - **Stretch techniques:** transferable fit with embeddings; embeddings vs. TF-IDF; change-point detection (`ruptures`); topic modeling (NMF or BERTopic); several daily exports to observe closures directly; a one-page system card.
 
 ## Always

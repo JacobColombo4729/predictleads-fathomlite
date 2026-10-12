@@ -56,6 +56,7 @@ How and why: README step 9. The rules:
 
 ## Git
 - **Eve** (`.claude/agents/eve.md`, run by `.githooks/pre-push` on every push to a personal branch) tidies and reviews each push; turn it on per clone with `git config core.hooksPath .githooks` (README step 14).
+- **Helper agents** (`.claude/agents/`, README step 14): **Thread** keeps the notebooks consistent and their text true to their results ("thread <notebook>", "... after a rerun"); **Pace** speeds up a notebook ("pace <notebook>"); **Foreman** drafts 🤖 tasks from `analysis/ANALYSIS.md` in a `/loop`, one branch each, never merging. Eve also checks each commit in the background (`.githooks/post-commit`).
 - **Log every change** in the committer's file: `JACOB.md` for Jacob, `JESSE.md` for Jesse (from `git config user.name`), in the same commit. Group lines into categories that come from the changes themselves: no preset headings, add one when a change doesn't fit an existing one, and regroup as the log grows; rank the categories, and the lines within each, most important first (what the other person must act on or what breaks their work ranks highest), re-ranking as entries change; write the net result, so a later change to the same thing rewrites its line instead of adding one (moved, then deleted, reads "deleted"); end with the date and anything the other person needs to do. No other Git rules.
 
 ## Before every commit
