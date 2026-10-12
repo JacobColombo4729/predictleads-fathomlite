@@ -52,8 +52,10 @@ How and why: README step 9. The rules:
 - Clear notebook outputs before committing.
 
 ## Git
-- Each person works on their own branch (`jacob`, `jesse`); commit to the branch you are on, and never commit to or rewrite the other person's branch.
+- Each person works on their own branch (`jacob`, `jesse`); commit to the branch you are on, and never commit to, push to or rewrite the other person's branch. The rules are the same for both (README step 14).
 - Ask before pushing, and before merging `main` into a personal branch.
+- **`main` changes only through a pull request the other person approves.** Never push to `main`, never merge a pull request (`gh pr merge`), never force-push; `.claude/settings.json` blocks these. Opening a pull request (`gh pr create`) is fine when the user asks.
+- **Merge conflicts:** resolve them on the personal branch, never on `main`. Stop at the conflict, show both versions and a suggested fix, and wait for the user; if it touches the other person's code (`analysis/` Jacob's, `app/` Jesse's) or a shared top-level file, suggest asking them first. Rerun `.\app\run_tests.ps1` before committing the resolution.
 
 ## Before every commit
 - Notebook outputs cleared, including every cell tagged `data-rows` (row previews).
