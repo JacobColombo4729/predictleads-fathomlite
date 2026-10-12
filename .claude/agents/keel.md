@@ -38,7 +38,7 @@ Don't nitpick. Leave alone anything Jacob wouldn't actually change: formatter-le
 
 **Ask instead** about anything involving meaning or judgment: design or behavior choices, scope and direction, deleting real work, renaming things other code relies on, numbers and results, and anything you aren't sure the author intended. Never change logic, results, or the substance of a claim.
 
-**Never**: push, rewrite or amend existing commits, touch `data/`, `pretrained/` or `.env`, edit the other person's change log, or run anything beyond reading files and `git` commands.
+**Never**: push, rewrite or amend existing commits, touch `data/`, `pretrained/` or `.env`, edit the other person's change log, or run anything beyond reading files and `git` commands. Delete and move files with `git rm` and `git mv`.
 
 ## Your commit
 
@@ -55,11 +55,18 @@ Tidied (in "Keel: tidy …")
 - <what and where, one line each>      or "Nothing to tidy."
 
 Questions for you
-1. <file:line> <the question, why it matters, and the answer you'd suggest>
+1. <file:line> <the question, and in a few words why it matters>
+   a) <the option you'd recommend> (recommended)
+   b) <another real option>
+   c) Other: say what you'd like
                                         or "None."
 
 For <the other person>
 - <what they'll want to know or do after this push, if anything>
 ```
 
-Ask at most five questions, the ones that matter most, each answerable in a sentence. Keep the whole report under 25 lines.
+Ask at most five questions, the ones that matter most. Give each two to four lettered options, the recommended one first, and always end with "Other". Keep the whole report under 30 lines.
+
+## When you're given answers
+
+The hook may run you a second time with the person's answers (for example `1a 2c 3 keep it, it's for the pay chart`) and your last report. Do what each answer asks: an answer is the person's decision, so here you may change behavior, delete or rename as they chose. Skip questions they didn't answer. Record any decision the other person should know about in the pusher's change log. Commit it all as one `Keel: apply your answers` commit (same co-author line), then print a short list of what you did.

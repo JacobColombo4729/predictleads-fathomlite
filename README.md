@@ -368,6 +368,8 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 
 **Each person works on their own branch** (`jacob`, `jesse`) and merges it into `main` when the work is ready (step 5). **Log your changes** in your own file, [`JACOB.md`](JACOB.md) or [`JESSE.md`](JESSE.md), so the other person can catch up at a glance (decided 2026-10-12). There are no other rules. Merging `main` into your branch often keeps the two branches close: a long-running branch once left the team 155 commits behind.
 
+**Keel tidies every push.** Before each push to your branch, Keel (Claude, with the instructions in [`.claude/agents/keel.md`](.claude/agents/keel.md)) looks over the commits going up. It fixes what is clearly untidy in one `Keel: tidy …` commit (stray files, dead code, broken links, a missing change log line) and asks you about anything that needs a judgment call, each with lettered options. Pushing from a terminal, you can answer on the spot (`1a 2c 3 keep it`) and Keel applies your choices in a commit of its own. If it added a commit, the push stops: look it over with `git show HEAD`, then push again. It uses your own Claude Code subscription, nothing else. Turn it on once per clone: `git config core.hooksPath .githooks`. Skip it for one push: `KEEL_SKIP=1 git push` (PowerShell: `$env:KEEL_SKIP=1; git push; Remove-Item Env:KEEL_SKIP`). Its last report is saved in `.git/keel-last-review.md`.
+
 ```bash
 # 1. Start on your branch, with everything already merged into main
 git switch jacob                               # or jesse
