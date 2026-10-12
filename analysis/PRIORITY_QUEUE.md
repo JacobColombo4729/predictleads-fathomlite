@@ -7,7 +7,7 @@
 
 ## Now
 
-- **Jesse:** accept the GitHub invitation, clone the repo, and review the pull request from `jacob` into `main` (the shared Git rules, README step 14; also renames `models/` to `pretrained/`, so move your local copy).
+- **Jesse:** clone the repo and read the shared Git rules (README step 14: merge into `main` after messaging the other person). Once `jacob` is merged into `main`: move your local `models/` to `pretrained/` (or get the model with `python -m fetch.get_bge`).
 - **Rerun EDA_SDA_1, then EDA_SDA_2, on the new layout** (one `data/` at the top) **with the US-only filter** (no-country listings dropped, 2026-10-12): refresh the counts quoted in each notebook's results and conclusion.
 - **Full dataset, full scale for every notebook** (decided 2026-10-10; stream test: ≈13.4M listings, ≈1.0M in scope, ≈40 minutes, ≈8.4 GB):
   1. **Claude:** EDA_SDA_3 for full scale (also: a second ghost sign, since "company still posting" no longer separates forgotten listings at big companies (78% of stale listings): the same company and title still open after 90 days while newer copies of that title keep appearing) (reads `scope_table.parquet` and `scope_descriptions.parquet`): text read part by part, regex features over every listing, spaCy lemmas on a large stratified sample (about 150,000), cache in parts. Hold EDA_SDA_3's first run until then.
