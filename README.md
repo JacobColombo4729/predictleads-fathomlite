@@ -363,11 +363,11 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 
 ## 14. Daily Git workflow
 
-**Each person works on their own branch** (`jacob`, `jesse`; decided 2026-10-11). **`main` changes only through a pull request the other person approves** (decided 2026-10-12): that's how we make sure we're both on the same page before a merge. Merge `main` into your branch **at least once a day**, so the two branches never drift far apart: a long-running branch once left the team 155 commits behind.
+**Each person works on their own branch** (`jacob`, `jesse`; decided 2026-10-11) and merges it into `main` when they decide a piece of work is ready (step 5), **after messaging the other person** (decided 2026-10-12), so we're both on the same page before `main` changes. Merge `main` into your branch **at least once a day**, so the two branches never drift far apart: a long-running branch once left the team 155 commits behind.
 
-**The rules, the same for both of us** (both are collaborators with write access; GitHub can't enforce rules on a private repo without Pro, so we hold to them ourselves, and `.claude/settings.json` holds Claude to them):
-- Commit and push only your own branch. Never push to `main` or to the other person's branch, and never force-push.
-- To get work into `main`: merge `main` into your branch, fix any conflicts there, run the tests, push, then open a pull request (step 5). The other person reviews it on GitHub; once they approve, **the author** merges it there.
+**The rules, the same for both of us** (both are collaborators with write access):
+- Commit and push only your own branch, plus `main` when you merge into it. Never push to the other person's branch, and never force-push.
+- To get work into `main`: merge `main` into your branch, fix any conflicts there, run the tests, push, **message the other person** ("merging X into main"), then merge your branch into `main` (step 5).
 - **Merge conflicts are fixed on your own branch, never on `main`**, by whoever runs the merge. If a conflict touches the other person's code (`analysis/` is Jacob's, `app/` is Jesse's) or a shared top-level file (`requirements.txt`, `README.md`, `fetch/`, `.gitignore`, `.claude/`) and the right answer isn't obvious, ask them before committing. With Claude, it stops at the conflict, shows both versions and a suggested fix, and waits for you.
 
 ```bash
@@ -390,11 +390,14 @@ git add <files>                                # name the files; avoid `git add 
 git commit -m "Short description of what you did"
 git push
 
-# 5. When the work is ready for everyone (app tests pass, notebooks run): open a pull request into main.
-#    Merge main into your branch first (step 1) so any conflict is fixed here, not on main.
-gh pr create --base main --head jacob          # or jesse; or "Compare & pull request" on GitHub
-#    The other person reviews and approves it on GitHub; then you merge it there
-#    ("Merge pull request"). Never `git push` to main.
+# 5. Only when YOU decide the work is ready for everyone (app tests pass, notebooks run): merge it into main.
+#    Merge main into your branch first (step 1) so any conflict is fixed there, not on main.
+#    Message the other person first ("merging X into main"). This is a deliberate step, never routine.
+git switch main
+git pull
+git merge jacob                                # or jesse
+git push
+git switch jacob                               # back to your branch
 ```
 
 If a merge reports a conflict, fix the files it names, `git add` them, run `git commit`, then push. If it touches the other person's code or a shared file, ask them first (the rules above).
