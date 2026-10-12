@@ -384,6 +384,23 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 
 **Eve tidies every push.** Before each push to your branch, Eve (Claude, with the instructions in [`.claude/agents/eve.md`](.claude/agents/eve.md)) looks over the commits going up. It fixes what is clearly untidy in one `Eve: tidy …` commit (stray files, dead code, broken links, a missing change log line) and asks you about anything that needs a judgment call. Pushing from a terminal, Eve then opens a normal Claude conversation and asks with Claude's usual question boxes (pick an option, or type your own); she applies your choices, follows up if your answers open something up (three rounds at most), and always ends with an open question: anything you want the other person to make sure of. Type `/exit` when she's done and the push carries on. Eve keeps those asks in [`.eve/ASKS.md`](.eve/ASKS.md) and makes them questions on the other person's pushes, along with questions about how the push fits the other person's direction, so the two of you keep building one thing. Replies go back under each ask, and Eve clears it when it's done. Eve's own commit never holds up the push; it goes up with your next push, so there's nothing to do. (Eve does stop a push while you have uncommitted changes, to keep its commit separate.) It runs on Sonnet (set in `.claude/agents/eve.md`) and uses your own Claude Code subscription, nothing else. Turn it on once per clone: `git config core.hooksPath .githooks`. Skip it for one push: `EVE_SKIP=1 git push` (PowerShell: `$env:EVE_SKIP=1; git push; Remove-Item Env:EVE_SKIP`). Its last report is saved in `.git/eve-last-review.md`.
 
+**Eve also glances at each commit** (`.githooks/post-commit`): a quick, read-only check in the background that warns within a minute or two, so problems surface before the push. Report: `.git/eve-commit-review.md`. Off: `git config eve.commitCheck false` (on: `true`). It costs a little usage per commit.
+
+**Helper agents** (Claude Code, Sonnet, in `.claude/agents/`; ask for them in a Claude session):
+
+| Agent | Ask | What it does |
+|---|---|---|
+| **Thread** | "thread EDA_SDA_3" / "thread EDA_SDA_3 after a rerun" | Keeps the notebooks consistent: updates the ones downstream (and upstream) of a change; after a rerun, updates every quoted number and regenerates the reports (`python -m src.notebook_tools` does the checking) |
+| **Pace** | "pace EDA_SDA_3" | Makes a notebook faster and lighter on memory without changing its results, timed on synthetic data |
+| **Foreman** | the loop below | Drafts tasks marked 🤖 in `analysis/ANALYSIS.md`, one at a time, each on its own branch (`worktree-agent-…`) for review; never merges or pushes |
+
+**Running Foreman** (in a second Claude Code window, so your own session stays free):
+1. Mark the tasks it may take with 🤖 in `analysis/ANALYSIS.md` (remove the mark to take one back).
+2. Start it: `/loop Follow "The loop" in .claude/agents/foreman.md, with a cap of 3 tasks.` It drafts one task, pauses about 10 minutes, then takes the next, and **stops by itself** at the cap or when no 🤖 task is left.
+3. Stop it early: press Esc in that window, or tell it "stop the loop". Closing the window also stops it.
+4. Review each draft: `git log --oneline jacob..worktree-agent-<id>`, then merge what you want (`git merge worktree-agent-<id>`).
+5. Clean up after merging or rejecting: `git worktree list`, then `git worktree remove .claude/worktrees/agent-<id>` and `git branch -D worktree-agent-<id>`. Its record of finished tasks is `.git/foreman-state.json` (delete it to start fresh).
+
 ```bash
 # 1. Start on your branch, with everything already merged into main
 git switch jacob                               # or jesse
