@@ -12,7 +12,6 @@ PredictLeads × TripleTen externship · **How we work.** Last updated 2026-10-09
 | [`PROJECT_OUTLINE.md`](PROJECT_OUTLINE.md) | **What we're doing:** the idea, findings so far, factors, the notebook series. Start here |
 | `STANDARDS.md` (this file) | **How we work:** standards, scope, roles, risks |
 | [`DECISION_LOG.md`](DECISION_LOG.md) | Every decision, with its reasoning |
-| [`DATA.md`](../DATA.md) | Data sources, fields, quirks and auto-generated schemas |
 | [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) | **How we stand out:** the five angles, the pitch, how we talk about the data, and what we never claim |
 | [`JOB_GROWTH.md`](JOB_GROWTH.md) | Expected job growth: source, conversion to at most 5 years, proposed extensions |
 | [`PRIORITY_QUEUE.md`](PRIORITY_QUEUE.md) | What to do next |
@@ -73,7 +72,7 @@ For a given **career changer** (anyone switching from their current background t
 - **English-language listings in the United States, first seen April–September 2026,** plus the data's first two days (2026-03-30 and 31), kept and flagged `partial_month` (decisions and reasons in `DECISION_LOG.md`).
 - **Applicants are career changers:** anyone switching from their current background to a different role or field. Source backgrounds are the team's own. Listings a career changer can't get are hidden; the model weighs everything else.
 - **Target: computer and mathematical (US).** EDA_SDA_2 splits it into role buckets shared with the career-switch profiles (not one role, since role discovery needs several), keeping buckets with enough data on both sides once unreachable listings are hidden: eight buckets, 13,887 listings in the scope table (`scope_table.pkl`).
-- **Transferable fit and role discovery** learn from real career switches in a public resume dataset (`notebooks/Profiles.ipynb`: 2,813 career changers; details in [`DATA.md`](../DATA.md)). Volunteer profiles, collected with consent once the advisor approves, are a recent test set. Approach: the 2026-10-09 entry in [`DECISION_LOG.md`](DECISION_LOG.md).
+- **Transferable fit and role discovery** learn from real career switches in a public resume dataset (`notebooks/Profiles.ipynb`: 2,813 career changers; sourcing in README step 9). Volunteer profiles, collected with consent once the advisor approves, are a recent test set. Approach: the 2026-10-09 entry in [`DECISION_LOG.md`](DECISION_LOG.md).
 
 **How to describe the machine learning:** survival and time series analysis of listing activity, plus supervised learning (classification, survival and learning-to-rank models) on listing features and text, including career-change accessibility, validated on later months.
 

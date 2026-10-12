@@ -7,7 +7,7 @@
 - **Standard:** the TripleTen course templates (`~/Desktop/TripleTen/Templates`) are the baseline for every notebook; go further with advanced methods.
 
 ## Structure
-This repository joins two earlier ones with their full histories: `analysis/` (was `project_leads`, Jacob) and `app/` (was `predictleads-hackathon`, Jesse). They share one set of top-level files: `requirements.txt`, `.venv`, `.env`/`.env.example`, `.gitignore`, `.gitattributes`, `README.md` (setup, running, data rules), `DATA.md` (data reference: sources, fields, quirks, auto-generated schemas), `JACOB.md`/`JESSE.md` (each person's change log), `data/` and `pretrained/`, and **`fetch/`**: where every dataset comes from and lives, for both halves (`paths.py`: `REPO_ROOT`, `DATA_DIR`, `RAW_DIR`, `external()`; `predictleads.py`: the S3 settings from `.env` and the copy in `data/raw/`; `downloads.py`: the disk-space check; one `get_<name>.py` per dataset, run as `python -m fetch.get_<name>` from the root). Remaining merge steps: `analysis/PRIORITY_QUEUE.md`; the six agreed merge decisions: `analysis/DECISION_LOG.md` (2026-10-11).
+This repository joins two earlier ones with their full histories: `analysis/` (was `project_leads`, Jacob) and `app/` (was `predictleads-hackathon`, Jesse). They share one set of top-level files: `requirements.txt`, `.venv`, `.env`/`.env.example`, `.gitignore`, `.gitattributes`, `README.md` (setup, running, data rules), `JACOB.md`/`JESSE.md` (each person's change log), `data/` and `pretrained/`, and **`fetch/`**: where every dataset comes from and lives, for both halves (`paths.py`: `REPO_ROOT`, `DATA_DIR`, `RAW_DIR`, `external()`; `predictleads.py`: the S3 settings from `.env` and the copy in `data/raw/`; `downloads.py`: the disk-space check; one `get_<name>.py` per dataset, run as `python -m fetch.get_<name>` from the root). Remaining merge steps: `analysis/PRIORITY_QUEUE.md`; the six agreed merge decisions: `analysis/DECISION_LOG.md` (2026-10-11).
 
 **`analysis/`**
 - `PROJECT_OUTLINE.md`: what we're doing. `STANDARDS.md`: how we work (standards, leakage rules, scope, risks).
@@ -42,9 +42,9 @@ How and why: README step 9. The rules:
 ### Adding a new dataset (checklist; Claude reminds the user of every step)
 1. **Its standard folder:** `external("<name>")` (`data/external/<name>/`) from `fetch.paths`, never a written-out path.
 2. **A download script,** `fetch/get_<name>.py`, modelled on `get_resumes.py`: a pinned version, the space check (`confirm_space`), saves only into its folder, skips data that's already there. Any credentials go in `.env`.
-3. **Can't be downloaded by script?** Put the files in its folder by hand and note the source in `DATA.md`.
+3. **Can't be downloaded by script?** Put the files in its folder by hand and note the source in the README's data table (step 9).
 4. **Readers get the folder from `fetch`,** in either half.
-5. **Write it down:** the README's data table (step 9) and `DATA.md`.
+5. **Write it down:** the README's data table (step 9).
 
 ## Conventions
 - Fit all preprocessing inside sklearn `Pipeline`s; set `random_state`.
