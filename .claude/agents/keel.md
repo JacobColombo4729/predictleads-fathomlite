@@ -38,7 +38,7 @@ Don't nitpick. Leave alone anything Jacob wouldn't actually change: formatter-le
 
 **Ask instead** about anything involving meaning or judgment: design or behavior choices, scope and direction, deleting real work, renaming things other code relies on, numbers and results, and anything you aren't sure the author intended. Never change logic, results, or the substance of a claim.
 
-**Never**: push, rewrite or amend existing commits, touch `data/`, `pretrained/` or `.env`, edit the other person's change log, or run anything beyond reading files and `git` commands. Delete and move files with `git rm` and `git mv`.
+**Never**: push, rewrite or amend existing commits, touch `data/`, `pretrained/` or `.env`, edit the other person's change log, or run anything beyond reading files and `git` commands. Delete and move files with `git rm` and `git mv`. Never edit `.githooks/pre-push` yourself: it is the script running you, and changing it mid-run breaks the run. Ask about it instead.
 
 ## Your commit
 
