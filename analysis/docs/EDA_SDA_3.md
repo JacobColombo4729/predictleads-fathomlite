@@ -16,8 +16,8 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 | Notebook | Question | Hands off |
 |:--|:--|:--|
-| EDA_SDA_1 | What's in the data, and what's the scope? | Final table 1 |
-| EDA_SDA_2 | Which listings do we study? The scope cut, additional cleaning, non-text checks, ghost listings | Scope table, non-text features, occupation summary |
+| EDA_SDA_1 | What's in the full file, how does tech compare with every field, and what's in the scope? (the scope cut, applied first) | Scope table and its descriptions, occupation summary, company activity |
+| EDA_SDA_2 | Which scope listings do we keep, and how do they behave? Additional cleaning, non-text checks by role bucket, ghost listings | Scope table, non-text features |
 | EDA_SDA_3 | What do the descriptions say? Text features, validated blockers, skills mapped to O*NET (no matching models) | Scope table + text features |
 | EDA_SDA_4 | Which features hold up? Statistics, confounders, the adjusted Cox check | Modeling-ready table |
 | TimeSeries | When do listings appear and close? | Timing features |
@@ -32,7 +32,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 ### Clarifying questions
 - What does description length actually capture: employer intent, or boilerplate?
-- Why do listings with urgency wording stay open longer?
+- Does urgency wording, read in context rather than by keyword, relate to how long listings stay open? (EDA_SDA_1 left it here: its keyword flag misfired and showed no gap.)
 - Can evergreen wording ("always accepting applications") identify ghost listings?
 - Are EDA_SDA_1's career-change flags (years required, degree required, training and career-changer wording) accurate, and what do they miss? Two are urgent: "asks 5+ years" would hide 31% of open listings, and the degree flag fires on only 3–6% (EDA_SDA_2 3.11).
 - Which requirements are blockers for everyone (hide the listing), and which depend on the applicant (degree, certification)?
@@ -55,7 +55,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 |:--|:--|:--|
 | **Description cleanup** (moved here from EDA_SDA_2 2b) | Strip HTML and boilerplate (equal-opportunity statements, benefits, "about us") | `desc_clean` and `desc_words_clean`; the base for every feature below and for `ML_Fit` |
 | Description length | Is it employer intent, or just boilerplate? | Measured on `desc_clean` |
-| Urgency wording | Why do "urgent" listings stay open *longer*? | May mark hard-to-fill roles |
+| Urgency wording | Does real urgency (in context, not "urgent care") go with shorter or longer windows? | EDA_SDA_1's keyword flag showed no gap; may mark hard-to-fill roles |
 | Remote mentions | Does remote add beyond `contract_types`? | |
 | **Evergreen wording** | Listings that collect applications instead of filling one job: a ghost-listing signal | Six phrase groups, each scored and checked on its own: **talent pool** ("join our talent community", "future opportunities"), **no specific opening** ("general application", "not for a specific position"), **always hiring** ("always accepting applications", "rolling basis"), **many openings in one ad** ("multiple openings", "various locations"), **pipeline labels** ("pipeline requisition", "evergreen requisition"), **staffing-style** ("on behalf of our client"); plus a generic-title check ("Software Engineer – All Levels"). Compared with EDA_SDA_2's likely-ghost flag (3.1): kept only if it adds to "old and from a quiet company" |
 | Hiring-difficulty phrases | "Sign-on bonus", "hiring immediately", "relocation assistance", "will train" | Pairs with reposts and listing age |
@@ -78,36 +78,66 @@ Course standard (MLforTexts): normalize text (lowercase, regex to keep letters),
 
 ## 2. Description cleanup
 
-**Why:** every text feature, and `ML_Fit`'s matching, should read what the listing asks for, not the legal and benefits text most listings share. Three steps, each with its result reported:
+**Why:** every text feature, and `ML_Fit`'s matching, should read what the listing asks for, not the legal and benefits text most listings share. At full scale the descriptions are several GB of text, so **the cleanup runs batch by batch** (`src/text_features.py`): each batch is cleaned, its features computed and both written to disk, then dropped from memory.
 
 | Step | What | Output |
 |:--|:--|:--|
 | 2a | HTML to text, one line per paragraph, list item or heading (long unbroken text split into sentences) | Lines per listing |
-| 2b | Remove boilerplate line by line: known patterns (equal opportunity and legal, benefits, application logistics), "About the company" sections, and text shared word for word across 5+ employers (learned on April–July only; lines with a requirement cue are never cut) | `desc_clean`, `words_clean` |
-| 2c | Course standard: lowercase, letters only, NLTK stopwords, spaCy lemmas | `desc_lemmas` (for word counts and TF-IDF later) |
+| 2b | Remove boilerplate line by line: known patterns (equal opportunity and legal, benefits, application logistics), "About the company" sections, and text shared word for word across 5+ employers (learned on a sample of April–July listings; lines with a requirement cue are never cut) | `desc_clean` (`eda3_desc_clean.parquet`), `words_clean` |
+| 2c | Course standard: lowercase, letters only, NLTK stopwords, spaCy lemmas, on a stratified sample | `desc_lemmas` (for word counts and TF-IDF later) |
 
-The rules in sections 3–4 run on `desc_clean`, which keeps case, numbers and punctuation ("3+ years", "B.S.", "Security+"). The cleaned text is cached in `data/clean/` so reruns skip the slow steps.
+The rules in sections 3–4 run on the cleaned text, which keeps case, numbers and punctuation ("3+ years", "B.S.", "Security+"), and tell **requirement lines from preferred ones** using the headings kept in 2a.
+
+**What the data shows**
+- (fill in after the run)
+
+**What the data shows**
+- (fill in after the run)
 
 ## 3. The blocker rules: years of experience and degree
 
-_To write next._ Years asked, split into required vs. preferred (sections found from headings kept in 2a) and in-field vs. any experience; the 5+ years threshold rechecked per role bucket. Degree requirements rebuilt (the most common wording, "Bachelor's degree in … or a related field", isn't caught today), with "or equivalent experience" alongside.
+EDA_SDA_1's rules read every line the same way: "3+ years required" and "5 years preferred" both count, and its degree rule only fires when "required" comes within six words of "bachelor's", so the most common wording ("Bachelor's degree in Computer Science or a related field") never matched (3–6% of listings). Here both are rebuilt on the cleaned text, with **requirement lines told apart from preferred ones** (from the headings kept in 2a, and lines that say "preferred" or "a plus"):
+
+- **Years:** `years_asked` (any line, like EDA_SDA_1), `years_required` (requirement lines only), `years_preferred`. Also reads "minimum of two years" and number words.
+- **Degree:** `degree_required` (a degree named on a requirement line), `degree_preferred`, `degree_equivalent` ("or equivalent experience", "in lieu of a degree"), `degree_level` (the highest level required).
+
+The question for the app: **which rule can hide a listing from everyone** (too many years required), and which hide it only per applicant (a degree they don't have). Nothing hides until section 5 validates the rule.
+
+**What the data shows**
+- (fill in after the run)
 
 ## 4. Other text features
 
-_To do._ Evergreen wording (six phrase groups plus a generic-title check, compared with EDA_SDA_2's likely-ghost flag), hiring-difficulty phrases, licenses and certifications, training and career-changer wording, urgency, remote and description length on the cleaned text.
+Each feature is a keyword rule on the cleaned text (`src/text_features.py`), validated in section 5 before it's used to hide anything. For each: how often it fires, and whether it relates to how fast listings close **beyond the confounders** (the 7-day close rate's gap with vs. without the feature, within company volume band × source type cells, on original listings with a full week of follow-up; EDA_SDA_4 tests the survivors properly).
+
+| Group | Features |
+|:--|:--|
+| Blockers for some applicants | `clearance_required` (vs. `clearance_obtainable`), `no_sponsorship`, `us_citizen_required`, `cert_required` and named certifications, `shift_or_oncall`, `travel_pct`, `contract_to_hire` |
+| What a newcomer is offered | `entry_wording`, `changer_wording` (now also bootcamp graduates, self-taught) |
+| Hiring difficulty and urgency | `sign_on_bonus`, `hiring_immediately`, `relocation_offered`, `urgency_context` ("urgent care" no longer counts) |
+| Evergreen wording (ghost signal) | six phrase groups and `evergreen_any`, compared with EDA_SDA_2's likely-ghost flag |
+| Remote and length | `remote_mention` (minus "remote patient monitoring" and the like), `words_clean` |
+
+**What the data shows**
+- (fill in after the run)
 
 ## 5. Validation
 
-_To do._ For each rule, a random sample of matches and non-matches (stratified by role bucket) is saved to `data/` for a teammate to mark right or wrong locally; the notebook reads the marks back and reports precision and recall against EDA_SDA_1's rule as the baseline.
+Each rule that could hide a listing, or that feeds the model, gets a **hand-checked sample**: 60 listings where it fires and 60 where it doesn't, stratified by role bucket, written to `data/clean/eda3_validation/<rule>.csv` (local only) with the line that triggered it. A teammate marks each row `correct` = 1 or 0 locally; the notebook reads the marks back and reports **precision** (of the matches, how many are right) and **recall** (of the misses, how many should have matched), against EDA_SDA_1's rule where one exists. **A rule hides listings only if its precision is 90%+.** Listing text never leaves the laptop.
+
+**What the data shows**
+- (fill in after the run)
 
 ## 6. Skills mapped to O*NET
 
-_To do._ Needs the O*NET skills download (terms of use first). Skills extracted with spaCy, mapped to O*NET skills for `ML_Fit`.
+**Waiting for the O*NET download** (terms of use first; `analysis/ANALYSIS.md`). Then: skills extracted from the requirement lines (spaCy noun phrases plus a skills vocabulary), mapped to O*NET skills for `ML_Fit`'s skills-based matching. The cleaned text it needs is already saved (`eda3_desc_clean.parquet`).
 
 ## 7. Final table
 
-_To do._ Validated blockers applied (hidden in the app, never removed), with a count of what each hides; saved for EDA_SDA_4 and `ML_Fit`.
+One row per scope listing (`id`), the text features from sections 3–4, and **candidate blocker flags** for the app. A flag only hides listings once its rule passes validation (section 5); until then it's saved, not applied. Blank means unknown: the listing has no description. Saved as `text_table.parquet` for EDA_SDA_4 (joined by `id`) and `ML_Fit`.
 
 ## 8. Conclusion
 
-_To do._
+- (fill in after the run: the cleanup, the rebuilt years and degree rules, the other text features, what validation shows, and what goes to EDA_SDA_4 and ML_Fit)
+
+**Handoff:** `text_table.parquet` (text features and candidate blockers, joined by `id`) for EDA_SDA_4 and `ML_Fit`; `eda3_desc_clean.parquet` (cleaned text) and `eda3_lemmas_sample.parquet` for `ML_Fit`.

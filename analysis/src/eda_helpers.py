@@ -25,6 +25,7 @@ from fetch.paths import DATA_DIR, REPO_ROOT  # noqa: E402  one definition for bo
 CLEAN_DIR = DATA_DIR / "clean"
 PART1_TABLE = CLEAN_DIR / "analysis_table.pkl"  # EDA_SDA_1's final table
 PART2_TABLE = CLEAN_DIR / "scope_table.parquet"  # EDA_SDA_2's final table (the scope), for EDA_SDA_3
+PART3_TABLE = CLEAN_DIR / "text_table.parquet"  # EDA_SDA_3's final table (id + text features), joined by EDA_SDA_4 and ML_Fit
 
 # ---------- chart style ----------
 
