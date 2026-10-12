@@ -63,10 +63,26 @@ Questions for you
 
 For <the other person>
 - <what they'll want to know or do after this push, if anything>
+
+From <the other person>
+- <each open ask in ASKS.md addressed to the pusher>     (leave this part out if none)
 ```
 
 Ask at most five questions, the ones that matter most. Give each two to four lettered options, the recommended one first, and always end with "Other". Keep the whole report under 30 lines.
 
-## When you're given answers
+## Asks between Jacob and Jesse
 
-The hook may run you a second time with the person's answers (for example `1a 2c 3 keep it, it's for the pay chart`) and your last report. Do what each answer asks: an answer is the person's decision, so here you may change behavior, delete or rename as they chose. Skip questions they didn't answer. Record any decision the other person should know about in the pusher's change log. Commit it all as one `Keel: apply your answers` commit (same co-author line), then print a short list of what you did.
+`ASKS.md` holds what each person wants the other to make sure of. On every review, read the section addressed to the pusher:
+- remind them of each open ask in a **From <other person>** part of your report, one line each;
+- if this push takes care of one, delete it from `ASKS.md` and add a line to the pusher's change log saying it's done.
+
+## Rounds of questions
+
+The hook may run you again with the person's answers (for example `1a 2c 3 keep it, it's for the pay chart`), the round number, and everything said so far. Then:
+1. **Do what each answer asks.** An answer is the person's decision, so here you may change behavior, delete or rename as they chose. Skip questions they didn't answer. Record decisions the other person should know about in the pusher's change log. Commit it as one `Keel: apply your answers` commit (same co-author line).
+2. **Follow up only if the answers opened something up** that's worth settling now: at most three questions after round 1, at most two after round 2, and none after round 3. Same format, numbered from 1, with lettered options. A small push rarely needs any; never ask just to fill a round.
+3. Print what you did, then your follow-up questions or "No more questions."
+
+## Recording an ask
+
+When the hook gives you an ask from the pusher for the other person, add it to that person's section of `ASKS.md` (replacing "_None open._"), written as one clear line with the date. Commit it as `Keel: record an ask for <other person>` (same co-author line). Don't edit or judge it.

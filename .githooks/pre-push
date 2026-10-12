@@ -50,16 +50,33 @@ report="$(git rev-parse --git-dir)/keel-last-review.md"
 echo "Keel: reviewing $(git rev-list --count "$range") commit(s) on $branch..."
 keel "Review and tidy the commits in $range on branch $branch, following your instructions." | tee "$report"
 
-# Answer Keel's questions here when pushing from a terminal; Keel applies the choices in a commit of its own
-if grep -q '^ *a) ' "$report" && (: < /dev/tty) 2>/dev/null; then  # subshell: a failed redirect would end the hook
-  echo
-  printf "Your answers (e.g. 1a 2c 3 keep it), or Enter to skip: "
-  read -r answers < /dev/tty
-  if [ -n "$answers" ]; then
-    keel "Apply the person's answers to your last review. Answers: $answers
-Your last report:
+# The rest needs someone at a terminal (not VS Code's push button or a script)
+if (: < /dev/tty) 2>/dev/null; then  # subshell: a failed redirect would end the hook
+  # Up to three rounds: Keel applies each round's answers and asks follow-ups only when they open something up
+  history=$(cat "$report")
+  round=1
+  while [ $round -le 3 ] && grep -q '^ *a) ' "$report"; do
+    echo
+    printf "Your answers (e.g. 1a 2c 3 keep it), or Enter to skip: "
+    read -r answers < /dev/tty
+    [ -z "$answers" ] && break
+    history="$history
+
+Round $round answers: $answers"
+    keel "These are the person's answers to round $round of your questions (rounds end after 3). Everything so far:
+$history" | tee "$report"
+    history="$history
+
 $(cat "$report")"
-  fi
+    round=$((round + 1))
+  done
+
+  # The open question: what the pusher wants the other person to make sure of (kept in ASKS.md)
+  case "$(git config user.name)" in Jacob*) other=Jesse ;; *) other=Jacob ;; esac
+  echo
+  printf "Anything you want %s to make sure he does? (Enter to skip): " "$other"
+  read -r ask < /dev/tty
+  [ -n "$ask" ] && keel "Record this ask from $(git config user.name) for $other in ASKS.md: $ask"
 fi
 
 # Never stop the push: Keel's own commit stays local and goes up with the next push
