@@ -308,9 +308,9 @@ English only (listings with no language label dropped); United States only: list
 Every other role is set aside here (it stays on disk, and section 7 already compared every field). The scope is split into **role buckets** by O*NET code (`src/career_switch.py`): the eight computer and mathematical buckets plus the two added ones. **Each listing also gets its TripleTen program** (`tripleten_program`): AI Software Engineering, UX/UI Design, AI & Machine Learning, Data Analytics, Quality Assurance, Cybersecurity, or Forward Deployed Engineering / AI Automation; listings no program trains for (IT support, networks and systems, database, IT project management, other computer roles) are **adjacent tech roles**. IT managers and financial analysts are out (decided 2026-10-10: borderline, a move-up role and a finance-credentialed one). The career-switch profiles (frozen) have paths into the eight only, so for the added buckets the compass shows 2026 openings, pay and timing without past switches. From here on, every table is the scope only.
 
 **What the data shows**
-- **The scope is 1.0M listings, 7.5% of the file:** computer and mathematical is 7.5% of English US listings, the two added TripleTen roles add 0.71%, and credentialed math is 0.05%. The O*NET-code fallback adds nothing (the group is always present), and every scope code maps to a role bucket.
-- **Software development is the largest bucket (30%),** then networks and systems (18%), IT project management (12%) and data science (11%); technical sales is the smallest (1.0%).
-- **By TripleTen program:** AI Software Engineering 29%, Data Analytics 14%, Cybersecurity 4.9%, AI & Machine Learning 4.8%, Quality Assurance 3.6%, UX/UI Design 1.3%, Forward Deployed Engineering / AI Automation 1.0%; **41% are adjacent tech roles.**
+- **The scope is 908K listings, 6.8% of the file:** computer and mathematical is 7.2% of English US listings, the two added TripleTen roles add 0.69%, and credentialed math is 0.05%. The O*NET-code fallback adds nothing (the group is always present), and every scope code maps to a role bucket.
+- **Software development is the largest bucket (29%),** then networks and systems (19%), IT project management (12%) and data science (12%); technical sales is the smallest (1.1%).
+- **By TripleTen program:** AI Software Engineering 28%, Data Analytics 14%, Cybersecurity 5.0%, AI & Machine Learning 4.8%, Quality Assurance 3.7%, UX/UI Design 1.1%, Forward Deployed Engineering / AI Automation 1.1%; **42% are adjacent tech roles.**
 
 ### 8d Fields only the scope carries
 
@@ -348,18 +348,18 @@ A factor only helps ranking if it **varies**, so Q1a shows each factor across th
 | Entry-level seniority; asks 2 years or fewer; open to career changers | Career-change accessibility | Whether a newcomer can get in | Keyword rules; validated in EDA_SDA_3 |
 
 **What the data shows**
-- **Accessibility varies most between buckets:** entry-level seniority 10.8× (2.1% in IT project management to 23% in IT support), open to career changers 4.8× (9.2% to 44%), asks 2 years or fewer 4.7×.
-- **Pay varies 2.4×** ($31.00 an hour in IT support to $73.23 in software development) **and volume 29×** (364 new a week in technical sales to 11K in software development), while timing varies only 1.8× (medians of 21–38 days).
-- **By program:** Data Analytics roles are the most open (30% show any sign, 13% ask for 2 years or fewer) at $47.64 an hour; AI Software Engineering and AI & Machine Learning pay the most (about $73.50) but are among the least open (18–19%).
+- **Accessibility varies most between buckets:** entry-level seniority 10.8× (2.1% in IT project management to 22% in IT support), open to career changers 4.8× (9.1% to 44%), asks 2 years or fewer 4.7×.
+- **Pay varies 2.4×** ($31.10 an hour in IT support to $73.54 in software development) **and volume 27×** (340 new a week in technical sales to 9,200 in software development), while timing varies only 1.7× (medians of 22–38 days).
+- **By program:** Data Analytics roles are the most open (30% show any sign, 14% ask for 2 years or fewer) at $47.84 an hour; AI Software Engineering and AI & Machine Learning pay the most (about $74) but are among the least open (18–19%).
 
 #### Q1b. Still open / apply-by
 
 The share of listings still open N days after first being seen, using Kaplan–Meier survival curves. These treat still-open listings as unfinished rather than ignoring them, which would make windows look shorter than they are. This is the basis for an **apply-by estimate** on each listing.
 
 **What the data shows**
-- **The window is short:** 29% of scope listings close within a week, the median is 24.1 days, and 45% are still open after 30 days.
-- **Most buckets move alike** (66–74% still open after a week). **Technical sales is the slow outlier** (83% after a week, median 38 days); database is the fastest (median 21 days).
-- **Crawl artifacts barely move timing:** without them the median falls from 24.1 to 22.4 days, and the share open after a week stays at 70–71%.
+- **The window is short:** 29% of scope listings close within a week, the median is 24.2 days, and 45% are still open after 30 days.
+- **Most buckets move alike** (67–74% still open after a week). **Technical sales is the slow outlier** (84% after a week, median 38 days); IT support, database, quality assurance and other computer roles are the fastest (median 22 days).
+- **Crawl artifacts barely move timing:** without them the median falls from 24.2 to 23.1 days, and the share open after a week stays at 71%.
 
 #### Q1c. Source
 
@@ -375,16 +375,16 @@ Which hiring platforms, job boards or company sites host the scope's listings, a
 Whether a few companies post most listings (a short watch list for an applicant), and whether listings from high-volume companies close faster or slower. **Volume counts a company's listings in any field** (section 7.2), since a bank posting 2,000 jobs, 50 of them in tech, is a high-volume employer. Bands: 1–4, 5–49, 50–499 and 500+ listings (rescaled for the full file: the sample's 20+ band held 89% of listings).
 
 **What the data shows**
-- **Company volume is the strongest timing signal:** counting only earlier listings in any field, scope listings at companies with 500+ listings close in a median **10 days, vs. 50 at companies with 1–4** (Gehan–Wilcoxon test, p < 0.001); over the whole six months, 14 vs. 56.
-- **The gradient is steady across bands** (50, 35, 28 and 10 days) and holds for listings first seen from May (60 vs. 10 days).
-- **High-volume employers dominate:** half of scope listings come from companies with 500+ listings in any field, and the top 10% of companies post 47–73% of each bucket's listings. Reposting rises with volume (1.2% to 7.6%).
+- **Company volume is the strongest timing signal:** counting only earlier listings in any field, scope listings at companies with 500+ listings close in a median **12 days, vs. 44 at companies with 1–4** (Gehan–Wilcoxon test, p < 0.001); over the whole six months, 14 vs. 42.
+- **The gradient is steady across bands** (44, 34, 28 and 12 days) and holds for listings first seen from May (56 vs. 12 days).
+- **High-volume employers dominate:** half of scope listings come from companies with 500+ listings in any field, and the top 10% of companies post 47–74% of each bucket's listings. Reposting rises with volume (1.4% to 8.1%).
 
 #### Q1e. Competition: reposts
 
 A repost is the same job (company, title and description) listed again under a new id. It suggests the first listing didn't fill, which could mean less competition, or a hard-to-fill or unattractive role. Here: how common reposts are by role bucket, and the gap between original and repost.
 
 **What the data shows**
-- **6.1% of scope listings are reposts:** most in technical sales (8.9%) and business and data analysis (8.1%), fewest in quality assurance (4.3%) and IT support (4.6%).
+- **6.5% of scope listings are reposts:** most in technical sales (9.4%) and business and data analysis (8.9%), fewest in quality assurance (4.6%) and IT support (4.9%).
 - **Reposts come back fast:** a median 7.6 days after the original, and a quarter within a day, so many are re-listings or crawler refreshes rather than a failed hire.
 
 #### Q1f. Employer intent: text signals (the NLP link)
@@ -410,17 +410,17 @@ How open each role bucket is to someone new to the field, and whether open listi
 | Median pay | Whether the role is worth the move | Under half disclose pay |
 
 **What the data shows**
-- **IT support is the entry door:** 23% entry level, 48% of listings that state years ask for 2 or fewer, and 44% show any sign of openness. Then other computer roles (37%) and business and data analysis (34%). IT project management is the hardest (2.1% entry level, 9.2% open).
-- **Open listings pay less, but still well:** a median $37.98 an hour, vs. $64.14 across the scope ($26.00 for open IT support listings).
-- **Listings open to career changers close a bit faster** (75% still open after a week vs. 80%). Degree requirements are rare (3.7%), but 60% of listings that state years ask for 5 or more.
+- **IT support is the entry door:** 22% entry level, 48% of listings that state years ask for 2 or fewer, and 44% show any sign of openness. Then other computer roles (36%) and business and data analysis (33%). IT project management is the hardest (2.1% entry level, 9.1% open).
+- **Open listings pay less, but still well:** a median $38.00 an hour, vs. $64.62 across the scope ($26.00 for open IT support listings).
+- **Listings open to career changers close a bit faster** (75% still open after a week vs. 79%). Degree requirements are rare (3.9%), but 61% of listings that state years ask for 5 or more.
 
 #### Q1h. Recruiters
 
 Whether a named recruiter changes how a listing behaves, and whether some recruiters post a lot. Recruiters are an anonymous key only (8d): no names or contacts are kept or shown, and only counts and shares appear here.
 
 **What the data shows**
-- **Only 1.2% of scope listings name a recruiter:** 5,527 anonymous recruiters; the 437 with 5+ listings post 37% of recruiter listings.
-- **Recruiter listings close much faster:** a median 11.3 days vs. 24.3 without one; for recruiters with 5+ listings, **6.5 days** (48% still open after a week vs. 71%).
+- **Only 1.3% of scope listings name a recruiter:** 5,527 anonymous recruiters; the 437 with 5+ listings post 37% of recruiter listings.
+- **Recruiter listings close much faster:** a median 11.3 days vs. 24.5 without one; for recruiters with 5+ listings, **6.5 days** (48% still open after a week vs. 72%).
 - **The titles point to staffing and talent-acquisition roles** (talent acquisition specialist, technical recruiter, account and delivery managers), so EDA_SDA_2 tests this against its staffing-agency flag before it's used.
 
 ### 9.2 Q2: What time information can prioritization rely on?
@@ -434,18 +434,18 @@ Whether a named recruiter changes how a listing behaves, and whether some recrui
 Checks: how far back `first_seen` goes; whether `posted` and `first_seen` weekdays differ (crawler vs. employer); weekly arrivals over **full weeks only** (the first and last weeks are shown greyed and labelled partial). The old check that the file isn't sorted (which would have biased a first-N sample) isn't needed: every listing is used now.
 
 **What the data shows**
-- **Six months of steady history:** no seasonal advice, but 75% of scope listings closed by September 30, so timing is well observed. A median **36K new scope listings arrive per full week**; the quietest week is 0.76× the median and the busiest 1.21×.
-- **`first_seen` is a good freshness clock:** it lags the employer's posting date by a median 1.5 days (75% within 3.5). Its weekdays follow the crawler (Friday peak), while posting dates (38% of listings) peak Tuesday to Thursday.
-- **Still-open rules (merge decision 2):** our rule (last seen within 2 days) counts 25% of scope listings as open, and the app's signal rule (7 days, not closed) 26%, mostly the same listings (92% overlap). **The app's current listing filter (status not closed) counts 42%, and 27% of those were last seen 30+ days before September 30.**
+- **Six months of steady history:** no seasonal advice, but 75% of scope listings closed by September 30, so timing is well observed. A median **31K new scope listings arrive per full week**; the quietest week is 0.76× the median and the busiest 1.27×.
+- **`first_seen` is a good freshness clock:** it lags the employer's posting date by a median 1.5 days (75% within 3.4). Its weekdays follow the crawler (Friday peak), while posting dates (41% of listings) peak Tuesday to Thursday.
+- **Still-open rules (merge decision 2):** our rule (last seen within 2 days) counts 25% of scope listings as open, and the app's signal rule (7 days, not closed) 25%, mostly the same listings (94% overlap). **The app's current listing filter (status not closed) counts 39%, and 26% of those were last seen 30+ days before September 30.**
 
 ### 9.3 The scope's mix: seniority, description length and other fields
 
 Seniority and description length by role bucket, then the fields the project may use later: language, status values, contract types, what `tags` and `categories` hold, how many listings link to a company in the companies table, and whether the date picker is fair.
 
 **What the data shows**
-- **Mid/senior dominates every bucket** (75–91%). Junior is highest in IT support (23%) and other computer roles (21%); IT project management is 44% manager level.
-- **Descriptions are long everywhere** (median 664–819 words; 79–88% over 400), so EDA_SDA_3's text work needs chunking for small embedding models.
-- **Other fields:** contract types are messy (161 labels; full time 53%, hybrid 19%, contract 8.7%, none 30%), and categories are a clean 27-label taxonomy. Every scope company is in the companies table. **The date picker is fair from July:** live listings reach 79% of September's level, and the share first seen in the past 30 days settles near 50%.
+- **Mid/senior dominates almost every bucket** (76–91%; 59% in other computer roles and 44% in IT project management). Junior is highest in IT support (22%) and other computer roles (21%); IT project management is 44% manager level.
+- **Descriptions are long everywhere** (median 671–825 words; 81–88% over 400), so EDA_SDA_3's text work needs chunking for small embedding models.
+- **Other fields:** contract types are messy (161 labels; full time 55%, hybrid 20%, contract 8.8%, none 27%), and categories are a clean 27-label taxonomy. Every scope company is in the companies table. **The date picker is fair from July:** live listings reach 80% of September's level, and the share first seen in the past 30 days settles near 50%.
 
 ## 10. Findings
 
@@ -453,18 +453,18 @@ Seniority and description length by role bucket, then the fields the project may
 
 | Factor | Evidence | Verdict |
 |:--|:--|:--|
-| Company hiring volume (any field, earlier listings only) | Median 10 days at companies with 500+ listings vs. 50 at 1–4; steady across bands and from May on; Gehan–Wilcoxon p < 0.001 (Q1d) | **Strongest:** model it first, with staffing agencies separated (EDA_SDA_2) |
-| Still open / apply-by | 29% gone within a week, median 24.1 days; technical sales slowest (38 days), database fastest (21) (Q1b) | **The target:** apply-by estimates by role bucket |
+| Company hiring volume (any field, earlier listings only) | Median 12 days at companies with 500+ listings vs. 44 at 1–4; steady across bands and from May on; Gehan–Wilcoxon p < 0.001 (Q1d) | **Strongest:** model it first, with staffing agencies separated (EDA_SDA_2) |
+| Still open / apply-by | 29% gone within a week, median 24.2 days; technical sales slowest (38 days), IT support, database and quality assurance fastest (22) (Q1b) | **The target:** apply-by estimates by role bucket |
 | Source | Medians from 15 days (LinkedIn, Oracle, Taleo) to 71 (Ashby); company sites 21 (Q1c) | **Strong:** model with company volume, which it tracks |
-| Recruiters | Median 11.3 days with a named recruiter vs. 24.3 without; 6.5 days for recruiters with 5+ listings; only 1.2% of listings (Q1h) | **Promising but rare:** test against the staffing flag before using it |
-| Pay | Disclosed for 45%; disclosure goes with longer windows (79% vs. 64% open at 7 days); $31–$73 an hour by bucket (Q1a, Q1f) | **Useful:** as a value factor, and disclosure as a timing signal |
-| Career-change accessibility | Open to career changers from 9.2% (IT project management) to 44% (IT support); open listings pay a median $37.98 (Q1g) | **Core:** hides and raises listings; rules validated in EDA_SDA_3 |
-| Employer intent (text) | Long descriptions 81% vs. 67% open at 7 days; remote wording no gap (Q1f); urgency left to EDA_SDA_3 | **Mixed:** test richer NLP in EDA_SDA_3 |
-| Reposts | 6.1% of the scope; back a median 7.6 days later; 32% of job-board listings (6.4, Q1e) | **A feature,** read with the source: many are re-listings |
+| Recruiters | Median 11.3 days with a named recruiter vs. 24.5 without; 6.5 days for recruiters with 5+ listings; only 1.3% of listings (Q1h) | **Promising but rare:** test against the staffing flag before using it |
+| Pay | Disclosed for 49%; disclosure goes with longer windows (79% vs. 64% open at 7 days); $31–$74 an hour by bucket (Q1a, Q1f) | **Useful:** as a value factor, and disclosure as a timing signal |
+| Career-change accessibility | Open to career changers from 9.1% (IT project management) to 44% (IT support); open listings pay a median $38.00 (Q1g) | **Core:** hides and raises listings; rules validated in EDA_SDA_3 |
+| Employer intent (text) | Long descriptions 81% vs. 68% open at 7 days; remote wording no gap (Q1f); urgency left to EDA_SDA_3 | **Mixed:** test richer NLP in EDA_SDA_3 |
+| Reposts | 6.5% of the scope; back a median 7.6 days later; 32% of job-board listings (6.4, Q1e) | **A feature,** read with the source: many are re-listings |
 | Crawl artifacts | 2.4% batch first sightings, 1.2% dropouts; timing barely moves without them (6.8, Q1b check) | **Flags, not filters** |
 | Transferable fit | Needs a career changer's profile | Profiles and O*NET skills, in ML_Fit |
 
-**Q2, time information:** posting age is supported for every listing (`first_seen` lags the posting date by a median 1.5 days); day of week only through `posted` (38% of scope listings); no seasonality from six months; weekly rates use 25 full weeks. **Still-open rule:** ours (last seen within 2 days) and the app's signal rule (7 days, not closed) agree on most listings; the app's current status filter counts 27% of its "open" listings that were last seen 30+ days before September 30, which supports a last-seen rule for merge decision 2.
+**Q2, time information:** posting age is supported for every listing (`first_seen` lags the posting date by a median 1.5 days); day of week only through `posted` (41% of scope listings); no seasonality from six months; weekly rates use 25 full weeks. **Still-open rule:** ours (last seen within 2 days) and the app's signal rule (7 days, not closed) agree on most listings; the app's current status filter counts 26% of its "open" listings that were last seen 30+ days before September 30, which supports a last-seen rule for merge decision 2.
 
 **Q3, how tech compares:** computer and mathematical is the best-paid (1st of 23) and most remote (1st) field, 4th in volume, but 22nd on entry-level roles and openness, and last on asking 2 years or fewer. The scope's design follows from it: hide what a newcomer can't get, rank the rest, and point to the open doors (IT support, business and data analysis, Data Analytics roles).
 
@@ -481,9 +481,9 @@ Saved to `data/clean/analysis_table.parquet` for EDA_SDA_2: the scope's listings
 A short statistical summary of the final table: its size, how its key measures are distributed, and how it splits by month, role bucket and source. Aggregates only.
 
 **What the data shows**
-- **The scope table: 1.0M listings from 84K companies,** 24% still open on September 30, 6.1% reposts, and an even spread across months (15–18% each).
-- **Median 17 days open** (10% over 84), **median pay $63.90 an hour** (middle half $43.70–$84.40), and a median 747 words per description.
-- **Career-change signals are thin:** 10% entry level, 7.7% ask for 2 years or fewer, 4.2% use entry-level or training wording and 0.5% invite career changers; 22% show any sign.
+- **The scope table: 908K listings from 72K companies,** 25% still open on September 30, 6.5% reposts, and an even spread across months (14–18% each).
+- **Median 17 days open** (10% over 82), **median pay $64.30 an hour** (middle half $44.20–$84.90), and a median 758 words per description.
+- **Career-change signals are thin:** 10% entry level, 8.3% ask for 2 years or fewer, 4.2% use entry-level or training wording and 0.5% invite career changers; 22% show any sign.
 
 ## 13. Final conclusion
 
@@ -493,14 +493,14 @@ A short statistical summary of the final table: its size, how its key measures a
 |:--|:--|
 | **Data** | 13,415,388 listings in the file; 13,017,464 English (or unlabeled) and US (or no country); first seen March 30 to September 30, 2026 (the data's end date) |
 | **After cleaning** | 13.0M listings, none removed; 1.4M reposts flagged (10%); 11.7M originals from 324K companies; 22.3% still open on September 30 |
-| **Scope table** | 1.0M listings (947K originals) from 84K companies in 11 role buckets; 24% still open on September 30; 59% under a TripleTen program, 41% adjacent tech roles |
+| **Scope table** | 908K listings (849K originals) from 72K companies in 11 role buckets; 25% still open on September 30; 58% under a TripleTen program, 42% adjacent tech roles |
 
 **Key findings:**
 1. **Tech is worth it and hard to enter:** computer and mathematical is the best-paid field ($66.73 an hour vs. $26.44 for the median field) and the most remote (33% vs. 9.5%), but 22nd of 23 on entry-level roles and openness.
-2. **Company volume is the strongest timing signal:** listings at companies with 500+ listings in any field close in a median 10 days, vs. 50 at companies with 1–4.
+2. **Company volume is the strongest timing signal:** listings at companies with 500+ listings in any field close in a median 12 days, vs. 44 at companies with 1–4.
 3. **The window is short:** 29% of scope listings are gone within a week (median 24 days); technical sales is the slowest bucket (38 days).
-4. **The open doors:** IT support (44% show openness, 23% entry level) and Data Analytics roles (30%); AI Software Engineering and AI & Machine Learning roles pay the most (about $73.50 an hour) but are among the least open (18–19%).
-5. **Still-open rules differ in practice:** a status-based filter counts 42% of scope listings as open, 27% of them last seen a month or more before September 30; a last-seen rule (ours: 25%) avoids that.
+4. **The open doors:** IT support (44% show openness, 22% entry level) and Data Analytics roles (30%); AI Software Engineering and AI & Machine Learning roles pay the most (about $74 an hour) but are among the least open (18–19%).
+5. **Still-open rules differ in practice:** a status-based filter counts 39% of scope listings as open, 26% of them last seen a month or more before September 30; a last-seen rule (ours: 25%) avoids that.
 
 ### Decisions
 - **Order:** clean every listing; compare computer and mathematical roles with every other field (section 7); apply the filters we already know we want, first (section 8); explore the scope by role bucket (section 9).
