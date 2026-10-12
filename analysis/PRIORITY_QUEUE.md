@@ -1,23 +1,13 @@
 # Priority Queue
 
 > Top = next. Delete a task when it's done. Add new tasks to the tier where they belong.
-> The one task list for the analysis and the app. Each notebook's full plan is in the notebook itself; how we work is in [`analysis/STANDARDS.md`](STANDARDS.md); what's built is in [`STATUS.md`](STATUS.md).
+> Each notebook's full plan is in the notebook itself; how we work is in [`STANDARDS.md`](STANDARDS.md).
 
 ---
 
 ## Now
 
-- **Combine the app with the analysis** (agreed changes and connections to build: [`VISION.md`](VISION.md#agreed-changes-still-to-make); repositories joined and reorganized, six decisions agreed 2026-10-11): Jesse merges `main` into `jesse` and moves his `data/`, `models/` and `.env` to the top; then the shared listing set → the app's corpus and embeddings → backend features (timing, hiding rules, the retraining compass). Also: rerun the notebooks on the new layout (one `data/` at the top).
-- **App demo** (from `app/STATUS.md` and `app/roadmap.md`, folded in 2026-10-12):
-  1. End-to-end rehearsal on a real profile with desired roles; fix what breaks.
-  2. Demo plan: live or recorded, a recorded fallback, local or deployed; then record it.
-  3. Edit the draft "desired roles" on the two real profiles if they're wrong.
-  4. **Jesse to test Ask the market** on the Signals tab (typed questions, the example chips, **Talk** with a real microphone, **Research this company**). Not yet tried by a person; Talk was only tested with a synthetic voice.
-  5. Record the AI skills gap analysis's cost and time for 10 and 20 jobs. Anything that sends résumé text to a provider still needs consent and a budget decision.
-  6. Collect ratings: the team uses Discover normally and rates jobs (with a reason on each 👎); then `python code/feedback_report.py` (from `app/`) for the first measured number (share of 👍 in the top 10, and per source for the exploration listings).
-  7. Clean notebook for the app's final path, and a write-up built on `app/docs/ml-inventory.md` with measured vs. unvalidated claims stated plainly.
-  8. Refresh stale docs as items land (the frontend README needs a Signals section).
-  9. Optional (dropped for time 2026-10-09): measure the ranker by labelling the review page ([`app/docs/archive/review-page-and-run-log.md`](../app/docs/archive/review-page-and-run-log.md)); until then RRF is described as unvalidated.
+- **Combine the app with the analysis** (plan: [`docs/merge_plan.md`](docs/merge_plan.md); repositories joined and reorganized, all gates met, six decisions agreed 2026-10-11): Jesse merges `main` into `jesse` and moves his `data/`, `models/` and `.env` to the top; then the shared listing set → the app's corpus and embeddings → backend features (timing, hiding rules, the retraining compass).
 - **Ask the advisors whether the app may show recruiter names and contact details** from the listings (we store only an anonymous key today). (OpenAI use: confirmed allowed 2026-10-11, in `DECISION_LOG.md`.)
 - **Full dataset, full scale for every notebook** (decided 2026-10-10; stream test: ≈13.4M listings, ≈1.0M in scope, ≈40 minutes, ≈8.4 GB):
   1. **Claude:** EDA_SDA_3 for full scale (also: a second ghost sign, since "company still posting" no longer separates forgotten listings at big companies (78% of stale listings): the same company and title still open after 90 days while newer copies of that title keep appearing) (reads `scope_table.parquet` and `scope_descriptions.parquet`): text read part by part, regex features over every listing, spaCy lemmas on a large stratified sample (about 150,000), cache in parts. Hold EDA_SDA_3's first run until then.
@@ -69,13 +59,13 @@
   - Leakage: counts from earlier listings only; a date-picker model trained only on what was known by its date; check that `has_desc` and the text flags are known at first sighting (EDA_SDA_2 3.9) before using them.
   - **The priority queue:** combine the fit score, chance still open and apply-by, accessibility and pay in one formula; weights start from EDA_SDA_4's adjusted model and are tuned on the validation month; only features that survived EDA_SDA_4.
   - Evaluation (ROC-AUC, F1, C-index, precision@k, NDCG); the queue against newest-first: of each top 10, how many stay open long enough, are reachable and are in the role the person actually moved into; SHAP and the per-listing rating breakdown for the detail view (each factor's rating and share of the score, top features behind chance still open), sensitivity checks, solution report.
-- **Job growth expectations** (plan: [`VISION.md` section 3.3](VISION.md#33-expected-job-growth)): get PredictLeads' written consent to combine their data with BLS data (agreement 4.3), check the terms of use, download the **BLS 2025–2035** occupation table into `data/external/`, join on occupation code, roll up to role buckets weighted by 2025 employment (IT project management takes 15-1299's growth as a flagged proxy), and convert to the time frame the team picks (at most 5 years). Add the expected-growth column to the compass (EDA_SDA_2 3.12).
-- **Date picker (as-of date):** a helper in `analysis/src/` that returns the listings live on a date with features computed as of that date; check it on July 1 vs. September 1, 2026 (counts only; EDA_SDA_1 8b shows dates before July are skewed young). The model for a date is trained only on what was known by then; the demo can start with test-period dates.
-- **Ideas tab** (`VISION.md`, a separate tab): skills to build (EDA_SDA_3 skills vs. a résumé, in `ML_Fit`), career options and time to switch (Profiles), pay increase (EDA_SDA_1 7.2 current-field pay vs. EDA_SDA_2 3.12 role pay, hourly), expected growth, and stepping-stone roles; built from `ML_Fit`'s compass tables. Time frames stay vague until the team decides.
-- **Decide the time frames** for career options and job growth in the compass (team; growth at most 5 years), and whether to adopt the proposed growth extensions (`VISION.md` section 3.3: error band, rate scenarios, listing momentum, horizon-weighted blend, state level).
+- **Job growth expectations** (plan: [`JOB_GROWTH.md`](JOB_GROWTH.md)): get PredictLeads' written consent to combine their data with BLS data (agreement 4.3), check the terms of use, download the **BLS 2025–2035** occupation table into `data/external/`, join on occupation code, roll up to role buckets weighted by 2025 employment (IT project management takes 15-1299's growth as a flagged proxy), and convert to the time frame the team picks (at most 5 years). Add the expected-growth column to the compass (EDA_SDA_2 3.12).
+- **Date picker (as-of date):** a helper in `src/` that returns the listings live on a date with features computed as of that date; check it on July 1 vs. September 1, 2026 (counts only; EDA_SDA_1 8b shows dates before July are skewed young). The model for a date is trained only on what was known by then; the demo can start with test-period dates.
+- **Ideas tab** (`APPLICATION.md`, a separate tab): skills to build (EDA_SDA_3 skills vs. a résumé, in `ML_Fit`), career options and time to switch (Profiles), pay increase (EDA_SDA_1 7.2 current-field pay vs. EDA_SDA_2 3.12 role pay, hourly), expected growth, and stepping-stone roles; built from `ML_Fit`'s compass tables. Time frames stay vague until the team decides.
+- **Decide the time frames** for career options and job growth in the compass (team; growth at most 5 years), and whether to adopt the proposed growth extensions (`JOB_GROWTH.md` section 4: error band, rate scenarios, listing momentum, horizon-weighted blend, state level).
 - **O*NET (in scope, small):** check the terms of use, then download only the **Career Changers Matrix** (latest release), the **skills** for computer and mathematical occupations plus the team's background occupations, and the **Job Zones** (O*NET's level of education and experience per occupation: an accessibility prior for the feature screening). Listings already carry O*NET codes, so they join directly.
-- **Retraining compass app view** (`VISION.md` sections 2 and 3); its 2026 side is ready (EDA_SDA_2 3.12).
-- **App MVP** (stage 1 in `VISION.md`): list view with search, sort and filters; detail view with apply link; stars.
+- **Retraining compass app view** (`APPLICATION.md` sections 2 and 3); its 2026 side is ready (EDA_SDA_2 3.12).
+- **App MVP** (stage 1 in `APPLICATION.md`): list view with search, sort and filters; detail view with apply link; stars.
 - **Write up the analysis** and **choose the final format** (write-up, notebook demo, or app).
 
 ## Blocked
@@ -85,20 +75,18 @@
   - Assign owners for the notebooks above, the app, and the pitch.
   - Set a meeting cadence and a place for async discussion.
   - Confirm the final due date and deliverables.
-- **App:** answer the open questions in `VISION.md`, section 9.
+- **App:** answer the open questions in `APPLICATION.md`, section 9.
 - **Project advisor:** get answers to our questions (scope, deliverables, AI tools and data, applicant profiles, external data, hosting, presenting results, data deletion), then record them in `DECISION_LOG.md`. Get the AI-and-data answers in writing; the agent stage of the app depends on them, and the answer on collecting career-changer profiles blocks the volunteer profiles.
 - **Applicant profiles** (after the advisor answers): the plan and task table were in `docs/fit_analysis.md` (deleted 2026-10-11, recoverable from git history). Assign owners for the tasks, draft the consent form, recruit career changers, convert their exports, and build the synthetic generator in `src/`.
 - **PredictLeads:** get answers to our data questions (field definitions, crawl timing, `status`, sources, sampling, duplicates, older daily exports, `seniority`; why job-board listings stop after May and why descriptions go missing more often from June on, from EDA_SDA_2), then record them in `DECISION_LOG.md`.
 
 ## Later
 
-- **Optional:** transfer the repository to a shared GitHub organization; archive the two originals (`project_leads`, `predictleads-hackathon`).
 - **Backup:** an encrypted Time Machine backup to Jacob's removable drive when it's available, **excluding every `data/` folder** (the data stays in S3 and approved locations only).
 - **predictleads-hackathon:** its `.venv` was removed 2026-10-10 to free space; rebuild it (`python -m venv .venv && pip install -r requirements.txt`) before working there.
 
 - **Profiles is frozen** (refrozen 2026-10-10). Reopen only if needed: a pool for moving up within the same role (training, then a senior or manager role; levels are already tagged), or more prior-career keywords ("other" is 115 of 706; 4a.2e lists the common titles). Any change means a rerun, then the ML notebook reloads `modeling_table.pkl`.
-- **App:** "Refine my matches" (`VISION.md` section 10), after the core demo and write-up.
-- **App:** transferable-fit stage (the career changer's background profile), priority model with adjustable weights, MCP servers, then agents (see `VISION.md`).
+- **App:** transferable-fit stage (the career changer's background profile), priority model with adjustable weights, MCP servers, then agents (see `APPLICATION.md`).
 - **Run log:** settings, seeds and metrics for every run, in a CSV or a local MLflow store. Never listing text.
 - **Stretch techniques:** transferable fit with embeddings; embeddings vs. TF-IDF; change-point detection (`ruptures`); topic modeling (NMF or BERTopic); several daily exports to observe closures directly; a one-page system card.
 
@@ -108,12 +96,12 @@
 - Never commit data, Parquet or pickle files, `.env`, or anything in `reports/`.
 - After a kernel restart, run the notebook from the top.
 - **After any change to `src/` (rules, mappings, helpers), restart the kernel before rerunning:** Python keeps the old version loaded until a restart, so Run All alone uses the old code.
-- Follow the working standards in `analysis/STANDARDS.md` and the course-template baseline in every notebook.
+- Follow the working standards in `STANDARDS.md` and the course-template baseline in every notebook.
 - If the notebook looks out of date in VS Code, run **File: Revert File**. Don't save the older copy over newer changes.
 - Record every decision, with its reasoning, in `DECISION_LOG.md`.
 - When you add a package: pin it in `requirements.txt`, commit, and tell the team.
 - Keep track of every local copy of the data, for the final deletion.
-- Regenerate a notebook's `docs/` export after editing it (from `analysis/`: `python -m src.export_markdown notebooks/<name>.ipynb`).
+- Regenerate a notebook's `docs/` export after editing it (`python -m src.export_markdown notebooks/<name>.ipynb`).
 
 ## Finish
 

@@ -1,6 +1,6 @@
 # Frontend / Backend Integration Map
 
-> **Update 2026-10-09:** the screen table below describes the earlier mock-only state. The React app now calls the demo API (profile, ranked recommendations, relevance feedback, details, saved jobs); fixtures were removed. See [STATUS.md](../../../analysis/STATUS.md) and [backend-api.md](../backend-api.md). Current availability is still unverified, and company details beyond name and domain are still unknown.
+> **Update 2026-10-09:** the screen table below describes the earlier mock-only state. The React app now calls the demo API (profile, ranked recommendations, relevance feedback, details, saved jobs); fixtures were removed. See [STATUS.md](../../STATUS.md) and [backend-api.md](../backend-api.md). Current availability is still unverified, and company details beyond name and domain are still unknown.
 
 ## Current State
 

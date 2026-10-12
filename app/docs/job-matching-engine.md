@@ -1,6 +1,6 @@
 # Job Matching Engine: First Baseline
 
-> **Note (2026-10-09):** this describes the first keyword/TF-IDF baseline engine (`code/job_matching_engine.py`) and the earlier experiments built on it, which now live in `archive/experiments/`. The demo ranker is TF-IDF + BGE reciprocal-rank fusion; see [STATUS.md](../../analysis/STATUS.md) and [backend-api.md](backend-api.md). The commands below that reference archived scripts need the `archive/experiments/code` paths.
+> **Note (2026-10-09):** this describes the first keyword/TF-IDF baseline engine (`code/job_matching_engine.py`) and the earlier experiments built on it, which now live in `archive/experiments/`. The demo ranker is TF-IDF + BGE reciprocal-rank fusion; see [STATUS.md](../STATUS.md) and [backend-api.md](backend-api.md). The commands below that reference archived scripts need the `archive/experiments/code` paths.
 
 This is a first retrieval prototype for team review. It reuses the completed, seeded 30,000-job JSONL sample; it does not access S3, rerun an audit, regenerate the sample, call an AI service, or create relevance labels. All generated recommendations, run summaries, and review files stay under ignored `data/matching/`.
 
