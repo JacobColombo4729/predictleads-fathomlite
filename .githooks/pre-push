@@ -37,18 +37,33 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 
 # Eve's whole reach: read files, git, and (in the conversation) Claude's question boxes
-tools='Read,Glob,Grep,Edit,Write,AskUserQuestion,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git status:*),Bash(git add:*),Bash(git rm:*),Bash(git mv:*),Bash(git commit:*),Bash(git config user.name)'
+tools='Read,Glob,Grep,Edit,Write,AskUserQuestion,Agent,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git status:*),Bash(git add:*),Bash(git rm:*),Bash(git mv:*),Bash(git commit:*),Bash(git config user.name)'
 
 # Eve's review gets a session ID of its own, so the conversation below reopens that session and
 # never someone's other Claude conversation in this folder
 h=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
 session="$(echo "$h" | cut -c1-8)-$(echo "$h" | cut -c9-12)-4$(echo "$h" | cut -c14-16)-a$(echo "$h" | cut -c18-20)-$(echo "$h" | cut -c21-32)"
 
+# Size the push (notebooks and lock files left out) to decide how many helpers read it in parallel;
+# thresholds from the repo's history: 90% of commits are under 400 lines and need none
+stat=$(git diff --shortstat "$range" -- . ':!*.ipynb' ':!*lock.json' ':!*.lock')
+files=$(echo "$stat" | awk '{print $1+0}')
+lines=$(echo "$stat" | awk '{n=0; for (i=1; i<NF; i++) if ($(i+1) ~ /^(insertion|deletion)/) n+=$i; print n}')
+if [ "$lines" -le 400 ] && [ "$files" -le 10 ]; then helpers=0
+elif [ "$lines" -le 1500 ] && [ "$files" -le 25 ]; then helpers=2
+elif [ "$lines" -le 5000 ] && [ "$files" -le 60 ]; then helpers=3
+else helpers=5
+fi
+
 branch=$(git rev-parse --abbrev-ref HEAD)
-report="$(git rev-parse --git-dir)/eve-last-review.md"
-echo "Eve: reviewing $(git rev-list --count "$range") commit(s) on $branch..."
-claude -p "Review and tidy the commits in $range on branch $branch, following your instructions." \
+gitdir=$(git rev-parse --git-dir)
+report="$gitdir/eve-last-review.md"
+echo "Eve: reviewing $(git rev-list --count "$range") commit(s) on $branch ($files files, $lines lines; $helpers helpers)..."
+start=$(date +%s)
+claude -p "Review and tidy the commits in $range on branch $branch, following your instructions. This push changes $files files and $lines lines: use $helpers eve-reader helpers." \
   --session-id "$session" --agent eve --permission-mode acceptEdits --allowedTools "$tools" < /dev/null | tee "$report"
+# Timings, to tune the thresholds above from real runs
+echo "$(date +%F) files=$files lines=$lines helpers=$helpers seconds=$(( $(date +%s) - start ))" >> "$gitdir/eve-timings.log"
 
 # At a terminal (not VS Code's push button or a script), reopen that session so Eve can ask her
 # questions with Claude's normal question boxes; the push carries on once you type /exit
