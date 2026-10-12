@@ -18,14 +18,14 @@ import numpy as np
 import pandas as pd
 
 from src.eda_helpers import DATA_DIR, ROOT  # first: it puts the repository root on the path for fetch
-from fetch.paths import ENV_FILE
+from fetch.paths import ENV_FILE, REPO_ROOT
 from fetch.predictleads import RAW_DIR, RAW_FILES, SNAPSHOT, connect, raw_file  # noqa: F401 (used by stream_full)
 
 JOBS_N = 200_000      # job-opening documents to read and flatten (the first N in the file)
 PART_ROWS = 20_000    # records per saved part when flattening
 FLAT_DIR = DATA_DIR / "flat"
 FLAT_TABLES = ["companies", "companies_included", f"job_openings_{JOBS_N}", f"job_openings_included_{JOBS_N}"]
-SCHEMA_DOC = ROOT / "docs" / "data.md"
+SCHEMA_DOC = REPO_ROOT / "DATA.md"
 
 
 # ---------- S3 and local copies (shared with the app: fetch/predictleads.py) ----------
@@ -199,7 +199,7 @@ def schema_md(name, table, note=""):
 
 
 def write_schemas(doc=SCHEMA_DOC):
-    """Write the four schemas between the schema markers in docs/data.md, only if they changed."""
+    """Write the four schemas between the schema markers in DATA.md (top level), only if they changed."""
     jobs_note = f" (from the first {JOBS_N:,} job-opening documents)"
     body = "\n\n".join([
         schema_md("companies", "companies"),

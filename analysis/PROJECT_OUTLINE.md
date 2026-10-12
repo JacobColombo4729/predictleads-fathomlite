@@ -2,7 +2,7 @@
 
 **PredictLeads × TripleTen externship** · Jacob Colombo · Updated 2026-10-10
 *A working proposal; the team's final focus is still being agreed.*
-*How we work: [`STANDARDS.md`](STANDARDS.md) · Decisions: [`DECISION_LOG.md`](DECISION_LOG.md) · Data: [`docs/data.md`](docs/data.md)*
+*How we work: [`STANDARDS.md`](STANDARDS.md) · Decisions: [`DECISION_LOG.md`](DECISION_LOG.md) · Data: [`DATA.md`](../DATA.md)*
 
 ---
 
