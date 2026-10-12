@@ -31,7 +31,7 @@
 
 ## Analysis
 
-- **EDA_SDA_1 rerun at full scale on the final scope** (US only): its findings text now matches the results (908K listings from 72K companies; company volume 12 vs. 44 days; IT support, database and QA fastest at 22 days). EDA_SDA_2 is ready to rerun. (2026-10-12)
+- **EDA_SDA_1 and EDA_SDA_2 rerun at full scale on the final scope** (US only): both notebooks' findings text now matches the results (908K listings from 72K companies; company volume 12 vs. 44 days; 7.5K likely ghosts; 48 of 68 features go forward to modeling). Next: EDA_SDA_3. (2026-10-12)
 - **Role discovery evaluated on real career moves (ML_Fit sections 2–4 and 6):** for each career changer, keyword, TF-IDF, BGE and RRF rank the role buckets from their pre-switch background, scored on whether the role they actually moved into is in the top 3 / top 5, against the most-common-role baseline, per pool, with 5 folds by person and a held-out 20% scored once with 95% intervals (`src/fit_eval.py`, tested in `analysis/tests/`). Profiles' new cell 5c saves the pre-switch text it needs. Needs a run: EDA_SDA_1, then Profiles, then ML_Fit. (2026-10-12)
 - **Bulk mode for the full-file tables:** `src/stream_full.py --bulk` (or `--auto`, or EDA_SDA_1's new cell 4b with `BUILD_MODE`) reads the export once and parses it on several cores: about 35 minutes instead of 3–5 hours, on a machine with 16 GB+ RAM and 8+ threads. It builds exactly the same tables in the same order as the stream mode (checked table by table on the first 100,000 documents). The Mac keeps the stream mode. (2026-10-12)
 - **US only:** EDA_SDA_1 8b drops every listing with no country. (2026-10-12)
