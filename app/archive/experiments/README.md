@@ -2,7 +2,7 @@
 
 These scripts and tests are the exploratory work that led to the current demo (October 2026). **Nothing in the app or the final pipeline imports them.** They are kept as history and for reproducibility. They are not a source of evidence for the final product: they used synthetic profiles in other job areas (water operations, logistics, retail and similar), model-generated relevance grades, and small samples, and their results were inconclusive.
 
-The current code is in [`../../code`](../../code) (see [STATUS.md](../../STATUS.md) and [roadmap.md](../../roadmap.md)). The experiments' saved outputs are in the git-ignored `data/matching/<experiment>/` folders.
+The current code is in [`../../code`](../../code) (see [APP.md](../../APP.md) and [roadmap.md](../../roadmap.md)). The experiments' saved outputs are in the git-ignored `data/matching/<experiment>/` folders.
 
 ## What was here and what it found
 
