@@ -108,6 +108,24 @@ LAYOUTS = {
         "charts": ["# 3.1 Chart", "# 3.2 Chart", "# 3.3e Chart", "# 3.6 Chart", "# 3.9 Chart", "# 3.11 Chart",
                    "# 3.12 Chart", "# 3.13 Chart"],
     },
+    "EDA_SDA_3": {
+        "skip_sections": {"Plan:", "1.", "6.", "7."},
+        "full_text_sections": {"Job", "8."},  # the purpose, and the conclusion with its summary
+        "max_bullets": 3,
+        "bullets_by_section": {"3.": 4, "4.": 4},
+        "table_groups": [
+            ["2b Words removed as boilerplate", "2b Share of each description kept"],
+            ["3a EDA_SDA_1's years rule vs. the new one", "3a The 5+ years rule"],
+            ["3a Years required by role bucket"],
+            ["3b Degree rules", "3b Highest degree level"],
+            ["3b Degree required (no equivalent) by role bucket"],
+            ["4a Share of listings with a description where each feature fires"],
+            ["4b Text features vs. closing within 7 days"],
+            ["4c Evergreen wording by ghost status"],
+            ["5b Validation results"],
+        ],
+        "charts": ["# 2 Chart", "# 3 Chart"],
+    },
     "Profiles": {
         "skip_sections": {"1.", "3.", "4b", "5."},
         "full_text_sections": {"Job", "6."},

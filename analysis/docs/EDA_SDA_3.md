@@ -89,10 +89,13 @@ Course standard (MLforTexts): normalize text (lowercase, regex to keep letters),
 The rules in sections 3–4 run on the cleaned text, which keeps case, numbers and punctuation ("3+ years", "B.S.", "Security+"), and tell **requirement lines from preferred ones** using the headings kept in 2a.
 
 **What the data shows**
-- (fill in after the run)
+- **The cleanup ran on all 908,291 scope listings, 82.4% of which have a description,** in 15.6 minutes (batch by batch). The shared template lines were learned on 120,000 April–July listings and found 6,556.
+- **Boilerplate removed, by kind (words, share of all description words):** equal opportunity and legal 36.1M (6.6%), about the company 24.1M (4.4%), benefits 23.9M (4.4%), shared template text 20.4M (3.7%), application logistics 2.5M (0.40%).
+- **Listings keep most of their text:** the median listing keeps 85–86% of its words in every source type (company site 716 to 559 words, hiring platform 784 to 617, job board 620 to 496), and none is cleaned to nothing.
 
 **What the data shows**
-- (fill in after the run)
+- **Words per description fall at each step:** a median of 735 after HTML removal, 573 after boilerplate removal and 394 as lemmas with stopwords removed (the lemma step is on a 150,001-listing sample). Means are 732, 590 and 406.
+- **The longest descriptions are long before and after:** the 90th percentile is 1,149 words after HTML removal and 957 after boilerplate removal, and the maximum (7,827 words) is the same at both steps.
 
 ## 3. The blocker rules: years of experience and degree
 
@@ -104,7 +107,13 @@ EDA_SDA_1's rules read every line the same way: "3+ years required" and "5 years
 The question for the app: **which rule can hide a listing from everyone** (too many years required), and which hide it only per applicant (a degree they don't have). Nothing hides until section 5 validates the rule.
 
 **What the data shows**
-- (fill in after the run)
+- **EDA_SDA_1's years rule was too narrow:** it finds 5+ years in 33.7% of listings with a description, the rebuilt rule in 39.1% (any line). The new rule finds more years in 12% of listings and fewer in 1.2%; both say no years in 34%.
+- **Required vs. preferred matters a little for years:** 5+ years on a requirement line is 35.6% of listings (36% of those open on September 30), and 3.4% ask it only on preferred lines. Hiding on 5+ years would hide about a third of open listings, so the threshold has to be chosen per role bucket, not once.
+- **The years asked climb with the bucket:** the median required is 3 years in IT support and marketing specialists, 4 in business and data analysis, 5 in most buckets and 6 in IT project management; 5+ required runs from 14% (IT support) to 49% (IT project management), and 2 years or fewer from 23% (IT support) down to 5.1% (IT project management).
+- **EDA_SDA_1's degree rule fired on 3.7% of listings; the rebuilt rule finds a degree on a requirement line in 52%,** another 11% only on preferred lines, and 63% anywhere. 29% accept "or equivalent experience", and 29% require a degree with no equivalent (the per-applicant blocker).
+- **Most requirements are a bachelor's:** of the highest level named on a requirement line, 34% are bachelor, 9.5% master, 3.6% PhD and 0.90% associate; 52% name none.
+- **The degree blocker is lowest in IT support (20% with no equivalent) and highest in quality assurance (37%),** with business and data analysis and data science at 36%.
+- **These are rule outputs, not yet validated:** nothing hides a listing until section 5 checks precision (5b below has no marks yet).
 
 ## 4. Other text features
 
@@ -119,14 +128,19 @@ Each feature is a keyword rule on the cleaned text (`src/text_features.py`), val
 | Remote and length | `remote_mention` (minus "remote patient monitoring" and the like), `words_clean` |
 
 **What the data shows**
-- (fill in after the run)
+- **Most features are rare.** Remote is mentioned in 29%, a certification in 11%, a required clearance in 9.8% and no sponsorship in 6.9%; shift or on-call work 5.2%, US citizenship required 4.8%, entry-level wording 3.8%. Career-changer wording is on only 0.45% of listings, and a required certification on 0.91%.
+- **Role buckets differ where you would expect:** certifications are mentioned in 40% of security listings (CompTIA 17%, security certifications 33%), 22% of IT support (CompTIA 17%) and 20% of IT project management (project certifications 15%); clearance is required in 26% of security, 15% of quality assurance and 14% of networks and systems listings, but 1.3% of technical sales. Shift or on-call work is 13% of IT support.
+- **The 7-day close-rate gaps are modest.** About 21% of the original listings close within a week. Within company volume band × source type cells, the gaps run from -5.6 points (always-hiring wording, 2.1% of listings) to +5.4 points (urgency in context, 0.20%). Next are sign-on bonus (-3.9), any evergreen wording (-3.0), a required degree (-2.8) and Cisco certifications (-2.8). Features on 0.5% of listings or fewer are noisy.
+- **Some raw gaps change sign once the confounders are held fixed:** contract-to-hire goes from +4.3 to -1.0 points and no-opening wording from -4.6 to +2.9. This is a first look, not a causal estimate; EDA_SDA_4's adjusted model decides which survive. In this run no listing with a description has an unknown feature, so the `known` share is 1 for every row.
+- **Evergreen wording does not line up with the ghost flag:** any evergreen phrase is on 4.0% of closed listings, 3.3% of likely ghosts, 4.5% of listings open 90+ days from companies still posting and 4.2% of open listings 90 days or younger. As it stands it does not add to "old and from a quiet company"; always-hiring wording (2.1% of listings) is the largest of the six groups.
 
 ## 5. Validation
 
 Each rule that could hide a listing, or that feeds the model, gets a **hand-checked sample**: 60 listings where it fires and 60 where it doesn't, stratified by role bucket, written to `data/clean/eda3_validation/<rule>.csv` (local only) with the line that triggered it. A teammate marks each row `correct` = 1 or 0 locally; the notebook reads the marks back and reports **precision** (of the matches, how many are right) and **recall** (of the misses, how many should have matched), against EDA_SDA_1's rule where one exists. **A rule hides listings only if its precision is 90%+.** Listing text never leaves the laptop.
 
 **What the data shows**
-- (fill in after the run)
+- **No rule is validated yet.** The hand-check samples are written (about 120 rows per rule, for ten rules: 5+ years required, degree required, degree equivalent, clearance, no sponsorship, required certification, entry wording, career-changer wording, evergreen wording, urgency), but nobody has marked them, so 5b reports no precision or recall.
+- **Until the marks are in, the rules are candidates only:** the 90% precision bar for hiding a listing is not yet tested for any of them.
 
 ## 6. Skills mapped to O*NET
 
@@ -138,6 +152,20 @@ One row per scope listing (`id`), the text features from sections 3–4, and **c
 
 ## 8. Conclusion
 
-- (fill in after the run: the cleanup, the rebuilt years and degree rules, the other text features, what validation shows, and what goes to EDA_SDA_4 and ML_Fit)
+**Summary**
+- **Cleanup:** 908,291 scope listings, 82.4% with a description; the median description falls from 735 words to 573 after boilerplate removal (85–86% of text kept per source type). Equal opportunity and legal text is the largest share removed (6.6% of all words).
+- **Rebuilt rules:** 5+ years on a requirement line is 35.6% of listings (36% of open ones), against 33.7% for EDA_SDA_1's rule; a degree is required on 52% (EDA_SDA_1: 3.7%), 29% with no equivalent accepted.
+- **Other features:** most are rare (remote 29%, certification 11%, clearance 9.8%, no sponsorship 6.9%, career-changer wording 0.45%). Their 7-day close gaps within confounders stay within about 5.6 points either way.
+- **Evergreen wording** does not concentrate in likely-ghost listings (3.3%, against 4.0–4.5% elsewhere).
 
-**Handoff:** `text_table.parquet` (text features and candidate blockers, joined by `id`) for EDA_SDA_4 and `ML_Fit`; `eda3_desc_clean.parquet` (cleaned text) and `eda3_lemmas_sample.parquet` for `ML_Fit`.
+**Answers to the clarifying questions**
+- *Length: intent or boilerplate?* Not answered here; the cleanup shows boilerplate is a large part of the text, and length (`words_clean`) is saved for EDA_SDA_4.
+- *Urgency in context vs. close time?* It fires on 0.20% of listings, with a +5.4-point gap within confounders: too few listings to rely on.
+- *Evergreen wording as a ghost signal?* Not as it stands (see above).
+- *Are EDA_SDA_1's flags accurate?* The years rule misses some (the new rule finds more in 12% of listings) and the degree rule missed most requirements (3.7% against 52%). Precision against hand-checked samples is still untested.
+- *Which requirements hide a listing for everyone?* Candidates are 5+ years required (35.6%), clearance (9.8%), no sponsorship (6.9%) and a required certification (0.91%); a degree with no equivalent (29%) would hide per applicant. **None is validated: section 5 has no marks, so nothing is applied.**
+- *Skills mapped to O\*NET?* Pending the O\*NET download (section 6).
+
+**Limits:** the gaps in 4b are a first look and associational, not causal; validation, the O\*NET skills and the length question are open.
+
+**Handoff:** `text_table.parquet` (908,291 listings, 45 columns, text features and candidate blockers, joined by `id`; blank where there is no description) for EDA_SDA_4 and `ML_Fit`; `eda3_desc_clean.parquet` (cleaned text) and `eda3_lemmas_sample.parquet` (150,001 listings) for `ML_Fit`.
