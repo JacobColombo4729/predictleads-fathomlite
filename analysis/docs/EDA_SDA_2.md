@@ -8,7 +8,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 `EDA_SDA_1.ipynb` cleaned the full file, compared every field and cut the scope: **the roles TripleTen trains for, plus adjacent tech roles** (about 1.0M listings). This notebook does the **non-text** in-depth analysis of that scope: additional cleaning (staffing agencies, contract types, titles, the app's filter fields), ghost listings vs. employers still hiring, source, freshness, pay, reposts and copies, company facts, missing data, outliers, what a career changer can reach, and the **retraining compass's 2026 side** by role bucket and TripleTen program. It saves **its own final table** for `EDA_SDA_3.ipynb` (text), then `EDA_SDA_4.ipynb` (statistics), `TimeSeries`, `ML_Fit` and `ML_Rank`.
 
-**Inputs from EDA_SDA_1:** the scope table (`analysis_table.parquet`: English, US or a US-based company, the scope filter applied; every candidate factor; role buckets; `tripleten_program`; `company_earlier` in any field; crawl-artifact flags), and company activity in any field (`company_activity.parquet`).
+**Inputs from EDA_SDA_1:** the scope table (`analysis_table.parquet`: English, listings that name the US, the scope filter applied; every candidate factor; role buckets; `tripleten_program`; `company_earlier` in any field; crawl-artifact flags), and company activity in any field (`company_activity.parquet`).
 
 **Conventions:**
 - Every decision is recorded with its reasoning; fix or flag, never drop.
@@ -47,7 +47,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 **What the data shows**
 - **The scope from EDA_SDA_1: 1.0M listings (947K originals) from 84K companies;** 24.4% still open on September 30.
-- **58.6% are under a TripleTen program;** the rest are adjacent tech roles. 9.9% have no country on the listing and come from a US-based company.
+- **58.6% are under a TripleTen program;** the rest are adjacent tech roles.
 
 ## 2. Analysis views
 
@@ -268,12 +268,12 @@ The listing side is `role_bucket(onet_code)` (`ONET_DETAILED_BUCKETS` for detail
 
 Merge the companies table into the listings (a **left join** on `company_id` = company `id`, so every listing stays). Course standard: one master table from all sources, with keys checked first. Join checks: company ids are unique in the companies table (no row multiplication), and match rate (100% in EDA_SDA_1). Columns to bring in: `ticker` (publicly traded), parent company, subsidiary and similar companies, location, and description (its text goes to EDA_SDA_3). The table has **no company size or employee count**.
 
-**Listings with no country** were resolved in EDA_SDA_1 8b (kept only when the company is based in the US); 3.8c checks whether they behave differently.
+**Listings with no country** are dropped in EDA_SDA_1 8b (decided 2026-10-12), so the scope has none.
 
 **What the data shows**
 - **The companies table matches every scope company** (84,181 of 84,189); 5.0% of companies are publicly traded and 10.8% have a parent company.
 - **The volume effect is a private-company pattern:** at 500+ listings, public companies' listings stay open a median 20 days vs. 7 for others.
-- **No-country listings** (10% of the scope, kept by EDA_SDA_1 because their company is in the US) are more often remote (38% vs. 17%) and rarely have a description (37% vs. 81%).
+- **No-country listings** (10% of the scope at the time, then kept by EDA_SDA_1 because their company is in the US) were more often remote (38% vs. 17%) and rarely had a description (37% vs. 81%); EDA_SDA_1 8b now drops them (decided 2026-10-12).
 
 ### 3.9 Missing-data patterns
 
@@ -395,7 +395,7 @@ Every decision in this notebook, defended with its result from sections 2b and 3
 | **Role buckets** | Every bucket is deep enough on the listings side; eight have 30+ career changers (3.6) | Eight buckets with their own analysis and compass paths; technical sales, business and data analysis and other computer roles analyzed combined (no career-switch paths); document management flagged `hidden_occupation` | Decided; listings always kept |
 | **O*NET 13-1161 split by title** | 77% of its 44K original listings are marketing specialists (no analyst, research or insights title) (3.6) | `role_bucket` = marketing specialists, hidden in the app (`hidden_occupation`); a first-pass title rule that EDA_SDA_3 checks | **Applied in 3.0** |
 | **IT project management** | 9.2% open to career changers, 2.1% entry level, 44% manager level; 190 of its 264 career changers came from another tech role (3.6, 3.11) | Kept as a later move: not suggested as a first tech job unless the prior career has a real path into it | Decided (app and ML_Fit) |
-| **Listings with no country** | 10% of the scope, all from US-based companies; more often remote (38% vs. 17%), rarely with a description (37%) (3.8) | Kept, flagged (`country_inferred`) | Applied in EDA_SDA_1 8b |
+| **Listings with no country** | 10% of the scope, all from US-based companies; more often remote (38% vs. 17%), rarely with a description (37%) (3.8) | Dropped in EDA_SDA_1 8b (decided 2026-10-12; were kept and flagged `country_inferred`) | Applied in EDA_SDA_1 8b; rerun |
 | **Likely ghosts** | Closing slows with age but never stops; 19% of open listings are older than 90 days; 10K likely ghosts (4.4% of open) (3.1) | Flag `likely_ghost`, hidden in the app; other stale listings labelled "open 90+ days" and ranked lower | Decided; timing also shown without them |
 | **Manager level or above** | 11% of open listings (3.11) | Labelled, hidden per applicant | Decided (app) |
 | **Text blockers** | "Asks 5+ years" would hide 30% of open listings; "degree required, no equivalent" only 2.4% (3.11) | Previews only | Open: EDA_SDA_3 validates them first |
@@ -429,7 +429,7 @@ Every decision in this notebook, defended with its result from sections 2b and 3
 
 **What the final table shows**
 - **The final scope table: 1.0M listings (947K originals) from 84K companies in 12 role buckets (marketing specialists split out, hidden), 130 columns** (`scope_table.parquet`, 0.28 GB). Nothing was removed; every decision is a flag.
-- **22.3% are open on September 30 and visible to everyone** (no likely ghost or hidden occupation). Flags kept: likely ghosts 1.1%, open 90+ days 4.7%, staffing agencies 2.1%, hidden occupations 4.0%, no country (company in the US) 9.9%, implausible pay 0.06%, senior title 35%.
+- **22.3% are open on September 30 and visible to everyone** (no likely ghost or hidden occupation). Flags kept: likely ghosts 1.1%, open 90+ days 4.7%, staffing agencies 2.1%, hidden occupations 4.0%, implausible pay 0.06%, senior title 35%.
 - **The added fields are complete** except state (81%) and company country (93%).
 
 ## 5. Conclusion and next steps

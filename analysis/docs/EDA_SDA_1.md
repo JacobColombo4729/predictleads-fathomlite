@@ -243,7 +243,7 @@ These decisions were made on the first 200,000 documents (and the scope on 2026-
 |:--|:--|:--|:--|
 | **Language** | English only | The text features and the app are English | 8b |
 | **No language label** | Drop | Can't be confirmed as English; almost all have no description (8a) | 8b |
-| **Country** | United States only: listings that name the US, plus listings with **no country whose company is based in the US** (flagged `country_missing`); other no-country listings are dropped | Focus solely on US jobs without losing US remote roles, which often have no location (8a): every kept listing has evidence of being a US job. Decided 2026-10-10 (option B) | The stream (US or no country) and 8b |
+| **Country** | United States only: **listings that name the US**; every listing with no country is dropped, including those from US-based companies | Focus solely on US openings: a listing counts only if it says it's in the US. This drops some US remote roles, which often have no location (8a). Decided 2026-10-12, replacing option B (2026-10-10: no-country listings kept when the company is US-based) | The stream (US or no country) and 8b |
 | **Field: the scope** | **Roles TripleTen trains for, plus adjacent tech roles:** computer and mathematical (by occupation group or a 15- O*NET code), plus sales engineers (technical sales: TripleTen's Forward Deployed Engineering and AI Automation) and management and market research analysts (business and data analysis: TripleTen's Data Analytics) | Decided 2026-10-09 (computer and mathematical); on 2026-10-10 anchored to TripleTen's programs, a neutral outside definition rather than any team member's background (IT managers and financial analysts out: borderline); section 7 shows how the group compares | **8c** |
 | **Credentialed math** | Out (actuaries, mathematicians) | Credential-gated, and no career switches into it in the profiles | **8c** |
 | **Time horizon** | April–September by month; the data's first two days (late March) kept, flagged `partial_month` | Hide, never remove: they're left out of per-month counts only | 8b |
@@ -277,29 +277,29 @@ These decisions were made on the first 200,000 documents (and the scope on 2026-
 |:--|:--|:--|
 | **The roles TripleTen trains for, plus adjacent tech roles** (computer and mathematical, plus sales engineers (technical sales: TripleTen's Forward Deployed Engineering and AI Automation) and management and market research analysts (business and data analysis: TripleTen's Data Analytics)) | 0. **The scope's heading is TripleTen's program catalog** (tripleten.com, checked 2026-10-10: AI Software Engineering, AI & Machine Learning, Data Analytics, Quality Assurance, Cybersecurity, UX/UI Design, AI Automation, AI Systems Engineering; Forward Deployed Engineering and AI Cybersecurity coming soon). It's a neutral, outside definition: no role is in because of a team member's background. Each listing carries its program (`tripleten_program`); IT support, networks and systems, database and IT project management have no program but stay as **adjacent tech roles**, since IT support is the most open entry point and the profiles show real paths through them. Reasons 1–4 are for the core computer and mathematical group. 1. **It's the field we're breaking into ourselves:** the team are TripleTen students retraining into tech, so this was the field that interested us most and that we understand from the inside, and it fits the project brief (career changers moving into computer and mathematical roles). **The data then had to support it as a viable scope, and it does:** 2. **A switch pays off there:** higher pay, more remote work, and a large, steady flow of openings (section 7 ranks the field on each). 3. **Real paths in exist:** 2,813 career changers in the resume data moved into these roles (`Profiles.ipynb`), so the compass can pair the people who switched with the 2026 openings. 4. **It's hard to enter** (few entry-level listings), which is exactly where hiding what a newcomer can't get and ranking the rest helps | 8.0 table below; section 7 |
 | **English only** | The text features (EDA_SDA_3), the matching models (ML_Fit) and the app read English. Listings with no language label almost never have a description, so there's nothing to read | 8.0 table below; 8a |
-| **United States** | The project focuses solely on US jobs: pay is in dollars, job-growth projections (BLS) are for the US, and mixing in foreign jobs would confound pay and timing. The data is effectively US-only already (on the 200,000-row sample, every listing with a country was in the US). Listings with **no country** are kept only when their company is US-based, since they're more often remote (8a); the rest are dropped | 8.0 table below; 8a |
+| **United States** | The project focuses solely on US jobs: pay is in dollars, job-growth projections (BLS) are for the US, and mixing in foreign jobs would confound pay and timing. The data is effectively US-only already (on the 200,000-row sample, every listing with a country was in the US). Listings with **no country** are dropped, even when their company is US-based (decided 2026-10-12), though they're more often remote (8a) | 8.0 table below; 8a |
 
 **One limit:** the stream (6.1) removed other languages and countries in one step, so at full scale the share it removed can't be split between "not English" and "not US"; on the sample, language accounted for nearly all of it.
 
 **What the data shows**
 - **The evidence supports the scope:** computer and mathematical ranks 1st of 23 fields on pay and on remote work, 4th on volume and 22nd on entry-level roles.
 - **Language and country remove little:** 95% of cleaned listings are English; the 4.8% with no language label have essentially no description (623K of 624K); no listing outside the US remains after the stream.
-- **8.0% have no country, and 93% of those come from a US-based company** (kept).
+- **8.0% have no country, and 93% of those come from a US-based company** (all dropped, decided 2026-10-12).
 
 ### 8a Checks before the filters
 
 Two quick checks that can change which rows the scope keeps (every cleaned listing).
-- **Missing country vs. remote:** remote listings often have no location. If the listings with no country are mostly remote, dropping them all would remove many US remote jobs, which is why 8b keeps those whose company is US-based.
-- **Where the no-country listings' companies are based:** the share with a US-based company (kept), a company elsewhere, or a company with no location (both dropped).
+- **Missing country vs. remote:** remote listings often have no location. If the listings with no country are mostly remote, dropping them removes many US remote jobs; 8b drops them anyway (decided 2026-10-12), since only a listing that names the US is known to be a US opening.
+- **Where the no-country listings' companies are based:** the share with a US-based company, a company elsewhere, or a company with no location (all dropped).
 - **Missing language vs. missing description:** PredictLeads probably detects language from the description. If the unlabeled listings are mostly the ones without a description, dropping them is really a "has description" filter.
 
 **What the checks show**
-- **Listings with no country are largely US remote jobs:** 30% mention remote work vs. 13% with a country, and they use a remote contract label more often (0.83% vs. 0.51%). 93% come from a US-based company and are kept; 2.6% from a company elsewhere and 4.3% from an unknown one are dropped.
+- **Listings with no country are largely US remote jobs:** 30% mention remote work vs. 13% with a country, and they use a remote contract label more often (0.83% vs. 0.51%). 93% come from a US-based company, 2.6% from a company elsewhere and 4.3% from an unknown one; all are dropped (decided 2026-10-12). The counts above were measured when US-based companies' no-country listings were still kept (2026-10-10); rerun to refresh them.
 - **No language label means no description:** 623K of the 624K unlabeled listings have none, so dropping them also removes about 28% of all listings without a description (623K of 2.2M).
 
 ### 8b Language and country
 
-English only (listings with no language label dropped); United States only: listings that name the US, plus listings with no country whose company is based in the US (flagged `country_missing`); every other no-country listing is dropped. Counted on every cleaned listing, in every field.
+English only (listings with no language label dropped); United States only: listings that name the US; every listing with no country is dropped (decided 2026-10-12). Counted on every cleaned listing, in every field.
 
 ### 8c The scope filter: the roles TripleTen trains for, plus adjacent tech roles
 
@@ -320,7 +320,7 @@ The stream kept **every original field for the scope listings** (`data/flat/job_
 - **The full description** of every scope listing, saved next to the scope table in `data/clean/scope_descriptions.parquet` (id and description; EDA_SDA_3 reads it). Listings outside the scope keep only description counts and flags.
 - **Recruiters:** an anonymous key per recruiter (`recruiter_key`: a fingerprint of name and company with a random salt made fresh each run and never saved, so names can't be recovered) and the recruiter's job title. Names and contact details are personal data and aren't kept.
 - **Pay as written** (`salary_text`), parsed into hourly pay where `salary_data` has none (`pay_from_text`), with the same bounds as 6.5.
-- **Location as written** (`location_text`), for EDA_SDA_2's no-country listings, the **url** (the app links to the listing) and the two record types (kept for completeness).
+- **Location as written** (`location_text`), the **url** (the app links to the listing) and the two record types (kept for completeness).
 
 **What the data shows**
 - **Every scope listing was found in the stream's full records;** 78% have a description (2.3 GB of text saved for EDA_SDA_3).
@@ -506,7 +506,7 @@ A short statistical summary of the final table: its size, how its key measures a
 
 ### Decisions
 - **Order:** clean every listing; compare computer and mathematical roles with every other field (section 7); apply the filters we already know we want, first (section 8); explore the scope by role bucket (section 9).
-- **Filters (section 8; the computer and mathematical cut is 8c):** English only (listings with no language label dropped); United States only: listings that name the US, plus no-country listings whose company is based in the US (flagged `country_missing`; other no-country listings dropped); the roles TripleTen trains for, plus adjacent tech roles: computer and mathematical by occupation group or a 15- O*NET code, plus sales engineers (technical sales: TripleTen's Forward Deployed Engineering and AI Automation) and management and market research analysts (business and data analysis: TripleTen's Data Analytics) (2026-10-10; IT managers and financial analysts out); credentialed math (actuaries, mathematicians) out; the data's first two days (late March) kept, flagged `partial_month`.
+- **Filters (section 8; the computer and mathematical cut is 8c):** English only (listings with no language label dropped); United States only: listings that name the US (every no-country listing dropped, decided 2026-10-12); the roles TripleTen trains for, plus adjacent tech roles: computer and mathematical by occupation group or a 15- O*NET code, plus sales engineers (technical sales: TripleTen's Forward Deployed Engineering and AI Automation) and management and market research analysts (business and data analysis: TripleTen's Data Analytics) (2026-10-10; IT managers and financial analysts out); credentialed math (actuaries, mathematicians) out; the data's first two days (late March) kept, flagged `partial_month`.
 - **Kept from every field before the cut:** the occupation summary (pay and timing per occupation, for the compass's "your pay increase"), company activity (listings in any field, newest listing) and each listing's count of its company's earlier listings in any field.
 - **Nothing capped, nothing removed in cleaning but data errors:** reposts become a feature; weekly rates leave out the partial first and last weeks, but the listings stay.
 
