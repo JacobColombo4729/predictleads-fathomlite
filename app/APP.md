@@ -21,6 +21,7 @@
 - **Demo plan:** live or recorded, a recorded fallback, local or deployed.
 - **Clean notebook and write-up** for the app, built on [docs/ml-inventory.md](docs/ml-inventory.md), with measured versus unvalidated claims stated plainly.
 - **Refresh stale docs** (the frontend README) as items land.
+- **Crisp logos:** the FathomLite logo images were cut from a screenshot of the design sheet, so they're low resolution. Get the original files from the designer and replace `frontend/src/assets/fathomlite-mark.png`, `fathomlite-icon.png` and `frontend/public/favicon.png`; for the exact landing page look, also the original background image (it replaces the two `landing__wall` images and the gradient in `frontend/src/styles/landing.css`).
 
 ## Blocked
 
@@ -33,3 +34,14 @@
 - **Later stages** ([`DESIGN.md`](DESIGN.md)): the transferable-fit stage (the career changer's background profile), the priority model with adjustable weights, MCP servers, then agents.
 - **"Refine my matches"** (decision pending since 2026-10-09): a per-user button trained on the user's own 👍/👎 ratings; plan, thresholds and risks in [`roadmap.md`](roadmap.md). Revisit after the core demo and write-up.
 - More ideas, ranked by value: [`roadmap.md`](roadmap.md) section 7.
+
+---
+
+## Keep in mind (honesty rules and limits)
+
+- **Nothing is validated yet:** the demo ranker (equal-weight TF-IDF + BGE RRF), the Compass thresholds and relevance feedback have no measured result. Say so plainly in the demo until the ratings above give a first number.
+- **Listings are historical, not verified openings.** Listings marked `closed` in the source are left out; the 81,284 served have unknown status, and openness is never inferred from dates or a missing status.
+- **Missing information on a profile is unknown, not a gap.** Years, degree and certification requirements are never marked "supported" automatically.
+- **A Signals burst is a timing trigger, not a volume forecast** (about 64% of the volume carries into the next month, vs. 99% for sustained hiring).
+- **Personal data:** résumés and real profiles stay under the git-ignored `data/`; nothing goes to an outside AI service without the person's consent each time. The six held-out weighted-RRF profiles stay unopened (they're the clean test set).
+- **Known limits:** title and O*NET matching can miss unusual titles and include false hits; duplicates collapse only when company, title and description are identical; the role-family classifier (94.7% test accuracy) matches the provider's labels, not fit, so it isn't used as a fit predictor.
