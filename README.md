@@ -52,6 +52,7 @@ predictleads-fathomlite/
 ├── .env.example              template for your .env (settings and keys)
 ├── .gitattributes  .gitignore
 ├── requirements.txt          one pinned list for everything (Python 3.11)
+├── SETUP.md                  a welcome for newcomers: setup, Eve, where things live
 ├── JACOB.md  JESSE.md        each person's change log, most important first
 ├── .claude/ASKS.md           what each of us wants the other to make sure of (Eve keeps it)
 ├── fetch/                    where every dataset comes from and lives: one download script each, the shared folders
