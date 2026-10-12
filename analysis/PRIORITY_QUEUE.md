@@ -7,7 +7,7 @@
 
 ## Now
 
-- **Combine the app with the analysis** (plan: [`docs/merge_plan.md`](docs/merge_plan.md); repositories joined and reorganized, all gates met, six decisions agreed 2026-10-11): Jesse merges `main` into `jesse` and moves his `data/`, `models/` and `.env` to the top; then the shared listing set → the app's corpus and embeddings → backend features (timing, hiding rules, the retraining compass).
+- **Combine the app with the analysis** (the six agreed decisions: [`DECISION_LOG.md`](DECISION_LOG.md), 2026-10-11; repositories joined and reorganized, all gates met, six decisions agreed 2026-10-11): Jesse merges `main` into `jesse` and moves his `data/`, `models/` and `.env` to the top; then the shared listing set → the app's corpus and embeddings → backend features (timing, hiding rules, the retraining compass).
 - **Ask the advisors whether the app may show recruiter names and contact details** from the listings (we store only an anonymous key today). (OpenAI use: confirmed allowed 2026-10-11, in `DECISION_LOG.md`.)
 - **Full dataset, full scale for every notebook** (decided 2026-10-10; stream test: ≈13.4M listings, ≈1.0M in scope, ≈40 minutes, ≈8.4 GB):
   1. **Claude:** EDA_SDA_3 for full scale (also: a second ghost sign, since "company still posting" no longer separates forgotten listings at big companies (78% of stale listings): the same company and title still open after 90 days while newer copies of that title keep appearing) (reads `scope_table.parquet` and `scope_descriptions.parquet`): text read part by part, regex features over every listing, spaCy lemmas on a large stratified sample (about 150,000), cache in parts. Hold EDA_SDA_3's first run until then.
