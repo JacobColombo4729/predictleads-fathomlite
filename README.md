@@ -448,7 +448,7 @@ Everyone must **permanently delete all copies of the data** (local `data/` folde
 
 ## Where to read more
 
-**Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we're doing), [`analysis/STANDARDS.md`](analysis/STANDARDS.md) (how we work), [`analysis/DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md), [`analysis/APPLICATION.md`](analysis/APPLICATION.md), [`analysis/PRIORITY_QUEUE.md`](analysis/PRIORITY_QUEUE.md), [`analysis/DECISION_LOG.md`](analysis/DECISION_LOG.md), [`analysis/docs/data.md`](analysis/docs/data.md), [`analysis/docs/merge_plan.md`](analysis/docs/merge_plan.md).
+**Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we're doing), [`analysis/STANDARDS.md`](analysis/STANDARDS.md) (how we work), [`analysis/DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md), [`analysis/APPLICATION.md`](analysis/APPLICATION.md), [`analysis/PRIORITY_QUEUE.md`](analysis/PRIORITY_QUEUE.md), [`analysis/DECISION_LOG.md`](analysis/DECISION_LOG.md), [`analysis/docs/data.md`](analysis/docs/data.md).
 
 **App:**
 1. [app/STATUS.md](app/STATUS.md) and [app/roadmap.md](app/roadmap.md)
