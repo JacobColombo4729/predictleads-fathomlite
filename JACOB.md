@@ -15,7 +15,7 @@
 
 ## Git workflow
 
-- **Eve reviews every push:** a pre-push agent that tidies your commits, asks about judgment calls, and keeps the asks between us in `.claude/ASKS.md` (how it works: README step 14). From a terminal, her questions come in a normal Claude conversation with the usual question boxes; type `/exit` when she's done. **Jesse:** turn it on once with `git config core.hooksPath .githooks` (needs Claude Code; without it, pushes go up unreviewed). (2026-10-12)
+- **Eve reviews every push:** a pre-push agent that tidies your commits, asks about judgment calls, and keeps the asks between us in `.claude/ASKS.md` (how it works: README step 14). From a terminal, her questions come in a normal Claude conversation with the usual question boxes (her own review's session, never another Claude chat in the folder); type `/exit` when she's done. **Jesse:** turn it on once with `git config core.hooksPath .githooks` (needs Claude Code; without it, pushes go up unreviewed). (2026-10-12)
 - **No Git rules** beyond these change logs: work on your own branch, merge into `main` when ready, and log your changes here (README step 14). (2026-10-12)
 
 ## Docs
