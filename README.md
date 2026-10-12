@@ -71,7 +71,7 @@ predictleads-fathomlite/
     ├── tests/                live tests (plus backend/tests/)
     ├── docs/  notebooks/
     ├── APP.md  DESIGN.md     the app's priority queue and its design
-    ├── STATUS.md  roadmap.md
+    ├── roadmap.md
     └── run_demo_backend / run_tests (.ps1 for Windows, .sh for macOS / Linux)
 ```
 

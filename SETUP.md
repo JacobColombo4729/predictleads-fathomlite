@@ -19,8 +19,6 @@
 
 Every time you push your branch, Eve (Claude, following [`.claude/agents/eve.md`](.claude/agents/eve.md)) tidies what's clearly messy in a commit of her own, asks about judgment calls in a normal Claude conversation with the usual question boxes (type `/exit` when she's done), and ends with an open question: what you want the other person to make sure they do (kept in [`.eve/ASKS.md`](.eve/ASKS.md)). How she works, and how to skip her: README step 14.
 
-**Your first ask is already waiting:** decide what happens to `app/STATUS.md`. Either delete it, or merge what's still useful into `app/APP.md` and drop the rest.
-
 ## 3. How we work together
 
 Work on your own branch, merge into `main` when something is ready, and log every change in your own change log ([`JESSE.md`](JESSE.md), [`JACOB.md`](JACOB.md)). That's all; details in README step 14.
@@ -29,7 +27,7 @@ Work on your own branch, merge into `main` when something is ready, and log ever
 
 | Where | What |
 |---|---|
-| [`app/APP.md`](app/APP.md) | The app's priority queue. Your to-dos from `roadmap.md` and `STATUS.md` are merged into it; check nothing's missing |
+| [`app/APP.md`](app/APP.md) | The app's priority queue. Your to-dos from `roadmap.md` and the old `STATUS.md` are merged into it; check nothing's missing |
 | [`app/DESIGN.md`](app/DESIGN.md) | The app's design (moved from the analysis folder) |
 | [`analysis/ANALYSIS.md`](analysis/ANALYSIS.md) | The analysis priority queue, for when you cross over |
 | `fetch/` | Where every dataset comes from: one download script per dataset, nothing hard-coded (bucket names and keys only in `.env`) |
