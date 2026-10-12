@@ -120,7 +120,7 @@ Opens full screen on tap or click:
 
 ## 3. The retraining compass
 
-Every compass idea in one place: what it is, what it shows, the ideas still to try, and where each piece is built. The compass is the project's foundation and its lead differentiator (`DIFFERENTIATORS.md`). Status as of 2026-10-10. Decisions behind each piece are dated in [`DECISION_LOG.md`](DECISION_LOG.md).
+Every compass idea in one place: what it is, what it shows, the ideas still to try, and where each piece is built. The compass is the project's foundation and its lead differentiator (`DIFFERENTIATORS.md`). Status as of 2026-10-10.
 
 ### 3.1 What it is
 
@@ -140,7 +140,7 @@ It's built from **2,813 real career switches** in a public resume dataset (`note
 | **Field trained in → first tech job** | Where each kind of training led | Profiles 4a.2b | Built |
 | **Moves within tech** | Which roles people in the user's tech role moved into, sideways or up | Profiles 4a.3 | Built |
 | **Each role's 2026 market** | Open listings, new per week, hourly pay, how fast listings close, entry-level share, openness to career changers, remote share | EDA_SDA_2 3.12 | Built (needs a rerun after each change) |
-| **Expected job growth** | Growth for each role over **at most the next 5 years**, from official occupational projections (BLS plugs in by occupation code); it drives forward-looking recommendations (section 3.3) | EDA_SDA_2 3.12; used in `ML_Fit` | Column ready; BLS 2025–2035 projections released; plan in [`JOB_GROWTH.md`](JOB_GROWTH.md) |
+| **Expected job growth** | Growth for each role over **at most the next 5 years**, from official occupational projections (BLS plugs in by occupation code); it drives forward-looking recommendations (section 3.3) | EDA_SDA_2 3.12; used in `ML_Fit` | Column ready; BLS 2025–2035 projections released; plan in the job growth tasks in [`PRIORITY_QUEUE.md`](PRIORITY_QUEUE.md) |
 | **People behind each path** | "Based on N people"; paths under 10 people marked thin | EDA_SDA_2 3.12 | Built |
 | **Suggested roles for this user** | Roles the user's background transfers to | `ML_Fit` | Planned |
 
@@ -189,7 +189,7 @@ A separate tab built on the compass: a personal outlook from the user's résumé
 ### 3.8 Honesty rules
 
 *The general rules (no causation, hires, success rates, entry-level growth or certain futures) are in [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md), "What we never claim". Compass-specific:*
-- **Job growth sits next to the role's entry-level share,** and carries its accuracy (moderate for years 1–2, low to moderate for 3–5; `JOB_GROWTH.md`); IT project management's figure is a proxy from the 15-1299 catch-all.
+- **Job growth sits next to the role's entry-level share,** and carries its accuracy (moderate for years 1–2, low to moderate for 3–5; job growth tasks in `PRIORITY_QUEUE.md`); IT project management's figure is a proxy from the 15-1299 catch-all.
 - **Show the sample size on every path.** Most paths are thin (78% of prior-career paths rest on fewer than 10 people), so the compass falls back to the bucket-level pattern when a user's exact path is thin.
 
 ### 3.9 Where it's built
@@ -208,7 +208,7 @@ A separate tab built on the compass: a personal outlook from the user's résumé
 - **Time frames** for career options and job growth (team), **with growth capped at 5 years**.
 - **A separate `Compass.ipynb`** that assembles everything that doesn't need ML now, with `ML_Fit` adding personal suggestions later, instead of assembling at the end of `ML_Fit`.
 - **The "moved up in the same role" pool** (would reopen Profiles).
-- **Job growth extensions** (proposed, `JOB_GROWTH.md` section 4): an error band from BLS's own track record, interest-rate scenarios for years 1–2, listing momentum shown next to growth, a full horizon-weighted blend, and state-level projections. Each would reopen part of the 2026-10-09 external-data decision.
+- **Job growth extensions** (proposed, job growth tasks in `PRIORITY_QUEUE.md`): an error band from BLS's own track record, interest-rate scenarios for years 1–2, listing momentum shown next to growth, a full horizon-weighted blend, and state-level projections. Each would reopen part of the 2026-10-09 external-data decision.
 
 ---
 
@@ -284,7 +284,7 @@ All public. Each would need its terms of use checked.
 
 | Dataset | What it adds | Used in |
 |---|---|---|
-| Job growth expectations (BLS Employment Projections 2025–2035; plan in `JOB_GROWTH.md`) | Expected employment growth by occupation; published for 10 years, rolled up to role buckets weighted by 2025 employment and converted to the chosen horizon (at most 5 years) at the same yearly rate. Joined only after PredictLeads' written consent (agreement 4.3) | Role discovery, retraining compass, market panel. Joins directly on occupation code |
+| Job growth expectations (BLS Employment Projections 2025–2035; plan in job growth tasks in `PRIORITY_QUEUE.md`) | Expected employment growth by occupation; published for 10 years, rolled up to role buckets weighted by 2025 employment and converted to the chosen horizon (at most 5 years) at the same yearly rate. Joined only after PredictLeads' written consent (agreement 4.3) | Role discovery, retraining compass, market panel. Joins directly on occupation code |
 | O*NET skills, abilities and related occupations | The skills each occupation needs, and which occupations are close | Transferable fit; suggesting target fields from a background; skills to build (compass) |
 
 ---
@@ -299,7 +299,7 @@ Each stage is usable on its own, so we always have something to demo.
 | **2. Transferable fit and role discovery** | Background profile; suggested roles; retraining compass; Ideas tab; moving across and up within tech; job growth expectations; transferable-fit score and filter; skills that carry over, and gaps | TF-IDF or local embeddings; O*NET skills; job growth expectations |
 | **3. Priority model** | Tuned priority score with adjustable weights; the rating breakdown by feature in the detail view | Full analysis; ML_Rank's per-listing contributions |
 | **4. Agents** | MCP servers, then the agents, starting with Ranker, Coach and Reminder | Stages 1–3; the advisors' answer |
-| **5. Market panel** | Listing volume by month, with each role's expected growth; if the team adopts the scenario extensions (`JOB_GROWTH.md` 4b/4d), a fan chart per role (baseline, scenario band, uncertainty band) | Stage 1 |
+| **5. Market panel** | Listing volume by month, with each role's expected growth; if the team adopts the scenario extensions (job growth tasks in `PRIORITY_QUEUE.md`), a fan chart per role (baseline, scenario band, uncertainty band) | Stage 1 |
 
 ---
 
@@ -324,7 +324,7 @@ Each stage is usable on its own, so we always have something to demo.
 - **Team split:** who is best suited to own the app (front end, MCP servers), so the analysis isn't starved?
 - **Queue fields:** is anything missing, such as a skills-gap column or company information?
 - **Time frames:** how far ahead the compass looks for career options and job growth (not decided yet; growth at most 5 years).
-- **Growth as a range:** show expected growth as one number or with an error band from BLS's past accuracy (proposed in `JOB_GROWTH.md` 4a)?
+- **Growth as a range:** show expected growth as one number or with an error band from BLS's past accuracy (proposed in job growth tasks in `PRIORITY_QUEUE.md`)?
 - **Advisors:** may an agent backed by an outside LLM see posting text, or only aggregates and model outputs?
 - **External data:** which datasets are allowed, and do we need permission to combine them with PredictLeads data?
 - **Hosting:** does the app need to be hosted, or is a local demo enough?

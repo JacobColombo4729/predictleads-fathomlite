@@ -62,10 +62,22 @@
   - Leakage: counts from earlier listings only; a date-picker model trained only on what was known by its date; check that `has_desc` and the text flags are known at first sighting (EDA_SDA_2 3.9) before using them.
   - **The priority queue:** combine the fit score, chance still open and apply-by, accessibility and pay in one formula; weights start from EDA_SDA_4's adjusted model and are tuned on the validation month; only features that survived EDA_SDA_4.
   - Evaluation (ROC-AUC, F1, C-index, precision@k, NDCG); the queue against newest-first: of each top 10, how many stay open long enough, are reachable and are in the role the person actually moved into; SHAP and the per-listing rating breakdown for the detail view (each factor's rating and share of the score, top features behind chance still open), sensitivity checks, solution report.
-- **Job growth expectations** (plan: [`JOB_GROWTH.md`](JOB_GROWTH.md)): get PredictLeads' written consent to combine their data with BLS data (agreement 4.3), check the terms of use, download the **BLS 2025–2035** occupation table into `data/external/`, join on occupation code, roll up to role buckets weighted by 2025 employment (IT project management takes 15-1299's growth as a flagged proxy), and convert to the time frame the team picks (at most 5 years). Add the expected-growth column to the compass (EDA_SDA_2 3.12).
+- **Job growth expectations** (one number per role bucket, over at most 5 years, from **BLS Employment Projections 2025–2035**; [data tables](https://www.bls.gov/emp/data.htm)):
+  1. **Get PredictLeads' written consent first** to combine their data with BLS data (agreement 4.3), and note it in your change log (`JACOB.md` or `JESSE.md`). Check the BLS terms of use.
+  2. Download the 2025–2035 occupation table into `data/external/` (a `fetch/` script).
+  3. Join on the 6-digit occupation code (the first part of `onet_code`, e.g. `15-2051`) and roll up to role buckets with `ONET_ROLE_BUCKETS`, weighted by 2025 employment. BLS has no projection for the detailed codes inside 15-1299, so **IT project management (15-1299.09) takes 15-1299's growth as a flagged proxy**.
+  4. Convert to the chosen horizon at the same yearly rate: growth over *n* years = (1 + 10-year growth)^(*n*/10) − 1, *n* ≤ 5.
+  5. Save `role_growth.pkl` (role bucket, occupation codes, 2025 employment, 10-year growth, yearly rate, *n*-year growth, vintage) and add the expected-growth column to the compass (EDA_SDA_2 3.12), then rerun.
+  6. `ML_Fit`: apply growth **after** the fit model as a visible, user-adjustable adjustment (not a trained input), and show how much it moved each suggestion. Always show it next to the role's entry-level share and today's openings.
+  7. Write-up: say "expected growth (official projections)", never "will grow"; limitations: national, occupation-wide, assumes full employment, no business cycles.
 - **Date picker (as-of date):** a helper in `src/` that returns the listings live on a date with features computed as of that date; check it on July 1 vs. September 1, 2026 (counts only; EDA_SDA_1 8b shows dates before July are skewed young). The model for a date is trained only on what was known by then; the demo can start with test-period dates.
 - **Ideas tab** (`APPLICATION.md`, a separate tab): skills to build (EDA_SDA_3 skills vs. a résumé, in `ML_Fit`), career options and time to switch (Profiles), pay increase (EDA_SDA_1 7.2 current-field pay vs. EDA_SDA_2 3.12 role pay, hourly), expected growth, and stepping-stone roles; built from `ML_Fit`'s compass tables. Time frames stay vague until the team decides.
-- **Decide the time frames** for career options and job growth in the compass (team; growth at most 5 years), and whether to adopt the proposed growth extensions (`JOB_GROWTH.md` section 4: error band, rate scenarios, listing momentum, horizon-weighted blend, state level).
+- **Decide the time frames** for career options and job growth in the compass (team; growth at most 5 years), and which growth extensions to adopt (each reopens the 2026-10-09 decision to drop other external data):
+  - **Error band** from BLS's own track record (an earlier projection vs. OEWS actuals), shown as a range: recommended, small.
+  - **Listing momentum:** each bucket's new-listings trend from TimeSeries, shown next to growth, never blended in: recommended, small.
+  - **Interest-rate scenarios** for years 1–2 (FOMC paths; sensitivity from fed funds vs. Indeed/JOLTS postings), fading to BLS by year 5: stretch.
+  - **Horizon-weighted blend** of a near-term postings signal with the BLS trend (weights 0.8 → 0 over years 1–5, tuned in a backtest): later; our six months can't support it.
+  - **State level** (Projections Central): only if the app adds location-based growth.
 - **O*NET (in scope, small):** check the terms of use, then download only the **Career Changers Matrix** (latest release), the **skills** for computer and mathematical occupations plus the team's background occupations, and the **Job Zones** (O*NET's level of education and experience per occupation: an accessibility prior for the feature screening). Listings already carry O*NET codes, so they join directly.
 - **Retraining compass app view** (`APPLICATION.md` sections 2 and 3); its 2026 side is ready (EDA_SDA_2 3.12).
 - **App MVP** (stage 1 in `APPLICATION.md`): list view with search, sort and filters; detail view with apply link; stars.
@@ -79,9 +91,9 @@
   - Set a meeting cadence and a place for async discussion.
   - Confirm the final due date and deliverables.
 - **App:** answer the open questions in `APPLICATION.md`, section 9.
-- **Project advisor:** get answers to our questions (scope, deliverables, AI tools and data, applicant profiles, external data, hosting, presenting results, data deletion), then record them in `DECISION_LOG.md`. Get the AI-and-data answers in writing; the agent stage of the app depends on them, and the answer on collecting career-changer profiles blocks the volunteer profiles.
+- **Project advisor:** get answers to our questions (scope, deliverables, AI tools and data, applicant profiles, external data, hosting, presenting results, data deletion), then record them in your change log (`JACOB.md` or `JESSE.md`). Get the AI-and-data answers in writing; the agent stage of the app depends on them, and the answer on collecting career-changer profiles blocks the volunteer profiles.
 - **Applicant profiles** (after the advisor answers): the plan, the volunteer steps and the blank form are in [`docs/volunteer_profiles.md`](docs/volunteer_profiles.md) (with [`docs/volunteer_profile_template.csv`](docs/volunteer_profile_template.csv)). Assign owners for the tasks, draft the consent form, recruit career changers, convert their exports, and build the synthetic generator in `src/`.
-- **PredictLeads:** get answers to our data questions (field definitions, crawl timing, `status`, sources, sampling, duplicates, older daily exports, `seniority`; why job-board listings stop after May and why descriptions go missing more often from June on, from EDA_SDA_2), then record them in `DECISION_LOG.md`.
+- **PredictLeads:** get answers to our data questions (field definitions, crawl timing, `status`, sources, sampling, duplicates, older daily exports, `seniority`; why job-board listings stop after May and why descriptions go missing more often from June on, from EDA_SDA_2), then record them in your change log (`JACOB.md` or `JESSE.md`).
 
 ## Later
 
@@ -90,7 +102,7 @@
 
 - **Profiles is frozen** (refrozen 2026-10-10). Reopen only if needed: a pool for moving up within the same role (training, then a senior or manager role; levels are already tagged), or more prior-career keywords ("other" is 115 of 706; 4a.2e lists the common titles). Any change means a rerun, then the ML notebook reloads `modeling_table.pkl`.
 - **Connect the app to the analysis only after every notebook is complete** (EDA_SDA_3, EDA_SDA_4, TimeSeries, ML_Fit, ML_Rank): the shared listing set → the app's corpus and embeddings → backend features (timing, the flags ranked lower, the retraining compass). The app's plan: `APPLICATION.md`.
-  - **Recruiter names and contact details:** assumed allowed in the app (2026-10-12); filter them out if the advisors or PredictLeads say no. Confirm before the final presentation. The analysis keeps only an anonymous recruiter key (EDA_SDA_1), so the names and contacts would come from the raw listings when the app is connected. (OpenAI use: confirmed allowed 2026-10-11, in `DECISION_LOG.md`.)
+  - **Recruiter names and contact details:** assumed allowed in the app (2026-10-12); filter them out if the advisors or PredictLeads say no. Confirm before the final presentation. The analysis keeps only an anonymous recruiter key (EDA_SDA_1), so the names and contacts would come from the raw listings when the app is connected. (OpenAI use: confirmed allowed 2026-10-11.)
 - **App:** transferable-fit stage (the career changer's background profile), priority model with adjustable weights, MCP servers, then agents (see `APPLICATION.md`).
 - **Run log:** settings, seeds and metrics for every run, in a CSV or a local MLflow store. Never listing text.
 - **Stretch techniques:** transferable fit with embeddings; embeddings vs. TF-IDF; change-point detection (`ruptures`); topic modeling (NMF or BERTopic); several daily exports to observe closures directly; a one-page system card.
@@ -103,7 +115,7 @@
 - **After any change to `src/` (rules, mappings, helpers), restart the kernel before rerunning:** Python keeps the old version loaded until a restart, so Run All alone uses the old code.
 - Follow the working standards in `STANDARDS.md` and the course-template baseline in every notebook.
 - If the notebook looks out of date in VS Code, run **File: Revert File**. Don't save the older copy over newer changes.
-- Record every decision, with its reasoning, in `DECISION_LOG.md`.
+- Record every decision, with its reasoning, in your change log (`JACOB.md` or `JESSE.md`).
 - When you add a package: pin it in `requirements.txt`, commit, and tell the team.
 - Keep track of every local copy of the data, for the final deletion.
 - Regenerate a notebook's `docs/` export after editing it (`python -m src.export_markdown notebooks/<name>.ipynb`).

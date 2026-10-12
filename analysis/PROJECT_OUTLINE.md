@@ -2,7 +2,7 @@
 
 **PredictLeads × TripleTen externship** · Jacob Colombo · Updated 2026-10-10
 *A working proposal; the team's final focus is still being agreed.*
-*How we work: [`STANDARDS.md`](STANDARDS.md) · Decisions: [`DECISION_LOG.md`](DECISION_LOG.md)*
+*How we work: [`STANDARDS.md`](STANDARDS.md)*
 
 ---
 
@@ -40,7 +40,7 @@ Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
 - **The scope table (EDA_SDA_1):** 1.0M listings (947K originals) from 84K companies in 11 role buckets, the roles TripleTen trains for plus adjacent tech roles (59% under a TripleTen program, 41% adjacent); English, US (only listings that name the US; no-country listings dropped 2026-10-12, so these counts change on the next rerun); 24% still open on September 30.
 - **EDA_SDA_2 (full scale, 2026-10-11):** the same 1.0M scope listings, cleaned and flagged (nothing removed), saved as `scope_table.parquet`; 23.2% are open on September 30 and visible to everyone once likely ghosts and document management are hidden.
 - **Career switches:** the public Kaggle structured resume dataset (MIT license): 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; almost all with readable job dates) → **2,813 career changers**: 2,049 changed roles within tech, 407 retrained after working in another field, 357 retrained as new grads from another field. Career paths from real switches spanning two decades; the 2026 listings supply today's openings, pay and timing. Built in `notebooks/Profiles.ipynb`.
-- **Job growth expectations:** expected employment growth by occupation over at most the next 5 years, from official occupational projections, used to recommend roles with the future in mind. They're published by occupation code, so they plug straight into the O*NET codes on listings and role buckets. Current release: BLS 2025–2035; plan in [`JOB_GROWTH.md`](JOB_GROWTH.md).
+- **Job growth expectations:** expected employment growth by occupation over at most the next 5 years, from official occupational projections, used to recommend roles with the future in mind. They're published by occupation code, so they plug straight into the O*NET codes on listings and role buckets. Current release: BLS 2025–2035; plan in the job growth tasks in [`PRIORITY_QUEUE.md`](PRIORITY_QUEUE.md).
 - **Data handling:** stays local; nothing is shared with outside AI services; only aggregates are reported.
 
 ## What we've found so far
@@ -112,7 +112,7 @@ Each notebook answers one question and hands its final table to the next. The Tr
 - **Hide what a career changer can't get:** validated text blockers (EDA_SDA_3), and per-applicant blockers in the app: a missing degree or license, or manager-level roles for applicants without management experience. Every other factor is weighted by the model during ML training.
 - **Job growth expectations replace the wider external-data list:** one number per role over at most 5 years, from official projections that join on occupation code, so recommendations account for where roles are heading.
 - **Pick a date (as-of date):** the queue can be shown as it stood on any date in the data: listings live that day (first seen on or before it, last seen on or after it), scored, and its model trained, only with what was known that day.
-- **Two supervised models, combined by a formula:** listings → how long they stay open (PredictLeads), and career changers → the role bucket they moved into (the 2,813 career changers). No data links a person to a listing, so the role buckets connect the two. Volunteer profiles, once the advisor approves, are a recent test set. See the 2026-10-09 entry in [`DECISION_LOG.md`](DECISION_LOG.md).
+- **Two supervised models, combined by a formula:** listings → how long they stay open (PredictLeads), and career changers → the role bucket they moved into (the 2,813 career changers). No data links a person to a listing, so the role buckets connect the two. Volunteer profiles, once the advisor approves, are a recent test set.
 
 ## Honest limits
 
@@ -124,7 +124,7 @@ Each notebook answers one question and hands its final table to the next. The Tr
 - The career-change flags are keyword rules until EDA_SDA_3 validates them (the degree flag fires on only 3–6% of scope listings, so its pattern likely misses common wording). Hiding listings on an unvalidated rule could hide listings a career changer could get, so rules hide nothing until they're validated.
 - The career-switch rules were spot-checked on random samples, not every person, and most switches are from 2010–2019 (median 2014), so the resumes teach career paths while the 2026 listings supply the market. O*NET's current Career Changers Matrix checks that the paths still hold.
 
-- Job growth figures are projections, not forecasts we make or check, and they're national, by occupation. They assume a full-employment economy and leave out business cycles; expected accuracy is moderate for years 1–2 and low to moderate for years 3–5 (`JOB_GROWTH.md`). IT project management has no projection of its own; it uses the 15-1299 catch-all as a proxy. A growing occupation doesn't mean more entry-level openings; our listings measure those.
+- Job growth figures are projections, not forecasts we make or check, and they're national, by occupation. They assume a full-employment economy and leave out business cycles; expected accuracy is moderate for years 1–2 and low to moderate for years 3–5 (job growth tasks in `PRIORITY_QUEUE.md`). IT project management has no projection of its own; it uses the 15-1299 catch-all as a proxy. A growing occupation doesn't mean more entry-level openings; our listings measure those.
 - The resumes only show people who made a switch, not those who tried and didn't, so paths show where switchers went, never how likely a switch is to work.
 - Early dates in the date picker miss long-open listings first seen before 2026-03-30 (the six-month window), so July onward gives fair comparisons: live listings jump from 2,459 on April 1 to about 32,000 by June 1, and their age mix settles from July (EDA_SDA_1 8b).
 
