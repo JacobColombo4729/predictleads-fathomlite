@@ -234,7 +234,7 @@ Ask the team for the bucket and export date. Each variable goes on its own line.
 Everything lives in two git-ignored folders at the top, shared by the notebooks and the app:
 
 - **`data/`:** the notebooks' tables (`clean/`, `flat/`, `profiles/`) and the app's corpus and signals (`matching/`, `discovery/`, `prepared/`, `signals/`, `preview/`). The notebooks download what they need from S3; the app's corpus is built by the pipeline in step 13 or shared within the team. The raw snapshot is not stored locally, so deleting `data/matching/targeted_pool_*` or the random sample under `data/discovery/` means re-reading it from S3.
-- **`pretrained/`:** the BGE model `BAAI/bge-base-en-v1.5` (revision pinned in `app/code/bge_text.py`) in `pretrained/bge-base-en-v1.5`, or set `PREDICTLEADS_BGE_MODEL_DIR`.
+- **`pretrained/`:** the BGE model `BAAI/bge-base-en-v1.5` (revision pinned in `app/code/bge_text.py`) in `pretrained/bge-base-en-v1.5` (download with `python -m fetch.get_bge`), or set `PREDICTLEADS_BGE_MODEL_DIR`.
 
 **Getting the data on any machine** (from the repository root, `.venv` activated). Every dataset has one script in `fetch/` and one standard folder in `data/`: `data/raw/` for the PredictLeads export, `data/external/<name>/` for outside data. Code reaches all of them through `fetch` (`DATA_DIR`, `RAW_DIR`, `external("<name>")`), never through a written-out path:
 
@@ -243,6 +243,7 @@ Everything lives in two git-ignored folders at the top, shared by the notebooks 
 | The raw export files (`data/raw/`): optional, so every script reads locally instead of streaming from S3 | `python -m fetch.get_predictleads` (both files, about 19 GB; skips what's already there; `--check` shows what's there; needs AWS, step 7) | depends on the connection |
 | Streamed listings from S3 (`data/flat/`) | `python -m src.stream_full`, then `--rows` and `--extra` (each resumable; needs AWS, step 7) | about 5 hours in all |
 | Public resumes from Kaggle (`data/external/resume_structured/`, for Profiles) | `python -m fetch.get_resumes` (no Kaggle account needed), or just run Profiles, which calls it first | under a minute |
+| The BGE text-embedding model (`pretrained/bge-base-en-v1.5/`, for the app and ML_Fit) | `python -m fetch.get_bge` (about 0.44 GB from Hugging Face, the pinned version in `app/code/bge_text.py`; no account needed) | about a minute |
 | The cleaned tables (`data/clean/`, `data/profiles/`) | Run the notebooks in order: EDA_SDA_1, EDA_SDA_2, …; Profiles | |
 
 **Why scripts:** one setup for both halves, and no bucket names, AWS profiles or personal paths in committed files (our data agreement). The S3 location and profile come only from `.env` (`S3_PATH`, `AWS_PROFILE`, step 8). Each script skips data that's already in its folder, and checks disk space and asks before downloading. Data that can't be downloaded by script goes in its standard folder by hand, with its source noted in `analysis/docs/data.md`. A check on every push (and in the app tests) fails if a committed file hard-codes any of these.
