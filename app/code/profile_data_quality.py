@@ -22,9 +22,8 @@ import boto3
 import botocore
 import zstandard as zstd
 
-REPO_ROOT = Path(__file__).resolve().parents[2]  # data/, models/ and .env are shared with analysis/ at the top
 
-from prepare_jobs import BUCKET, PREFIX, s3_session  # S3_PATH and AWS_PROFILE from the top-level .env
+from prepare_jobs import BUCKET, DATA_DIR, PREFIX, s3_session  # S3_PATH and AWS_PROFILE from the top-level .env
 FILES = {
     "jobs": "job_openings_2026_09_30.jsonl.zst",
     "companies": "companies_2026_09_30.jsonl.zst",
@@ -868,7 +867,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--seed", type=int, default=20261001)
     parser.add_argument("--connect-timeout", type=float, default=10)
     parser.add_argument("--read-timeout", type=float, default=20)
-    parser.add_argument("--output-dir", type=Path, default=REPO_ROOT / "data" / "discovery")
+    parser.add_argument("--output-dir", type=Path, default=DATA_DIR / "discovery")
     parser.add_argument("--section-size", type=int, default=100_000)
     parser.add_argument("--audit-max-line-bytes", type=int, default=4 * 1024 * 1024)
     parser.add_argument("--field-path-cap", type=int, default=20_000)

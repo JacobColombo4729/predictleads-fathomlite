@@ -7,14 +7,14 @@
 - **Standard:** the TripleTen course templates (`~/Desktop/TripleTen/Templates`) are the baseline for every notebook; go further with advanced methods.
 
 ## Structure
-This repository joins two earlier ones with their full histories: `analysis/` (was `project_leads`, Jacob) and `app/` (was `predictleads-hackathon`, Jesse). They share one set of top-level files: `requirements.txt`, `.venv`, `.env`/`.env.example`, `.gitignore`, `.gitattributes`, `README.md` (setup, running, data rules), `data/` and `models/`. Remaining merge steps: `analysis/PRIORITY_QUEUE.md`; the six agreed merge decisions: `analysis/DECISION_LOG.md` (2026-10-11).
+This repository joins two earlier ones with their full histories: `analysis/` (was `project_leads`, Jacob) and `app/` (was `predictleads-hackathon`, Jesse). They share one set of top-level files: `requirements.txt`, `.venv`, `.env`/`.env.example`, `.gitignore`, `.gitattributes`, `README.md` (setup, running, data rules), `data/` and `models/`, and **`data_sources/`**: where every dataset comes from and lives, for both halves (`paths.py`: `REPO_ROOT`, `DATA_DIR`, `RAW_DIR`, `external()`; `predictleads.py`: the S3 settings from `.env` and the copy in `data/raw/`; `downloads.py`: the disk-space check; one `get_<name>.py` per dataset, run as `python -m data_sources.get_<name>` from the root). Remaining merge steps: `analysis/PRIORITY_QUEUE.md`; the six agreed merge decisions: `analysis/DECISION_LOG.md` (2026-10-11).
 
 **`analysis/`**
 - `PROJECT_OUTLINE.md`: what we're doing. `STANDARDS.md`: how we work (standards, leakage rules, scope, risks).
 - `DECISION_LOG.md`: decision log. `docs/data.md`: data reference and auto-generated schemas. `DIFFERENTIATORS.md`: how the project stands out and how to pitch it. `JOB_GROWTH.md`: the expected job growth plan (BLS 2025–2035, conversion to at most 5 years, proposed extensions).
 - `PRIORITY_QUEUE.md`: tasks. `APPLICATION.md`: app design, including the retraining compass (section 3).
 - `notebooks/`: EDA_SDA_1 (exploration, scope) → EDA_SDA_2 (scope cut, non-text) → EDA_SDA_3 (text features, no matching) → EDA_SDA_4 (statistics, confounders) → TimeSeries → ML_Fit (fit: keyword → TF-IDF → BGE → RRF → skills → trained layer; role discovery, compass) → ML_Rank (listing model + priority queue). Each hands its final table to the next under `data/clean/`. `Profiles.ipynb` (rules in `src/career_switch.py`) finds career switches in the external resume dataset; **frozen** (refrozen 2026-10-10 after adding an IT project management bucket): its final tables are `data/profiles/modeling_table.pkl` and `retrained_candidates.csv`.
-- `src/`: shared code imported into notebooks: `eda_helpers.py` (paths, charts, survival), `pl_data.py` (S3, caching, flattening, schemas), `career_switch.py` (career-switch rules, role buckets), `export_markdown.py` (notebook exports), `get_predictleads.py` (downloads the export files to `data/raw/`, optional), `stream_full.py` (streams the listings from `data/raw/` or S3), `get_resumes.py` (downloads the Kaggle resumes)
+- `src/`: shared code imported into notebooks: `eda_helpers.py` (paths, charts, survival), `pl_data.py` (S3, caching, flattening, schemas), `career_switch.py` (career-switch rules, role buckets), `export_markdown.py` (notebook exports), `stream_full.py` (streams the listings from `data/raw/` or S3). Data paths and downloads come from the top-level `data_sources/`
 
 **`app/`**
 - `backend/` (FastAPI), `frontend/` (React + Vite), `code/` (corpus, BGE text, ranking, role classifier, résumé fill, signals), `tests/`. How to run and test: `README.md` (steps 11–13); where it stands: `app/STATUS.md`; design docs in `app/docs/`.
@@ -33,18 +33,18 @@ AI tools are allowed for coding, brainstorming, and debugging. **Do not upload o
 - Do not commit data, notebook outputs, credentials, or venvs.
 
 ## Getting data (both halves)
-- **Every dataset is fetched by a script, never by hand:** PredictLeads files with `python -m src.get_predictleads` (to `data/raw/`, optional) or the streaming readers (`src/pl_data.py`, `src/stream_full.py`, `app/code/prepare_jobs.py` settings); the Kaggle resumes with `python -m src.get_resumes`. A new outside dataset gets its own download script in `analysis/src/` the same way (pinned version, disk-space check, prints names and sizes only).
-- **Never download what's already here:** run `python -m src.get_predictleads --check` (and look for the tables, by name only) before fetching anything; the scripts reuse existing copies, and a second copy of a dataset is never made on purpose.
-- **If someone's old hard-coded setup breaks,** point them to README step 9 ("If your old data setup stopped working") instead of putting the hard-coded values back.
-- **Never hard-code where data lives or how to reach it:** no bucket names, `s3://` paths, AWS profile names, access keys or personal folder paths in code or docs. The S3 location and profile come only from `.env` (`S3_PATH`, `AWS_PROFILE`); local data only under the top-level `data/` (`DATA_DIR`, `REPO_ROOT / "data"`). `app/tests/test_no_hardcoded_data.py` fails on any of these, locally and on every push to GitHub (`.github/workflows/data-rules.yml`).
+How and why: README step 9. The rules:
+- **Every dataset comes through a script in `data_sources/`,** never by hand (except data that can't be downloaded, below).
+- **Each dataset lives in one standard folder under `data/`,** from `data_sources.paths`.
+- **Never hard-code** bucket names, `s3://` paths, AWS profiles, keys or personal paths: they come from `.env`. `app/tests/test_no_hardcoded_data.py` checks this locally and on every push.
+- **When someone (or their code) does it another way,** say so before writing anything, explain why (our data agreement forbids bucket names and credentials in committed files; hard-coded paths and profiles break on every other machine; one folder per dataset keeps both halves reading the same files and makes the end-of-project deletion complete), then show the right way with the steps from README step 9.
 
 ### Adding a new dataset (checklist; Claude reminds the user of every step)
-1. **A download script** in `analysis/src/get_<name>.py`, modelled on `get_predictleads.py` and `get_resumes.py`: a pinned version or release, `src.downloads.confirm_space` before downloading (says the space needed and free, asks to proceed, stops if it doesn't fit), skips what's already there, resumes or reuses partial and hand-downloaded copies, prints names and sizes only. Credentials or locations it needs go in `.env` (and, blank, in `.env.example`), never in code.
-2. **One standard folder** under the top-level `data/`, built from `DATA_DIR` (never a literal path): `data/raw/` for PredictLeads exports, `data/external/<name>/` for outside data.
-3. **Update the duplicate lookup** so the new folder is known: add it (and any place people kept it by hand) to the lookup that finds existing copies (`COPY_DIRS` in `src/pl_data.py` for PredictLeads files, `local_zip()`/`present()` for the resumes, or the new script's own), so nothing is downloaded twice.
-4. **Readers find it through the same code,** not their own paths: notebooks call the script's `ensure()` first (as Profiles does), and the app imports its location from shared settings.
-5. **Write it down:** the README's data table (step 9), `analysis/docs/data.md` (source, license, folder, command), the end-of-project deletion list in `analysis/PRIORITY_QUEUE.md`, and the `src/` list above.
-6. **Check:** `.ppun_tests.ps1` (the hard-coding check) passes, and a second run of the script skips the download.
+1. **Its standard folder:** `external("<name>")` (`data/external/<name>/`) from `data_sources.paths`, never a written-out path.
+2. **A download script,** `data_sources/get_<name>.py`, modelled on `get_resumes.py`: a pinned version, the space check (`confirm_space`), saves only into its folder, skips data that's already there. Any credentials go in `.env`.
+3. **Can't be downloaded by script?** Put the files in its folder by hand and note the source in `analysis/docs/data.md`.
+4. **Readers get the folder from `data_sources`,** in either half.
+5. **Write it down:** the README's data table (step 9) and `analysis/docs/data.md`.
 
 ## Conventions
 - Fit all preprocessing inside sklearn `Pipeline`s; set `random_state`.
@@ -57,5 +57,5 @@ AI tools are allowed for coding, brainstorming, and debugging. **Do not upload o
 
 ## Before every commit
 - Notebook outputs cleared, including every cell tagged `data-rows` (row previews).
-- Nothing from `data/`, `.env`, credentials or venvs staged; no data values, file paths or bucket names in staged files (`.ppun_tests.ps1` includes the hard-coding check).
+- Nothing from `data/`, `.env`, credentials or venvs staged; no data values, file paths or bucket names in staged files (`.\app\run_tests.ps1` includes the hard-coding check).
 - Code changes leak nothing from the future into features (see the leakage rules in `analysis/STANDARDS.md`).

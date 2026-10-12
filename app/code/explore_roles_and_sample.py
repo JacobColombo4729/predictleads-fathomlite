@@ -21,15 +21,14 @@ import boto3
 import botocore
 import zstandard as zstd
 
-from prepare_jobs import BUCKET, KEY, SNAPSHOT_DATE, prepare_resource, s3_session
+from prepare_jobs import BUCKET, DATA_DIR, KEY, SNAPSHOT_DATE, prepare_resource, raw_file, s3_session
 
 SAMPLE_SIZE = 30_000
 MAX_LINE_BYTES = 4 * 1024 * 1024
 PROGRESS_SECONDS = 30
 COMMIT_RECORDS = 5_000
 DISK_RESERVE_BYTES = 2 * 1024**3
-REPO_ROOT = Path(__file__).resolve().parents[2]  # data/, models/ and .env are shared with analysis/ at the top
-OUTPUT_ROOT = REPO_ROOT / "data" / "discovery" / "role_exploration"
+OUTPUT_ROOT = DATA_DIR / "discovery" / "role_exploration"
 STRING_FIELDS = {
     "raw_title", "normalized_title", "onet_occupation", "onet_family", "status", "seniority",
     "language", "categories", "contract_types", "description_availability", "salary_availability",
@@ -459,9 +458,7 @@ def _available_memory() -> int | None:
 
 
 def _local_source(workspace: Path) -> Path | None:
-    candidates = (workspace / KEY, workspace / "data" / Path(KEY).name,
-                  workspace / "data" / "raw" / Path(KEY).name)
-    return next((path for path in candidates if path.is_file()), None)
+    return raw_file(Path(KEY).name)  # data/raw/, if downloaded (data_sources.get_predictleads)
 
 
 def _distribution(db: sqlite3.Connection, scope: str, field: str, limit: int = 12) -> list[dict[str, Any]]:
@@ -655,8 +652,7 @@ def _self_test() -> None:
 
 
 def _local_source(workspace: Path) -> Path | None:
-    choices = (workspace / KEY, workspace / "data" / Path(KEY).name, workspace / "data" / "raw" / Path(KEY).name)
-    return next((path for path in choices if path.is_file()), None)
+    return raw_file(Path(KEY).name)  # data/raw/, if downloaded (data_sources.get_predictleads)
 
 
 def _open_source(workspace: Path) -> tuple[BinaryIO, Any, dict[str, Any], str]:
@@ -932,9 +928,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.sample_size < 1:
         parser.error("--sample-size must be positive")
     available = shutil.disk_usage(Path.cwd()).free
-    prior = REPO_ROOT / "data/prepared/jobs_sample_validation_20261005T205936Z/jobs_prepared_sample.jsonl"
+    prior = DATA_DIR / "prepared/jobs_sample_validation_20261005T205936Z/jobs_prepared_sample.jsonl"
     if not prior.exists():
-        prior = REPO_ROOT / "data/prepared/jobs_sample_20261005T205936Z/jobs_prepared_sample.jsonl"
+        prior = DATA_DIR / "prepared/jobs_sample_20261005T205936Z/jobs_prepared_sample.jsonl"
     estimated_sample = int(prior.stat().st_size / 10_000 * args.sample_size) if prior.exists() else args.sample_size * 10_000
     estimated_db_and_csv = max(6 * 1024**3, estimated_sample * 16)
     minimum_free_during_scan = DISK_RESERVE_BYTES + estimated_sample

@@ -78,7 +78,7 @@ class CountingReader(io.RawIOBase):
 
 def open_lines(local=None):
     """Text lines of the job-openings file: a given .jsonl.zst (tests), else the local copy in data/raw/
-    (python -m src.get_predictleads), else straight from S3. Returns (lines, counter, total bytes)."""
+    (python -m data_sources.get_predictleads), else straight from S3. Returns (lines, counter, total bytes)."""
     import zstandard as zstd
     from src.pl_data import RAW_FILES, raw_file
 

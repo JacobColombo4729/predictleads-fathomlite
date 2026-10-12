@@ -39,8 +39,10 @@ predictleads-fathomlite/
 ├── .env.example              template for your .env (settings and keys)
 ├── .gitattributes  .gitignore
 ├── requirements.txt          one pinned list for everything (Python 3.11)
+├── data_sources/             where every dataset comes from and lives: one download script each, the shared folders
 ├── .venv/  .env              your own, git-ignored
-├── data/  models/            local only, git-ignored: source data, corpus, embeddings, the BGE model
+├── data/  models/            local only, git-ignored: raw/ (PredictLeads), external/ (outside data), the notebooks'
+│                             tables, the corpus and embeddings; the BGE model
 ├── analysis/
 │   ├── notebooks/            EDA_SDA_1–4, TimeSeries, Profiles, ML_Fit, ML_Rank
 │   ├── src/                  shared code imported by the notebooks
@@ -234,24 +236,16 @@ Everything lives in two git-ignored folders at the top, shared by the notebooks 
 - **`data/`:** the notebooks' tables (`clean/`, `flat/`, `profiles/`) and the app's corpus and signals (`matching/`, `discovery/`, `prepared/`, `signals/`, `preview/`). The notebooks download what they need from S3; the app's corpus is built by the pipeline in step 13 or shared within the team. The raw snapshot is not stored locally, so deleting `data/matching/targeted_pool_*` or the random sample under `data/discovery/` means re-reading it from S3.
 - **`models/`:** the BGE model `BAAI/bge-base-en-v1.5` (revision pinned in `app/code/bge_text.py`) in `models/bge-base-en-v1.5`, or set `PREDICTLEADS_BGE_MODEL_DIR`.
 
-**Getting the analysis data on any machine** (from `analysis/`, `.venv` activated; nothing is copied by hand):
+**Getting the data on any machine** (from the repository root, `.venv` activated). Every dataset has one script in `data_sources/` and one standard folder in `data/`: `data/raw/` for the PredictLeads export, `data/external/<name>/` for outside data. Code reaches all of them through `data_sources` (`DATA_DIR`, `RAW_DIR`, `external("<name>")`), never through a written-out path:
 
 | Data | Command | Time |
 |---|---|---|
-| The raw export files (`data/raw/`): optional, so every script reads locally instead of streaming from S3 | `python -m src.get_predictleads` (both files, about 19 GB; resumable; `--check` shows what's there; needs AWS, step 7) | depends on the connection |
+| The raw export files (`data/raw/`): optional, so every script reads locally instead of streaming from S3 | `python -m data_sources.get_predictleads` (both files, about 19 GB; skips what's already there; `--check` shows what's there; needs AWS, step 7) | depends on the connection |
 | Streamed listings from S3 (`data/flat/`) | `python -m src.stream_full`, then `--rows` and `--extra` (each resumable; needs AWS, step 7) | about 5 hours in all |
-| Public resumes from Kaggle (`data/external/resume_structured/`, for Profiles) | `python -m src.get_resumes` (no Kaggle account needed), or just run Profiles, which calls it first | under a minute |
+| Public resumes from Kaggle (`data/external/resume_structured/`, for Profiles) | `python -m data_sources.get_resumes` (no Kaggle account needed), or just run Profiles, which calls it first | under a minute |
 | The cleaned tables (`data/clean/`, `data/profiles/`) | Run the notebooks in order: EDA_SDA_1, EDA_SDA_2, …; Profiles | |
 
-**Why scripts, not hand downloads:** one setup for both halves; no bucket names, AWS profiles or personal folders written into committed files (our data agreement); and no duplicates: each script checks what you already have first, reuses a copy you downloaded by hand (moving it to the standard place), resumes an interrupted download, and checks disk space and asks before downloading anything.
-
-**If your old data setup stopped working** (for example a script that had the bucket or the `predictleads` AWS profile written into it):
-1. In the top-level `.env` (step 8), set `S3_PATH` to the export's S3 folder and `AWS_PROFILE` to the profile you set up in step 7.
-2. Run `python -m src.get_predictleads --check` from `analysis/`: it lists every copy you already have and what's on S3.
-3. Optional: `python -m src.get_predictleads` moves your existing copies into `data/raw/` and downloads only what's missing; it offers to delete any extra copies.
-4. Rerun what you were doing. The error messages repeat these steps.
-
-A check runs on every push to GitHub (`.github/workflows/data-rules.yml`, and locally with the app tests): it fails if a committed file hard-codes an S3 location, AWS profile or key, or a personal folder path, and its message explains the fix.
+**Why scripts:** one setup for both halves, and no bucket names, AWS profiles or personal paths in committed files (our data agreement). The S3 location and profile come only from `.env` (`S3_PATH`, `AWS_PROFILE`, step 8). Each script skips data that's already in its folder, and checks disk space and asks before downloading. Data that can't be downloaded by script goes in its standard folder by hand, with its source noted in `analysis/docs/data.md`. A check on every push (and in the app tests) fails if a committed file hard-codes any of these.
 
 `PL_DATA_DIR` points the notebooks at another data folder (used for tests on synthetic data).
 
@@ -455,8 +449,7 @@ Everyone must **permanently delete all copies of the data** (local `data/` folde
 | `py -3.11` says no such version (Windows) | Install Python 3.11 from python.org. `py -0` lists the versions you have |
 | `python` opens the Microsoft Store (Windows) | Settings → Apps → Advanced app settings → App execution aliases → turn off the `python.exe` / `python3.exe` aliases. Or just activate `.venv` first |
 | Kernel not showing in VS Code | Activate `.venv`, re-run step 6, then reload VS Code (`Cmd/Ctrl + Shift + P` → **Reload Window**) |
-| `ModuleNotFoundError` | Wrong kernel or venv not activated. Check the kernel says **fathomlite** |
-| App script can't find Python | The scripts expect `.venv` at the repository root (step 4) |
+| `ModuleNotFoundError` | Wrong kernel or venv not activated. Check the kernel says **fathomlite** || App script can't find Python | The scripts expect `.venv` at the repository root (step 4) |
 | `LF will be replaced by CRLF` warning (Windows) | Harmless. `.gitattributes` keeps the repo's line endings consistent |
 | `NoCredentialsError` / `ProfileNotFound` | Re-run step 7 and check `AWS_PROFILE` in `.env` |
 | `AccessDenied` from S3 | Your credentials don't have access. Ask the team lead |

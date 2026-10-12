@@ -3,6 +3,7 @@
 Everything here works on aggregates. Nothing prints listing rows.
 """
 import os
+import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -18,8 +19,9 @@ def project_root(start=None):
     return next(d for d in [start, *start.parents] if (d / "src" / "eda_helpers.py").exists())
 
 ROOT = Path(__file__).resolve().parents[1]  # analysis/
-REPO_ROOT = ROOT.parent  # data/, models/ and .env are shared with app/ at the top
-DATA_DIR = Path(os.environ.get("PL_DATA_DIR") or REPO_ROOT / "data")  # gitignored; PL_DATA_DIR overrides (tests on synthetic data)
+if str(ROOT.parent) not in sys.path:  # the repository root, so data_sources (shared with app/) imports from notebooks too
+    sys.path.insert(0, str(ROOT.parent))
+from data_sources.paths import DATA_DIR, REPO_ROOT  # noqa: E402  one definition for both halves; PL_DATA_DIR overrides
 CLEAN_DIR = DATA_DIR / "clean"
 PART1_TABLE = CLEAN_DIR / "analysis_table.pkl"  # EDA_SDA_1's final table
 PART2_TABLE = CLEAN_DIR / "scope_table.parquet"  # EDA_SDA_2's final table (the scope), for EDA_SDA_3

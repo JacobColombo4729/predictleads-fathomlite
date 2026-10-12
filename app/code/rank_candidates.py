@@ -25,9 +25,11 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Sequence
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for data_sources/ (shared with analysis/)
+from data_sources.paths import DATA_DIR  # noqa: E402  shared with analysis/: one definition of where data lives
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = PROJECT_ROOT.parent  # data/, models/ and .env are shared with analysis/ at the top
-GPU_LIBS = REPO_ROOT / "data" / "_gpu_libs"
+GPU_LIBS = DATA_DIR / "_gpu_libs"
 if GPU_LIBS.is_dir() and "--cpu" not in sys.argv:
     sys.path.insert(0, str(GPU_LIBS))  # CUDA build of the same torch version, installed outside the venv
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -37,9 +39,9 @@ import numpy as np  # noqa: E402
 import job_matching_engine as engine  # noqa: E402
 import bge_text as bge  # noqa: E402
 
-SAMPLE_PATH = REPO_ROOT / "data/discovery/role_exploration/roles_corrected_20261006T000000Z/jobs_prepared_random_sample.jsonl"
+SAMPLE_PATH = DATA_DIR / "discovery/role_exploration/roles_corrected_20261006T000000Z/jobs_prepared_random_sample.jsonl"
 BGE_SNAPSHOT = bge.model_dir()  # models/bge-base-en-v1.5, or $PREDICTLEADS_BGE_MODEL_DIR
-DEFAULT_CORPUS_DIR = REPO_ROOT / "data/matching/ai_ml_corpus_v1"
+DEFAULT_CORPUS_DIR = DATA_DIR / "matching/ai_ml_corpus_v1"
 DEPTH = 50
 RRF_K = 60
 TOP_K = 10
@@ -400,7 +402,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     e.add_argument("--batch-size", type=int, default=32)
     x = sub.add_parser("export-serving", help="write the not-closed subset used by the demo backend")
     x.add_argument("--corpus-dir", type=Path, default=DEFAULT_CORPUS_DIR)
-    x.add_argument("--out-dir", type=Path, default=REPO_ROOT / "data/matching/ai_ml_serving_v1")
+    x.add_argument("--out-dir", type=Path, default=DATA_DIR / "matching/ai_ml_serving_v1")
     f = sub.add_parser("finalize-encode", help="merge saved chunks only (no re-encoding)")
     f.add_argument("--corpus-dir", type=Path, default=DEFAULT_CORPUS_DIR)
     r = sub.add_parser("rank")

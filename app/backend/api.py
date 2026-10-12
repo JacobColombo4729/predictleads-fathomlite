@@ -45,11 +45,13 @@ from . import market_llm  # noqa: E402
 from . import signals as hiring_signals  # noqa: E402
 
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for data_sources/ (shared with analysis/)
+from data_sources.paths import DATA_DIR  # noqa: E402  shared with analysis/: one definition of where data lives
 SNAPSHOT_ID_PREFIX = "predictleads-"
 SESSION_COOKIE = "pl_demo_session"
-DEFAULT_SAMPLE = REPO_ROOT / "data/matching/ai_ml_serving_v1/jobs_prepared_corpus.jsonl"
-DEFAULT_DB = PROJECT_ROOT / "backend/data/predictleads-demo.sqlite3"
-DEFAULT_EVENTS_DB = PROJECT_ROOT / "backend/data/feedback-events.sqlite3"
+DEFAULT_SAMPLE = DATA_DIR / "matching/ai_ml_serving_v1/jobs_prepared_corpus.jsonl"
+DEFAULT_DB = PROJECT_ROOT / "backend" / "data" / "predictleads-demo.sqlite3"
+DEFAULT_EVENTS_DB = PROJECT_ROOT / "backend" / "data" / "feedback-events.sqlite3"
 PARTICIPANT_HEADER = "x-participant-id"
 RANKER_ID = "tfidf_cosine"
 RANKER_VERSION = "job_matching_engine.rank_tfidf-v1"
