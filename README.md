@@ -364,11 +364,11 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 
 ## 14. Daily Git workflow
 
-**Each person works on their own branch** (`jacob`, `jesse`; decided 2026-10-11) and merges it into `main` when they decide a piece of work is ready (step 5). **Both of us Watch the repo** (on GitHub: Watch → All Activity, once each; decided 2026-10-12), so GitHub emails the other person whenever `main` changes. Merge `main` into your branch **at least once a day**, so the two branches never drift far apart: a long-running branch once left the team 155 commits behind.
+**Each person works on their own branch** (`jacob`, `jesse`; decided 2026-10-11) and merges it into `main` when they decide a piece of work is ready (step 5), **after messaging the other person** (decided 2026-10-12), so we're both on the same page before `main` changes. Merge `main` into your branch **at least once a day**, so the two branches never drift far apart: a long-running branch once left the team 155 commits behind.
 
 **The rules, the same for both of us** (both are collaborators with write access):
 - Commit and push only your own branch, plus `main` when you merge into it. Never push to the other person's branch, and never force-push.
-- To get work into `main`: merge `main` into your branch, fix any conflicts there, run the tests, push, then merge your branch into `main` (step 5). GitHub's Watch email tells the other person.
+- To get work into `main`: merge `main` into your branch, fix any conflicts there, run the tests, push, **message the other person** ("merging X into main"), then merge your branch into `main` (step 5).
 - **Merge conflicts are fixed on your own branch, never on `main`**, by whoever runs the merge. If a conflict touches the other person's code (`analysis/` is Jacob's, `app/` is Jesse's) or a shared top-level file (`requirements.txt`, `README.md`, `fetch/`, `.gitignore`, `.claude/`) and the right answer isn't obvious, ask them before committing. With Claude, it stops at the conflict, shows both versions and a suggested fix, and waits for you.
 
 ```bash
@@ -393,7 +393,7 @@ git push
 
 # 5. Only when YOU decide the work is ready for everyone (app tests pass, notebooks run): merge it into main.
 #    Merge main into your branch first (step 1) so any conflict is fixed there, not on main.
-#    This is a deliberate step, never routine.
+#    Message the other person first ("merging X into main"). This is a deliberate step, never routine.
 git switch main
 git pull
 git merge jacob                                # or jesse
