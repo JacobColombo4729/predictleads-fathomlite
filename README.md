@@ -401,7 +401,7 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 4. Review each draft: `git log --oneline jacob..worktree-agent-<id>`, then merge what you want (`git merge worktree-agent-<id>`).
 5. Clean up after merging or rejecting: `git worktree list`, then `git worktree remove .claude/worktrees/agent-<id>` and `git branch -D worktree-agent-<id>`. Its record of finished tasks is `.git/foreman-state.json` (delete it to start fresh).
 
-**Everything the agents do is logged.** What they change goes into the committer's change log (`JACOB.md` or `JESSE.md`) in the same commit. Every run, including checks that change nothing, adds one line to `.git/agent-activity.log` (local, one per clone): when, which agent, what it touched, and the outcome. Read it with `cat .git/agent-activity.log` (PowerShell: `Get-Content .gitgent-activity.log`).
+**Everything the agents do is logged.** What they change goes into the committer's change log (`JACOB.md` or `JESSE.md`) in the same commit. Every run, including checks that change nothing, adds one line to `.git/agent-activity.log` (local, one per clone): when, which agent, what it touched, and the outcome. Read it with `cat .git/agent-activity.log` (PowerShell: `Get-Content .git\agent-activity.log`).
 
 ```bash
 # 1. Start on your branch, with everything already merged into main
