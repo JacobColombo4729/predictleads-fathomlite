@@ -51,7 +51,7 @@ echo "Keel: reviewing $(git rev-list --count "$range") commit(s) on $branch..."
 keel "Review and tidy the commits in $range on branch $branch, following your instructions." | tee "$report"
 
 # Answer Keel's questions here when pushing from a terminal; Keel applies the choices in a commit of its own
-if grep -q '^ *a) ' "$report" && [ -r /dev/tty ] && { : < /dev/tty; } 2>/dev/null; then
+if grep -q '^ *a) ' "$report" && (: < /dev/tty) 2>/dev/null; then  # subshell: a failed redirect would end the hook
   echo
   printf "Your answers (e.g. 1a 2c 3 keep it), or Enter to skip: "
   read -r answers < /dev/tty
