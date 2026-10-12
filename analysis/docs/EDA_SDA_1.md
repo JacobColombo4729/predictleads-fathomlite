@@ -54,7 +54,7 @@ Turns the nested documents into ordinary tables, one row per record, with nested
 
 ## 5. Schema
 
-Writes a `df.info()`-style summary of every flattened table (column names, non-null counts, dtypes) into `docs/data.md`, only when something changed.
+Writes a `df.info()`-style summary of every flattened table (column names, non-null counts, dtypes) into `DATA.md` (top level), only when something changed.
 
 ## 6. Data cleaning
 

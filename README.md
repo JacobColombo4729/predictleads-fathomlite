@@ -39,6 +39,7 @@ predictleads-fathomlite/
 ├── .env.example              template for your .env (settings and keys)
 ├── .gitattributes  .gitignore
 ├── requirements.txt          one pinned list for everything (Python 3.11)
+├── DATA.md                   data reference: sources, fields, quirks, auto-generated schemas
 ├── fetch/                    where every dataset comes from and lives: one download script each, the shared folders
 ├── .venv/  .env              your own, git-ignored
 ├── data/  pretrained/        local only, git-ignored: raw/ (PredictLeads), external/ (outside data), the notebooks'
@@ -46,7 +47,7 @@ predictleads-fathomlite/
 ├── analysis/
 │   ├── notebooks/            EDA_SDA_1–4, TimeSeries, Profiles, ML_Fit, ML_Rank
 │   ├── src/                  shared code imported by the notebooks
-│   ├── docs/                 decision log, data reference, job growth plan, notebook text exports
+│   ├── docs/                 notebook text exports, the volunteer profile form
 │   └── PROJECT_OUTLINE, STANDARDS, APPLICATION, DIFFERENTIATORS, PRIORITY_QUEUE
 └── app/
     ├── backend/              FastAPI demo API
@@ -246,7 +247,7 @@ Everything lives in two git-ignored folders at the top, shared by the notebooks 
 | The BGE text-embedding model (`pretrained/bge-base-en-v1.5/`, for the app and ML_Fit) | `python -m fetch.get_bge` (about 0.44 GB from Hugging Face, the pinned version in `app/code/bge_text.py`; no account needed) | about a minute |
 | The cleaned tables (`data/clean/`, `data/profiles/`) | Run the notebooks in order: EDA_SDA_1, EDA_SDA_2, …; Profiles | |
 
-**Why scripts:** one setup for both halves, and no bucket names, AWS profiles or personal paths in committed files (our data agreement). The S3 location and profile come only from `.env` (`S3_PATH`, `AWS_PROFILE`, step 8). Each script skips data that's already in its folder, and checks disk space and asks before downloading. Data that can't be downloaded by script goes in its standard folder by hand, with its source noted in `analysis/docs/data.md`. A check on every push (and in the app tests) fails if a committed file hard-codes any of these.
+**Why scripts:** one setup for both halves, and no bucket names, AWS profiles or personal paths in committed files (our data agreement). The S3 location and profile come only from `.env` (`S3_PATH`, `AWS_PROFILE`, step 8). Each script skips data that's already in its folder, and checks disk space and asks before downloading. Data that can't be downloaded by script goes in its standard folder by hand, with its source noted in `DATA.md`. A check on every push (and in the app tests) fails if a committed file hard-codes any of these.
 
 `PL_DATA_DIR` points the notebooks at another data folder (used for tests on synthetic data).
 
@@ -470,7 +471,7 @@ Everyone must **permanently delete all copies of the data** (local `data/` folde
 
 **Start with the hackathon brief:** [`analysis/BRIEF.md`](analysis/BRIEF.md) (what the organizers require).
 
-**Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we're doing), [`analysis/STANDARDS.md`](analysis/STANDARDS.md) (how we work), [`analysis/DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md), [`analysis/APPLICATION.md`](analysis/APPLICATION.md), [`analysis/PRIORITY_QUEUE.md`](analysis/PRIORITY_QUEUE.md), [`analysis/DECISION_LOG.md`](analysis/DECISION_LOG.md), [`analysis/docs/data.md`](analysis/docs/data.md), [`analysis/docs/volunteer_profiles.md`](analysis/docs/volunteer_profiles.md) (the on-hold plan for volunteer career-changer profiles, with its blank form).
+**Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we're doing), [`analysis/STANDARDS.md`](analysis/STANDARDS.md) (how we work), [`analysis/DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md), [`analysis/APPLICATION.md`](analysis/APPLICATION.md), [`analysis/PRIORITY_QUEUE.md`](analysis/PRIORITY_QUEUE.md), [`analysis/DECISION_LOG.md`](analysis/DECISION_LOG.md), [`DATA.md`](DATA.md), [`analysis/docs/volunteer_profiles.md`](analysis/docs/volunteer_profiles.md) (the on-hold plan for volunteer career-changer profiles, with its blank form).
 
 **App:**
 1. [app/STATUS.md](app/STATUS.md) and [app/roadmap.md](app/roadmap.md)
