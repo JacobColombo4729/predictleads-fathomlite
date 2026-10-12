@@ -31,6 +31,7 @@
 
 ## Analysis
 
+- **Date picker (as-of date):** `src/as_of.py` (`live_on`, `training_as_of`, `count_check`) returns the listings live on a date with features from earlier listings only, and the training rows censored at that date; tests in `tests/test_as_of.py`; `notebooks/AsOf_Check.ipynb` prints counts only for July 1 vs. September 1, 2026 (not yet run on real data). (2026-10-12; drafted by Foreman; needs review)
 - **Role discovery evaluated on real career moves (ML_Fit sections 2–4 and 6):** for each career changer, keyword, TF-IDF, BGE and RRF rank the role buckets from their pre-switch background, scored on whether the role they actually moved into is in the top 3 / top 5, against the most-common-role baseline, per pool, with 5 folds by person and a held-out 20% scored once with 95% intervals (`src/fit_eval.py`, tested in `analysis/tests/`). Profiles' new cell 5c saves the pre-switch text it needs. Needs a run: EDA_SDA_1, then Profiles, then ML_Fit. (2026-10-12)
 - **Bulk mode for the full-file tables:** `src/stream_full.py --bulk` (or `--auto`, or EDA_SDA_1's new cell 4b with `BUILD_MODE`) reads the export once and parses it on several cores: about 35 minutes instead of 3–5 hours, on a machine with 16 GB+ RAM and 8+ threads. It builds exactly the same tables in the same order as the stream mode (checked table by table on the first 100,000 documents). The Mac keeps the stream mode. (2026-10-12)
 - **US only:** EDA_SDA_1 8b drops every listing with no country. (2026-10-12)
