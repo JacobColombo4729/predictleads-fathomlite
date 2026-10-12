@@ -81,12 +81,11 @@
 
 ## Later
 
-- **Optional:** transfer the repository to a shared GitHub organization; archive the two originals (`project_leads`, `predictleads-hackathon`).
 - **Backup:** an encrypted Time Machine backup to Jacob's removable drive when it's available, **excluding every `data/` folder** (the data stays in S3 and approved locations only).
 - **predictleads-hackathon:** its `.venv` was removed 2026-10-10 to free space; rebuild it (`python -m venv .venv && pip install -r requirements.txt`) before working there.
 
 - **Profiles is frozen** (refrozen 2026-10-10). Reopen only if needed: a pool for moving up within the same role (training, then a senior or manager role; levels are already tagged), or more prior-career keywords ("other" is 115 of 706; 4a.2e lists the common titles). Any change means a rerun, then the ML notebook reloads `modeling_table.pkl`.
-- **Connect the app to the analysis only after every notebook is complete** (EDA_SDA_3, EDA_SDA_4, TimeSeries, ML_Fit, ML_Rank): the shared listing set → the app's corpus and embeddings → backend features (timing, the flags ranked lower, the retraining compass). Planned connections: [`FLOWCHART.md`](../FLOWCHART.md).
+- **Connect the app to the analysis only after every notebook is complete** (EDA_SDA_3, EDA_SDA_4, TimeSeries, ML_Fit, ML_Rank): the shared listing set → the app's corpus and embeddings → backend features (timing, the flags ranked lower, the retraining compass). The app's plan: `APPLICATION.md`.
   - **Recruiter names and contact details:** assumed allowed in the app (2026-10-12); filter them out if the advisors or PredictLeads say no. Confirm before the final presentation. The analysis keeps only an anonymous recruiter key (EDA_SDA_1), so the names and contacts would come from the raw listings when the app is connected. (OpenAI use: confirmed allowed 2026-10-11, in `DECISION_LOG.md`.)
 - **App:** transferable-fit stage (the career changer's background profile), priority model with adjustable weights, MCP servers, then agents (see `APPLICATION.md`).
 - **Run log:** settings, seeds and metrics for every run, in a CSV or a local MLflow store. Never listing text.
