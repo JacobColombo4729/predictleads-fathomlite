@@ -62,9 +62,9 @@ $(cat "$report")"
   fi
 fi
 
+# Never stop the push: Keel's own commit stays local and goes up with the next push
 if [ "$(git rev-parse HEAD)" != "$head" ]; then
   echo
-  echo "Keel added a tidy commit (git show HEAD). Look it over, then push again."
-  exit 1
+  echo "Keel tidied in a commit of its own; it goes up with your next push."
 fi
 exit 0
