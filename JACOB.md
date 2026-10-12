@@ -4,6 +4,7 @@
 
 ## 2026-10-12
 
+- **Hackathon brief moved to the top level:** `analysis/BRIEF.md` is now `BRIEF.md`, next to the README (CLAUDE.md imports it from there).
 - **Change logs instead of Git rules:** `JACOB.md` and `JESSE.md` log each person's changes. No other rules on branches, pushes or merging.
 - **Data reference moved to the top level:** `analysis/docs/data.md` is now `DATA.md`, next to the README. EDA_SDA_1 writes the schemas there.
 - **BGE model download script:** `python -m fetch.get_bge` downloads `BAAI/bge-base-en-v1.5` (about 0.44 GB, no account needed) into `pretrained/bge-base-en-v1.5`, at the version the corpus's embeddings were made with. **Jesse:** run it once if you don't have the model.
