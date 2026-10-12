@@ -42,7 +42,7 @@ Libraries and the data loader, `src/pl_data.py`: the S3 connection, cached raw d
 
 Both datasets are files in S3, part of a full export PredictLeads makes every day (it calls each day's export a *snapshot*); we use the one from September 30, 2026, stored as compressed JSON lines (`.jsonl.zst`): **companies** (~252 MB compressed) are loaded in full; **job openings** (~19 GB) are too big for 8 GB of RAM, so we read the first 200,000 documents. Each is cached as Parquet in `data/`, so later runs take seconds instead of about 10 minutes. Once every table is flattened (section 4), this step skips the raw documents and S3 entirely.
 
-**Sections 2–5 use these 200,000 documents** to show the raw structure, flatten it and write the schemas. **The analysis from section 6 on uses the full file:** `src/stream_full.py` reads all 13.4 million listings from S3 line by line and saves 6.1e's cleaned row for every English (or unlabeled) US (or no-country) listing, 13,017,464 rows (`python -m src.stream_full --rows`).
+**Sections 2–4 use these 200,000 documents** to show the raw structure and flatten it. **The analysis from section 6 on uses the full file:** 4b builds the full-file tables from all 13.4 million listings, including 6.1e's cleaned row for every English (or unlabeled) US (or no-country) listing, 13,017,464 rows.
 
 ## 3. Inspect structure
 
@@ -51,6 +51,8 @@ Each line of a file is a JSON:API document with two keys: `data` (the records) a
 ## 4. Flatten
 
 Turns the nested documents into ordinary tables, one row per record, with nested fields as dotted columns (for example `attributes.first_seen_at`): the companies and job openings, and each file's related objects with duplicates removed. Each table is built in parts of 20,000 records saved to `data/flat/` as they finish, so after a crash a rerun skips finished parts, and a finished table is never rebuilt.
+
+**4b builds the full-file tables** the analysis uses, from the local copy of the export in `data/raw/` (`python -m fetch.get_predictleads`) or straight from S3, and skips them once done (`src/stream_full.py`). `BUILD_MODE` picks how: **bulk** reads the file once and parses it on several cores at a time (about 35 minutes; needs about 16 GB of RAM and 8 threads), **stream** reads it three times, one piece at a time (a few hours; for an 8 GB machine), and **auto** picks bulk when the machine can take it. Both build the same tables in the same order.
 
 ## 6. Data cleaning
 
