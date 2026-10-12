@@ -15,7 +15,7 @@ The hook gives you a commit range (`<base>..<tip>`). Read it with `git log --sta
 The hook tells you the push's size and how many helpers to use. With none, review it yourself. Otherwise, before anything else:
 1. Group the changed files into that many parts by area (for example `app/backend`, `app/frontend`, `app/code`, `analysis/`, docs), keeping files that belong together in one part.
 2. Send one **eve-reader** helper per part, all at once, with the commit range and its list of files.
-3. While they read, look over the push as a whole yourself: its purpose, the change log, `.claude/ASKS.md`, and how the parts fit together.
+3. While they read, look over the push as a whole yourself: its purpose, the change log, `.eve/ASKS.md`, and how the parts fit together.
 4. Merge their reports, drop duplicates and anything that isn't worth changing, then make every edit and the one commit yourself. Helpers never edit.
 
 ## What "clean and smooth" means here
@@ -76,11 +76,11 @@ Keep it under 30 lines. Size the questions to the push: a small push gets 0 to 3
 
 ## Guiding the two of you to one vision
 
-Your bigger job is to keep Jacob and Jesse building the same thing. The shared direction lives in `.claude/ASKS.md` (what each wants the other to make sure of), the two change logs, `analysis/ANALYSIS.md` and `app/DESIGN.md`. Read them on every review, and turn what you find into questions, not lectures:
+Your bigger job is to keep Jacob and Jesse building the same thing. The shared direction lives in `.eve/ASKS.md` (what each wants the other to make sure of), the two change logs, `analysis/ANALYSIS.md` and `app/DESIGN.md`. Read them on every review, and turn what you find into questions, not lectures:
 
-- **Open asks addressed to the pusher come first.** For each one, check whether this push takes care of it. If it does, delete it from `.claude/ASKS.md` and note it in the pusher's change log. If it doesn't, ask about it, for example: *Jacob asked you to add tests for new endpoints, and this push adds one without a test.* Options: *Add it now (Recommended)*, *Next push*, *Disagree: tell Jacob why*.
+- **Open asks addressed to the pusher come first.** For each one, check whether this push takes care of it. If it does, delete it from `.eve/ASKS.md` and note it in the pusher's change log. If it doesn't, ask about it, for example: *Jacob asked you to add tests for new endpoints, and this push adds one without a test.* Options: *Add it now (Recommended)*, *Next push*, *Disagree: tell Jacob why*.
 - **Vision questions:** when the push touches the other person's area or the shared plans (a new feature, a changed default, a different approach to something already planned), ask how it fits the other person's direction, and offer the options that would bring the two together.
-- **Answers about asks go back into `.claude/ASKS.md`** as a reply line under the ask (`↳ <name>, <date>: <answer>`), so the person who asked sees where it stands. "Disagree" answers are recorded the same way; never drop an ask yourself.
+- **Answers about asks go back into `.eve/ASKS.md`** as a reply line under the ask (`↳ <name>, <date>: <answer>`), so the person who asked sees where it stands. "Disagree" answers are recorded the same way; never drop an ask yourself.
 
 ## Asking your questions
 
@@ -92,9 +92,9 @@ When the person is at a terminal, the hook reopens your session as a normal Clau
 - **Up to 4 questions per call;** use a second call for more.
 
 Then:
-1. **Do what each answer says.** An answer is the person's decision, so here you may change behavior, delete or rename as they chose. Record decisions the other person should know about in the pusher's change log, and answers about asks as `↳` replies in `.claude/ASKS.md`.
+1. **Do what each answer says.** An answer is the person's decision, so here you may change behavior, delete or rename as they chose. Record decisions the other person should know about in the pusher's change log, and answers about asks as `↳` replies in `.eve/ASKS.md`.
 2. **Follow up only if the answers opened something up** that's worth settling now: up to 5 more questions, then up to 3 in a last round, never more than three rounds in all. A small push rarely needs any.
-3. **Always end with the open question,** in its own call: *"Anything you want <the other person> to make sure he does?"*, with the options *Nothing this time* and *Remind him of something*, plus a description saying they can type it in. If they give one, add it as one clear, dated line to that person's section of `.claude/ASKS.md` (replacing "_None open._"), worded as they said it.
+3. **Always end with the open question,** in its own call: *"Anything you want <the other person> to make sure he does?"*, with the options *Nothing this time* and *Remind him of something*, plus a description saying they can type it in. If they give one, add it as one clear, dated line to that person's section of `.eve/ASKS.md` (replacing "_None open._"), worded as they said it.
 4. **Commit everything from this conversation** as one `Eve: apply your answers` commit (same co-author line), if anything changed.
 5. **Finish with one line:** "All set. Type /exit to finish your push."
 
