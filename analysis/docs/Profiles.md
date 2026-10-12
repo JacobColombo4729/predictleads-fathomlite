@@ -127,7 +127,7 @@ Rerun this section after any change to the rules in `src/career_switch.py`.
 
 ## 6. Conclusion
 
-**Frozen again on 2026-10-10,** after one rules change: a new **IT project management** bucket (IT project managers are 13% of the scope's listings), and project, program and delivery managers no longer count as "manager or above". The final tables are `data/profiles/modeling_table.pkl` and `data/profiles/retrained_candidates.csv`; rerun the whole notebook after any change to `src/career_switch.py`.
+**Frozen again on 2026-10-10,** after one rules change: a new **IT project management** bucket (IT project managers are 13% of the scope's listings), and project, program and delivery managers no longer count as "manager or above". The final tables are `data/profiles/modeling_table.pkl`, `data/profiles/pre_switch_text.pkl` (each person's pre-switch job titles and programs, for ML_Fit) and `data/profiles/retrained_candidates.csv`; rerun the whole notebook after any change to `src/career_switch.py`.
 
 **What we did.** Read 54,933 public resume records as timelines (17,952 unique people after removing duplicates; almost all with readable job dates), labelled everyone who reached a computer and mathematical job (16,237), and found **2,813 career changers** in three pools: 2,049 changed roles within tech, 407 retrained after working in another field, and 357 retrained as new grads from another field.
 

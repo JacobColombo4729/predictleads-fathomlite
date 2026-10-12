@@ -1,5 +1,5 @@
 # Runs the project's tests from one place.
-#   .\run_tests.ps1             live Python tests (tests/ and backend/tests/)
+#   .\run_tests.ps1             live Python tests (tests/, backend/tests/ and analysis/tests/)
 #   .\run_tests.ps1 -Frontend   also type-check and build the React app
 param([switch]$Frontend)
 
@@ -17,6 +17,7 @@ function Run-Step($name, [scriptblock]$step) {
 
 Run-Step "tests/ (engine, explanations, BGE text)" { & $py -m unittest discover -s tests -q }
 Run-Step "backend/tests/ (API, ranker, feedback, resume reader)" { & $py -m unittest discover -s backend/tests -t . -q }
+Run-Step "analysis/tests/ (role discovery evaluation)" { & $py -m unittest discover -s ../analysis/tests -t ../analysis -q }
 if ($Frontend) {
     Run-Step "frontend type-check" { Push-Location frontend; npx tsc -b; $code = $LASTEXITCODE; Pop-Location; $global:LASTEXITCODE = $code }
     Run-Step "frontend build" { Push-Location frontend; npm run build --silent; $code = $LASTEXITCODE; Pop-Location; $global:LASTEXITCODE = $code }
