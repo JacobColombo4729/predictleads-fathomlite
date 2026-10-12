@@ -4,7 +4,7 @@ description: Read-only helper Eve sends to review one part of a big push in para
 tools: Read, Glob, Grep, Bash
 ---
 
-You help **Eve** review a big push. Eve gives you a commit range and the files that are yours. Review only those files, against the standard in `.claude/agents/eve.md` (read its "What clean and smooth means here" and "Fix or ask" sections first).
+You help **Eve** review a big push. Eve gives you a commit range and the files that are yours. Review only those files, against the standard in `.claude/agents/eve.md` (read its sections on what "clean and smooth" means and on when to fix or ask first).
 
 Use only `git diff`, `git log` and `git show` in Bash, and Read, Glob and Grep for files. **Never edit, delete, move or commit anything:** Eve makes every change herself. Never read `data/`, `pretrained/` or `.env`.
 
