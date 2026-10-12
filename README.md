@@ -234,6 +234,14 @@ Everything lives in two git-ignored folders at the top, shared by the notebooks 
 - **`data/`:** the notebooks' tables (`clean/`, `flat/`, `profiles/`) and the app's corpus and signals (`matching/`, `discovery/`, `prepared/`, `signals/`, `preview/`). The notebooks download what they need from S3; the app's corpus is built by the pipeline in step 13 or shared within the team. The raw snapshot is not stored locally, so deleting `data/matching/targeted_pool_*` or the random sample under `data/discovery/` means re-reading it from S3.
 - **`models/`:** the BGE model `BAAI/bge-base-en-v1.5` (revision pinned in `app/code/bge_text.py`) in `models/bge-base-en-v1.5`, or set `PREDICTLEADS_BGE_MODEL_DIR`.
 
+**Getting the analysis data on any machine** (from `analysis/`, `.venv` activated; nothing is copied by hand):
+
+| Data | Command | Time |
+|---|---|---|
+| Streamed listings from S3 (`data/flat/`) | `python -m src.stream_full`, then `--rows` and `--extra` (each resumable; needs AWS, step 7) | about 5 hours in all |
+| Public resumes from Kaggle (`data/external/resume_structured/`, for Profiles) | `python -m src.get_resumes` (no Kaggle account needed), or just run Profiles, which calls it first | under a minute |
+| The cleaned tables (`data/clean/`, `data/profiles/`) | Run the notebooks in order: EDA_SDA_1, EDA_SDA_2, …; Profiles | |
+
 `PL_DATA_DIR` points the notebooks at another data folder (used for tests on synthetic data).
 
 ---
@@ -450,7 +458,7 @@ Everyone must **permanently delete all copies of the data** (local `data/` folde
 
 **Start with the hackathon brief:** [`analysis/BRIEF.md`](analysis/BRIEF.md) (what the organizers require).
 
-**Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we're doing), [`analysis/STANDARDS.md`](analysis/STANDARDS.md) (how we work), [`analysis/DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md), [`analysis/APPLICATION.md`](analysis/APPLICATION.md), [`analysis/PRIORITY_QUEUE.md`](analysis/PRIORITY_QUEUE.md), [`analysis/DECISION_LOG.md`](analysis/DECISION_LOG.md), [`analysis/docs/data.md`](analysis/docs/data.md).
+**Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we're doing), [`analysis/STANDARDS.md`](analysis/STANDARDS.md) (how we work), [`analysis/DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md), [`analysis/APPLICATION.md`](analysis/APPLICATION.md), [`analysis/PRIORITY_QUEUE.md`](analysis/PRIORITY_QUEUE.md), [`analysis/DECISION_LOG.md`](analysis/DECISION_LOG.md), [`analysis/docs/data.md`](analysis/docs/data.md), [`analysis/docs/volunteer_profiles.md`](analysis/docs/volunteer_profiles.md) (the on-hold plan for volunteer career-changer profiles, with its blank form).
 
 **App:**
 1. [app/STATUS.md](app/STATUS.md) and [app/roadmap.md](app/roadmap.md)
