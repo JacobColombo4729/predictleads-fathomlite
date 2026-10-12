@@ -73,7 +73,7 @@ Reviewers should judge against the synthetic or approved profile evidence and jo
 
 If all five top-ranked results for a profile/method have labels, Precision@5 is relevant judged results (labels 1 or 2) divided by 5. nDCG@5 uses gains `2^label - 1`. When any top-five result is unjudged, the affected metric is withheld and missing judgments are reported. A limited set of independent model-based retail labels is available for the saved controlled experiment; broad human evaluation remains pending.
 
-For a blinded, one-job-at-a-time screen of the retail/inventory profile, see `docs/retail-review-tool.md`. The tool reads the saved experiment's `blinded_review_view.csv` and writes `retail_review_judgments.csv` separately; it does not change this experiment's inputs or rank results. To later evaluate the controlled experiment after completing the shared pool, use the exact command in that guide. The evaluation command reads saved recommendation rows and labels only; it does not refit or rerank.
+A blinded, one-job-at-a-time review tool for the retail/inventory profile was deleted with the experiments on 2026-10-12; it's in the git history.
 
 ### Shared-Pool nDCG and Incomplete Judgments
 
