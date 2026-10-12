@@ -7,7 +7,7 @@ is deduplicated or dropped here; reposts are flagged downstream.
 
 Offline check of the matcher against the saved random sample (no S3):
     python code/extract_targeted_pool.py --check-sample
-Full scan (reads ~19 GB from S3 with the existing 'predictleads' profile):
+Full scan (reads ~19 GB from S3 with S3_PATH and AWS_PROFILE from the top-level .env, or the copy in data/raw/ if downloaded):
     python code/extract_targeted_pool.py --scan
 """
 from __future__ import annotations
@@ -27,7 +27,7 @@ import boto3
 import botocore
 import zstandard as zstd
 
-from prepare_jobs import BUCKET, KEY, PROFILE, REGION, SNAPSHOT_DATE, prepare_resource
+from prepare_jobs import BUCKET, KEY, RAW_DIR, SNAPSHOT_DATE, prepare_resource, s3_session
 
 MAX_LINE_BYTES = 4 * 1024 * 1024
 PROGRESS_SECONDS = 60
@@ -162,14 +162,21 @@ def scan(output_dir: Path) -> int:
             matched += 1
             reason_counts.update(reasons)
 
+    local = RAW_DIR / Path(KEY).name  # a downloaded copy (python -m src.get_predictleads, from analysis/) is read instead of S3
+    source = str(local) if local.is_file() else f"s3://{BUCKET}/{KEY}"
     try:
-        client = boto3.Session(profile_name=PROFILE, region_name=REGION).client(
-            "s3", config=botocore.config.Config(connect_timeout=10, read_timeout=60,
-                                                  retries={"max_attempts": 5, "mode": "standard"}))
-        response = client.get_object(Bucket=BUCKET, Key=KEY)
-        body = response["Body"]
-        source_meta = {"compressed_size_bytes": response.get("ContentLength"), "etag": response.get("ETag"),
-                       "last_modified": response["LastModified"].isoformat() if response.get("LastModified") else None}
+        if local.is_file():
+            print(f"reading the local copy: {local.name}", flush=True)
+            body = local.open("rb")
+            source_meta = {"local_size_bytes": local.stat().st_size}
+        else:
+            client = s3_session().client(
+                "s3", config=botocore.config.Config(connect_timeout=10, read_timeout=60,
+                                                      retries={"max_attempts": 5, "mode": "standard"}))
+            response = client.get_object(Bucket=BUCKET, Key=KEY)
+            body = response["Body"]
+            source_meta = {"compressed_size_bytes": response.get("ContentLength"), "etag": response.get("ETag"),
+                           "last_modified": response["LastModified"].isoformat() if response.get("LastModified") else None}
         stop_reason = "in_progress"
         with zstd.ZstdDecompressor().stream_reader(body, read_across_frames=True, closefd=False) as reader:
             while True:
@@ -230,7 +237,7 @@ def scan(output_dir: Path) -> int:
             except Exception:
                 pass
     summary = {
-        "filter_version": FILTER_VERSION, "source": f"s3://{BUCKET}/{KEY}", "source_metadata": source_meta,
+        "filter_version": FILTER_VERSION, "source": source, "source_metadata": source_meta,
         "snapshot_date": SNAPSHOT_DATE, "stop_reason": stop_reason,
         "complete_file_scanned": stop_reason == "eof", "lines_read": lines,
         "job_opening_records_seen": population, "matched_records": matched,

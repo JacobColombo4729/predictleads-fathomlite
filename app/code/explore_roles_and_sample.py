@@ -21,7 +21,7 @@ import boto3
 import botocore
 import zstandard as zstd
 
-from prepare_jobs import BUCKET, KEY, PROFILE, REGION, SNAPSHOT_DATE, prepare_resource
+from prepare_jobs import BUCKET, KEY, SNAPSHOT_DATE, prepare_resource, s3_session
 
 SAMPLE_SIZE = 30_000
 MAX_LINE_BYTES = 4 * 1024 * 1024
@@ -663,7 +663,7 @@ def _open_source(workspace: Path) -> tuple[BinaryIO, Any, dict[str, Any], str]:
     local = _local_source(workspace)
     if local:
         return local.open("rb"), None, {"compressed_size_bytes": local.stat().st_size}, str(local)
-    client = boto3.Session(profile_name=PROFILE, region_name=REGION).client(
+    client = s3_session().client(
         "s3", config=botocore.config.Config(connect_timeout=10, read_timeout=30,
                                               retries={"max_attempts": 3, "mode": "standard"}),
     )

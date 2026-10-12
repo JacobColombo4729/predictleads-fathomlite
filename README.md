@@ -238,9 +238,20 @@ Everything lives in two git-ignored folders at the top, shared by the notebooks 
 
 | Data | Command | Time |
 |---|---|---|
+| The raw export files (`data/raw/`): optional, so every script reads locally instead of streaming from S3 | `python -m src.get_predictleads` (both files, about 19 GB; resumable; `--check` shows what's there; needs AWS, step 7) | depends on the connection |
 | Streamed listings from S3 (`data/flat/`) | `python -m src.stream_full`, then `--rows` and `--extra` (each resumable; needs AWS, step 7) | about 5 hours in all |
 | Public resumes from Kaggle (`data/external/resume_structured/`, for Profiles) | `python -m src.get_resumes` (no Kaggle account needed), or just run Profiles, which calls it first | under a minute |
 | The cleaned tables (`data/clean/`, `data/profiles/`) | Run the notebooks in order: EDA_SDA_1, EDA_SDA_2, …; Profiles | |
+
+**Why scripts, not hand downloads:** one setup for both halves; no bucket names, AWS profiles or personal folders written into committed files (our data agreement); and no duplicates: each script checks what you already have first, reuses a copy you downloaded by hand (moving it to the standard place), resumes an interrupted download, and checks disk space and asks before downloading anything.
+
+**If your old data setup stopped working** (for example a script that had the bucket or the `predictleads` AWS profile written into it):
+1. In the top-level `.env` (step 8), set `S3_PATH` to the export's S3 folder and `AWS_PROFILE` to the profile you set up in step 7.
+2. Run `python -m src.get_predictleads --check` from `analysis/`: it lists every copy you already have and what's on S3.
+3. Optional: `python -m src.get_predictleads` moves your existing copies into `data/raw/` and downloads only what's missing; it offers to delete any extra copies.
+4. Rerun what you were doing. The error messages repeat these steps.
+
+A check runs on every push to GitHub (`.github/workflows/data-rules.yml`, and locally with the app tests): it fails if a committed file hard-codes an S3 location, AWS profile or key, or a personal folder path, and its message explains the fix.
 
 `PL_DATA_DIR` points the notebooks at another data folder (used for tests on synthetic data).
 
@@ -347,7 +358,7 @@ What is in `app/`:
 
 Run these from `app/` with `.venv` activated; each script's `--help` lists its options. Outputs go to the top-level `data/`.
 
-1. `python code/extract_targeted_pool.py --scan` streams the full snapshot (about 19 GB from S3, using the `predictleads` AWS profile; about 36 minutes) and keeps AI/ML, data and technical-sales listings. `--check-sample` tests the matcher offline.
+1. `python code/extract_targeted_pool.py --scan` streams the full snapshot (about 19 GB from S3 with `S3_PATH` and `AWS_PROFILE` from `.env`, or from `data/raw/` if downloaded; about 36 minutes) and keeps AI/ML, data and technical-sales listings. `--check-sample` tests the matcher offline.
 2. `python code/rank_candidates.py build-corpus --targeted-dir ../data/matching/targeted_pool_<timestamp>` builds the deduplicated corpus. `encode` then `finalize-encode` compute the BGE embeddings (GPU recommended).
 3. `python code/rank_candidates.py export-serving` writes the serving subset the backend loads.
 4. `python code/rank_candidates.py rank ...` ranks the 12 test profiles; `python code/build_review_page.py --run-dir <ranking run> --profiles <profile files>` builds an optional blinded review page.
@@ -407,6 +418,7 @@ These come from the Training Services Agreements we each signed. Breaking them c
 ### Data
 - ✅ Keep data **only** in the local `data/` folder (git-ignored) or in S3.
 - 🚫 **Never commit data**, including CSV, Parquet, Excel, JSONL, pickles, databases, and trained model files.
+- ✅ **Get data with the scripts, not by hand** (step 9), and 🚫 **never hard-code** a bucket name, `s3://` path, AWS profile or your own folder path: they come from `.env`. The app tests (step 11) fail if any appear.
 - 🚫 Never upload data to personal cloud drives, public Colab/Kaggle, or anywhere outside the project.
 - 🚫 Never share data, screenshots of data, or notebook outputs outside the team.
 - 🚫 Don't try to re-identify the anonymized data.
