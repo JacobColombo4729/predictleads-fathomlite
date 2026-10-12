@@ -2,7 +2,7 @@
 
 **PredictLeads × TripleTen · Job Seeker Intelligence Platform · 3-Week Hackathon | DS & AI/ML Teams**
 
-> The official project brief, transcribed from the organizers' PDF (kept locally, not in git). Only the S3 location is left out: it's in `S3_PATH` in your `.env` (README step 8). Everything else is as written. Where our plans differ from it, the brief wins unless the team decides otherwise and logs it in [`DECISION_LOG.md`](DECISION_LOG.md).
+> The official project brief, transcribed from the organizers' PDF (kept locally, not in git). Only the S3 location is left out: it's in `S3_PATH` in your `.env` (README step 8). Everything else is as written. Where our plans differ from it, the brief wins unless the team decides otherwise and logs it in [`DECISION_LOG.md`](analysis/DECISION_LOG.md).
 
 ## About the partner
 

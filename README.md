@@ -39,6 +39,7 @@ predictleads-fathomlite/
 ├── .env.example              template for your .env (settings and keys)
 ├── .gitattributes  .gitignore
 ├── requirements.txt          one pinned list for everything (Python 3.11)
+├── BRIEF.md                  the hackathon brief (what the organizers require)
 ├── DATA.md                   data reference: sources, fields, quirks, auto-generated schemas
 ├── JACOB.md  JESSE.md        each person's change log, newest first
 ├── fetch/                    where every dataset comes from and lives: one download script each, the shared folders
@@ -464,7 +465,7 @@ Everyone must **permanently delete all copies of the data** (local `data/` folde
 
 ## Where to read more
 
-**Start with the hackathon brief:** [`analysis/BRIEF.md`](analysis/BRIEF.md) (what the organizers require).
+**Start with the hackathon brief:** [`BRIEF.md`](BRIEF.md) (what the organizers require).
 
 **Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we're doing), [`analysis/STANDARDS.md`](analysis/STANDARDS.md) (how we work), [`analysis/DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md), [`analysis/APPLICATION.md`](analysis/APPLICATION.md), [`analysis/PRIORITY_QUEUE.md`](analysis/PRIORITY_QUEUE.md), [`analysis/DECISION_LOG.md`](analysis/DECISION_LOG.md), [`DATA.md`](DATA.md), [`analysis/docs/volunteer_profiles.md`](analysis/docs/volunteer_profiles.md) (the on-hold plan for volunteer career-changer profiles, with its blank form).
 
