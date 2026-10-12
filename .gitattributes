@@ -1,3 +1,4 @@
 # Store text files with LF line endings so Mac and Windows commits match
 * text=auto
 *.sh text eol=lf
+.githooks/* text eol=lf
