@@ -7,8 +7,7 @@
 
 ## Now
 
-- **Combine the app with the analysis** (planned connections: [`FLOWCHART.md`](../FLOWCHART.md); repositories joined and reorganized, six decisions agreed 2026-10-11): Jesse merges `main` into `jesse` and moves his `data/`, `models/` and `.env` to the top; then the shared listing set → the app's corpus and embeddings → backend features (timing, hiding rules, the retraining compass). Also: rerun the notebooks on the new layout (one `data/` at the top).
-- **Ask the advisors whether the app may show recruiter names and contact details** from the listings (we store only an anonymous key today). (OpenAI use: confirmed allowed 2026-10-11, in `DECISION_LOG.md`.)
+- **Rerun EDA_SDA_1, then EDA_SDA_2, on the new layout** (one `data/` at the top) **with the US-only filter** (no-country listings dropped, 2026-10-12): refresh the counts quoted in each notebook's results and conclusion.
 - **Full dataset, full scale for every notebook** (decided 2026-10-10; stream test: ≈13.4M listings, ≈1.0M in scope, ≈40 minutes, ≈8.4 GB):
   1. **Claude:** EDA_SDA_3 for full scale (also: a second ghost sign, since "company still posting" no longer separates forgotten listings at big companies (78% of stale listings): the same company and title still open after 90 days while newer copies of that title keep appearing) (reads `scope_table.parquet` and `scope_descriptions.parquet`): text read part by part, regex features over every listing, spaCy lemmas on a large stratified sample (about 150,000), cache in parts. Hold EDA_SDA_3's first run until then.
   2. **Jacob (any time):** delete `data/flat/all_fields_lean_full/` (1.1 GB): nothing reads it any more. After EDA_SDA_3 is adapted, also the sample-era tables in `data/clean/` (`analysis_table.pkl`, `scope_table.pkl`, `job_openings_lean_200000_v2.pkl`).
@@ -87,6 +86,8 @@
 - **predictleads-hackathon:** its `.venv` was removed 2026-10-10 to free space; rebuild it (`python -m venv .venv && pip install -r requirements.txt`) before working there.
 
 - **Profiles is frozen** (refrozen 2026-10-10). Reopen only if needed: a pool for moving up within the same role (training, then a senior or manager role; levels are already tagged), or more prior-career keywords ("other" is 115 of 706; 4a.2e lists the common titles). Any change means a rerun, then the ML notebook reloads `modeling_table.pkl`.
+- **Connect the app to the analysis only after every notebook is complete** (EDA_SDA_3, EDA_SDA_4, TimeSeries, ML_Fit, ML_Rank): the shared listing set → the app's corpus and embeddings → backend features (timing, the flags ranked lower, the retraining compass). Planned connections: [`FLOWCHART.md`](../FLOWCHART.md).
+  - **Recruiter names and contact details:** assumed allowed in the app (2026-10-12); filter them out if the advisors or PredictLeads say no. Confirm before the final presentation. The analysis keeps only an anonymous recruiter key (EDA_SDA_1), so the names and contacts would come from the raw listings when the app is connected. (OpenAI use: confirmed allowed 2026-10-11, in `DECISION_LOG.md`.)
 - **App:** transferable-fit stage (the career changer's background profile), priority model with adjustable weights, MCP servers, then agents (see `APPLICATION.md`).
 - **Run log:** settings, seeds and metrics for every run, in a CSV or a local MLflow store. Never listing text.
 - **Stretch techniques:** transferable fit with embeddings; embeddings vs. TF-IDF; change-point detection (`ruptures`); topic modeling (NMF or BERTopic); several daily exports to observe closures directly; a one-page system card.
