@@ -1,4 +1,6 @@
-import type { FeedbackSignal, Recommendation } from "../types";
+import { JOB_LEVELS, type FeedbackSignal, type JobLevel, type Recommendation } from "../types";
+
+const levelLabel = (level: JobLevel) => JOB_LEVELS.find((l) => l.id === level)?.label ?? level;
 import { formatDate, historicalStatusText } from "../lib/jobs";
 import { useSignalPattern } from "../lib/signals";
 import PatternBadge from "./signals/PatternBadge";
@@ -41,6 +43,7 @@ export default function JobCard({ item, selected, saved, onSelect, onViewDetails
         <div><PinIcon /><dt className="sr-only">Location</dt><dd className={job.location ? "" : "muted"}>{job.location ?? "Location not provided"}</dd></div>
         <div><BuildingIcon /><dt className="sr-only">Work arrangement</dt><dd className="muted">Arrangement not provided</dd></div>
         <div><CashIcon /><dt className="sr-only">Salary</dt><dd className={job.salary ? "" : "muted"}>{job.salary ?? "Salary: Not provided"}</dd></div>
+        {job.level && <div><dt className="sr-only">Job level</dt><dd className={job.level === "unstated" ? "muted" : ""}>{levelLabel(job.level)}</dd></div>}
       </dl>
 
       {signal && <p className="card__signal"><PatternBadge pattern={signal} compact /></p>}

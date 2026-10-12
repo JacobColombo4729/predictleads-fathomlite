@@ -28,6 +28,7 @@ export interface Job {
   /** ISO date (YYYY-MM-DD) on which the listing was observed. */
   observedOn: string;
   historicalStatus: HistoricalStatus;
+  level?: JobLevel;
 }
 
 /** Present when the backend tied this result to a job the user marked as a good match. */
@@ -92,10 +93,24 @@ export type Tracker = Record<string, TrackedJob>;
 
 export type DescriptionFilter = "any" | "with" | "without";
 
+/** The listing's level, from PredictLeads' seniority plus the title (backend `job_level`). */
+export type JobLevel = "entry" | "experienced" | "senior" | "manager" | "director" | "unstated";
+
+export const JOB_LEVELS: { id: JobLevel; label: string }[] = [
+  { id: "entry", label: "Entry level" },
+  { id: "experienced", label: "Experienced" },
+  { id: "senior", label: "Senior" },
+  { id: "manager", label: "Manager" },
+  { id: "director", label: "Director and above" },
+  { id: "unstated", label: "Level not stated" },
+];
+
 export interface Filters {
   query: string;
   location: string;
   description: DescriptionFilter;
+  /** Levels to show; empty shows every level. */
+  levels: JobLevel[];
 }
 
 export type FeedbackSignal = "good" | "bad";

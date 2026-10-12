@@ -1,6 +1,9 @@
 import { useEffect, useState, type FormEvent } from "react";
-import type { DescriptionFilter, Filters } from "../types";
+import { JOB_LEVELS, type DescriptionFilter, type Filters, type JobLevel } from "../types";
 import { SearchIcon } from "./Icons";
+
+const toggle = (levels: JobLevel[], id: JobLevel) =>
+  levels.includes(id) ? levels.filter((l) => l !== id) : JOB_LEVELS.map((l) => l.id).filter((l) => l === id || levels.includes(l));
 
 interface Props {
   filters: Filters;
@@ -62,6 +65,20 @@ export default function FilterBar({ filters, onChange }: Props) {
           </select>
         </label>
       </div>
+      <fieldset className="levels">
+        <legend>Job level</legend>
+        {JOB_LEVELS.map((level) => (
+          <label key={level.id} className="levels__option">
+            <input
+              type="checkbox"
+              checked={filters.levels.includes(level.id)}
+              onChange={() => set("levels", toggle(filters.levels, level.id))}
+            />
+            {level.label}
+          </label>
+        ))}
+        <span className="muted small">{filters.levels.length === 0 ? "Showing every level." : ""}</span>
+      </fieldset>
       <p className="muted small">Work arrangement is not in this dataset, so it can't be filtered.</p>
     </div>
   );
