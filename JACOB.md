@@ -1,19 +1,25 @@
 # Jacob's changes
 
-> What Jacob changed, newest first, so Jesse can catch up at a glance. One entry per change: what changed, and anything Jesse needs to do. Details are in the commits (`git log`).
+> What Jacob changed, by category, so Jesse can catch up at a glance. Each line is the net result (a file moved and later deleted just reads "deleted"), with the date and anything Jesse needs to do. Details are in the commits (`git log`).
 
-## 2026-10-12
+## Docs
 
-- **`analysis/DECISION_LOG.md` removed:** decisions now go in our change logs (`JACOB.md`, `JESSE.md`); references updated.
-- **`analysis/JOB_GROWTH.md` removed:** the job growth steps and extension options are now tasks in `analysis/PRIORITY_QUEUE.md`.
-- **`BRIEF.md` removed:** the hackathon brief is no longer in the repo or loaded into Claude sessions; the organizers' PDF stays local and git-ignored.
-- **`DATA.md` removed:** we work from what we know about the data. The résumé-sourcing note the brief asks for is in README step 9; EDA_SDA_1 no longer writes schemas (section 5 and `write_schemas` are gone).
-- **Hackathon brief moved to the top level:** `analysis/BRIEF.md` is now `BRIEF.md`, next to the README (CLAUDE.md imports it from there).
-- **Change logs instead of Git rules:** `JACOB.md` and `JESSE.md` log each person's changes. No other rules on branches, pushes or merging.
-- **Data reference moved to the top level:** `analysis/docs/data.md` is now `DATA.md`, next to the README. EDA_SDA_1 writes the schemas there.
-- **BGE model download script:** `python -m fetch.get_bge` downloads `BAAI/bge-base-en-v1.5` (about 0.44 GB, no account needed) into `pretrained/bge-base-en-v1.5`, at the version the corpus's embeddings were made with. **Jesse:** run it once if you don't have the model.
-- **`models/` renamed `pretrained/`:** it only holds downloaded models. `PRETRAINED_DIR` replaces `MODELS_DIR` in `fetch/paths.py`. **Jesse:** if you have a local `models/` folder, rename it to `pretrained/`.
-- **`fetch/`: where every dataset comes from:** one download script per dataset (`get_predictleads`, `get_resumes`, `get_bge`), one standard folder each, a disk-space check, and nothing hard-coded (bucket names and profiles come from `.env`). The PredictLeads export can be downloaded to `data/raw/` with `python -m fetch.get_predictleads`; everything reads it locally when it's there and streams from S3 otherwise.
-- **US only:** every listing with no country is dropped in EDA_SDA_1 8b.
-- **Hackathon brief added** as `analysis/BRIEF.md` (the S3 location left out).
-- **The merge plan is removed:** the two repositories are merged.
+- **Deleted** the hackathon brief (`BRIEF.md`), the data reference (`analysis/docs/data.md`), the decision log (`analysis/DECISION_LOG.md`), the job growth plan (`analysis/JOB_GROWTH.md`) and the merge plan. (2026-10-12)
+- **Job growth** steps and extension options are now tasks in `analysis/PRIORITY_QUEUE.md`. (2026-10-12)
+- **Candidate-profile sourcing** (the Kaggle résumés, as the brief asks) is a short note in README step 9. (2026-10-12)
+- **Decisions** are recorded in these change logs instead of a decision log. (2026-10-12)
+
+## Git workflow
+
+- **No Git rules** beyond these change logs: work on your own branch, merge into `main` when ready, and log your changes here (README step 14). (2026-10-12)
+
+## Data and downloads
+
+- **`fetch/`** is where every dataset comes from: one download script each (`get_predictleads`, `get_resumes`, `get_bge`), one standard folder each, a disk-space check, and nothing hard-coded (bucket names and profiles come from `.env`). The PredictLeads export can be downloaded to `data/raw/`; everything reads it locally when it's there and streams from S3 otherwise. (2026-10-12)
+- **`models/` renamed `pretrained/`** (`PRETRAINED_DIR` in `fetch/paths.py`). **Jesse:** rename your local `models/` folder to `pretrained/`. (2026-10-12)
+- **BGE model download:** `python -m fetch.get_bge` gets `BAAI/bge-base-en-v1.5` (about 0.44 GB, no account) at the version the corpus's embeddings were made with. **Jesse:** run it once if you don't have the model. (2026-10-12)
+
+## Analysis
+
+- **US only:** EDA_SDA_1 8b drops every listing with no country. (2026-10-12)
+- **EDA_SDA_1 no longer writes schemas** (section 5 and `write_schemas` in `src/pl_data.py` are gone). (2026-10-12)
