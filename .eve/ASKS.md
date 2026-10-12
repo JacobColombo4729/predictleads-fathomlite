@@ -4,7 +4,7 @@
 
 ## For Jesse (from Jacob)
 
-- Decide what happens to `app/STATUS.md`: delete it, or merge what's still useful into `app/APP.md` and drop the parts that aren't needed any more. Its "Still pending" tasks are already in `APP.md`. (2026-10-12)
+_None open._
 
 ## For Jacob (from Jesse)
 
