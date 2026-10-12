@@ -22,7 +22,7 @@ Every time you push your branch, Eve (Claude, following [`.claude/agents/eve.md`
 - **asks** about anything that needs a judgment call, with lettered options. Answer in the terminal (`1a 2c`) and she applies your choices. If your answers open something up, she follows up, three rounds at most;
 - **ends with an open question:** what you want the other person to make sure they do. Those asks live in [`.claude/ASKS.md`](.claude/ASKS.md), and Eve brings them up on the other person's pushes until they're done. That's how the two of you stay on the same page.
 
-She never stops a push, touches data, or changes what your code does without your answer. She runs on your own Claude Code subscription. Pushing from VS Code's buttons skips her questions, and the report is saved in `.git/eve-last-review.md`. To skip her for one push: `EVE_SKIP=1 git push`. More in README step 14.
+She never touches data or changes what your code does without your answer, and only stops a push while you have uncommitted changes (commit or stash them first). She runs on your own Claude Code subscription. Pushing from VS Code's buttons skips her questions, and the report is saved in `.git/eve-last-review.md`. To skip her for one push: `EVE_SKIP=1 git push` (PowerShell: see README step 14). More in README step 14.
 
 **Your first ask is already waiting:** decide what happens to `app/STATUS.md`. Either delete it, or merge what's still useful into `app/APP.md` and drop the rest.
 
