@@ -16,8 +16,8 @@ from typing import Any
 
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for data_sources/ (shared with analysis/)
-from data_sources.paths import DATA_DIR  # noqa: E402  shared with analysis/: one definition of where data lives
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for fetch/ (shared with analysis/)
+from fetch.paths import DATA_DIR  # noqa: E402  shared with analysis/: one definition of where data lives
 ROOT = Path(__file__).resolve().parents[1]
 SIGNALS_ROOT = DATA_DIR / "signals"  # data/ is shared with analysis/ at the top
 EPOCH = date(2026, 1, 1)  # day numbers in the tables count from here

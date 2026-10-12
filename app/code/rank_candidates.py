@@ -25,8 +25,8 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any, Sequence
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for data_sources/ (shared with analysis/)
-from data_sources.paths import DATA_DIR  # noqa: E402  shared with analysis/: one definition of where data lives
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for fetch/ (shared with analysis/)
+from fetch.paths import DATA_DIR  # noqa: E402  shared with analysis/: one definition of where data lives
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = PROJECT_ROOT.parent  # data/, models/ and .env are shared with analysis/ at the top
 GPU_LIBS = DATA_DIR / "_gpu_libs"

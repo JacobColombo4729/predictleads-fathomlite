@@ -1,9 +1,9 @@
 """Download the public structured-resume dataset from Kaggle into data/external/resume_structured/ (for Profiles.ipynb).
 
 Usage, from the repository root (.venv activated):
-    python -m data_sources.get_resumes            -> download version 2 and unpack the tables the project uses
-    python -m data_sources.get_resumes --force    -> download again even if the tables are already there
-    python -m data_sources.get_resumes --yes      -> don't ask before downloading (the disk-space check still runs)
+    python -m fetch.get_resumes            -> download version 2 and unpack the tables the project uses
+    python -m fetch.get_resumes --force    -> download again even if the tables are already there
+    python -m fetch.get_resumes --yes      -> don't ask before downloading (the disk-space check still runs)
 Profiles.ipynb calls ensure() at the start, so running the notebook is enough.
 
 Kaggle `suriyaganesh/resume-dataset-structured`, version 2 (2024-11-14), MIT license. It's public, so no Kaggle
@@ -22,8 +22,8 @@ from pathlib import Path, PurePosixPath
 import requests
 from tqdm import tqdm
 
-from data_sources.downloads import confirm_space
-from data_sources.paths import DATA_DIR, external
+from fetch.downloads import confirm_space
+from fetch.paths import DATA_DIR, external
 
 DATASET = "suriyaganesh/resume-dataset-structured"
 VERSION = 2

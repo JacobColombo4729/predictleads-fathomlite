@@ -3,7 +3,7 @@
 Used by notebooks/EDA_SDA_1.ipynb, sections 1-5. Everything prints aggregates only: names, shapes, sizes.
 
 Layout under data/ (git-ignored):
-    data/raw/<export file>.jsonl.zst  the export's files, if downloaded (python -m data_sources.get_predictleads); read instead of S3
+    data/raw/<export file>.jsonl.zst  the export's files, if downloaded (python -m fetch.get_predictleads); read instead of S3
     data/<file>.parquet               cached raw documents (delete one to rebuild it from data/raw/ or S3)
     data/flat/<table>/part_NNNN.pkl   flattened tables, in parts, with a _done marker when complete
 """
@@ -17,9 +17,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from src.eda_helpers import DATA_DIR, ROOT  # first: it puts the repository root on the path for data_sources
-from data_sources.paths import ENV_FILE
-from data_sources.predictleads import RAW_DIR, RAW_FILES, SNAPSHOT, connect, raw_file  # noqa: F401 (used by stream_full)
+from src.eda_helpers import DATA_DIR, ROOT  # first: it puts the repository root on the path for fetch
+from fetch.paths import ENV_FILE
+from fetch.predictleads import RAW_DIR, RAW_FILES, SNAPSHOT, connect, raw_file  # noqa: F401 (used by stream_full)
 
 JOBS_N = 200_000      # job-opening documents to read and flatten (the first N in the file)
 PART_ROWS = 20_000    # records per saved part when flattening
@@ -28,7 +28,7 @@ FLAT_TABLES = ["companies", "companies_included", f"job_openings_{JOBS_N}", f"jo
 SCHEMA_DOC = ROOT / "docs" / "data.md"
 
 
-# ---------- S3 and local copies (shared with the app: data_sources/predictleads.py) ----------
+# ---------- S3 and local copies (shared with the app: fetch/predictleads.py) ----------
 
 def connect_s3():
     """S3 client, bucket and prefix from .env (S3_PATH, AWS_PROFILE). Prints variable names and file sizes only."""

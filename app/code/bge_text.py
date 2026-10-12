@@ -25,8 +25,8 @@ BGE_QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 BGE_REPRESENTATION = "bge_section_priority_v1"
 MAX_BGE_TOKENS = 512
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for data_sources/ (shared with analysis/)
-from data_sources.paths import DATA_DIR, MODELS_DIR  # noqa: E402  shared with analysis/: one definition of where data lives
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for fetch/ (shared with analysis/)
+from fetch.paths import DATA_DIR, MODELS_DIR  # noqa: E402  shared with analysis/: one definition of where data lives
 MODEL_DIR_ENV = "PREDICTLEADS_BGE_MODEL_DIR"
 DEFAULT_MODEL_DIR = MODELS_DIR / "bge-base-en-v1.5"
 _LEGACY_MODEL_DIR = DATA_DIR / "matching" / "bge_transition_20261008T142818Z" / "bge_model_files"

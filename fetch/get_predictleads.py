@@ -1,10 +1,10 @@
 """Download the PredictLeads export files from S3 into data/raw/, so every script can read them locally.
 
 Usage, from the repository root (.venv activated; needs AWS access, README steps 7-8):
-    python -m data_sources.get_predictleads              -> both files: companies (~0.25 GB) and job openings (~19 GB)
-    python -m data_sources.get_predictleads companies    -> one file (companies or job_openings)
-    python -m data_sources.get_predictleads --check      -> what's in data/raw/ and what's on S3 (sizes only)
-    python -m data_sources.get_predictleads --yes        -> skip the question (the disk-space check still runs)
+    python -m fetch.get_predictleads              -> both files: companies (~0.25 GB) and job openings (~19 GB)
+    python -m fetch.get_predictleads companies    -> one file (companies or job_openings)
+    python -m fetch.get_predictleads --check      -> what's in data/raw/ and what's on S3 (sizes only)
+    python -m fetch.get_predictleads --yes        -> skip the question (the disk-space check still runs)
 
 Optional: without a local copy, every reader streams from S3 instead (analysis/src/pl_data, stream_full and the
 app's pipeline in app/code/). With one, they read data/raw/ and skip the network.
@@ -18,9 +18,9 @@ import sys
 
 from tqdm import tqdm
 
-from data_sources.downloads import confirm_space
-from data_sources.paths import RAW_DIR
-from data_sources.predictleads import RAW_FILES, connect, raw_file
+from fetch.downloads import confirm_space
+from fetch.paths import RAW_DIR
+from fetch.predictleads import RAW_FILES, connect, raw_file
 
 CHUNK = 8 << 20  # 8 MB
 

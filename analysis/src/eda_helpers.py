@@ -19,9 +19,9 @@ def project_root(start=None):
     return next(d for d in [start, *start.parents] if (d / "src" / "eda_helpers.py").exists())
 
 ROOT = Path(__file__).resolve().parents[1]  # analysis/
-if str(ROOT.parent) not in sys.path:  # the repository root, so data_sources (shared with app/) imports from notebooks too
+if str(ROOT.parent) not in sys.path:  # the repository root, so fetch (shared with app/) imports from notebooks too
     sys.path.insert(0, str(ROOT.parent))
-from data_sources.paths import DATA_DIR, REPO_ROOT  # noqa: E402  one definition for both halves; PL_DATA_DIR overrides
+from fetch.paths import DATA_DIR, REPO_ROOT  # noqa: E402  one definition for both halves; PL_DATA_DIR overrides
 CLEAN_DIR = DATA_DIR / "clean"
 PART1_TABLE = CLEAN_DIR / "analysis_table.pkl"  # EDA_SDA_1's final table
 PART2_TABLE = CLEAN_DIR / "scope_table.parquet"  # EDA_SDA_2's final table (the scope), for EDA_SDA_3

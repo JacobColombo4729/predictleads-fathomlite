@@ -12,7 +12,7 @@ DATA_DIR = Path(os.environ.get("PL_DATA_DIR") or REPO_ROOT / "data")  # git-igno
 MODELS_DIR = REPO_ROOT / "models"                               # downloaded models (the BGE model), git-ignored
 
 # The standard folders, by where the data comes from
-RAW_DIR = DATA_DIR / "raw"            # the PredictLeads export files (data_sources.get_predictleads)
+RAW_DIR = DATA_DIR / "raw"            # the PredictLeads export files (fetch.get_predictleads)
 EXTERNAL_DIR = DATA_DIR / "external"  # every outside dataset, one folder each: external("<name>")
 
 

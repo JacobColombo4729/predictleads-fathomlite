@@ -25,8 +25,8 @@ from typing import Any, Iterable, Mapping, Sequence
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for data_sources/ (shared with analysis/)
-from data_sources.paths import DATA_DIR  # noqa: E402  shared with analysis/: one definition of where data lives
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for fetch/ (shared with analysis/)
+from fetch.paths import DATA_DIR  # noqa: E402  shared with analysis/: one definition of where data lives
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = PROJECT_ROOT.parent  # data/, models/ and .env are shared with analysis/ at the top
 DEFAULT_SAMPLE = DATA_DIR / (

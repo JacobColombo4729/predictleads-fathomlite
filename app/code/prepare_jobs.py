@@ -18,13 +18,13 @@ import boto3
 import botocore
 import zstandard as zstd
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for data_sources/ (shared with analysis/)
-from data_sources.paths import DATA_DIR, RAW_DIR, REPO_ROOT  # noqa: F401  shared with analysis/ (one definition)
-from data_sources.predictleads import (BUCKET, KEY, PREFIX, PROFILE, REGION, SNAPSHOT_DATE,  # noqa: F401
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for fetch/ (shared with analysis/)
+from fetch.paths import DATA_DIR, RAW_DIR, REPO_ROOT  # noqa: F401  shared with analysis/ (one definition)
+from fetch.predictleads import (BUCKET, KEY, PREFIX, PROFILE, REGION, SNAPSHOT_DATE,  # noqa: F401
                                        raw_file, require_bucket, s3_session)
 
 # The S3 location and AWS profile come from the top-level .env and the local copies from data/raw/, all through
-# data_sources.predictleads (never written into this code). The pipeline scripts import them from here.
+# fetch.predictleads (never written into this code). The pipeline scripts import them from here.
 DEFAULT_LIMIT = 10_000
 MAX_LINE_BYTES = 4 * 1024 * 1024
 PROGRESS_EVERY = 1_000
@@ -371,7 +371,7 @@ def _write_summary(path: Path, summary: dict[str, Any]) -> None:
 
 
 def _discover_local_source(workspace: Path) -> Path | None:
-    """The job-openings file in data/raw/, if downloaded (data_sources.get_predictleads)."""
+    """The job-openings file in data/raw/, if downloaded (fetch.get_predictleads)."""
     return raw_file(Path(KEY).name)
 
 

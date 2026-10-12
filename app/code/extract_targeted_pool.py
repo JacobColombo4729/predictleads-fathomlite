@@ -161,7 +161,7 @@ def scan(output_dir: Path) -> int:
             matched += 1
             reason_counts.update(reasons)
 
-    local = raw_file(Path(KEY).name)  # a downloaded copy (data_sources.get_predictleads) is read instead of S3
+    local = raw_file(Path(KEY).name)  # a downloaded copy (fetch.get_predictleads) is read instead of S3
     source = str(local) if local else f"s3://{BUCKET}/{KEY}"
     try:
         if local:

@@ -458,7 +458,7 @@ def _available_memory() -> int | None:
 
 
 def _local_source(workspace: Path) -> Path | None:
-    return raw_file(Path(KEY).name)  # data/raw/, if downloaded (data_sources.get_predictleads)
+    return raw_file(Path(KEY).name)  # data/raw/, if downloaded (fetch.get_predictleads)
 
 
 def _distribution(db: sqlite3.Connection, scope: str, field: str, limit: int = 12) -> list[dict[str, Any]]:
@@ -652,7 +652,7 @@ def _self_test() -> None:
 
 
 def _local_source(workspace: Path) -> Path | None:
-    return raw_file(Path(KEY).name)  # data/raw/, if downloaded (data_sources.get_predictleads)
+    return raw_file(Path(KEY).name)  # data/raw/, if downloaded (fetch.get_predictleads)
 
 
 def _open_source(workspace: Path) -> tuple[BinaryIO, Any, dict[str, Any], str]:

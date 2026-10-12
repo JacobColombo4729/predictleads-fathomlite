@@ -28,8 +28,8 @@ import numpy as np
 import rank_candidates as rc
 
 REPO = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for data_sources/ (shared with analysis/)
-from data_sources.paths import DATA_DIR  # noqa: E402  shared with analysis/ at the top
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for fetch/ (shared with analysis/)
+from fetch.paths import DATA_DIR  # noqa: E402  shared with analysis/ at the top
 CORPUS_DIR = DATA_DIR / "matching" / "ai_ml_corpus_v1"
 OTHER = "Other (outside these families)"
 

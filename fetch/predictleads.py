@@ -1,7 +1,7 @@
 """The PredictLeads export: its S3 location (from .env, never written into code) and its local copies (data/raw/).
 
 Shared by analysis/ (src.pl_data, src.stream_full) and app/ (app/code/prepare_jobs and the pipeline scripts). Every
-reader asks raw_file() first and streams from S3 only when there's no local copy; data_sources.get_predictleads
+reader asks raw_file() first and streams from S3 only when there's no local copy; fetch.get_predictleads
 downloads the files into data/raw/.
 """
 import os
@@ -9,7 +9,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from data_sources.paths import ENV_FILE, RAW_DIR
+from fetch.paths import ENV_FILE, RAW_DIR
 
 SNAPSHOT_DATE = "2026-09-30"  # the export used: the data's end date
 SNAPSHOT = SNAPSHOT_DATE.replace("-", "_")  # as written in the file names

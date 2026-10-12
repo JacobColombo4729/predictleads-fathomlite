@@ -39,7 +39,7 @@ predictleads-fathomlite/
 ├── .env.example              template for your .env (settings and keys)
 ├── .gitattributes  .gitignore
 ├── requirements.txt          one pinned list for everything (Python 3.11)
-├── data_sources/             where every dataset comes from and lives: one download script each, the shared folders
+├── fetch/                    where every dataset comes from and lives: one download script each, the shared folders
 ├── .venv/  .env              your own, git-ignored
 ├── data/  models/            local only, git-ignored: raw/ (PredictLeads), external/ (outside data), the notebooks'
 │                             tables, the corpus and embeddings; the BGE model
@@ -236,13 +236,13 @@ Everything lives in two git-ignored folders at the top, shared by the notebooks 
 - **`data/`:** the notebooks' tables (`clean/`, `flat/`, `profiles/`) and the app's corpus and signals (`matching/`, `discovery/`, `prepared/`, `signals/`, `preview/`). The notebooks download what they need from S3; the app's corpus is built by the pipeline in step 13 or shared within the team. The raw snapshot is not stored locally, so deleting `data/matching/targeted_pool_*` or the random sample under `data/discovery/` means re-reading it from S3.
 - **`models/`:** the BGE model `BAAI/bge-base-en-v1.5` (revision pinned in `app/code/bge_text.py`) in `models/bge-base-en-v1.5`, or set `PREDICTLEADS_BGE_MODEL_DIR`.
 
-**Getting the data on any machine** (from the repository root, `.venv` activated). Every dataset has one script in `data_sources/` and one standard folder in `data/`: `data/raw/` for the PredictLeads export, `data/external/<name>/` for outside data. Code reaches all of them through `data_sources` (`DATA_DIR`, `RAW_DIR`, `external("<name>")`), never through a written-out path:
+**Getting the data on any machine** (from the repository root, `.venv` activated). Every dataset has one script in `fetch/` and one standard folder in `data/`: `data/raw/` for the PredictLeads export, `data/external/<name>/` for outside data. Code reaches all of them through `fetch` (`DATA_DIR`, `RAW_DIR`, `external("<name>")`), never through a written-out path:
 
 | Data | Command | Time |
 |---|---|---|
-| The raw export files (`data/raw/`): optional, so every script reads locally instead of streaming from S3 | `python -m data_sources.get_predictleads` (both files, about 19 GB; skips what's already there; `--check` shows what's there; needs AWS, step 7) | depends on the connection |
+| The raw export files (`data/raw/`): optional, so every script reads locally instead of streaming from S3 | `python -m fetch.get_predictleads` (both files, about 19 GB; skips what's already there; `--check` shows what's there; needs AWS, step 7) | depends on the connection |
 | Streamed listings from S3 (`data/flat/`) | `python -m src.stream_full`, then `--rows` and `--extra` (each resumable; needs AWS, step 7) | about 5 hours in all |
-| Public resumes from Kaggle (`data/external/resume_structured/`, for Profiles) | `python -m data_sources.get_resumes` (no Kaggle account needed), or just run Profiles, which calls it first | under a minute |
+| Public resumes from Kaggle (`data/external/resume_structured/`, for Profiles) | `python -m fetch.get_resumes` (no Kaggle account needed), or just run Profiles, which calls it first | under a minute |
 | The cleaned tables (`data/clean/`, `data/profiles/`) | Run the notebooks in order: EDA_SDA_1, EDA_SDA_2, …; Profiles | |
 
 **Why scripts:** one setup for both halves, and no bucket names, AWS profiles or personal paths in committed files (our data agreement). The S3 location and profile come only from `.env` (`S3_PATH`, `AWS_PROFILE`, step 8). Each script skips data that's already in its folder, and checks disk space and asks before downloading. Data that can't be downloaded by script goes in its standard folder by hand, with its source noted in `analysis/docs/data.md`. A check on every push (and in the app tests) fails if a committed file hard-codes any of these.
