@@ -15,7 +15,7 @@
 
 ## Git workflow
 
-- **Keel tidies every push:** a pre-push hook (`.githooks/pre-push`) runs Claude with `.claude/agents/keel.md` on the commits going up: it fixes clear mess in one `Keel: tidy …` commit and asks about judgment calls with lettered options, which you can answer at the push prompt (`1a 2c`) for Keel to apply in a commit of its own. Keel's commits never hold up the push; they go up with the next one. It never edits the hook it runs from. Runs on your own Claude Code subscription. **Jesse:** turn it on once with `git config core.hooksPath .githooks` (needs Claude Code installed; without it, pushes go up unreviewed). (2026-10-12)
+- **Keel tidies every push:** a pre-push hook (`.githooks/pre-push`) runs Claude with `.claude/agents/keel.md` on the commits going up: it fixes clear mess in one `Keel: tidy …` commit and asks about judgment calls with lettered options, which you can answer at the push prompt (`1a 2c`) for Keel to apply in a commit of its own; pushes with no terminal (VS Code's push button, scripts) skip the questions and go up. Keel's commits never hold up the push; they go up with the next one. It never edits the hook it runs from. Runs on your own Claude Code subscription. **Jesse:** turn it on once with `git config core.hooksPath .githooks` (needs Claude Code installed; without it, pushes go up unreviewed). (2026-10-12)
 - **No Git rules** beyond these change logs: work on your own branch, merge into `main` when ready, and log your changes here (README step 14). (2026-10-12)
 
 ## Docs
