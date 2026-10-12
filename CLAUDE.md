@@ -2,6 +2,7 @@
 
 ## Project
 - **Project:** role discovery and job listing prioritization for **career changers** (anyone switching from their current background to a different role or field), targeting **the roles TripleTen trains for** (computer and mathematical roles, plus sales engineers and business and market research analysts) **and adjacent tech roles** (IT support, networks and systems, database, IT project management) in the US; each listing carries its TripleTen program (`analysis/src/career_switch.py`). Suggest the roles a career changer's skills transfer to, hide listings they can't get, and rank the rest with an ML model. The **retraining compass** is the foundation (`analysis/DIFFERENTIATORS.md`): prior career → training → first tech job → that role's 2026 openings, pay, closing speed and expected growth, for changing careers and for moving across or up within tech. Source backgrounds are the team's own. The career-changer focus is part of the project description. Overview in `analysis/PROJECT_OUTLINE.md`.
+- **The hackathon brief** (requirements, deliverables, out of scope; it wins over our plans unless the team decides otherwise): @analysis/BRIEF.md
 - **Deliverables:** prioritization model, analysis notebooks, web app (`analysis/APPLICATION.md`, built in `app/`), final pitch. Deadline: TBD.
 - **Standard:** the TripleTen course templates (`~/Desktop/TripleTen/Templates`) are the baseline for every notebook; go further with advanced methods.
 
