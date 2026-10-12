@@ -4,6 +4,7 @@
 
 ## 2026-10-12
 
+- **`BRIEF.md` removed:** the hackathon brief is no longer in the repo or loaded into Claude sessions; the organizers' PDF stays local and git-ignored.
 - **`DATA.md` removed:** we work from what we know about the data. The résumé-sourcing note the brief asks for is in README step 9; EDA_SDA_1 no longer writes schemas (section 5 and `write_schemas` are gone).
 - **Hackathon brief moved to the top level:** `analysis/BRIEF.md` is now `BRIEF.md`, next to the README (CLAUDE.md imports it from there).
 - **Change logs instead of Git rules:** `JACOB.md` and `JESSE.md` log each person's changes. No other rules on branches, pushes or merging.
