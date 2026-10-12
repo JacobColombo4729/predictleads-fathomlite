@@ -31,5 +31,6 @@
 
 ## Analysis
 
+- **Bulk mode for the full-file tables:** `src/stream_full.py --bulk` (or `--auto`, or EDA_SDA_1's new cell 4b with `BUILD_MODE`) reads the export once and parses it on several cores: about 35 minutes instead of 3–5 hours, on a machine with 16 GB+ RAM and 8+ threads. It builds exactly the same tables in the same order as the stream mode (checked table by table on the first 100,000 documents). The Mac keeps the stream mode. (2026-10-12)
 - **US only:** EDA_SDA_1 8b drops every listing with no country. (2026-10-12)
 - **EDA_SDA_1 no longer writes schemas** (section 5 and `write_schemas` in `src/pl_data.py` are gone). (2026-10-12)
