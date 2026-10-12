@@ -26,7 +26,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 **Standard:** the TripleTen course templates are the baseline (structure, methods, reporting). Every applicable course method is used, and taken further with more advanced techniques where the data calls for them.
 
-**View:** listings with a description (77% of the scope; EDA_SDA_2 3.9). Text features are **unknown** for the rest, never "no", and "has a description" stays a standard confounder: listings without one close in about 3 days.
+**View:** listings with a description (82% of the scope; EDA_SDA_2 3.9). Text features are **unknown** for the rest, never "no", and "has a description" stays a standard confounder: listings without one close in about 3 days.
 
 **Data rules:** aggregates only; never print descriptions, titles or sample rows, except in cells tagged `data-rows` (review cells for a teammate to check locally; cleared before every commit). Text stays local: no listing text goes to outside AI services. Clear outputs before committing.
 
@@ -34,7 +34,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 - What does description length actually capture: employer intent, or boilerplate?
 - Does urgency wording, read in context rather than by keyword, relate to how long listings stay open? (EDA_SDA_1 left it here: its keyword flag misfired and showed no gap.)
 - Can evergreen wording ("always accepting applications") identify ghost listings?
-- Are EDA_SDA_1's career-change flags (years required, degree required, training and career-changer wording) accurate, and what do they miss? Two are urgent: "asks 5+ years" would hide 31% of open listings, and the degree flag fires on only 3–6% (EDA_SDA_2 3.11).
+- Are EDA_SDA_1's career-change flags (years required, degree required, training and career-changer wording) accurate, and what do they miss? Two are urgent: "asks 5+ years" would hide 35% of open listings, and the degree flag fires on only 3.7% (EDA_SDA_2 3.11).
 - Which requirements are blockers for everyone (hide the listing), and which depend on the applicant (degree, certification)?
 - Which skills does each listing ask for, mapped to O*NET skills, so `ML_Fit` can match on skills rather than words?
 
@@ -60,7 +60,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 | **Evergreen wording** | Listings that collect applications instead of filling one job: a ghost-listing signal | Six phrase groups, each scored and checked on its own: **talent pool** ("join our talent community", "future opportunities"), **no specific opening** ("general application", "not for a specific position"), **always hiring** ("always accepting applications", "rolling basis"), **many openings in one ad** ("multiple openings", "various locations"), **pipeline labels** ("pipeline requisition", "evergreen requisition"), **staffing-style** ("on behalf of our client"); plus a generic-title check ("Software Engineer – All Levels"). Compared with EDA_SDA_2's likely-ghost flag (3.1): kept only if it adds to "old and from a quiet company" |
 | Hiring-difficulty phrases | "Sign-on bonus", "hiring immediately", "relocation assistance", "will train" | Pairs with reposts and listing age |
 | Years of experience required | "3+ years": is EDA_SDA_1's rule accurate? Required or preferred? In the field, or any experience? | The most common blocker for career changers |
-| Education required | "Bachelor's required" vs. "or equivalent experience"; field-specific degrees | EDA_SDA_1's pattern only fires when "required" comes within six words of "bachelor's", so the most common wording ("Bachelor's degree in Computer Science or a related field") never matches: it flags only 3–6% of listings. Rebuilt in section 3, with requirements and preferred sections told apart |
+| Education required | "Bachelor's required" vs. "or equivalent experience"; field-specific degrees | EDA_SDA_1's pattern only fires when "required" comes within six words of "bachelor's", so the most common wording ("Bachelor's degree in Computer Science or a related field") never matches: it flags only 3.7% of listings. Rebuilt in section 3, with requirements and preferred sections told apart |
 | **Clearance, sponsorship, travel, shifts** (added 2026-10-10) | Security clearance required; "no visa sponsorship"; travel percentage; shift or on-call work; contract-to-hire | Clearance and sponsorship are hard blockers for some career changers: hidden per applicant in the app, like a missing degree |
 | Licenses and certifications required | "Security+", "CCNA", "CISSP" and the like | A required credential the career changer lacks is a blocker |
 | Training and career-changer wording | "Will train", "paid training", "career changers welcome", "transferable skills" | Validates EDA_SDA_1's flags: a team member checks a random sample of matches locally (never shared with AI tools) |
@@ -96,7 +96,7 @@ The rules in sections 3–4 run on the cleaned text, which keeps case, numbers a
 
 ## 3. The blocker rules: years of experience and degree
 
-EDA_SDA_1's rules read every line the same way: "3+ years required" and "5 years preferred" both count, and its degree rule only fires when "required" comes within six words of "bachelor's", so the most common wording ("Bachelor's degree in Computer Science or a related field") never matched (3–6% of listings). Here both are rebuilt on the cleaned text, with **requirement lines told apart from preferred ones** (from the headings kept in 2a, and lines that say "preferred" or "a plus"):
+EDA_SDA_1's rules read every line the same way: "3+ years required" and "5 years preferred" both count, and its degree rule only fires when "required" comes within six words of "bachelor's", so the most common wording ("Bachelor's degree in Computer Science or a related field") never matched (3.7% of listings). Here both are rebuilt on the cleaned text, with **requirement lines told apart from preferred ones** (from the headings kept in 2a, and lines that say "preferred" or "a plus"):
 
 - **Years:** `years_asked` (any line, like EDA_SDA_1), `years_required` (requirement lines only), `years_preferred`. Also reads "minimum of two years" and number words.
 - **Degree:** `degree_required` (a degree named on a requirement line), `degree_preferred`, `degree_equivalent` ("or equivalent experience", "in lieu of a degree"), `degree_level` (the highest level required).
@@ -108,7 +108,7 @@ The question for the app: **which rule can hide a listing from everyone** (too m
 
 ## 4. Other text features
 
-Each feature is a keyword rule on the cleaned text (`src/text_features.py`), validated in section 5 before it's used to hide anything. For each: how often it fires, and whether it relates to how fast listings close **beyond the confounders** (the 7-day close rate's gap with vs. without the feature, within company volume band × source type cells, on original listings with a full week of follow-up; EDA_SDA_4 tests the survivors properly).
+Each feature is a keyword rule on the cleaned text (`src/text_features.py`), validated in section 5 before it's used to hide anything. For each: how often it fires, and whether it relates to how fast listings close **beyond the confounders** (the 7-day close rate's gap with vs. without the feature, within company volume band × source type cells, on original listings with a full week of follow-up; EDA_SDA_4 tests the survivors properly). Listings where a feature is unknown (NA) are left out of that feature's comparison, not counted as "without"; the `known` column in 4b shows each feature's coverage (1 = every listing in the comparison is known).
 
 | Group | Features |
 |:--|:--|
