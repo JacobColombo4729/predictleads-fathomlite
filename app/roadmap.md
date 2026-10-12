@@ -29,7 +29,7 @@ Status terms: **Built** means working in the running app and verified; **Impleme
 - Ranking corpus: 244,558 unique listings (targeted pool plus a random 30,000 background sample), usable descriptions only, exact duplicates collapsed. 163,274 listings are explicitly `closed` and excluded; the **81,284 listings with unknown status** form the serving set.
 - Candidates: 10 distinct candidates = 12 profiles (2 real and consenting, Jesse and Jacob; 8 fictional). Real resumes and profile text stay in the Git-ignored `data/` folder.
 - Time fields: `first_seen_at` / `last_seen_at` are crawler observation times, not posting or closing dates ([docs/signal-semantics.md](docs/signal-semantics.md)). Openness is never inferred from dates or null status. They now feed the Signals layer.
-- Data sharing: `data/` and `models/` are git-ignored (NDA data). Teammates receive them as zip files over a private channel; the NDA forbids only public posting.
+- Data sharing: `data/` and `pretrained/` are git-ignored (NDA data). Teammates receive them as zip files over a private channel; the NDA forbids only public posting.
 
 **Open**
 - Companies are only the same-wrapper company reference on each listing; the separate companies-file join is not validated.

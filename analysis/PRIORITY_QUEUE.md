@@ -14,7 +14,7 @@
   3. **New analysis the full data opens** (added to each notebook's plan): real market sizes per role (openings, new per week), role buckets by month × source and by state, a company watch list (employers posting entry-level roles often), rare signals (cross-posts, evergreen wording, licenses, staffing agencies), full-scale daily series for TimeSeries, more training data and a proper test month for ML_Rank.
 - **Jacob (from 2026-10-11):** upload the slide deck `reports/Team update 2026-10-11.pptx` (24 slides, EDA_SDA_1 and 2 at full scale with the feature screening and the 2026-10-11 pass; local only) to Google Slides, then delete the 2026-10-09 and 2026-10-10 decks; tell the team (below).
 - **Known gaps in `.claude/settings.json`:** `Read(./.env.*)` also blocks `.env.example`; `Read` rules don't stop shell commands such as `cat .env`.
-- **Tell the team** to pull, rerun `pip install -r requirements.txt` (and on a Mac `brew install libomp`), run `python -m spacy download en_core_web_sm`, set up the new layout (README steps 4–9: one `.venv`, `.env`, `data/` and `models/` at the top; `S3_PATH` in `.env`), and run `nbstripout --install` once (it's in `requirements.txt`): git then strips notebook outputs on every commit.
+- **Tell the team** to pull, rerun `pip install -r requirements.txt` (and on a Mac `brew install libomp`), run `python -m spacy download en_core_web_sm`, set up the new layout (README steps 4–9: one `.venv`, `.env`, `data/` and `pretrained/` at the top; `S3_PATH` in `.env`), and run `nbstripout --install` once (it's in `requirements.txt`): git then strips notebook outputs on every commit.
 
 ## Next
 
