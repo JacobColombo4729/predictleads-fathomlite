@@ -78,3 +78,5 @@ tempCodeRunnerFile.py
 
 # Claude Code personal settings (not shared)
 .claude/settings.local.json
+# The organizers' brief as a PDF: it names the S3 bucket. analysis/BRIEF.md is the committed copy
+/*.pdf
