@@ -4,7 +4,7 @@
 
 ## Source and outputs
 
-Run from the project root with `.venv`. The script checks these local locations first: the S3 key path under the workspace, `data/<filename>`, and `data/raw/<filename>`. If none exists, it streams `job_openings_2026_09_30.jsonl.zst` from the S3 folder in `S3_PATH`, with the AWS profile in `AWS_PROFILE` (both in the top-level `.env`). To read locally instead, download the file once with `python -m data_sources.get_predictleads` from the repository root (it lands in `data/raw/`).
+Run from the project root with `.venv`. The script checks these local locations first: the S3 key path under the workspace, `data/<filename>`, and `data/raw/<filename>`. If none exists, it streams `job_openings_2026_09_30.jsonl.zst` from the S3 folder in `S3_PATH`, with the AWS profile in `AWS_PROFILE` (both in the top-level `.env`). To read locally instead, download the file once with `python -m fetch.get_predictleads` from the repository root (it lands in `data/raw/`).
 
 By default, it processes the first 10,000 primary resource objects in wrapper `data` arrays and stops exactly at that count, even if the last wrapper contains more resources. It iterates every resource in each wrapper and uses only that same wrapper's `included` companies for company enrichment. The output folder is unique per run under `data/prepared/` and will not overwrite an existing folder:
 

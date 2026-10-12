@@ -7,14 +7,14 @@
 - **Standard:** the TripleTen course templates (`~/Desktop/TripleTen/Templates`) are the baseline for every notebook; go further with advanced methods.
 
 ## Structure
-This repository joins two earlier ones with their full histories: `analysis/` (was `project_leads`, Jacob) and `app/` (was `predictleads-hackathon`, Jesse). They share one set of top-level files: `requirements.txt`, `.venv`, `.env`/`.env.example`, `.gitignore`, `.gitattributes`, `README.md` (setup, running, data rules), `data/` and `models/`, and **`data_sources/`**: where every dataset comes from and lives, for both halves (`paths.py`: `REPO_ROOT`, `DATA_DIR`, `RAW_DIR`, `external()`; `predictleads.py`: the S3 settings from `.env` and the copy in `data/raw/`; `downloads.py`: the disk-space check; one `get_<name>.py` per dataset, run as `python -m data_sources.get_<name>` from the root). Remaining merge steps: `analysis/PRIORITY_QUEUE.md`; the six agreed merge decisions: `analysis/DECISION_LOG.md` (2026-10-11).
+This repository joins two earlier ones with their full histories: `analysis/` (was `project_leads`, Jacob) and `app/` (was `predictleads-hackathon`, Jesse). They share one set of top-level files: `requirements.txt`, `.venv`, `.env`/`.env.example`, `.gitignore`, `.gitattributes`, `README.md` (setup, running, data rules), `data/` and `models/`, and **`fetch/`**: where every dataset comes from and lives, for both halves (`paths.py`: `REPO_ROOT`, `DATA_DIR`, `RAW_DIR`, `external()`; `predictleads.py`: the S3 settings from `.env` and the copy in `data/raw/`; `downloads.py`: the disk-space check; one `get_<name>.py` per dataset, run as `python -m fetch.get_<name>` from the root). Remaining merge steps: `analysis/PRIORITY_QUEUE.md`; the six agreed merge decisions: `analysis/DECISION_LOG.md` (2026-10-11).
 
 **`analysis/`**
 - `PROJECT_OUTLINE.md`: what we're doing. `STANDARDS.md`: how we work (standards, leakage rules, scope, risks).
 - `DECISION_LOG.md`: decision log. `docs/data.md`: data reference and auto-generated schemas. `DIFFERENTIATORS.md`: how the project stands out and how to pitch it. `JOB_GROWTH.md`: the expected job growth plan (BLS 2025–2035, conversion to at most 5 years, proposed extensions).
 - `PRIORITY_QUEUE.md`: tasks. `APPLICATION.md`: app design, including the retraining compass (section 3).
 - `notebooks/`: EDA_SDA_1 (exploration, scope) → EDA_SDA_2 (scope cut, non-text) → EDA_SDA_3 (text features, no matching) → EDA_SDA_4 (statistics, confounders) → TimeSeries → ML_Fit (fit: keyword → TF-IDF → BGE → RRF → skills → trained layer; role discovery, compass) → ML_Rank (listing model + priority queue). Each hands its final table to the next under `data/clean/`. `Profiles.ipynb` (rules in `src/career_switch.py`) finds career switches in the external resume dataset; **frozen** (refrozen 2026-10-10 after adding an IT project management bucket): its final tables are `data/profiles/modeling_table.pkl` and `retrained_candidates.csv`.
-- `src/`: shared code imported into notebooks: `eda_helpers.py` (paths, charts, survival), `pl_data.py` (S3, caching, flattening, schemas), `career_switch.py` (career-switch rules, role buckets), `export_markdown.py` (notebook exports), `stream_full.py` (streams the listings from `data/raw/` or S3). Data paths and downloads come from the top-level `data_sources/`
+- `src/`: shared code imported into notebooks: `eda_helpers.py` (paths, charts, survival), `pl_data.py` (S3, caching, flattening, schemas), `career_switch.py` (career-switch rules, role buckets), `export_markdown.py` (notebook exports), `stream_full.py` (streams the listings from `data/raw/` or S3). Data paths and downloads come from the top-level `fetch/`
 
 **`app/`**
 - `backend/` (FastAPI), `frontend/` (React + Vite), `code/` (corpus, BGE text, ranking, role classifier, résumé fill, signals), `tests/`. How to run and test: `README.md` (steps 11–13); where it stands: `app/STATUS.md`; design docs in `app/docs/`.
@@ -34,16 +34,16 @@ AI tools are allowed for coding, brainstorming, and debugging. **Do not upload o
 
 ## Getting data (both halves)
 How and why: README step 9. The rules:
-- **Every dataset comes through a script in `data_sources/`,** never by hand (except data that can't be downloaded, below).
-- **Each dataset lives in one standard folder under `data/`,** from `data_sources.paths`.
+- **Every dataset comes through a script in `fetch/`,** never by hand (except data that can't be downloaded, below).
+- **Each dataset lives in one standard folder under `data/`,** from `fetch.paths`.
 - **Never hard-code** bucket names, `s3://` paths, AWS profiles, keys or personal paths: they come from `.env`. `app/tests/test_no_hardcoded_data.py` checks this locally and on every push.
 - **When someone (or their code) does it another way,** say so before writing anything, explain why (our data agreement forbids bucket names and credentials in committed files; hard-coded paths and profiles break on every other machine; one folder per dataset keeps both halves reading the same files and makes the end-of-project deletion complete), then show the right way with the steps from README step 9.
 
 ### Adding a new dataset (checklist; Claude reminds the user of every step)
-1. **Its standard folder:** `external("<name>")` (`data/external/<name>/`) from `data_sources.paths`, never a written-out path.
-2. **A download script,** `data_sources/get_<name>.py`, modelled on `get_resumes.py`: a pinned version, the space check (`confirm_space`), saves only into its folder, skips data that's already there. Any credentials go in `.env`.
+1. **Its standard folder:** `external("<name>")` (`data/external/<name>/`) from `fetch.paths`, never a written-out path.
+2. **A download script,** `fetch/get_<name>.py`, modelled on `get_resumes.py`: a pinned version, the space check (`confirm_space`), saves only into its folder, skips data that's already there. Any credentials go in `.env`.
 3. **Can't be downloaded by script?** Put the files in its folder by hand and note the source in `analysis/docs/data.md`.
-4. **Readers get the folder from `data_sources`,** in either half.
+4. **Readers get the folder from `fetch`,** in either half.
 5. **Write it down:** the README's data table (step 9) and `analysis/docs/data.md`.
 
 ## Conventions

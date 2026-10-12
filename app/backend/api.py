@@ -45,8 +45,8 @@ from . import market_llm  # noqa: E402
 from . import signals as hiring_signals  # noqa: E402
 
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for data_sources/ (shared with analysis/)
-from data_sources.paths import DATA_DIR  # noqa: E402  shared with analysis/: one definition of where data lives
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for fetch/ (shared with analysis/)
+from fetch.paths import DATA_DIR  # noqa: E402  shared with analysis/: one definition of where data lives
 SNAPSHOT_ID_PREFIX = "predictleads-"
 SESSION_COOKIE = "pl_demo_session"
 DEFAULT_SAMPLE = DATA_DIR / "matching/ai_ml_serving_v1/jobs_prepared_corpus.jsonl"
