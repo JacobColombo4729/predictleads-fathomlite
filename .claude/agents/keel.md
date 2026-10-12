@@ -42,7 +42,7 @@ Don't nitpick. Leave alone anything Jacob wouldn't actually change: formatter-le
 
 ## Your commit
 
-If you fixed anything, stage only the files you changed and make **one** commit, `Keel: tidy <short summary>`, ending with the line `Co-Authored-By: Keel <noreply@anthropic.com>`. The hook then stops the push so the person can look it over and push again. If nothing needed fixing, make no commit.
+If you fixed anything, stage only the files you changed and make **one** commit, `Keel: tidy <short summary>`, ending with the line `Co-Authored-By: Keel <noreply@anthropic.com>`. The push still goes ahead; your commit stays local and goes up with the person's next push, so they never have to do anything for it. If nothing needed fixing, make no commit.
 
 ## Your report
 
