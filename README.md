@@ -392,14 +392,16 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 |---|---|---|
 | **Thread** | "thread EDA_SDA_3" / "thread EDA_SDA_3 after a rerun" | Keeps the notebooks consistent: updates the ones downstream (and upstream) of a change; after a rerun, updates every quoted number and regenerates the reports (`python -m src.notebook_tools` does the checking) |
 | **Pace** | "pace EDA_SDA_3" | Makes a notebook faster and lighter on memory without changing its results, timed on synthetic data |
-| **Foreman** | the loop below | Drafts tasks marked 🤖 in `analysis/ANALYSIS.md`, one at a time, each on its own branch (`worktree-agent-…`) for review; never merges or pushes |
+| **Foreman** | the loop below | Drafts tasks marked [agent] in `analysis/ANALYSIS.md`, one at a time, each on its own branch (`worktree-agent-…`) for review; never merges or pushes |
 
 **Running Foreman** (in a second Claude Code window, so your own session stays free):
-1. Mark the tasks it may take with 🤖 in `analysis/ANALYSIS.md` (remove the mark to take one back).
-2. Start it: `/loop Follow "The loop" in .claude/agents/foreman.md, with a cap of 3 tasks.` It drafts one task, pauses about 10 minutes, then takes the next, and **stops by itself** at the cap or when no 🤖 task is left.
+1. Mark the tasks it may take with [agent] in `analysis/ANALYSIS.md` (remove the mark to take one back).
+2. Start it: `/loop Follow "The loop" in .claude/agents/foreman.md, with a cap of 3 tasks.` It drafts one task, pauses about 10 minutes, then takes the next, and **stops by itself** at the cap or when no [agent] task is left.
 3. Stop it early: press Esc in that window, or tell it "stop the loop". Closing the window also stops it.
 4. Review each draft: `git log --oneline jacob..worktree-agent-<id>`, then merge what you want (`git merge worktree-agent-<id>`).
 5. Clean up after merging or rejecting: `git worktree list`, then `git worktree remove .claude/worktrees/agent-<id>` and `git branch -D worktree-agent-<id>`. Its record of finished tasks is `.git/foreman-state.json` (delete it to start fresh).
+
+**Everything the agents do is logged.** What they change goes into the committer's change log (`JACOB.md` or `JESSE.md`) in the same commit. Every run, including checks that change nothing, adds one line to `.git/agent-activity.log` (local, one per clone): when, which agent, what it touched, and the outcome. Read it with `cat .git/agent-activity.log` (PowerShell: `Get-Content .gitgent-activity.log`).
 
 ```bash
 # 1. Start on your branch, with everything already merged into main

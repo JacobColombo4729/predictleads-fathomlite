@@ -65,4 +65,7 @@ if [ "$(git rev-parse HEAD)" != "$head" ]; then
   echo
   echo "Eve tidied in a commit of its own; it goes up with your next push."
 fi
+# One line per run in the local activity log (README step 14)
+tidied=$([ "$(git rev-parse HEAD)" != "$head" ] && echo "tidy commit $(git rev-parse --short HEAD)" || echo "nothing tidied")
+printf '%s | eve push review | %s %s | %s\n' "$(date '+%Y-%m-%d %H:%M')" "$branch" "$range" "$tidied" >> "$(git rev-parse --git-dir)/agent-activity.log"
 exit 0

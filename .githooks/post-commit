@@ -21,5 +21,7 @@ echo "Eve is checking commit $commit in the background; report in $report"
   claude -p "Quick check of commit $commit only, following 'Commit check' in your instructions." \
     --agent eve --model sonnet --allowedTools "Read,Glob,Grep,Bash(git show:*),Bash(git diff:*),Bash(git log:*)" \
     < /dev/null > "$report.tmp" 2>&1 && mv "$report.tmp" "$report"
+  # One line per run in the local activity log (README step 14)
+  printf '%s | eve commit check | %s | %s\n' "$(date '+%Y-%m-%d %H:%M')" "$commit" "$(sed -n 2p "$report" | cut -c1-140)" >> "$gitdir/agent-activity.log"
 ) > /dev/null 2>&1 &
 exit 0
