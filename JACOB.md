@@ -1,9 +1,11 @@
 # Jacob's changes
 
-> What Jacob changed, newest first, so Jesse can catch up at a glance. One entry per change: what changed, and anything Jesse needs to do. Details are in the commits (`git log`) and the decisions in `analysis/DECISION_LOG.md`.
+> What Jacob changed, newest first, so Jesse can catch up at a glance. One entry per change: what changed, and anything Jesse needs to do. Details are in the commits (`git log`).
 
 ## 2026-10-12
 
+- **`analysis/DECISION_LOG.md` removed:** decisions now go in our change logs (`JACOB.md`, `JESSE.md`); references updated.
+- **`analysis/JOB_GROWTH.md` removed:** the job growth steps and extension options are now tasks in `analysis/PRIORITY_QUEUE.md`.
 - **`BRIEF.md` removed:** the hackathon brief is no longer in the repo or loaded into Claude sessions; the organizers' PDF stays local and git-ignored.
 - **`DATA.md` removed:** we work from what we know about the data. The résumé-sourcing note the brief asks for is in README step 9; EDA_SDA_1 no longer writes schemas (section 5 and `write_schemas` are gone).
 - **Hackathon brief moved to the top level:** `analysis/BRIEF.md` is now `BRIEF.md`, next to the README (CLAUDE.md imports it from there).

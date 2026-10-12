@@ -343,7 +343,7 @@ Join it by role bucket to Profiles' three path tables, so every path shows its 2
 - **Prior career → first tech job** and **field trained in → first tech job** (4a.2b): the compass for changing careers.
 - **Tech job before → after the move** (4a.3a), with the sideways-or-up split: the compass for moving across or up within tech.
 
-Every path carries its people count, and paths under about 10 people are marked thin. Growth sits next to the entry-level share, since projections cover the whole occupation. Its source and method are in `JOB_GROWTH.md` (BLS 2025–2035, employment-weighted by bucket, at most 5 years). Aggregates only; this table feeds the app's Retraining compass and the deck (`DIFFERENTIATORS.md`).
+Every path carries its people count, and paths under about 10 people are marked thin. Growth sits next to the entry-level share, since projections cover the whole occupation. Its source and method are in job growth tasks in `PRIORITY_QUEUE.md` (BLS 2025–2035, employment-weighted by bucket, at most 5 years). Aggregates only; this table feeds the app's Retraining compass and the deck (`DIFFERENTIATORS.md`).
 
 **What the data shows**
 - **The 2026 market by bucket:** software development (74K open, 11K new a week, $73.20 an hour) and networks and systems (44K open) are the largest; IT support is the door (44% open to career changers, 23% entry level, $31.00); technical sales is the slowest (median 38 days) but the most remote (29%).
