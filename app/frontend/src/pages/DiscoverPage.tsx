@@ -4,7 +4,9 @@ import JobCard from "../components/JobCard";
 import JobDetails from "../components/JobDetails";
 import { isBlankProfile } from "../lib/profile";
 
-export const defaultFilters: Filters = { query: "", location: "", description: "any" };
+// Career changers start at entry level, so that is the default; the filter bar changes it.
+export const defaultFilters: Filters = { query: "", location: "", description: "any", levels: ["entry"] };
+const allFilters: Filters = { ...defaultFilters, levels: [] };
 
 interface Props {
   recs: Recommendation[];
@@ -105,8 +107,8 @@ export default function DiscoverPage(p: Props) {
           ) : p.recs.length === 0 && !p.loading && !p.error ? (
             <div className="empty" role="status">
               <h3>No jobs match these filters</h3>
-              <p>Clear the search words or location, or rate fewer jobs, and try again.</p>
-              <button type="button" className="btn btn--primary" onClick={() => p.onFiltersChange(defaultFilters)}>Clear filters</button>
+              <p>Add more job levels, clear the search words or location, or rate fewer jobs, and try again.</p>
+              <button type="button" className="btn btn--primary" onClick={() => p.onFiltersChange(allFilters)}>Clear filters</button>
             </div>
           ) : (
             p.recs.map((item) => (

@@ -14,6 +14,7 @@ import type {
   FeedbackReason,
   FeedbackSignal,
   Filters,
+  JobLevel,
   HistoricalStatus,
   Job,
   Profile,
@@ -70,6 +71,7 @@ interface ApiJob {
   source_url: string | null;
   observed_on: string;
   source_status: { raw: string | null; state: string };
+  level?: JobLevel;
 }
 
 interface ApiAreaScore { id: string; name: string; asked: number; lines: number; shown: number | null }
@@ -116,6 +118,7 @@ export function jobFromApi(j: ApiJob): Job {
     sourceUrl: j.source_url ?? "",
     observedOn: j.observed_on,
     historicalStatus: statusFor(j.source_status?.state ?? "unknown"),
+    level: j.level,
   };
 }
 
@@ -248,10 +251,11 @@ export const api = {
     filters: Filters,
     limit = 25,
   ): Promise<{ items: Recommendation[]; feedback: { good: number; bad: number; applied: boolean }; ranker: string; searchScope: SearchScope }> {
-    const apiFilters: Record<string, string> = {};
+    const apiFilters: Record<string, string | string[]> = {};
     if (filters.query.trim()) apiFilters.query = filters.query.trim();
     if (filters.location.trim()) apiFilters.location = filters.location.trim();
     if (filters.description !== "any") apiFilters.description = filters.description;
+    if (filters.levels.length) apiFilters.levels = filters.levels;
     const r = await request<{
       ranking: { ranker_id: string };
       feedback: { good: number; bad: number; applied: boolean };

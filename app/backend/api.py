@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import random
+import re
 import secrets
 import sqlite3
 import sys
@@ -163,6 +164,35 @@ class ProfilePatch(BaseModel):
     constraints: str | None = Field(default=None, max_length=1000)
 
 
+JobLevel = Literal["entry", "experienced", "senior", "manager", "director", "unstated"]
+_DIRECTOR_AND_ABOVE = {"head", "director", "vice_president", "president", "c_level", "partner", "founder"}
+_SENIOR_TITLE = re.compile(r"\b(senior|sr|lead|principal|staff|architect)\b", re.IGNORECASE)
+_ENTRY_TITLE = re.compile(r"\b(junior|jr|entry[- ]level|intern|internship|graduate|new grad|apprentice|trainee)\b", re.IGNORECASE)
+
+
+def job_level(source: Mapping[str, Any]) -> JobLevel:
+    """The listing's level for the job-level filter, from PredictLeads' `seniority` and the title.
+
+    PredictLeads' `mid_senior` is LinkedIn's one level for experienced individual contributors, so a senior word in the
+    title (senior, lead, principal, staff, architect) splits "senior" out of it, and also overrides a `junior` label.
+    A title word like "junior" or "intern" places listings with no stated seniority at entry level."""
+    seniority = str(source.get("seniority") or "").casefold()
+    title = " ".join(str(source.get(key) or "") for key in ("title_raw", "title_normalized"))
+    if seniority in _DIRECTOR_AND_ABOVE:
+        return "director"
+    if seniority == "manager":
+        return "manager"
+    if _SENIOR_TITLE.search(title):
+        return "senior"
+    if seniority == "junior":
+        return "entry"
+    if seniority == "mid_senior":
+        return "experienced"
+    if _ENTRY_TITLE.search(title):
+        return "entry"
+    return "unstated"
+
+
 class RecommendationFilters(BaseModel):
     model_config = ConfigDict(extra="forbid")
     query: str | None = Field(default=None, max_length=200)
@@ -170,6 +200,8 @@ class RecommendationFilters(BaseModel):
     description: Literal["any", "with", "without"] = "any"
     category: str | None = Field(default=None, max_length=120)
     seniority: str | None = Field(default=None, max_length=80)
+    # Job levels to keep (job_level below); empty keeps every level
+    levels: list[JobLevel] = Field(default_factory=list, max_length=6)
     work_arrangement: str | None = Field(default=None, max_length=80)
 
 
@@ -727,6 +759,7 @@ def _job_summary(row: JobRow, snapshot_id: str, snapshot_date: str) -> dict[str,
         },
         "categories": source.get("categories", []),
         "seniority": source.get("seniority"),
+        "level": job_level(source),
     }
 
 
@@ -788,6 +821,8 @@ def _search_indices(repository: JobRepository, filters: RecommendationFilters, *
         if filters.category and filters.category.casefold() not in {str(value).casefold() for value in source.get("categories", [])}:
             continue
         if filters.seniority and str(source.get("seniority") or "").casefold() != filters.seniority.casefold():
+            continue
+        if filters.levels and job_level(source) not in filters.levels:
             continue
         output.append(index)
     return output
@@ -1218,6 +1253,7 @@ def create_app(
         description: Literal["any", "with", "without"] = "any",
         category: str | None = Query(default=None, max_length=120),
         seniority: str | None = Query(default=None, max_length=80),
+        levels: list[JobLevel] = Query(default=[]),
         work_arrangement: str | None = None,
         limit: int = Query(default=20, ge=1, le=MAX_PAGE_SIZE),
         cursor: str | None = None,
@@ -1225,7 +1261,7 @@ def create_app(
     ) -> dict[str, Any]:
         if work_arrangement is not None:
             raise APIError(400, "unsupported_filter", "Work arrangement is not represented in this prepared sample.")
-        filters = RecommendationFilters(query=q, location=location, description=description, category=category, seniority=seniority)
+        filters = RecommendationFilters(query=q, location=location, description=description, category=category, seniority=seniority, levels=levels)
         jobs: JobRepository = app.state.job_repository
         jobs.require_snapshot(snapshot_id)
         matching_indices = _search_indices(jobs, filters)

@@ -11,6 +11,7 @@
 ## App
 
 - **OpenAI features on by default:** `run_demo_backend.ps1` / `.sh` now start with Magic fill, the AI gap analysis and Ask the market's typed questions on; `-NoAI` / `--no-ai` turns them off. Each still asks for consent in the app and needs `OPENAI_API_KEY` in `.env`. **Jesse:** `-ResumeFill`, `-Assess` and `-Market` are gone; just run the script. (2026-10-12)
+- **Job level filter on Discover:** Entry level, Experienced, Senior, Manager, Director and above, Level not stated; the ranked list starts on Entry level and each job card shows its level. Levels come from PredictLeads' `seniority` plus the title (`job_level` in `backend/api.py`: a senior title such as lead or principal counts as Senior). (2026-10-12)
 
 ## Git workflow
 
