@@ -1,9 +1,9 @@
 #!/bin/sh
-# Keel: before each push to a personal branch, Claude tidies and reviews the commits going up
-# (instructions in .claude/agents/keel.md). Turn on once per clone: git config core.hooksPath .githooks
-# Skip it for one push: KEEL_SKIP=1 git push
+# Eve: before each push to a personal branch, Claude tidies and reviews the commits going up
+# (instructions in .claude/agents/eve.md). Turn on once per clone: git config core.hooksPath .githooks
+# Skip it for one push: EVE_SKIP=1 git push
 
-[ -n "$KEEL_SKIP" ] && exit 0
+[ -n "$EVE_SKIP" ] && exit 0
 
 zero=0000000000000000000000000000000000000000
 head=$(git rev-parse HEAD)
@@ -11,7 +11,7 @@ range=""
 while read -r local_ref local_sha remote_ref remote_sha; do
   [ "$local_sha" = "$zero" ] && continue        # deleting a branch
   [ "$remote_ref" = "refs/heads/main" ] && continue  # main only gets merges of work already reviewed
-  [ "$local_sha" = "$head" ] || continue        # Keel edits the checked-out branch only
+  [ "$local_sha" = "$head" ] || continue        # Eve edits the checked-out branch only
   if [ "$remote_sha" = "$zero" ]; then
     base=$(git merge-base "$local_sha" origin/main 2>/dev/null) || continue
   else
@@ -21,24 +21,24 @@ while read -r local_ref local_sha remote_ref remote_sha; do
 done
 [ -z "$range" ] && exit 0
 
-# Commits up to Keel's last tidy commit are already reviewed: start after it
-last_keel=$(git log --format=%H --grep='^Keel: ' -n 1 "$range")
-[ -n "$last_keel" ] && range="$last_keel..${range#*..}"
+# Commits up to Eve's last tidy commit are already reviewed: start after it
+last_eve=$(git log -E --format=%H --grep='^(Keel|Eve): ' -n 1 "$range")  # Keel was Eve's earlier name
+[ -n "$last_eve" ] && range="$last_eve..${range#*..}"
 [ -z "$(git rev-list "$range")" ] && exit 0
 
 if ! command -v claude >/dev/null 2>&1; then
-  echo "Keel: Claude Code isn't installed, so this push goes up unreviewed."
+  echo "Eve: Claude Code isn't installed, so this push goes up unreviewed."
   exit 0
 fi
 if [ -n "$(git status --porcelain)" ]; then
-  echo "Keel: commit or stash your uncommitted changes first, so Keel's tidy commit stays separate."
-  echo "      (KEEL_SKIP=1 git push skips Keel.)"
+  echo "Eve: commit or stash your uncommitted changes first, so Eve's tidy commit stays separate."
+  echo "      (EVE_SKIP=1 git push skips Eve.)"
   exit 1
 fi
 
-# Runs Keel with the given prompt; the tool list is Keel's whole reach (read files, git only)
-keel() {
-  claude -p "$1" --agent keel --permission-mode acceptEdits \
+# Runs Eve with the given prompt; the tool list is Eve's whole reach (read files, git only)
+eve() {
+  claude -p "$1" --agent eve --permission-mode acceptEdits \
     --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
       "Bash(git diff:*)" "Bash(git log:*)" "Bash(git show:*)" "Bash(git status:*)" \
       "Bash(git add:*)" "Bash(git rm:*)" "Bash(git mv:*)" "Bash(git commit:*)" "Bash(git config user.name)" \
@@ -46,13 +46,13 @@ keel() {
 }
 
 branch=$(git rev-parse --abbrev-ref HEAD)
-report="$(git rev-parse --git-dir)/keel-last-review.md"
-echo "Keel: reviewing $(git rev-list --count "$range") commit(s) on $branch..."
-keel "Review and tidy the commits in $range on branch $branch, following your instructions." | tee "$report"
+report="$(git rev-parse --git-dir)/eve-last-review.md"
+echo "Eve: reviewing $(git rev-list --count "$range") commit(s) on $branch..."
+eve "Review and tidy the commits in $range on branch $branch, following your instructions." | tee "$report"
 
 # The rest needs someone at a terminal (not VS Code's push button or a script)
 if (: < /dev/tty) 2>/dev/null; then  # subshell: a failed redirect would end the hook
-  # Up to three rounds: Keel applies each round's answers and asks follow-ups only when they open something up
+  # Up to three rounds: Eve applies each round's answers and asks follow-ups only when they open something up
   history=$(cat "$report")
   round=1
   while [ $round -le 3 ] && grep -q '^ *a) ' "$report"; do
@@ -63,7 +63,7 @@ if (: < /dev/tty) 2>/dev/null; then  # subshell: a failed redirect would end the
     history="$history
 
 Round $round answers: $answers"
-    keel "These are the person's answers to round $round of your questions (rounds end after 3). Everything so far:
+    eve "These are the person's answers to round $round of your questions (rounds end after 3). Everything so far:
 $history" | tee "$report"
     history="$history
 
@@ -76,12 +76,12 @@ $(cat "$report")"
   echo
   printf "Anything you want %s to make sure he does? (Enter to skip): " "$other"
   read -r ask < /dev/tty
-  [ -n "$ask" ] && keel "Record this ask from $(git config user.name) for $other in .claude/ASKS.md: $ask"
+  [ -n "$ask" ] && eve "Record this ask from $(git config user.name) for $other in .claude/ASKS.md: $ask"
 fi
 
-# Never stop the push: Keel's own commit stays local and goes up with the next push
+# Never stop the push: Eve's own commit stays local and goes up with the next push
 if [ "$(git rev-parse HEAD)" != "$head" ]; then
   echo
-  echo "Keel tidied in a commit of its own; it goes up with your next push."
+  echo "Eve tidied in a commit of its own; it goes up with your next push."
 fi
 exit 0

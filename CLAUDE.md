@@ -6,7 +6,7 @@
 - **Standard:** the TripleTen course templates (`~/Desktop/TripleTen/Templates`) are the baseline for every notebook; go further with advanced methods.
 
 ## Structure
-This repository joins two earlier ones with their full histories: `analysis/` (was `project_leads`, Jacob) and `app/` (was `predictleads-hackathon`, Jesse). They share one set of top-level files: `requirements.txt`, `.venv`, `.env`/`.env.example`, `.gitignore`, `.gitattributes`, `README.md` (setup, running, data rules), `JACOB.md`/`JESSE.md` (each person's change log), `.claude/ASKS.md` (what each wants the other to make sure of; Keel keeps it), `data/` and `pretrained/`, and **`fetch/`**: where every dataset comes from and lives, for both halves (`paths.py`: `REPO_ROOT`, `DATA_DIR`, `RAW_DIR`, `external()`; `predictleads.py`: the S3 settings from `.env` and the copy in `data/raw/`; `downloads.py`: the disk-space check; one `get_<name>.py` per dataset, run as `python -m fetch.get_<name>` from the root). Remaining merge steps: `analysis/ANALYSIS.md`.
+This repository joins two earlier ones with their full histories: `analysis/` (was `project_leads`, Jacob) and `app/` (was `predictleads-hackathon`, Jesse). They share one set of top-level files: `requirements.txt`, `.venv`, `.env`/`.env.example`, `.gitignore`, `.gitattributes`, `README.md` (setup, running, data rules), `JACOB.md`/`JESSE.md` (each person's change log), `.claude/ASKS.md` (what each wants the other to make sure of; Eve keeps it), `data/` and `pretrained/`, and **`fetch/`**: where every dataset comes from and lives, for both halves (`paths.py`: `REPO_ROOT`, `DATA_DIR`, `RAW_DIR`, `external()`; `predictleads.py`: the S3 settings from `.env` and the copy in `data/raw/`; `downloads.py`: the disk-space check; one `get_<name>.py` per dataset, run as `python -m fetch.get_<name>` from the root). Remaining merge steps: `analysis/ANALYSIS.md`.
 
 **`analysis/`**
 - `PROJECT_OUTLINE.md`: what we're doing. `STANDARDS.md`: how we work (standards, leakage rules, scope, risks).
@@ -52,7 +52,7 @@ How and why: README step 9. The rules:
 - Clear notebook outputs before committing.
 
 ## Git
-- **Keel** (`.claude/agents/keel.md`, run by `.githooks/pre-push` on every push to a personal branch) tidies and reviews each push; turn it on per clone with `git config core.hooksPath .githooks` (README step 14).
+- **Eve** (`.claude/agents/eve.md`, run by `.githooks/pre-push` on every push to a personal branch) tidies and reviews each push; turn it on per clone with `git config core.hooksPath .githooks` (README step 14).
 - **Log every change** in the committer's file: `JACOB.md` for Jacob, `JESSE.md` for Jesse (from `git config user.name`), in the same commit. Group lines into categories that come from the changes themselves: no preset headings, add one when a change doesn't fit an existing one, and regroup as the log grows; rank the categories, and the lines within each, most important first (what the other person must act on or what breaks their work ranks highest), re-ranking as entries change; write the net result, so a later change to the same thing rewrites its line instead of adding one (moved, then deleted, reads "deleted"); end with the date and anything the other person needs to do. No other Git rules.
 
 ## Before every commit
