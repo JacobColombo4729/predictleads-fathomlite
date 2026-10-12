@@ -7,7 +7,7 @@
 - **Standard:** the TripleTen course templates (`~/Desktop/TripleTen/Templates`) are the baseline for every notebook; go further with advanced methods.
 
 ## Structure
-This repository joins two earlier ones with their full histories: `analysis/` (was `project_leads`, Jacob) and `app/` (was `predictleads-hackathon`, Jesse). They share one set of top-level files: `requirements.txt`, `.venv`, `.env`/`.env.example`, `.gitignore`, `.gitattributes`, `README.md` (setup, running, data rules), `DATA.md` (data reference: sources, fields, quirks, auto-generated schemas), `data/` and `pretrained/`, and **`fetch/`**: where every dataset comes from and lives, for both halves (`paths.py`: `REPO_ROOT`, `DATA_DIR`, `RAW_DIR`, `external()`; `predictleads.py`: the S3 settings from `.env` and the copy in `data/raw/`; `downloads.py`: the disk-space check; one `get_<name>.py` per dataset, run as `python -m fetch.get_<name>` from the root). Remaining merge steps: `analysis/PRIORITY_QUEUE.md`; the six agreed merge decisions: `analysis/DECISION_LOG.md` (2026-10-11).
+This repository joins two earlier ones with their full histories: `analysis/` (was `project_leads`, Jacob) and `app/` (was `predictleads-hackathon`, Jesse). They share one set of top-level files: `requirements.txt`, `.venv`, `.env`/`.env.example`, `.gitignore`, `.gitattributes`, `README.md` (setup, running, data rules), `DATA.md` (data reference: sources, fields, quirks, auto-generated schemas), `JACOB.md`/`JESSE.md` (each person's change log), `data/` and `pretrained/`, and **`fetch/`**: where every dataset comes from and lives, for both halves (`paths.py`: `REPO_ROOT`, `DATA_DIR`, `RAW_DIR`, `external()`; `predictleads.py`: the S3 settings from `.env` and the copy in `data/raw/`; `downloads.py`: the disk-space check; one `get_<name>.py` per dataset, run as `python -m fetch.get_<name>` from the root). Remaining merge steps: `analysis/PRIORITY_QUEUE.md`; the six agreed merge decisions: `analysis/DECISION_LOG.md` (2026-10-11).
 
 **`analysis/`**
 - `PROJECT_OUTLINE.md`: what we're doing. `STANDARDS.md`: how we work (standards, leakage rules, scope, risks).
@@ -52,10 +52,7 @@ How and why: README step 9. The rules:
 - Clear notebook outputs before committing.
 
 ## Git
-- Each person works on their own branch (`jacob`, `jesse`); commit to the branch you are on, and never commit to, push to or rewrite the other person's branch. The rules are the same for both (README step 14).
-- Ask before pushing, and before merging `main` into a personal branch.
-- **Merging into `main`:** only when the user asks, after merging `main` into the personal branch and passing the tests. Never force-push; `.claude/settings.json` blocks force-pushes and pushes from one branch to another.
-- **Merge conflicts:** resolve them on the personal branch, never on `main`. Stop at the conflict, show both versions and a suggested fix, and wait for the user; if it touches the other person's code (`analysis/` Jacob's, `app/` Jesse's) or a shared top-level file, suggest asking them first. Rerun `.\app\run_tests.ps1` before committing the resolution.
+- **Log every change** in the committer's file: `JACOB.md` for Jacob, `JESSE.md` for Jesse (from `git config user.name`), in the same commit. Newest first under a date heading; one line per change: what changed in plain words, plus anything the other person needs to do. No other Git rules.
 
 ## Before every commit
 - Notebook outputs cleared, including every cell tagged `data-rows` (row previews).
