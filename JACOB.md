@@ -20,7 +20,7 @@
 
 ## Docs
 
-- **Two priority queues:** `analysis/ANALYSIS.md` (was `PRIORITY_QUEUE.md`) for the analysis and `app/APP.md` for the app, each top = next. The app design moved from `analysis/APPLICATION.md` to `app/DESIGN.md`, and `ASKS.md` to `.claude/ASKS.md`. **Jesse:** your to-dos from `app/roadmap.md` section 6 and `app/STATUS.md` "Still pending" are merged into `app/APP.md`, and `app/STATUS.md` is deleted; check nothing got lost. (2026-10-12)
+- **Two priority queues:** `analysis/ANALYSIS.md` (was `PRIORITY_QUEUE.md`) for the analysis and `app/APP.md` for the app, each top = next. The app design moved from `analysis/APPLICATION.md` to `app/DESIGN.md`, and `ASKS.md` to `.claude/ASKS.md`. **Jesse:** your to-dos from `app/roadmap.md` section 6 and `app/STATUS.md` "Still pending" are merged into `app/APP.md`; check nothing got lost. `app/STATUS.md` stays as you left it until you decide what to do with it (it's an ask for you in `.claude/ASKS.md`). (2026-10-12)
 - **Deleted** the hackathon brief (`BRIEF.md`), the decision log (`analysis/DECISION_LOG.md`), the data reference (`analysis/docs/data.md`), the job growth plan (`analysis/JOB_GROWTH.md`) and the merge plan. (2026-10-12)
 - **Decisions** are recorded in these change logs instead of a decision log. (2026-10-12)
 - **Job growth** steps and extension options are now tasks in `analysis/ANALYSIS.md`. (2026-10-12)
