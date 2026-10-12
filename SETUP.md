@@ -17,7 +17,7 @@
 
 ## 2. Meet Eve, the reviewer
 
-Every time you push your branch, Eve (Claude, following [`.claude/agents/eve.md`](.claude/agents/eve.md)) tidies what's clearly messy in a commit of her own, asks about judgment calls in a normal Claude conversation with the usual question boxes (type `/exit` when she's done), and ends with an open question: what you want the other person to make sure they do (kept in [`.claude/ASKS.md`](.claude/ASKS.md)). How she works, and how to skip her: README step 14.
+Every time you push your branch, Eve (Claude, following [`.claude/agents/eve.md`](.claude/agents/eve.md)) tidies what's clearly messy in a commit of her own, asks about judgment calls in a normal Claude conversation with the usual question boxes (type `/exit` when she's done), and ends with an open question: what you want the other person to make sure they do (kept in [`.eve/ASKS.md`](.eve/ASKS.md)). How she works, and how to skip her: README step 14.
 
 **Your first ask is already waiting:** decide what happens to `app/STATUS.md`. Either delete it, or merge what's still useful into `app/APP.md` and drop the rest.
 
