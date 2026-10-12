@@ -11,11 +11,16 @@ listings. Nothing here prints listing text.
 import hashlib
 import html
 import re
+import os
 import warnings
+from collections import deque
+from concurrent.futures import ProcessPoolExecutor
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pyarrow as pa
+import pyarrow.compute as pc
 import pyarrow.parquet as pq
 from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
 
@@ -80,17 +85,26 @@ def line_key(x):
     return int.from_bytes(hashlib.blake2b(norm_line(x).encode(), digest_size=8).digest(), "little", signed=True)
 
 
-def template_keys(units_series, company_ids):
-    """Keys of lines (8+ words) that appear word for word in listings from 5+ companies. Learn it on training months only."""
+def _pairs(units_series, company_ids):
+    """(line keys, companies) for every distinct 8+ word line of each listing."""
     keys, comps = [], []
     for units, comp in zip(units_series, company_ids):
         for x in set(units):
             if len(x.split()) >= MIN_TEMPLATE_WORDS:
                 keys.append(line_key(x))
                 comps.append(comp)
-    pairs = pd.DataFrame({"k": np.array(keys, dtype=np.int64), "c": pd.Series(comps).astype("category").cat.codes})
+    return np.array(keys, dtype=np.int64), np.array(comps, dtype=object)
+
+
+def _template_set(keys, comps):
+    pairs = pd.DataFrame({"k": keys, "c": pd.Series(comps).astype("category").cat.codes})
     n = pairs.drop_duplicates().groupby("k").size()
     return set(n.index[n >= MIN_TEMPLATE_COMPANIES])
+
+
+def template_keys(units_series, company_ids):
+    """Keys of lines (8+ words) that appear word for word in listings from 5+ companies. Learn it on training months only."""
+    return _template_set(*_pairs(units_series, company_ids))
 
 
 def classify(units, templates):
@@ -265,42 +279,133 @@ def typed(f):
 
 # ---------- the batch pipeline ----------
 def iter_descriptions(desc_path, batch_size=20_000, ids=None):
-    """(id, description) batches from scope_descriptions.parquet, one batch in memory at a time."""
+    """(id, description) batches from scope_descriptions.parquet, one batch in memory at a time. With `ids`, the batch is
+    filtered in Arrow first, so only the wanted descriptions are ever turned into Python strings."""
     pf = pq.ParquetFile(desc_path)
+    wanted = pa.array(list(ids), type=pa.string()) if ids is not None else None
     for batch in pf.iter_batches(batch_size=batch_size, columns=["id", "description"]):
-        d = batch.to_pandas()
-        yield d[d.id.isin(ids)] if ids is not None else d
+        if wanted is not None:
+            batch = batch.filter(pc.is_in(batch.column("id"), value_set=wanted))
+        yield batch.to_pandas()
 
 
-def build(desc_path, meta, templates, features_path, clean_path, batch_size=20_000, progress=None):
-    """Clean every description and compute its features, writing both to Parquet batch by batch.
-    meta: DataFrame indexed by id (the scope table's ids). Returns the words removed per boilerplate reason."""
+def default_workers():
+    """Worker processes for the batch steps: spare cores, capped so the workers' memory (about 0.5 GB each) stays small."""
+    return max(1, min((os.cpu_count() or 2) - 2, 5))
+
+
+def _pooled(func, jobs, workers, initializer=None, initargs=()):
+    """func(job) for each job, in order, on `workers` processes with at most 2x workers batches in flight
+    (so memory stays flat); in this process when workers <= 1."""
+    if workers <= 1:
+        if initializer:
+            initializer(*initargs)
+        for j in jobs:
+            yield func(j)
+        return
+    with ProcessPoolExecutor(workers, initializer=initializer, initargs=initargs) as ex:
+        pending = deque()
+        for j in jobs:
+            pending.append(ex.submit(func, j))
+            if len(pending) >= 2 * workers:
+                yield pending.popleft().result()
+        while pending:
+            yield pending.popleft().result()
+
+
+def _learn_batch(job):
+    """Distinct (line key, company) pairs of one batch; the lines themselves are dropped here."""
+    descriptions, comps = job
+    keys, cs = _pairs((to_lines(x) for x in descriptions), comps)
+    pairs = pd.DataFrame({"k": keys, "c": pd.Series(cs, dtype=object)}).drop_duplicates()
+    return pairs.k.to_numpy(), pairs.c.to_numpy()
+
+
+def learn_templates(desc_path, ids, company_by_id, batch_size=10_000, workers=None):
+    """template_keys over the descriptions whose id is in `ids` (company_by_id: Series indexed by id), batch by batch on
+    several processes. Only small (line key, company code) arrays are kept; the text is never held for more than a batch."""
+    workers = default_workers() if workers is None else workers
+    jobs = ((d.description.tolist(), company_by_id.reindex(d.id).to_numpy()) for d in iter_descriptions(desc_path, batch_size, ids=ids))
+    codes, ks, cs = {}, [], []
+    for k, c in _pooled(_learn_batch, jobs, workers):
+        ks.append(k)
+        cs.append(np.fromiter((codes.setdefault(-1 if pd.isna(x) else x, len(codes)) for x in c), dtype=np.int64, count=len(c)))
+    keys, comp_codes = np.concatenate(ks), np.concatenate(cs)
+    pairs = pd.DataFrame({"k": keys, "c": comp_codes}).drop_duplicates()
+    n = pairs.groupby("k").size()
+    return set(n.index[n >= MIN_TEMPLATE_COMPANIES])
+
+
+_TEMPLATES = set()
+
+
+def _init_worker(templates):
+    global _TEMPLATES
+    _TEMPLATES = templates
+
+
+def _build_batch(job):
+    """Clean one batch and compute its features: (feature table, cleaned-text table, words removed per reason)."""
+    ids, descriptions = job
+    units = [to_lines(x) for x in descriptions]
+    reasons = [classify(u, _TEMPLATES) for u in units]
+    kept = [[x for x, r in zip(u, rs) if not r] for u, rs in zip(units, reasons)]
+    removed = {}
+    for u, rs in zip(units, reasons):
+        for x, r in zip(u, rs):
+            if r:
+                removed[r] = removed.get(r, 0) + len(x.split())
+    f = pd.DataFrame([features(k) for k in kept])
+    f["words_raw"] = [sum(len(x.split()) for x in u) for u in units]
+    f = typed(f)
+    f.insert(0, "id", ids)
+    ft = pa.Table.from_pandas(f, schema=SCHEMA, preserve_index=False)
+    ct = pa.table({"id": ids, "desc_clean": [chr(10).join(k) for k in kept]})
+    return ft, ct, removed
+
+
+def cache_valid(features_path, desc_path, *other_files):
+    """True if the features cache can be read and has one row per description (a file left by a killed run is not valid)."""
+    try:
+        return (all(Path(p).exists() for p in other_files)
+                and pq.ParquetFile(features_path).metadata.num_rows == pq.ParquetFile(desc_path).metadata.num_rows)
+    except Exception:
+        return False
+
+
+def build(desc_path, meta, templates, features_path, clean_path, batch_size=10_000, progress=None, workers=None):
+    """Clean every description and compute its features, writing both to Parquet batch by batch (on several processes,
+    in order). Both files are written as <name>.part and moved into place only when both are complete, so a killed run
+    leaves no half-written file. meta: DataFrame indexed by id (the scope table's ids).
+    Returns the words removed per boilerplate reason."""
+    workers = default_workers() if workers is None else workers
     removed = {}
     fw = cw = None
+    parts = [Path(str(features_path) + ".part"), Path(str(clean_path) + ".part")]
+    ids = set(meta.index)
+    jobs = ((d.id.to_numpy(), d.description.tolist()) for d in iter_descriptions(desc_path, batch_size, ids=ids))
     try:
-        for n, d in enumerate(iter_descriptions(desc_path, batch_size, ids=set(meta.index))):
-            units = d.description.map(to_lines)
-            reasons = [classify(u, templates) for u in units]
-            kept = [[x for x, r in zip(u, rs) if not r] for u, rs in zip(units, reasons)]
-            for u, rs in zip(units, reasons):
-                for x, r in zip(u, rs):
-                    if r:
-                        removed[r] = removed.get(r, 0) + len(x.split())
-            f = pd.DataFrame([features(k) for k in kept])
-            f["words_raw"] = [sum(len(x.split()) for x in u) for u in units]
-            f = typed(f)
-            f.insert(0, "id", d.id.to_numpy())
-            ft = pa.Table.from_pandas(f, schema=SCHEMA, preserve_index=False)
-            ct = pa.table({"id": d.id.to_numpy(), "desc_clean": ["\n".join(k) for k in kept]})
+        for n, (ft, ct, rem) in enumerate(_pooled(_build_batch, jobs, workers, _init_worker, (templates,))):
+            for r, w in rem.items():
+                removed[r] = removed.get(r, 0) + w
             if fw is None:
-                fw = pq.ParquetWriter(features_path, SCHEMA)
-                cw = pq.ParquetWriter(clean_path, ct.schema)
+                fw = pq.ParquetWriter(parts[0], SCHEMA)
+                cw = pq.ParquetWriter(parts[1], ct.schema)
             fw.write_table(ft)
             cw.write_table(ct)
             if progress:
-                progress(n, len(d))
+                progress(n, ft.num_rows)
+        for w in (fw, cw):
+            if w is not None:
+                w.close()
+        fw = cw = None
+        if parts[0].exists():
+            parts[0].replace(features_path)
+            parts[1].replace(clean_path)
     finally:
-        if fw is not None:
-            fw.close()
-            cw.close()
+        for w in (fw, cw):
+            if w is not None:
+                w.close()
+        for p in parts:
+            p.unlink(missing_ok=True)
     return removed

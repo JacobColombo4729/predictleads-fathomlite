@@ -103,6 +103,36 @@ class Pipeline(unittest.TestCase):
             self.assertTrue(pd.isna(f.loc["x", "clearance_required"]))  # no description: unknown, not False
             self.assertGreater(removed.get("equal opportunity and legal", 0), 0)
 
+    def test_failed_build_leaves_no_files_and_bad_cache_is_rebuilt(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            desc = pd.DataFrame({"id": ["a", "b", "c"], "description": [A, B, C]})
+            pq.write_table(pa.Table.from_pandas(desc, preserve_index=False), d / "desc.parquet")
+            meta = pd.DataFrame(index=pd.Index(["a", "b", "c"], name="id"))
+
+            def boom(n, k):
+                raise RuntimeError("killed")
+
+            with self.assertRaises(RuntimeError):
+                tf.build(d / "desc.parquet", meta, set(), d / "f.parquet", d / "c.parquet", batch_size=1, progress=boom, workers=1)
+            self.assertEqual(list(d.glob("f.parquet*")) + list(d.glob("c.parquet*")), [])  # no half-written file
+            (d / "f.parquet").write_bytes(b"PAR1 not a real file")  # what a killed kernel leaves behind
+            self.assertFalse(tf.cache_valid(d / "f.parquet", d / "desc.parquet"))
+            tf.build(d / "desc.parquet", meta, set(), d / "f.parquet", d / "c.parquet", workers=1)
+            self.assertTrue(tf.cache_valid(d / "f.parquet", d / "desc.parquet", d / "c.parquet"))
+
+    def test_parallel_matches_serial(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            desc = pd.DataFrame({"id": list("abcdef"), "description": [A, B, C, None, A, B]})
+            pq.write_table(pa.Table.from_pandas(desc, preserve_index=False), d / "desc.parquet")
+            meta = pd.DataFrame(index=pd.Index(list("abcdef"), name="id"))
+            r1 = tf.build(d / "desc.parquet", meta, set(), d / "f1.parquet", d / "c1.parquet", batch_size=2, workers=1)
+            r2 = tf.build(d / "desc.parquet", meta, set(), d / "f2.parquet", d / "c2.parquet", batch_size=2, workers=2)
+            self.assertEqual(r1, r2)
+            self.assertTrue(pd.read_parquet(d / "f1.parquet").equals(pd.read_parquet(d / "f2.parquet")))
+            self.assertTrue(pd.read_parquet(d / "c1.parquet").equals(pd.read_parquet(d / "c2.parquet")))
+
 
 if __name__ == "__main__":
     unittest.main()
