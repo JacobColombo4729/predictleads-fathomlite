@@ -54,7 +54,7 @@ How and why: README step 9. The rules:
 ## Git
 - Each person works on their own branch (`jacob`, `jesse`); commit to the branch you are on, and never commit to, push to or rewrite the other person's branch. The rules are the same for both (README step 14).
 - Ask before pushing, and before merging `main` into a personal branch.
-- **Merging into `main`:** only when the user asks, after merging `main` into the personal branch and passing the tests. First ask whether they've messaged the other person ("merging X into main"); don't merge until they have. Never force-push; `.claude/settings.json` blocks force-pushes and pushes from one branch to another.
+- **Merging into `main`:** only when the user asks, after merging `main` into the personal branch and passing the tests. Never force-push; `.claude/settings.json` blocks force-pushes and pushes from one branch to another.
 - **Merge conflicts:** resolve them on the personal branch, never on `main`. Stop at the conflict, show both versions and a suggested fix, and wait for the user; if it touches the other person's code (`analysis/` Jacob's, `app/` Jesse's) or a shared top-level file, suggest asking them first. Rerun `.\app\run_tests.ps1` before committing the resolution.
 
 ## Before every commit
