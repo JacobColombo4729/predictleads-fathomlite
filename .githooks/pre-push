@@ -36,47 +36,23 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
-# Runs Eve with the given prompt; the tool list is Eve's whole reach (read files, git only)
-eve() {
-  claude -p "$1" --agent eve --permission-mode acceptEdits \
-    --allowedTools "Read" "Glob" "Grep" "Edit" "Write" \
-      "Bash(git diff:*)" "Bash(git log:*)" "Bash(git show:*)" "Bash(git status:*)" \
-      "Bash(git add:*)" "Bash(git rm:*)" "Bash(git mv:*)" "Bash(git commit:*)" "Bash(git config user.name)" \
-    < /dev/null
-}
+# Eve's whole reach: read files, git, and (in the conversation) Claude's question boxes
+tools='Read,Glob,Grep,Edit,Write,AskUserQuestion,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git status:*),Bash(git add:*),Bash(git rm:*),Bash(git mv:*),Bash(git commit:*),Bash(git config user.name)'
 
 branch=$(git rev-parse --abbrev-ref HEAD)
 report="$(git rev-parse --git-dir)/eve-last-review.md"
 echo "Eve: reviewing $(git rev-list --count "$range") commit(s) on $branch..."
-eve "Review and tidy the commits in $range on branch $branch, following your instructions." | tee "$report"
+claude -p "Review and tidy the commits in $range on branch $branch, following your instructions." \
+  --agent eve --permission-mode acceptEdits --allowedTools "$tools" < /dev/null | tee "$report"
 
-# The rest needs someone at a terminal (not VS Code's push button or a script)
+# At a terminal (not VS Code's push button or a script), reopen that session so Eve can ask her
+# questions with Claude's normal question boxes; the push carries on once you type /exit
 if (: < /dev/tty) 2>/dev/null; then  # subshell: a failed redirect would end the hook
-  # Up to three rounds: Eve applies each round's answers and asks follow-ups only when they open something up
-  history=$(cat "$report")
-  round=1
-  while [ $round -le 3 ] && grep -q '^ *a) ' "$report"; do
-    echo
-    printf "Your answers (e.g. 1a 2c 3 keep it), or Enter to skip: "
-    read -r answers < /dev/tty
-    [ -z "$answers" ] && break
-    history="$history
-
-Round $round answers: $answers"
-    eve "These are the person's answers to round $round of your questions (rounds end after 3). Everything so far:
-$history" | tee "$report"
-    history="$history
-
-$(cat "$report")"
-    round=$((round + 1))
-  done
-
-  # The open question: what the pusher wants the other person to make sure of (kept in .claude/ASKS.md)
   case "$(git config user.name)" in Jacob*) other=Jesse ;; *) other=Jacob ;; esac
   echo
-  printf "Anything you want %s to make sure he does? (Enter to skip): " "$other"
-  read -r ask < /dev/tty
-  [ -n "$ask" ] && eve "Record this ask from $(git config user.name) for $other in .claude/ASKS.md: $ask"
+  echo "Eve: opening the conversation for your answers. Type /exit when she's done."
+  claude --continue "Ask me your questions now, following 'Asking your questions' in your instructions. The other person is $other." \
+    --agent eve --permission-mode acceptEdits --allowedTools "$tools" < /dev/tty > /dev/tty 2>&1
 fi
 
 # Never stop the push: Eve's own commit stays local and goes up with the next push
