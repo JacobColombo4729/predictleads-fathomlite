@@ -11,7 +11,7 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 - **Live 2026 listings with timing:** when each listing appeared and when it closed (PredictLeads), so we can say how fast to act, not only what fits.
 - **Real career switches:** people who retrained into computer and mathematical roles, found in a public resume dataset (`notebooks/Profiles.ipynb`): 2,813 career changers (README step 9).
 - **Role buckets that connect the two:** the same buckets on listings (O*NET codes) and on career switches (job titles).
-- **Job growth expectations per role:** expected growth over at most the next 5 years, from official occupational projections (BLS 2025–2035) joined on the same occupation codes, so role recommendations look ahead. Plan: the job growth tasks in [`PRIORITY_QUEUE.md`](PRIORITY_QUEUE.md).
+- **Job growth expectations per role:** expected growth over at most the next 5 years, from official occupational projections (BLS 2025–2035) joined on the same occupation codes, so role recommendations look ahead. Plan: the job growth tasks in [`ANALYSIS.md`](ANALYSIS.md).
 
 ## Angles
 
@@ -24,11 +24,11 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 | **5. Where and when to look** | A watch list of employers hiring at volume or posting entry-level roles, plus a check-every-N-days cadence; a date picker shows how the list changed (July vs. September 2026) | Half of scope listings come from companies with 500+ listings in any field; the top 10% of companies post 47–73% of each role bucket's listings; every listing has first-seen and last-seen dates |
 | **6. Ideas tab** | A separate tab built on the compass, from the résumé: skills to build, career options down the line, the pay increase, expected job growth, and stepping-stone roles (to try; time frames kept vague) | Profiles (time to switch, paths, level at the switch), 2026 listing pay by role, job growth expectations |
 
-Every compass idea, with status and where it's built: [`APPLICATION.md`](APPLICATION.md#3-the-retraining-compass), section 3.
+Every compass idea, with status and where it's built: [`app/DESIGN.md`](../app/DESIGN.md#3-the-retraining-compass), section 3.
 
 ## Planned additions
 
-Proposed 2026-10-10; lead with 1, 3 and 5. Not built yet (tasks in [`PRIORITY_QUEUE.md`](PRIORITY_QUEUE.md)).
+Proposed 2026-10-10; lead with 1, 3 and 5. Not built yet (tasks in [`ANALYSIS.md`](ANALYSIS.md)).
 
 | Idea | What the user sees | Built from | Strengthens |
 |:--|:--|:--|:--|

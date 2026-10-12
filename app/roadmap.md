@@ -80,12 +80,7 @@ un_demo_backend.ps1 -Assess`; per-use consent checkbox; sends the profile's expe
 
 ## 6. Remaining Work, in Order
 
-1. **Measure the ranker.** Jesse and Jacob each label about 40 pairs (about 30 minutes; 60-80 for a stronger result); then `python code/analyze_review_labels.py ...`. This gives the one real number for the pitch.
-2. **End-to-end rehearsal** on a real profile with desired roles; fix what breaks.
-3. **Live-test the AI skills gap analysis** in the Compass on a real profile and a set of saved jobs (start the backend with `-ResumeFill -Assess`); check that each cited line is real and the statuses are fair; note the cost and the time for 10 and 20 jobs.
-4. **Clean notebook and write-up**, built on [docs/ml-inventory.md](docs/ml-inventory.md) with measured versus unvalidated claims stated plainly.
-5. **Demo plan**: live or recorded, a recorded fallback, local or deployed.
-6. **Refresh stale docs** (frontend README) as items land.
+Moved to the app's priority queue, [APP.md](APP.md).
 
 ## 7. Ideas for Later, Ranked by Value
 

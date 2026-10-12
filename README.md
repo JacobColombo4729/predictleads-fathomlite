@@ -40,7 +40,7 @@ predictleads-fathomlite/
 ├── .gitattributes  .gitignore
 ├── requirements.txt          one pinned list for everything (Python 3.11)
 ├── JACOB.md  JESSE.md        each person's change log, most important first
-├── ASKS.md                   what each of us wants the other to make sure of (Keel keeps it)
+├── .claude/ASKS.md           what each of us wants the other to make sure of (Keel keeps it)
 ├── fetch/                    where every dataset comes from and lives: one download script each, the shared folders
 ├── .venv/  .env              your own, git-ignored
 ├── data/  pretrained/        local only, git-ignored: raw/ (PredictLeads), external/ (outside data), the notebooks'
@@ -49,7 +49,7 @@ predictleads-fathomlite/
 │   ├── notebooks/            EDA_SDA_1–4, TimeSeries, Profiles, ML_Fit, ML_Rank
 │   ├── src/                  shared code imported by the notebooks
 │   ├── docs/                 notebook text exports, the volunteer profile form
-│   └── PROJECT_OUTLINE, STANDARDS, APPLICATION, DIFFERENTIATORS, PRIORITY_QUEUE
+│   └── ANALYSIS (the analysis priority queue), PROJECT_OUTLINE, STANDARDS, DIFFERENTIATORS
 └── app/
     ├── backend/              FastAPI demo API
     ├── frontend/             React + Vite app
@@ -369,7 +369,7 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 
 **Each person works on their own branch** (`jacob`, `jesse`) and merges it into `main` when the work is ready (step 5). **Log your changes** in your own file, [`JACOB.md`](JACOB.md) or [`JESSE.md`](JESSE.md), so the other person can catch up at a glance (decided 2026-10-12). There are no other rules. Merging `main` into your branch often keeps the two branches close: a long-running branch once left the team 155 commits behind.
 
-**Keel tidies every push.** Before each push to your branch, Keel (Claude, with the instructions in [`.claude/agents/keel.md`](.claude/agents/keel.md)) looks over the commits going up. It fixes what is clearly untidy in one `Keel: tidy …` commit (stray files, dead code, broken links, a missing change log line) and asks you about anything that needs a judgment call, each with lettered options. Pushing from a terminal, you can answer on the spot (`1a 2c 3 keep it`) and Keel applies your choices; if your answers open something up it asks a short follow-up round, three rounds at most. Its last question is open: anything you want the other person to make sure of. Keel keeps those asks in [`ASKS.md`](ASKS.md) and makes them questions on the other person's pushes, along with questions about how the push fits the other person's direction, so the two of you keep building one thing. Replies go back under each ask, and Keel clears it when it's done. Keel's own commit never holds up the push; it goes up with your next push, so there's nothing to do. (Keel does stop a push while you have uncommitted changes, to keep its commit separate.) It uses your own Claude Code subscription, nothing else. Turn it on once per clone: `git config core.hooksPath .githooks`. Skip it for one push: `KEEL_SKIP=1 git push` (PowerShell: `$env:KEEL_SKIP=1; git push; Remove-Item Env:KEEL_SKIP`). Its last report is saved in `.git/keel-last-review.md`.
+**Keel tidies every push.** Before each push to your branch, Keel (Claude, with the instructions in [`.claude/agents/keel.md`](.claude/agents/keel.md)) looks over the commits going up. It fixes what is clearly untidy in one `Keel: tidy …` commit (stray files, dead code, broken links, a missing change log line) and asks you about anything that needs a judgment call, each with lettered options. Pushing from a terminal, you can answer on the spot (`1a 2c 3 keep it`) and Keel applies your choices; if your answers open something up it asks a short follow-up round, three rounds at most. Its last question is open: anything you want the other person to make sure of. Keel keeps those asks in [`.claude/ASKS.md`](.claude/ASKS.md) and makes them questions on the other person's pushes, along with questions about how the push fits the other person's direction, so the two of you keep building one thing. Replies go back under each ask, and Keel clears it when it's done. Keel's own commit never holds up the push; it goes up with your next push, so there's nothing to do. (Keel does stop a push while you have uncommitted changes, to keep its commit separate.) It uses your own Claude Code subscription, nothing else. Turn it on once per clone: `git config core.hooksPath .githooks`. Skip it for one push: `KEEL_SKIP=1 git push` (PowerShell: `$env:KEEL_SKIP=1; git push; Remove-Item Env:KEEL_SKIP`). Its last report is saved in `.git/keel-last-review.md`.
 
 ```bash
 # 1. Start on your branch, with everything already merged into main
@@ -468,7 +468,7 @@ Everyone must **permanently delete all copies of the data** (local `data/` folde
 
 ## Where to read more
 
-**Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we're doing), [`analysis/STANDARDS.md`](analysis/STANDARDS.md) (how we work), [`analysis/DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md), [`analysis/APPLICATION.md`](analysis/APPLICATION.md), [`analysis/PRIORITY_QUEUE.md`](analysis/PRIORITY_QUEUE.md), [`analysis/docs/volunteer_profiles.md`](analysis/docs/volunteer_profiles.md) (the on-hold plan for volunteer career-changer profiles, with its blank form).
+**Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we're doing), [`analysis/STANDARDS.md`](analysis/STANDARDS.md) (how we work), [`analysis/DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md), [`app/DESIGN.md`](app/DESIGN.md), [`analysis/ANALYSIS.md`](analysis/ANALYSIS.md), [`analysis/docs/volunteer_profiles.md`](analysis/docs/volunteer_profiles.md) (the on-hold plan for volunteer career-changer profiles, with its blank form).
 
 **App:**
 1. [app/STATUS.md](app/STATUS.md) and [app/roadmap.md](app/roadmap.md)

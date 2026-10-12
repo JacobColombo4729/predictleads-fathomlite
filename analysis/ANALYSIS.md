@@ -1,13 +1,12 @@
-# Priority Queue
+# Analysis
 
-> Top = next. Delete a task when it's done. Add new tasks to the tier where they belong.
+> The analysis priority queue. Top = next. Delete a task when it's done. Add new tasks to the tier where they belong. The app has its own queue in [`../app/APP.md`](../app/APP.md).
 > Each notebook's full plan is in the notebook itself; how we work is in [`STANDARDS.md`](STANDARDS.md).
 
 ---
 
 ## Now
 
-- **Jesse:** clone the repo, `git switch jesse`, `git merge origin/main`, then `python -m fetch.get_bge` for the model; log your changes in `JESSE.md` (README step 14), and read `JACOB.md` to catch up.
 - **Rerun EDA_SDA_1, then EDA_SDA_2, on the new layout** (one `data/` at the top) **with the US-only filter** (no-country listings dropped, 2026-10-12): refresh the counts quoted in each notebook's results and conclusion.
 - **Full dataset, full scale for every notebook** (decided 2026-10-10; stream test: ≈13.4M listings, ≈1.0M in scope, ≈40 minutes, ≈8.4 GB):
   1. **Claude:** EDA_SDA_3 for full scale (also: a second ghost sign, since "company still posting" no longer separates forgotten listings at big companies (78% of stale listings): the same company and title still open after 90 days while newer copies of that title keep appearing) (reads `scope_table.parquet` and `scope_descriptions.parquet`): text read part by part, regex features over every listing, spaCy lemmas on a large stratified sample (about 150,000), cache in parts. Hold EDA_SDA_3's first run until then.
@@ -19,7 +18,6 @@
 
 ## Next
 
-- **App, Discover page: company size filter** (added 2026-10-12; the job level filter is built): **Startup**, **Mid-size**, **Large company**. The companies table has **no employee count**, so size needs a proxy: the company's listing volume in any field (EDA_SDA_1's bands: 1–4, 5–49, 50–499, 500+ listings), plus publicly traded (`ticker`) and having a parent company. Name the options for what they measure (for example "hires rarely / sometimes / at volume") unless a proxy holds up as size; decide the cutoffs from EDA_SDA_1 and 2.
 - **Differentiation ideas (2026-10-10), lead with 1, 3 and 5:** seven planned additions, described in [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) (Planned additions): (1) which skill unlocks the most jobs; (2) certification payoff; (3) stepping-stone planner; (4) "apply now" alerts; (5) a backtested ranking claim; (6) pay now vs. one move later; (7) a map of reachable openings.
 - **Set up the GPU PC before ML_Fit** (or before EDA_SDA_3, if it uses transformer models; spaCy's small model is fine on the Mac): BGE embeddings of the scope's ~1.1M descriptions take hours on a GPU (Jesse: 244K in about 45 minutes on an RTX 3070) vs. likely a day or more on the Mac's CPU. Steps: clone the repo; Python 3.11 venv from `requirements.txt` with the CUDA build of PyTorch; `nbstripout --install`; set `PL_DATA_DIR` to the PC's data folder; copy only what's needed (`data/clean/analysis_table.parquet`, `scope_descriptions.parquet`) by external drive, or stream from S3 with the PC's own AWS profile; add the PC's data folder to the end-of-project deletion list. EDA_SDA_1 and 2 stay on the Mac (pandas is CPU-only; no gain).
 - **EDA_SDA_3 (text features; no matching models), in progress:**
@@ -69,7 +67,6 @@
   6. `ML_Fit`: apply growth **after** the fit model as a visible, user-adjustable adjustment (not a trained input), and show how much it moved each suggestion. Always show it next to the role's entry-level share and today's openings.
   7. Write-up: say "expected growth (official projections)", never "will grow"; limitations: national, occupation-wide, assumes full employment, no business cycles.
 - **Date picker (as-of date):** a helper in `src/` that returns the listings live on a date with features computed as of that date; check it on July 1 vs. September 1, 2026 (counts only; EDA_SDA_1 8b shows dates before July are skewed young). The model for a date is trained only on what was known by then; the demo can start with test-period dates.
-- **Ideas tab** (`APPLICATION.md`, a separate tab): skills to build (EDA_SDA_3 skills vs. a résumé, in `ML_Fit`), career options and time to switch (Profiles), pay increase (EDA_SDA_1 7.2 current-field pay vs. EDA_SDA_2 3.12 role pay, hourly), expected growth, and stepping-stone roles; built from `ML_Fit`'s compass tables. Time frames stay vague until the team decides.
 - **Decide the time frames** for career options and job growth in the compass (team; growth at most 5 years), and which growth extensions to adopt (each reopens the 2026-10-09 decision to drop other external data):
   - **Error band** from BLS's own track record (an earlier projection vs. OEWS actuals), shown as a range: recommended, small.
   - **Listing momentum:** each bucket's new-listings trend from TimeSeries, shown next to growth, never blended in: recommended, small.
@@ -77,8 +74,6 @@
   - **Horizon-weighted blend** of a near-term postings signal with the BLS trend (weights 0.8 → 0 over years 1–5, tuned in a backtest): later; our six months can't support it.
   - **State level** (Projections Central): only if the app adds location-based growth.
 - **O*NET (in scope, small):** check the terms of use, then download only the **Career Changers Matrix** (latest release), the **skills** for computer and mathematical occupations plus the team's background occupations, and the **Job Zones** (O*NET's level of education and experience per occupation: an accessibility prior for the feature screening). Listings already carry O*NET codes, so they join directly.
-- **Retraining compass app view** (`APPLICATION.md` sections 2 and 3); its 2026 side is ready (EDA_SDA_2 3.12).
-- **App MVP** (stage 1 in `APPLICATION.md`): list view with search, sort and filters; detail view with apply link; stars.
 - **Write up the analysis** and **choose the final format** (write-up, notebook demo, or app).
 
 ## Blocked
@@ -88,7 +83,6 @@
   - Assign owners for the notebooks above, the app, and the pitch.
   - Set a meeting cadence and a place for async discussion.
   - Confirm the final due date and deliverables.
-- **App:** answer the open questions in `APPLICATION.md`, section 9.
 - **Project advisor:** get answers to our questions (scope, deliverables, AI tools and data, applicant profiles, external data, hosting, presenting results, data deletion), then record them in your change log (`JACOB.md` or `JESSE.md`). Get the AI-and-data answers in writing; the agent stage of the app depends on them, and the answer on collecting career-changer profiles blocks the volunteer profiles.
 - **Applicant profiles** (after the advisor answers): the plan, the volunteer steps and the blank form are in [`docs/volunteer_profiles.md`](docs/volunteer_profiles.md) (with [`docs/volunteer_profile_template.csv`](docs/volunteer_profile_template.csv)). Assign owners for the tasks, draft the consent form, recruit career changers, convert their exports, and build the synthetic generator in `src/`.
 - **PredictLeads:** get answers to our data questions (field definitions, crawl timing, `status`, sources, sampling, duplicates, older daily exports, `seniority`; why job-board listings stop after May and why descriptions go missing more often from June on, from EDA_SDA_2), then record them in your change log (`JACOB.md` or `JESSE.md`).
@@ -99,9 +93,6 @@
 - **predictleads-hackathon:** its `.venv` was removed 2026-10-10 to free space; rebuild it (`python -m venv .venv && pip install -r requirements.txt`) before working there.
 
 - **Profiles is frozen** (refrozen 2026-10-10). Reopen only if needed: a pool for moving up within the same role (training, then a senior or manager role; levels are already tagged), or more prior-career keywords ("other" is 115 of 706; 4a.2e lists the common titles). Any change means a rerun, then the ML notebook reloads `modeling_table.pkl`.
-- **Connect the app to the analysis only after every notebook is complete** (EDA_SDA_3, EDA_SDA_4, TimeSeries, ML_Fit, ML_Rank): the shared listing set → the app's corpus and embeddings → backend features (timing, the flags ranked lower, the retraining compass). The app's plan: `APPLICATION.md`.
-  - **Recruiter names and contact details:** assumed allowed in the app (2026-10-12); filter them out if the advisors or PredictLeads say no. Confirm before the final presentation. The analysis keeps only an anonymous recruiter key (EDA_SDA_1), so the names and contacts would come from the raw listings when the app is connected. (OpenAI use: confirmed allowed 2026-10-11.)
-- **App:** transferable-fit stage (the career changer's background profile), priority model with adjustable weights, MCP servers, then agents (see `APPLICATION.md`).
 - **Run log:** settings, seeds and metrics for every run, in a CSV or a local MLflow store. Never listing text.
 - **Stretch techniques:** transferable fit with embeddings; embeddings vs. TF-IDF; change-point detection (`ruptures`); topic modeling (NMF or BERTopic); several daily exports to observe closures directly; a one-page system card.
 
