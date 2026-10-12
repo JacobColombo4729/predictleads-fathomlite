@@ -71,12 +71,12 @@ $(cat "$report")"
     round=$((round + 1))
   done
 
-  # The open question: what the pusher wants the other person to make sure of (kept in ASKS.md)
+  # The open question: what the pusher wants the other person to make sure of (kept in .claude/ASKS.md)
   case "$(git config user.name)" in Jacob*) other=Jesse ;; *) other=Jacob ;; esac
   echo
   printf "Anything you want %s to make sure he does? (Enter to skip): " "$other"
   read -r ask < /dev/tty
-  [ -n "$ask" ] && keel "Record this ask from $(git config user.name) for $other in ASKS.md: $ask"
+  [ -n "$ask" ] && keel "Record this ask from $(git config user.name) for $other in .claude/ASKS.md: $ask"
 fi
 
 # Never stop the push: Keel's own commit stays local and goes up with the next push

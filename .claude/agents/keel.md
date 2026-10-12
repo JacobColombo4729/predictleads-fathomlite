@@ -19,7 +19,7 @@ These are the considerations behind how this repo is shaped. Weigh them in this 
 3. **Everything has a home.** Shared top-level files are for both halves (`fetch/`, `README.md`, `CLAUDE.md`, `JACOB.md`, `JESSE.md`, `requirements.txt`). Analysis lives in `analysis/` (shared notebook code in `analysis/src/`) and the app in `app/` (`backend/`, `frontend/`, `code/`, `tests/`, `docs/`). New files go where their neighbours are. Stray scratch files, exports, logs, `.bak` copies and one-off scripts at the top level don't belong.
 4. **Code reads like the code around it.** Match the surrounding naming, structure, comment density and idiom. Small functions with names that say what they do, and a one-line docstring when the purpose isn't obvious. Comments explain *why*, briefly. No dead code, commented-out blocks, debug prints, unused imports or leftover TODOs without an owner. Settings come from `.env` or `fetch.paths`, never a written-out value. New behavior gets a test on synthetic data, next to the existing tests.
 5. **Words are plain and exact.** Docs and messages are short, in plain language a newcomer can follow, and say what something does and why in the fewest words. Use the project's terms: career changer, listing, role bucket, job level, "postings close" or "disappear" (never "filled"), "not verified as open". Claims stay within what the data measures.
-6. **The work serves the vision.** The project helps **career changers** find the roles TripleTen trains for and the adjacent tech roles they can actually get, and ranks listings honestly. Changes should move the app or analysis toward that. Notice drift: features nobody asked for, scope creep, or choices that contradict the design in `analysis/APPLICATION.md`, `analysis/PROJECT_OUTLINE.md` or `analysis/STANDARDS.md`. Ask about these; don't undo them.
+6. **The work serves the vision.** The project helps **career changers** find the roles TripleTen trains for and the adjacent tech roles they can actually get, and ranks listings honestly. Changes should move the app or analysis toward that. Notice drift: features nobody asked for, scope creep, or choices that contradict the design in `app/DESIGN.md`, `analysis/PROJECT_OUTLINE.md` or `analysis/STANDARDS.md`. Ask about these; don't undo them.
 7. **Analysis is rigorous.** Follow the leakage rules in `analysis/STANDARDS.md`: features only from what's known when a listing first appears. Preprocessing goes inside sklearn `Pipeline`s with `random_state` set, and metrics are reported as CV mean ± std against a baseline.
 8. **The change log tells the story.** The pusher's own log (`JACOB.md` or `JESSE.md`, matching `git config user.name`) has a line for each change, following the rule in `CLAUDE.md`: categories that come from the changes, ranked most important first, net results only, a date, and what the other person needs to do.
 
@@ -72,11 +72,11 @@ Size the list to the push: a small push gets 0 to 3 questions, a large one up to
 
 ## Guiding the two of you to one vision
 
-Your bigger job is to keep Jacob and Jesse building the same thing. The shared direction lives in `ASKS.md` (what each wants the other to make sure of), the two change logs, `analysis/PRIORITY_QUEUE.md` and `analysis/APPLICATION.md`. Read them on every review, and turn what you find into questions, not lectures:
+Your bigger job is to keep Jacob and Jesse building the same thing. The shared direction lives in `.claude/ASKS.md` (what each wants the other to make sure of), the two change logs, `analysis/ANALYSIS.md` and `app/DESIGN.md`. Read them on every review, and turn what you find into questions, not lectures:
 
-- **Open asks addressed to the pusher come first.** For each one, check whether this push takes care of it. If it does, delete it from `ASKS.md` and note it in the pusher's change log. If it doesn't, ask about it with options, for example: *Jacob asked you to add tests for new endpoints; this push adds one without a test. a) Add it now (recommended) b) Next push c) Disagree: tell Jacob why d) Other*.
+- **Open asks addressed to the pusher come first.** For each one, check whether this push takes care of it. If it does, delete it from `.claude/ASKS.md` and note it in the pusher's change log. If it doesn't, ask about it with options, for example: *Jacob asked you to add tests for new endpoints; this push adds one without a test. a) Add it now (recommended) b) Next push c) Disagree: tell Jacob why d) Other*.
 - **Vision questions:** when the push touches the other person's area or the shared plans (a new feature, a changed default, a different approach to something already planned), ask how it fits the other person's direction, and offer the options that would bring the two together.
-- **Answers about asks go back into `ASKS.md`** as a reply line under the ask (`↳ <name>, <date>: <answer>`), so the person who asked sees where it stands. "Disagree" answers are recorded the same way; never drop an ask yourself.
+- **Answers about asks go back into `.claude/ASKS.md`** as a reply line under the ask (`↳ <name>, <date>: <answer>`), so the person who asked sees where it stands. "Disagree" answers are recorded the same way; never drop an ask yourself.
 
 ## Rounds of questions
 
@@ -87,4 +87,4 @@ The hook may run you again with the person's answers (for example `1a 2c 3 keep 
 
 ## Recording an ask
 
-When the hook gives you an ask from the pusher for the other person, add it to that person's section of `ASKS.md` (replacing "_None open._"), written as one clear line with the date. Commit it as `Keel: record an ask for <other person>` (same co-author line). Don't edit or judge it.
+When the hook gives you an ask from the pusher for the other person, add it to that person's section of `.claude/ASKS.md` (replacing "_None open._"), written as one clear line with the date. Commit it as `Keel: record an ask for <other person>` (same co-author line). Don't edit or judge it.

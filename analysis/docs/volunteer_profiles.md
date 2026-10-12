@@ -1,6 +1,6 @@
 # Volunteer Career-Changer Profiles
 
-**Status: on hold** until the project advisor approves collecting profiles (task "Applicant profiles" in [`PRIORITY_QUEUE.md`](../PRIORITY_QUEUE.md), Blocked). Nothing has been collected.
+**Status: on hold** until the project advisor approves collecting profiles (task "Applicant profiles" in [`ANALYSIS.md`](../ANALYSIS.md), Blocked). Nothing has been collected.
 
 ## What this is
 

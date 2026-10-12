@@ -31,7 +31,7 @@ We can't see applications or hires, so the ranking rests on what PredictLeads' d
 - **How fast to move:** an apply-by estimate on every listing; and listings a career changer can't get are hidden.
 - **Pick a date:** the priority list as it stood on any date in the data (for example July vs. September 2026), to show how the best options change over time.
 
-Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md). Every compass idea in one place: [`APPLICATION.md`](APPLICATION.md#3-the-retraining-compass), section 3.
+Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md). Every compass idea in one place: [`app/DESIGN.md`](../app/DESIGN.md#3-the-retraining-compass), section 3.
 
 ## Data
 
@@ -40,7 +40,7 @@ Details, evidence and pitch wording: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
 - **The scope table (EDA_SDA_1):** 1.0M listings (947K originals) from 84K companies in 11 role buckets, the roles TripleTen trains for plus adjacent tech roles (59% under a TripleTen program, 41% adjacent); English, US (only listings that name the US; no-country listings dropped 2026-10-12, so these counts change on the next rerun); 24% still open on September 30.
 - **EDA_SDA_2 (full scale, 2026-10-11):** the same 1.0M scope listings, cleaned and flagged (nothing removed), saved as `scope_table.parquet`; 23.2% are open on September 30 and visible to everyone once likely ghosts and document management are hidden.
 - **Career switches:** the public Kaggle structured resume dataset (MIT license): 54,933 resume records → 17,952 unique people (each resume appeared about 3 times; almost all with readable job dates) → **2,813 career changers**: 2,049 changed roles within tech, 407 retrained after working in another field, 357 retrained as new grads from another field. Career paths from real switches spanning two decades; the 2026 listings supply today's openings, pay and timing. Built in `notebooks/Profiles.ipynb`.
-- **Job growth expectations:** expected employment growth by occupation over at most the next 5 years, from official occupational projections, used to recommend roles with the future in mind. They're published by occupation code, so they plug straight into the O*NET codes on listings and role buckets. Current release: BLS 2025–2035; plan in the job growth tasks in [`PRIORITY_QUEUE.md`](PRIORITY_QUEUE.md).
+- **Job growth expectations:** expected employment growth by occupation over at most the next 5 years, from official occupational projections, used to recommend roles with the future in mind. They're published by occupation code, so they plug straight into the O*NET codes on listings and role buckets. Current release: BLS 2025–2035; plan in the job growth tasks in [`ANALYSIS.md`](ANALYSIS.md).
 - **Data handling:** stays local; nothing is shared with outside AI services; only aggregates are reported.
 
 ## What we've found so far
@@ -124,7 +124,7 @@ Each notebook answers one question and hands its final table to the next. The Tr
 - The career-change flags are keyword rules until EDA_SDA_3 validates them (the degree flag fires on only 3–6% of scope listings, so its pattern likely misses common wording). Hiding listings on an unvalidated rule could hide listings a career changer could get, so rules hide nothing until they're validated.
 - The career-switch rules were spot-checked on random samples, not every person, and most switches are from 2010–2019 (median 2014), so the resumes teach career paths while the 2026 listings supply the market. O*NET's current Career Changers Matrix checks that the paths still hold.
 
-- Job growth figures are projections, not forecasts we make or check, and they're national, by occupation. They assume a full-employment economy and leave out business cycles; expected accuracy is moderate for years 1–2 and low to moderate for years 3–5 (job growth tasks in `PRIORITY_QUEUE.md`). IT project management has no projection of its own; it uses the 15-1299 catch-all as a proxy. A growing occupation doesn't mean more entry-level openings; our listings measure those.
+- Job growth figures are projections, not forecasts we make or check, and they're national, by occupation. They assume a full-employment economy and leave out business cycles; expected accuracy is moderate for years 1–2 and low to moderate for years 3–5 (job growth tasks in `ANALYSIS.md`). IT project management has no projection of its own; it uses the 15-1299 catch-all as a proxy. A growing occupation doesn't mean more entry-level openings; our listings measure those.
 - The resumes only show people who made a switch, not those who tried and didn't, so paths show where switchers went, never how likely a switch is to work.
 - Early dates in the date picker miss long-open listings first seen before 2026-03-30 (the six-month window), so July onward gives fair comparisons: live listings jump from 2,459 on April 1 to about 32,000 by June 1, and their age mix settles from July (EDA_SDA_1 8b).
 
