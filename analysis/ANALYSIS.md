@@ -44,6 +44,7 @@
   - Models: `DummyRegressor`, linear regression, random forest, ARIMA / SARIMA; RMSE and MAE.
   - Survival by month first seen, and a "check every N days" cadence.
 - **ML_Fit (fit, role discovery, the compass):**
+  - **Built (2026-10-12): steps 1–4 and their evaluation** (sections 2–4 and 6, `src/fit_eval.py`): keyword, TF-IDF, BGE and RRF ranked against the most-common-role baseline on real career moves, hit rate @3/@5 per pool, 5 development folds by person, a held-out 20% scored once with bootstrap intervals, and the current-role pull. **To run:** EDA_SDA_1 (its cell 4b builds the listing tables), then Profiles (its new cell 5c saves the pre-switch text), then ML_Fit. Run the test cell (6b) only once, at the end.
   - Build each career changer's pre-switch text from the Profiles timeline (titles and programs before the switch; no undated skills).
   - The ladder: keyword overlap → TF-IDF cosine → BGE embeddings (small or base, local) → RRF hybrid → skills-based matching on O*NET skills → a trained layer (Option B) on real career moves (candidates include a small neural network, `MLPClassifier`); stretch: fine-tune BGE on career moves if the trained layer plateaus.
   - Score each step on hit rate@3/@5 for the role people actually moved into, per pool and overall, against a title-keyword baseline; measure old-field bias; exclude the current role for within-tech moves; folds grouped by person.

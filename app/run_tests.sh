@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # macOS / Linux version of run_tests.ps1. Runs the project's tests from one place.
-#   ./run_tests.sh              live Python tests (tests/ and backend/tests/)
+#   ./run_tests.sh              live Python tests (tests/, backend/tests/ and analysis/tests/)
 #   ./run_tests.sh --frontend   also type-check and build the React app
 set -uo pipefail
 
@@ -26,6 +26,7 @@ run_step() {
 
 run_step "tests/ (engine, explanations, BGE text)" "$py" -m unittest discover -s tests -q
 run_step "backend/tests/ (API, ranker, feedback, resume reader)" "$py" -m unittest discover -s backend/tests -t . -q
+run_step "analysis/tests/ (role discovery evaluation)" "$py" -m unittest discover -s ../analysis/tests -t ../analysis -q
 if [[ $frontend -eq 1 ]]; then
   run_step "frontend type-check" bash -c 'cd frontend && npx tsc -b'
   run_step "frontend build" bash -c 'cd frontend && npm run build --silent'

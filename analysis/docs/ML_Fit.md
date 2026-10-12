@@ -14,8 +14,8 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 | Notebook | Question | Hands off |
 |:--|:--|:--|
-| EDA_SDA_1 | What's in the data, and what's the scope? | Final table 1 |
-| EDA_SDA_2 | Which listings do we study? The scope cut, additional cleaning, non-text checks, ghost listings | Scope table, non-text features, occupation summary |
+| EDA_SDA_1 | What's in the full file, how does tech compare with every field, and what's in the scope? (the scope cut, applied first) | Scope table and its descriptions, occupation summary, company activity |
+| EDA_SDA_2 | Which scope listings do we keep, and how do they behave? Additional cleaning, non-text checks by role bucket, ghost listings | Scope table, non-text features |
 | EDA_SDA_3 | What do the descriptions say? Text features, validated blockers, skills mapped to O*NET (no matching models) | Scope table + text features |
 | EDA_SDA_4 | Which features hold up? Statistics, confounders, the adjusted Cox check | Modeling-ready table |
 | TimeSeries | When do listings appear and close? | Timing features |
@@ -72,6 +72,34 @@ PredictLeads × TripleTen externship · Jacob Colombo
 | 8. **The compass, assembled** | | The single place the compass is put together for the app: Profiles' paths (prior career → training → first tech job; within-tech moves, sideways or up) with people counts and thin paths marked; each role's 2026 openings, hourly pay, closing speed, entry-level share and expected growth (EDA_SDA_2 3.12); the Ideas tab's inputs: skills to build per suggested role, options and time to switch, pay increase against the current field (EDA_SDA_2 1c) and growth. Saved as compass tables under `data/clean/` |
 | 9. Solution report | Steps, difficulties, final model and score | Hand-off of fit scores to `ML_Rank` |
 
-## 2.–9.
+## 2. Targets and the split
 
-_To do, once EDA_SDA_3's text features and skills exist, and the pre-switch text is built from the Profiles timeline._
+The cases are the **career changers** from Profiles. For each one, the input is their **pre-switch text** (job titles and study programs from before the switch, `data/profiles/pre_switch_text.pkl`, Profiles 5c) and the answer is the **role bucket they actually moved into** (`target_bucket`). For moves within tech, the person's current role (`from_bucket`) is left out of the candidates: a move means a different role.
+
+**20% of the people are held out as the test set and scored once, at the very end** (section 6b). Everything else is developed on 5 folds of the rest. Both are split by person and stratified by role and pool, so every role and pool shows up in each.
+
+## 3. Role descriptions
+
+Each role bucket is described by its **2026 listings**: a reproducible sample of up to 2,000 per role from the full-file scope tables (EDA_SDA_1 cell 4b), each listing's title and description as plain text. The methods compare a person's background with these. No person is involved here, so nothing about the test people leaks into the methods. Later, EDA_SDA_3's cleaned text can replace these with one setting.
+
+## 4. The methods (ladder steps 1–4)
+
+Each method scores every role for every person; the higher, the better the fit:
+1. **Keyword overlap:** how many of the role's most common title words appear in the person's background.
+2. **TF-IDF cosine:** word weights learned from the listings; a role is the average of its listings.
+3. **BGE cosine:** the pretrained BGE model, run locally (the person as a query, a role as the average of 300 of its listings).
+4. **RRF:** TF-IDF and BGE fused by reciprocal rank (k = 60, as in the app).
+
+The **baseline** suggests the roles in order of how common they are among the training people. None of the four methods learns from people, so each is scored once on everyone; only the baseline is refit per fold.
+
+## 5. The trained layer
+
+_To do: steps 5–6 of the ladder (skills-based matching, and the trained layer on these scores plus the Profiles features)._
+
+## 6. Evaluation
+
+**Hit rate @k:** the share of people whose actual role is in the method's top k (3 and 5), overall and per pool. **Development (6a):** mean ± standard deviation over the 5 folds. **Test (6b):** run **once**, on the held-out 20%, with 95% intervals from resampling people (2,000 bootstrap samples). **Current-role pull (6c):** for moves within tech, how often a method would put the person's current role first if it were allowed: the old-field bias word matching tends to have.
+
+## 7.–9.
+
+_To do: interpretation (SHAP), growth-adjusted recommendations, the compass, and the solution report._
