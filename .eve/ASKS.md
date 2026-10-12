@@ -5,6 +5,7 @@
 ## For Jesse (from Jacob)
 
 - Decide what happens to `app/STATUS.md`: delete it, or merge what's still useful into `app/APP.md` and drop the parts that aren't needed any more. Its "Still pending" tasks are already in `APP.md`. (2026-10-12)
+- Decide what happens to `app/archive/` (48 files of old matching experiments the app no longer uses): delete it, keep only what you still need, or keep it as is. It's still in the git history either way. (2026-10-12)
 
 ## For Jacob (from Jesse)
 
