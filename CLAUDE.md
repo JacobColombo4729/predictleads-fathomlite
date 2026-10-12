@@ -7,7 +7,7 @@
 - **Standard:** the TripleTen course templates (`~/Desktop/TripleTen/Templates`) are the baseline for every notebook; go further with advanced methods.
 
 ## Structure
-This repository joins two earlier ones with their full histories: `analysis/` (was `project_leads`, Jacob) and `app/` (was `predictleads-hackathon`, Jesse). They share one set of top-level files: `requirements.txt`, `.venv`, `.env`/`.env.example`, `.gitignore`, `.gitattributes`, `README.md` (setup, running, data rules), `data/` and `models/`, and **`fetch/`**: where every dataset comes from and lives, for both halves (`paths.py`: `REPO_ROOT`, `DATA_DIR`, `RAW_DIR`, `external()`; `predictleads.py`: the S3 settings from `.env` and the copy in `data/raw/`; `downloads.py`: the disk-space check; one `get_<name>.py` per dataset, run as `python -m fetch.get_<name>` from the root). Remaining merge steps: `analysis/PRIORITY_QUEUE.md`; the six agreed merge decisions: `analysis/DECISION_LOG.md` (2026-10-11).
+This repository joins two earlier ones with their full histories: `analysis/` (was `project_leads`, Jacob) and `app/` (was `predictleads-hackathon`, Jesse). They share one set of top-level files: `requirements.txt`, `.venv`, `.env`/`.env.example`, `.gitignore`, `.gitattributes`, `README.md` (setup, running, data rules), `data/` and `pretrained/`, and **`fetch/`**: where every dataset comes from and lives, for both halves (`paths.py`: `REPO_ROOT`, `DATA_DIR`, `RAW_DIR`, `external()`; `predictleads.py`: the S3 settings from `.env` and the copy in `data/raw/`; `downloads.py`: the disk-space check; one `get_<name>.py` per dataset, run as `python -m fetch.get_<name>` from the root). Remaining merge steps: `analysis/PRIORITY_QUEUE.md`; the six agreed merge decisions: `analysis/DECISION_LOG.md` (2026-10-11).
 
 **`analysis/`**
 - `PROJECT_OUTLINE.md`: what we're doing. `STANDARDS.md`: how we work (standards, leakage rules, scope, risks).
@@ -21,7 +21,7 @@ This repository joins two earlier ones with their full histories: `analysis/` (w
 - App scripts (`app/run_*.ps1`, `.sh`) run from anywhere; pipeline commands run from `app/`. App code finds the shared folders through `REPO_ROOT` (`app/`'s parent).
 
 **Top level (shared)**
-- `data/` and `models/`: local only, git-ignored, **never read by Claude** (also any leftover `analysis/data/`, `app/data/`, `app/models/`, `app/backend/data/`)
+- `data/` and `pretrained/`: local only, git-ignored, **never read by Claude** (also any leftover `models/`, `analysis/data/`, `app/data/`, `app/models/`, `app/backend/data/`)
 - `.env`: settings and keys for both halves, git-ignored. Environment: Python 3.11, one `.venv` from `requirements.txt`
 
 ## Data & AI rules (from project advisors)

@@ -25,7 +25,7 @@ from grounded_match_explanations import ProviderFailure, ProviderUnavailable, Re
 SCHEMA_VERSION = "resume_profile_extraction_v1"
 DEFAULT_MODEL = "gpt-4.1-mini"
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-REPO_ROOT = PROJECT_ROOT.parent  # data/, models/ and .env are shared with analysis/ at the top
+REPO_ROOT = PROJECT_ROOT.parent  # data/, pretrained/ and .env are shared with analysis/ at the top
 ENTRY_KINDS = ("job", "project", "education")
 MIN_RESUME_CHARS = 200
 MAX_RESUME_CHARS = 30_000

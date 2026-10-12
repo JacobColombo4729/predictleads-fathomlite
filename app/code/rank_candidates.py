@@ -28,7 +28,7 @@ from typing import Any, Sequence
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # the repository root, for fetch/ (shared with analysis/)
 from fetch.paths import DATA_DIR  # noqa: E402  shared with analysis/: one definition of where data lives
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-REPO_ROOT = PROJECT_ROOT.parent  # data/, models/ and .env are shared with analysis/ at the top
+REPO_ROOT = PROJECT_ROOT.parent  # data/, pretrained/ and .env are shared with analysis/ at the top
 GPU_LIBS = DATA_DIR / "_gpu_libs"
 if GPU_LIBS.is_dir() and "--cpu" not in sys.argv:
     sys.path.insert(0, str(GPU_LIBS))  # CUDA build of the same torch version, installed outside the venv
@@ -40,7 +40,7 @@ import job_matching_engine as engine  # noqa: E402
 import bge_text as bge  # noqa: E402
 
 SAMPLE_PATH = DATA_DIR / "discovery/role_exploration/roles_corrected_20261006T000000Z/jobs_prepared_random_sample.jsonl"
-BGE_SNAPSHOT = bge.model_dir()  # models/bge-base-en-v1.5, or $PREDICTLEADS_BGE_MODEL_DIR
+BGE_SNAPSHOT = bge.model_dir()  # pretrained/bge-base-en-v1.5, or $PREDICTLEADS_BGE_MODEL_DIR
 DEFAULT_CORPUS_DIR = DATA_DIR / "matching/ai_ml_corpus_v1"
 DEPTH = 50
 RRF_K = 60

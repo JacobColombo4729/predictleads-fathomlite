@@ -23,7 +23,7 @@ BATCH_MAX_OUTPUT_TOKENS = 30000
 MAX_BATCH_JOBS = 20
 MAX_DESCRIPTION_CHARS = 8000   # per job in a batch, to keep the request and the cost bounded
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-REPO_ROOT = PROJECT_ROOT.parent  # data/, models/ and .env are shared with analysis/ at the top
+REPO_ROOT = PROJECT_ROOT.parent  # data/, pretrained/ and .env are shared with analysis/ at the top
 
 
 class ExplanationError(RuntimeError):

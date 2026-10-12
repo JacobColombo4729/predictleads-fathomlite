@@ -33,7 +33,7 @@ It serves http://127.0.0.1:8000 (OpenAPI at `/docs`). Startup reads the corpus a
 | `PREDICTLEADS_API_JOBS_PATH` | `data/matching/ai_ml_serving_v1/jobs_prepared_corpus.jsonl` | Prepared listings the API serves. Must be the same file the embeddings were built from when using `rrf`. |
 | `PREDICTLEADS_API_RANKER` | `tfidf` (the start script sets `rrf`) | `rrf` or `tfidf`. |
 | `PREDICTLEADS_API_CORPUS_DIR` | none | Directory with `bge_embeddings.npy` and its manifest (required for `rrf`). |
-| `PREDICTLEADS_BGE_MODEL_DIR` | `models/bge-base-en-v1.5` | Local BGE model files used to encode profile queries. |
+| `PREDICTLEADS_BGE_MODEL_DIR` | `pretrained/bge-base-en-v1.5` | Local BGE model files used to encode profile queries. |
 | `PREDICTLEADS_API_DB_PATH` | `backend/data/predictleads-demo.sqlite3` | Sessions, profiles, saved jobs, ratings, assessment cache (git-ignored). |
 | `PREDICTLEADS_API_SESSION_TTL_SECONDS` | `86400` | Sliding anonymous session expiry (minimum 60). |
 | `PREDICTLEADS_API_COOKIE_SECURE` | `0` | Set to `1` over HTTPS. |
