@@ -51,7 +51,7 @@ How and why: README step 9. The rules:
 - Clear notebook outputs before committing.
 
 ## Git
-- **Log every change** in the committer's file: `JACOB.md` for Jacob, `JESSE.md` for Jesse (from `git config user.name`), in the same commit. Group lines into categories that come from the changes themselves: no preset headings, add one when a change doesn't fit an existing one, and regroup as the log grows; write the net result, so a later change to the same thing rewrites its line instead of adding one (moved, then deleted, reads "deleted"); end with the date and anything the other person needs to do. No other Git rules.
+- **Log every change** in the committer's file: `JACOB.md` for Jacob, `JESSE.md` for Jesse (from `git config user.name`), in the same commit. Group lines into categories that come from the changes themselves: no preset headings, add one when a change doesn't fit an existing one, and regroup as the log grows; rank the categories, and the lines within each, most important first (what the other person must act on or what breaks their work ranks highest), re-ranking as entries change; write the net result, so a later change to the same thing rewrites its line instead of adding one (moved, then deleted, reads "deleted"); end with the date and anything the other person needs to do. No other Git rules.
 
 ## Before every commit
 - Notebook outputs cleared, including every cell tagged `data-rows` (row previews).
