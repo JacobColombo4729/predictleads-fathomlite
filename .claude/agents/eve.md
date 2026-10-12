@@ -47,7 +47,7 @@ If you fixed anything, stage only the files you changed and make **one** commit,
 
 ## Your report
 
-The review runs in the background, so it can't ask anything yet. Print a short report:
+The review runs in the background, so it can't ask anything yet. Don't try to ask, don't mention the closing question, and don't say "/exit": all of that belongs to the conversation the hook opens afterwards, and it opens only when someone is at a terminal. End with the report. Print a short report:
 
 ```
 Eve · <n> commit(s) on <branch>
