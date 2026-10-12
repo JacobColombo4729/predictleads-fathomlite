@@ -52,10 +52,6 @@ Each line of a file is a JSON:API document with two keys: `data` (the records) a
 
 Turns the nested documents into ordinary tables, one row per record, with nested fields as dotted columns (for example `attributes.first_seen_at`): the companies and job openings, and each file's related objects with duplicates removed. Each table is built in parts of 20,000 records saved to `data/flat/` as they finish, so after a crash a rerun skips finished parts, and a finished table is never rebuilt.
 
-## 5. Schema
-
-Writes a `df.info()`-style summary of every flattened table (column names, non-null counts, dtypes) into `DATA.md` (top level), only when something changed.
-
 ## 6. Data cleaning
 
 Cleaning comes before any analysis, because every timing factor depends on valid dates. **Data-quality fixes happen here** (impossible dates, duplicates, placeholders, mixed units, inconsistent labels). **Scope decisions wait for section 10** and are applied together in section 11, since they're judgment calls that need the full data as evidence. Reposts are kept as a feature, not removed. Each step shows summary tables only and logs the rows it touched; 6.7 has the full cleaning report.

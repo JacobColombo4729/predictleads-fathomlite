@@ -1,4 +1,4 @@
-"""Load the PredictLeads data export of 2026-09-30 (PredictLeads calls each daily export a snapshot): S3 connection, cached raw documents, resumable flattening, and schemas.
+"""Load the PredictLeads data export of 2026-09-30 (PredictLeads calls each daily export a snapshot): S3 connection, cached raw documents and resumable flattening.
 
 Used by notebooks/EDA_SDA_1.ipynb, sections 1-5. Everything prints aggregates only: names, shapes, sizes.
 
@@ -10,7 +10,6 @@ Layout under data/ (git-ignored):
 import gc
 import io
 import os
-import re
 import time
 from pathlib import Path
 
@@ -18,14 +17,13 @@ import numpy as np
 import pandas as pd
 
 from src.eda_helpers import DATA_DIR, ROOT  # first: it puts the repository root on the path for fetch
-from fetch.paths import ENV_FILE, REPO_ROOT
+from fetch.paths import ENV_FILE
 from fetch.predictleads import RAW_DIR, RAW_FILES, SNAPSHOT, connect, raw_file  # noqa: F401 (used by stream_full)
 
 JOBS_N = 200_000      # job-opening documents to read and flatten (the first N in the file)
 PART_ROWS = 20_000    # records per saved part when flattening
 FLAT_DIR = DATA_DIR / "flat"
 FLAT_TABLES = ["companies", "companies_included", f"job_openings_{JOBS_N}", f"job_openings_included_{JOBS_N}"]
-SCHEMA_DOC = REPO_ROOT / "DATA.md"
 
 
 # ---------- S3 and local copies (shared with the app: fetch/predictleads.py) ----------
@@ -178,43 +176,3 @@ def load_flat(name, columns):
     return map_parts(name, lambda d: d.reindex(columns=columns))
 
 
-# ---------- schemas ----------
-
-def schema_md(name, table, note=""):
-    """A df.info()-style table for one flattened table: names, non-null counts and dtypes, never values."""
-    n, non_null, dtypes = 0, pd.Series(dtype="int64"), {}
-    for f in sorted((FLAT_DIR / table).glob("part_*.pkl")):
-        part = pd.read_pickle(f)
-        n += len(part)
-        non_null = non_null.add(part.notna().sum(), fill_value=0)
-        for col, dtype in part.dtypes.items():
-            dtypes[col] = dtype if dtypes.get(col, dtype) == dtype else "object"
-        del part
-    lines = [f"#### `{name}`: {n:,} rows × {len(dtypes)} columns{note}", "",
-             "| # | Column | Non-null | Null % | Dtype |", "|---|---|---|---|---|"]
-    for i, (col, dtype) in enumerate(dtypes.items()):
-        nn = int(non_null.get(col, 0))
-        lines.append(f"| {i} | `{col}` | {nn:,} | {100 * (1 - nn / n) if n else 0:.1f}% | {dtype} |")
-    return "\n".join(lines)
-
-
-def write_schemas(doc=SCHEMA_DOC):
-    """Write the four schemas between the schema markers in DATA.md (top level), only if they changed."""
-    jobs_note = f" (from the first {JOBS_N:,} job-opening documents)"
-    body = "\n\n".join([
-        schema_md("companies", "companies"),
-        schema_md("companies_included", "companies_included", " (duplicates removed by type and id)"),
-        schema_md("job_openings", f"job_openings_{JOBS_N}", jobs_note),
-        schema_md("job_openings_included", f"job_openings_included_{JOBS_N}", jobs_note + ", duplicates removed by type and id"),
-    ])
-    text = doc.read_text()
-    pattern = r"(<!-- schema:start -->\n).*?(\n<!-- schema:end -->)"
-    current = re.search(pattern, text, flags=re.S)
-    if not current:
-        raise RuntimeError(f"schema markers not found in {doc.name}")
-    if body in current.group(0):
-        print(f"schemas unchanged, {doc.name} left as is")
-        return
-    generated = f"_Generated {pd.Timestamp.now():%Y-%m-%d %H:%M} from the 2026-09-30 data export._\n\n" + body
-    doc.write_text(re.sub(pattern, lambda m: m.group(1) + generated + m.group(2), text, flags=re.S))
-    print(f"wrote schemas for 4 tables to {doc.name}")

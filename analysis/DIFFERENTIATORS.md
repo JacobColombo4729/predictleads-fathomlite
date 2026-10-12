@@ -9,7 +9,7 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 ## What only this project has
 
 - **Live 2026 listings with timing:** when each listing appeared and when it closed (PredictLeads), so we can say how fast to act, not only what fits.
-- **Real career switches:** people who retrained into computer and mathematical roles, found in a public resume dataset (`notebooks/Profiles.ipynb`): 2,813 career changers ([`DATA.md`](../DATA.md)).
+- **Real career switches:** people who retrained into computer and mathematical roles, found in a public resume dataset (`notebooks/Profiles.ipynb`): 2,813 career changers (README step 9).
 - **Role buckets that connect the two:** the same buckets on listings (O*NET codes) and on career switches (job titles).
 - **Job growth expectations per role:** expected growth over at most the next 5 years, from official occupational projections (BLS 2025–2035) joined on the same occupation codes, so role recommendations look ahead. Plan: [`JOB_GROWTH.md`](JOB_GROWTH.md).
 
