@@ -36,7 +36,7 @@ A **Talk** button records up to 30 seconds from the microphone (the browser asks
 
 ## Switching it on, and limits
 
-AI parts are **off by default**. Start the backend with `.\run_demo_backend.ps1 -Market` (or `--market` on Mac) and `OPENAI_API_KEY` in `.env`. Without it the box still shows the presets. Per demo session: 120 typed questions, 40 company researches, 60 voice questions (`MARKET_ASK_CAP`, `MARKET_RESEARCH_CAP`, `MARKET_VOICE_CAP` in `backend/api.py`). A typed question or a spoken one costs a fraction of a cent; a company research costs a few cents.
+AI parts are **on by default** (`-NoAI`, or `--no-ai` on Mac, turns them off) and need `OPENAI_API_KEY` in `.env`. Without it the box still shows the presets. Per demo session: 120 typed questions, 40 company researches, 60 voice questions (`MARKET_ASK_CAP`, `MARKET_RESEARCH_CAP`, `MARKET_VOICE_CAP` in `backend/api.py`). A typed question or a spoken one costs a fraction of a cent; a company research costs a few cents.
 
 ## Data
 

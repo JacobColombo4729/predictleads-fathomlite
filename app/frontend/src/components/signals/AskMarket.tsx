@@ -52,7 +52,7 @@ export default function AskMarket() {
     } else if (result.state === "empty") {
       setError(result.message);
     } else {
-      setError("Voice questions are turned off on this server. Ask whoever runs the demo to start it with the -Market option.");
+      setError("Voice questions are turned off on this server. Ask whoever runs the demo to start it without the -NoAI option.");
     }
   }, [show]);
   const voice = useVoiceRecorder(heard, setError);
@@ -127,7 +127,7 @@ export default function AskMarket() {
 
       {error && <p className="field__error" role="alert">{error}</p>}
       {response?.state === "unavailable" && (
-        <p className="notice" role="alert">Typed questions are turned off on this server, so nothing was sent. Use one of the examples above, or ask whoever runs the demo to start it with the -Market option.</p>
+        <p className="notice" role="alert">Typed questions are turned off on this server, so nothing was sent. Use one of the examples above, or ask whoever runs the demo to start it without the -NoAI option.</p>
       )}
       {response?.state === "unsupported" && (
         <div className="mk-unsupported" role="status">

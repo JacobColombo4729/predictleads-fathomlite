@@ -8,6 +8,10 @@
 - **BGE model download:** `python -m fetch.get_bge` gets `BAAI/bge-base-en-v1.5` (about 0.44 GB, no account) at the version the corpus's embeddings were made with. **Jesse:** run it once if you don't have the model. (2026-10-12)
 - **`fetch/`** is where every dataset comes from: one download script each (`get_predictleads`, `get_resumes`, `get_bge`), one standard folder each, a disk-space check, and nothing hard-coded (bucket names and profiles come from `.env`). The PredictLeads export can be downloaded to `data/raw/`; everything reads it locally when it's there and streams from S3 otherwise. (2026-10-12)
 
+## App
+
+- **OpenAI features on by default:** `run_demo_backend.ps1` / `.sh` now start with Magic fill, the AI gap analysis and Ask the market's typed questions on; `-NoAI` / `--no-ai` turns them off. Each still asks for consent in the app and needs `OPENAI_API_KEY` in `.env`. **Jesse:** `-ResumeFill`, `-Assess` and `-Market` are gone; just run the script. (2026-10-12)
+
 ## Git workflow
 
 - **No Git rules** beyond these change logs: work on your own branch, merge into `main` when ready, and log your changes here (README step 14). (2026-10-12)

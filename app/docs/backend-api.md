@@ -20,11 +20,11 @@ From `app/`, with the repository's `.venv` at the top (see the [README](../../RE
 
 ```powershell
 .\run_demo_backend.ps1                # RRF ranker on data/matching/ai_ml_serving_v1
-.\run_demo_backend.ps1 -ResumeFill    # also enable Magic fill (needs OPENAI_API_KEY in .env)
+.\run_demo_backend.ps1 -NoAI          # start with the OpenAI features off
 .\run_demo_backend.ps1 -Ranker tfidf  # lighter, keyword-only ranker
 ```
 
-It serves http://127.0.0.1:8000 (OpenAPI at `/docs`). Startup reads the corpus and fits TF-IDF once (about 3.5 minutes, about 2.5 GB). It makes no external call unless `-ResumeFill` is set and a user triggers it.
+It serves http://127.0.0.1:8000 (OpenAPI at `/docs`). Startup reads the corpus and fits TF-IDF once (about 3.5 minutes, about 2.5 GB). It makes no external call unless a user triggers an OpenAI feature (on by default; `-NoAI` turns them off).
 
 ## Configuration
 
@@ -38,7 +38,7 @@ It serves http://127.0.0.1:8000 (OpenAPI at `/docs`). Startup reads the corpus a
 | `PREDICTLEADS_API_SESSION_TTL_SECONDS` | `86400` | Sliding anonymous session expiry (minimum 60). |
 | `PREDICTLEADS_API_COOKIE_SECURE` | `0` | Set to `1` over HTTPS. |
 | `PREDICTLEADS_API_ORIGINS` | `http://127.0.0.1:5173,http://localhost:5173` | Allowed credentialed browser origins. |
-| `PREDICTLEADS_RESUME_EXTRACTION` | off | `openai` enables Magic fill. The start script sets it with `-ResumeFill`. |
+| `PREDICTLEADS_RESUME_EXTRACTION` | off | `openai` enables Magic fill. The start script sets it unless `-NoAI` is given. |
 | `PREDICTLEADS_RESUME_MODEL` | `gpt-4.1-mini` | Model used for resume extraction. |
 | `OPENAI_API_KEY` | none | Read from the environment or the project-root `.env`. Never commit it. |
 

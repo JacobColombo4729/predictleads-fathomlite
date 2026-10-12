@@ -38,7 +38,7 @@ export default function ResearchCard({ companyId, companyName }: { companyId: st
     );
   }
   const d = state.data;
-  if (d.state === "unavailable") return <p className="notice" role="alert">Web research is turned off on this server, so nothing was sent. Ask whoever runs the demo to start it with the -Market option.</p>;
+  if (d.state === "unavailable") return <p className="notice" role="alert">Web research is turned off on this server, so nothing was sent. Ask whoever runs the demo to start it without the -NoAI option.</p>;
   if (d.state === "no_sources") return <p className="notice">{d.message}</p>;
   return (
     <div className="mk-research mk-research--done">
