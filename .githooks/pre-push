@@ -39,11 +39,16 @@ fi
 # Eve's whole reach: read files, git, and (in the conversation) Claude's question boxes
 tools='Read,Glob,Grep,Edit,Write,AskUserQuestion,Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(git status:*),Bash(git add:*),Bash(git rm:*),Bash(git mv:*),Bash(git commit:*),Bash(git config user.name)'
 
+# Eve's review gets a session ID of its own, so the conversation below reopens that session and
+# never someone's other Claude conversation in this folder
+h=$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')
+session="$(echo "$h" | cut -c1-8)-$(echo "$h" | cut -c9-12)-4$(echo "$h" | cut -c14-16)-a$(echo "$h" | cut -c18-20)-$(echo "$h" | cut -c21-32)"
+
 branch=$(git rev-parse --abbrev-ref HEAD)
 report="$(git rev-parse --git-dir)/eve-last-review.md"
 echo "Eve: reviewing $(git rev-list --count "$range") commit(s) on $branch..."
 claude -p "Review and tidy the commits in $range on branch $branch, following your instructions." \
-  --agent eve --permission-mode acceptEdits --allowedTools "$tools" < /dev/null | tee "$report"
+  --session-id "$session" --agent eve --permission-mode acceptEdits --allowedTools "$tools" < /dev/null | tee "$report"
 
 # At a terminal (not VS Code's push button or a script), reopen that session so Eve can ask her
 # questions with Claude's normal question boxes; the push carries on once you type /exit
@@ -51,7 +56,7 @@ if (: < /dev/tty) 2>/dev/null; then  # subshell: a failed redirect would end the
   case "$(git config user.name)" in Jacob*) other=Jesse ;; *) other=Jacob ;; esac
   echo
   echo "Eve: opening the conversation for your answers. Type /exit when she's done."
-  claude --continue "Ask me your questions now, following 'Asking your questions' in your instructions. The other person is $other." \
+  claude --resume "$session" "Ask me your questions now, following 'Asking your questions' in your instructions. The other person is $other." \
     --agent eve --permission-mode acceptEdits --allowedTools "$tools" < /dev/tty > /dev/tty 2>&1
 fi
 
