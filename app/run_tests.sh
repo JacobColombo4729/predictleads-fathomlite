@@ -2,15 +2,12 @@
 # macOS / Linux version of run_tests.ps1. Runs the project's tests from one place.
 #   ./run_tests.sh              live Python tests (tests/ and backend/tests/)
 #   ./run_tests.sh --frontend   also type-check and build the React app
-#   ./run_tests.sh --archive    also run the archived experiment tests (history, slower to care about)
 set -uo pipefail
 
 frontend=0
-archive=0
 for arg in "$@"; do
   case "$arg" in
     --frontend) frontend=1 ;;
-    --archive) archive=1 ;;
     *) echo "Unknown option: $arg" >&2; exit 2 ;;
   esac
 done
@@ -29,7 +26,6 @@ run_step() {
 
 run_step "tests/ (engine, explanations, BGE text)" "$py" -m unittest discover -s tests -q
 run_step "backend/tests/ (API, ranker, feedback, resume reader)" "$py" -m unittest discover -s backend/tests -t . -q
-if [[ $archive -eq 1 ]]; then run_step "archive/experiments/tests/" "$py" -m unittest discover -s archive/experiments/tests -q; fi
 if [[ $frontend -eq 1 ]]; then
   run_step "frontend type-check" bash -c 'cd frontend && npx tsc -b'
   run_step "frontend build" bash -c 'cd frontend && npm run build --silent'
