@@ -198,7 +198,7 @@ A separate tab built on the compass: a personal outlook from the user's résumé
 |:--|:--|:--|
 | Career paths from real switches | `Profiles.ipynb` | Frozen (2026-10-10) |
 | The 2026 market and the joined paths | `EDA_SDA_2.ipynb` 3.12 → `role_market.pkl`, `compass_paths_2026.pkl` | Built |
-| Skills mapped to O*NET | `EDA_SDA_3.ipynb` | Planned (O*NET 31.0 downloaded) |
+| Skills mapped to O*NET | `EDA_SDA_3.ipynb` | Run 2026-10-13 (keyword matching on requirement lines; 62% of listings with a description have a match) |
 | Suggested roles and skills to build per user | `ML_Fit.ipynb` | Planned |
 | **Assembly** into the compass and Ideas tab tables for the app | `ML_Fit.ipynb`'s last section (a separate `Compass.ipynb` is proposed) | Planned |
 | The app views | Section 2: Retraining compass, Moving across and up, Ideas tab | Designed |

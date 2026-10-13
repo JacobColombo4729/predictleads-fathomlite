@@ -144,6 +144,15 @@ class Matching(unittest.TestCase):
         self.assertTrue(v[v.name == "Python"].hot.iloc[0])
         self.assertEqual(v[v.name == "Microsoft Excel"].n_occupations.iloc[0], 3)
 
+    def test_everyday_words_are_not_skills(self):
+        soft = pd.DataFrame({"code": ["15-1252.00"] * 5, "tool": ["Act!", "Analyze", "Google", "Google Analytics", "Python"],
+                             "commodity": ["x"] * 5, "element_id": ["1"] * 5, "hot": [False] * 5, "in_demand": [False] * 5})
+        skills = pd.DataFrame({"code": ["15-1252.00"] * 3, "element_id": ["2.A.1", "2.A.2", "2.A.3"],
+                               "element": ["Science", "Programming", "Critical Thinking"], "scale": ["IM"] * 3, "value": [3.0] * 3})
+        m = onet.Matcher(onet.vocabulary(soft, [skills]))
+        found = {n for n, _, _ in m.find("Act now to analyze data with Google Analytics, Python and science; programming and critical thinking")}
+        self.assertEqual(found, {"Google Analytics", "Python", "Programming", "Critical Thinking"})
+
     def test_r_and_go_only_in_context(self):
         self.assertIn("R", self.names("Python or R for analysis"))
         self.assertIn("Go", self.names("Experience with Golang microservices"))
@@ -272,6 +281,14 @@ class Profiles(unittest.TestCase):
         self.assertAlmostEqual(g.loc["a", "share"], 2 / 3)
         self.assertEqual(g.loc["b", "n_listed"], 0)
         self.assertNotIn("z", g.index)
+
+    def test_listed_skills_need_importance_three_in_either_table(self):
+        tr = onet.ratings("Transferable Skills", self.dir)
+        listed = onet.listed_by_code(["15-1252.00"], self.soft, [self.ess, tr])
+        skills = set(listed[listed.kind == "skill"].name)
+        expected = set(pd.concat([self.ess, tr]).query("code == '15-1252.00' and scale == 'IM' and value >= 3").element)
+        self.assertEqual(skills, expected)
+        self.assertNotIn("Active Listening", skills)  # suppressed, and rated under 3
 
     def test_job_zone_exact_and_prefix(self):
         z = onet.job_zone_for(pd.Series(["15-1252.00", "15-12", "99-9999.00", None]), onet.job_zones(self.dir))
