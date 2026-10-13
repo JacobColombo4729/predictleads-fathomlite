@@ -129,6 +129,25 @@ LAYOUTS = {
         ],
         "charts": ["# 2 Chart", "# 3 Chart", "# 6c Chart"],
     },
+    "EDA_SDA_4": {
+        "skip_sections": {"1.", "Roadmap"},
+        "full_text_sections": {"Job", "12."},  # the purpose, and the conclusion with its answers, limits and handoff
+        "max_bullets": 3,
+        "bullets_by_section": {"10.": 6, "8d.": 4},
+        "table_groups": [
+            ["3b Point-biserial"],
+            ["4b Flags whose gap reverses"],
+            ["4c Close rate by role bucket"],
+            ["6a 7-day close rate"],
+            ["8b Survival by age"],
+            ["8d Joint Wald", "8d Proportional"],
+            ["9a Stability over months"],
+            ["9b Within-company gap"],
+            ["10a Feature decisions"],
+            ["11a The modeling-ready table"],
+        ],
+        "charts": ["# 2b", "# 3a"],
+    },
     "TimeSeries": {
         "skip_sections": {"1.", "Roadmap"},
         "full_text_sections": {"Job", "0.", "Clarifying", "What", "Answers", "Limitations", "Handoff"},  # the purpose, and the conclusion
