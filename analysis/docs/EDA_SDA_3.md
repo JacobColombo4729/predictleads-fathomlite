@@ -146,7 +146,7 @@ Each feature is a keyword rule on the cleaned text (`src/text_features.py`), rep
 
 ## 6. Skills mapped to O*NET
 
-**Waiting for the O*NET download** (terms of use first; `analysis/ANALYSIS.md`). Then: skills extracted from the requirement lines (spaCy noun phrases plus a skills vocabulary), mapped to O*NET skills for `ML_Fit`'s skills-based matching. The cleaned text it needs is already saved (`eda3_desc_clean.parquet`).
+**O*NET 31.0 is downloaded** (`python -m fetch.get_onet` into `data/external/onet/`; CC BY 4.0, credit the O*NET 31.0 Database, USDOL/ETA). Release 31.0 splits skills into Essential, Transferable and Software Skills. To do: skills extracted from the requirement lines (spaCy noun phrases plus a skills vocabulary), mapped to O*NET skills for `ML_Fit`'s skills-based matching. The cleaned text it needs is already saved (`eda3_desc_clean.parquet`).
 
 ## 7. Final table
 

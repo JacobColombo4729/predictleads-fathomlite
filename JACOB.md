@@ -8,6 +8,7 @@
 
 ## Data and downloads
 
+- **O*NET 31.0 download:** `python -m fetch.get_onet` saves 10 tables (about 10 MB) to `data/external/onet/`: occupations, essential, transferable and software skills, job zones, related occupations (31.0's name for the Career Changers Matrix) and the reference tables; CC BY 4.0, credit in `SOURCE.json`; README step 9 lists it. Unblocks EDA_SDA_3 section 6 and ML_Fit's skills matching. **Jesse:** run it only if you need O*NET in the app. (2026-10-13)
 - **`models/` renamed `pretrained/`** (`PRETRAINED_DIR` in `fetch/paths.py`). **Jesse:** rename your local `models/` folder to `pretrained/`, or the app won't find the BGE model. (2026-10-12)
 - **BGE model download:** `python -m fetch.get_bge` gets `BAAI/bge-base-en-v1.5` (about 0.44 GB, no account) at the version the corpus's embeddings were made with. **Jesse:** run it once if you don't have the model. (2026-10-12)
 - **`fetch/`** is where every dataset comes from: one download script each (`get_predictleads`, `get_resumes`, `get_bge`), one standard folder each, a disk-space check, and nothing hard-coded (bucket names and profiles come from `.env`). The PredictLeads export can be downloaded to `data/raw/`; everything reads it locally when it's there and streams from S3 otherwise. (2026-10-12)

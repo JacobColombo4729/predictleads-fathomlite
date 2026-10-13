@@ -73,7 +73,7 @@
   - **Interest-rate scenarios** for years 1–2 (FOMC paths; sensitivity from fed funds vs. Indeed/JOLTS postings), fading to BLS by year 5: stretch.
   - **Horizon-weighted blend** of a near-term postings signal with the BLS trend (weights 0.8 → 0 over years 1–5, tuned in a backtest): later; our six months can't support it.
   - **State level** (Projections Central): only if the app adds location-based growth.
-- **O*NET (in scope, small):** check the terms of use, then download only the **Career Changers Matrix** (latest release), the **skills** for computer and mathematical occupations plus the team's background occupations, and the **Job Zones** (O*NET's level of education and experience per occupation: an accessibility prior for the feature screening). Listings already carry O*NET codes, so they join directly.
+- **O*NET (in scope, small): downloaded 2026-10-13** (`python -m fetch.get_onet`, release 31.0, CC BY 4.0). Release 31.0 renamed the files: skills are **Essential Skills**, **Transferable Skills** and **Software Skills**, and the Career Changers Matrix is now **Related Occupations**; all occupations are kept (filter to computer and mathematical plus the team's background occupations when reading). Also the **Job Zones** (O*NET's level of education and experience per occupation: an accessibility prior for the feature screening). Listings already carry O*NET codes, so they join directly.
 - **Write up the analysis** and **choose the final format** (write-up, notebook demo, or app).
 
 ## Blocked
