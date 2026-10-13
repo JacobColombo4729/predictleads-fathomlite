@@ -68,6 +68,16 @@ class AsOfTests(unittest.TestCase):
         self.assertEqual(t.loc["a2", "days_observed"], 22)  # stops at the end of the day, not 2026-09-30
         self.assertEqual(t.loc["a1", "days_observed"], 19)
 
+    def test_finished_means_last_seen_more_than_the_tolerance_before_the_date(self):
+        df = table()
+        day = pd.Timestamp("2026-07-10")
+        rows = [("t1", day - pd.Timedelta(days=3)), ("t2", day - pd.Timedelta(days=2)),
+                ("t3", day - pd.Timedelta(days=1)), ("t4", day)]
+        add = pd.DataFrame([(i, "T", pd.Timestamp("2026-07-01"), ls, None) for i, ls in rows], columns=df.columns)
+        t = ao.training_as_of(pd.concat([df, add]), "2026-07-10").set_index("id")
+        self.assertEqual(ao.LIVE_TOLERANCE_DAYS, 2)
+        self.assertEqual([bool(t.loc[i, "finished"]) for i in ["t1", "t2", "t3", "t4"]], [True, False, False, False])
+
     def test_count_check_is_counts_only(self):
         c = ao.count_check(table())
         self.assertEqual(list(c["live"]), [4, 3])
