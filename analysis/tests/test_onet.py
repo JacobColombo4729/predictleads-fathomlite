@@ -139,11 +139,18 @@ class Matching(unittest.TestCase):
     def test_vocabulary_has_tools_and_skills_and_skips_ambiguous_names(self):
         v = onet.vocabulary(onet.software(self.dir), [onet.ratings("Essential Skills", self.dir)])
         self.assertEqual(set(v.kind), {"tool", "skill"})
-        self.assertNotIn("go", set(v.phrase))
-        self.assertNotIn("r", set(v.phrase))
-        self.assertEqual(v.attrs["skipped"], 2)
+        self.assertTrue(v[v.phrase.isin(["go", "r"])].context.all())  # kept, matched only in context
+        self.assertFalse(v[v.name == "Python"].context.iloc[0])
         self.assertTrue(v[v.name == "Python"].hot.iloc[0])
         self.assertEqual(v[v.name == "Microsoft Excel"].n_occupations.iloc[0], 3)
+
+    def test_r_and_go_only_in_context(self):
+        self.assertIn("R", self.names("Python or R for analysis"))
+        self.assertIn("Go", self.names("Experience with Golang microservices"))
+        self.assertIn("Go", self.names("Java, Go or Rust"))
+        self.assertNotIn("Go", self.names("Ready to go the extra mile"))
+        self.assertNotIn("R", self.names("Work with our R&D team"))
+        self.assertNotIn("R", self.names("Grade R accounting"))
 
     def test_whole_phrases_only(self):
         self.assertEqual(self.names("We use JavaScript daily"), {"JavaScript"})   # not Java inside JavaScript
@@ -158,7 +165,8 @@ class Matching(unittest.TestCase):
         self.assertEqual(self.names("programming"), {"Programming"})
 
     def test_ambiguous_words_do_not_match(self):
-        self.assertEqual(self.names("go to market, R&D, Go language"), set())
+        self.assertEqual(self.names("go to market, then R&D"), set())
+        self.assertEqual(self.names("the Go language"), {"Go"})  # in context: "language" next to it
 
 
 class Extraction(unittest.TestCase):
@@ -200,7 +208,7 @@ class Extraction(unittest.TestCase):
 
     def test_cue_line_without_a_heading_counts_as_required(self):
         got = self.pairs(onet.listing_skills(CLEAN["d"], self.m))
-        self.assertEqual(got, {("C++", "required"), ("Programming", "required")})  # Node.js is not in the made-up vocabulary; "Go" is skipped
+        self.assertEqual(got, {("C++", "required"), ("Programming", "required"), ("Go", "required")})  # "the Go programming language"; Node.js is not in the made-up vocabulary
 
     def test_extract_writes_rows_and_cache_check(self):
         out = self.dir / "skills.parquet"
