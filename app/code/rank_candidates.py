@@ -2,8 +2,7 @@
 
     python code/rank_candidates.py build-corpus --targeted-dir data/matching/targeted_pool_<ts>
     python code/rank_candidates.py encode --corpus-dir data/matching/ai_ml_corpus_v1
-    python code/rank_candidates.py rank --corpus-dir ... --profiles code/ai_ml_candidate_profiles.json \
-        data/candidates/real_candidate_profiles.json
+    python code/rank_candidates.py rank --corpus-dir ... --profiles code/ai_ml_candidate_profiles.json
 
 Methods per profile: tfidf_cosine, bge_cosine, rrf_equal (reciprocal-rank fusion of the two, k=60).
 Scores are uncalibrated retrieval signals. Reuses the existing TF-IDF engine, BGE job/candidate
