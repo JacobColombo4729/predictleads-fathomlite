@@ -9,8 +9,9 @@ The outcome is "closed within 7 days" on original listings with a full week of f
   - information within the confounders: conditional mutual information as a share of the outcome's uncertainty, above
     the same shuffled floor (per 10,000);
   - stability: the spread in April-June and in July-September, and whether the raw level order is kept;
-  - redundancy: Cramer's V between levels (listings where both have a value), on a sample.
-`verdict` applies the rules in EDA_SDA_2's order. Same numbers as EDA_SDA_2's own cells, which predate this module.
+  - redundancy: Cramer's V between levels (listings where both have a value), on a sample; a feature with V of 0.7 or
+    more with any stronger feature is redundant (the rule as written), not only with its single most similar one.
+`verdict` applies the rules in EDA_SDA_2's order; EDA_SDA_2 3.13d-e call this module.
 """
 import numpy as np
 import pandas as pd
@@ -135,8 +136,9 @@ def screen(base, values, meta, cell, y=None):
 
 
 def redundancy(table, lvls, sample_index, min_pairs=1_000):
-    """Each screened feature's most similar other feature (Cramer's V between levels, listings where both have a
-    value: shared blanks aren't redundancy). `lvls` may hold features beyond `table` (partners only)."""
+    """Each screened feature's most similar other feature, and every feature it overlaps (Cramer's V of V_REDUNDANT or
+    more; between levels, on listings where both have a value: shared blanks aren't redundancy). `lvls` may hold
+    features beyond `table` (partners only)."""
     from scipy.stats.contingency import association
     feats = list(lvls)
     codes = {f: lvls[f].loc[sample_index] for f in feats}
@@ -151,12 +153,14 @@ def redundancy(table, lvls, sample_index, min_pairs=1_000):
             t = pd.crosstab(codes[a][both], codes[b][both]).to_numpy()
             V.loc[a, b] = V.loc[b, a] = association(t, method="cramer") if t.shape[0] > 1 and t.shape[1] > 1 else np.nan
     out = table.copy()
-    partner, partner_v = {}, {}
+    partner, partner_v, overlaps = {}, {}, {}
     for f in table.index:
         best = V.loc[f].drop(f).dropna()
         partner[f], partner_v[f] = (best.idxmax(), best.max()) if len(best) else ("", np.nan)
+        overlaps[f] = ", ".join(best[best >= V_REDUNDANT].sort_values(ascending=False).index)
     out["most similar feature"] = pd.Series(partner)
     out["Cramér's V with it"] = pd.Series(partner_v)
+    out[f"overlaps (V ≥ {V_REDUNDANT})"] = pd.Series(overlaps)
     return out
 
 
@@ -178,9 +182,10 @@ def verdict(f, r, signal_of, info_bar, confounders=(), hold_text=True):
     info_low = pd.notna(r["information above noise (per 10,000)"]) and r["information above noise (per 10,000)"] < info_bar
     a, b = r["within, Apr–Jun"], r["within, Jul–Sep"]
     unstable = (pd.notna(a) and pd.notna(b) and min(a, b) < max(a, b) / 3) or (r["level order kept (rank correlation)"] < 0)
-    p = r.get("most similar feature", "")
-    if pd.notna(r.get("Cramér's V with it")) and r["Cramér's V with it"] >= V_REDUNDANT and p in signal_of.index and signal_of[p] > w:
-        return f"keep one: redundant with {p}"
+    overlaps = [p for p in str(r.get(f"overlaps (V ≥ {V_REDUNDANT})", "") or "").split(", ") if p]
+    stronger = [p for p in overlaps if p in signal_of.index and signal_of[p] > w]
+    if stronger:  # any stronger feature it overlaps, named by the strongest of them
+        return f"keep one: redundant with {max(stronger, key=lambda p: signal_of[p])}"
     out = ("keep, watch: unstable across months" if unstable
            else "keep, watch: the two measures disagree (little information: few listings affected)" if info_low else "keep")
     if r["known at first sighting"] == "partly":
