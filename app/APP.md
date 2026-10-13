@@ -1,7 +1,7 @@
 # App
 
 > The app's priority queue. Top = next. Delete a task when it's done. The design is in [`DESIGN.md`](DESIGN.md); the analysis side has its own queue in [`../analysis/ANALYSIS.md`](../analysis/ANALYSIS.md).
-> **[agent] = Foreman may draft it in the background** (code and tests on made-up data, on its own branch for you to review; never merges, pushes or calls a paid API; README step 14). Start a task's line with [agent] to hand it off; start the loop in a second Claude Code window: `/loop Follow "The loop" in .claude/agents/foreman.md, with a cap of 3 tasks`.
+> **[agent] = Jesse's Foreman may draft it in the background** (code and tests on made-up data, on its own branch for you to review; never merges, pushes or calls a paid API; README step 14). Start a task's line with [agent] to hand it off, or `[agent: Jacob]` to hand it to Jacob's Foreman; start the loop in a second Claude Code window: `/loop Follow "The loop" in .claude/agents/foreman.md, with a cap of 3 tasks`.
 
 ---
 
