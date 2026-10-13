@@ -236,5 +236,58 @@ class PortedHelpers(unittest.TestCase):
         self.assertAlmostEqual(r["p"], np.exp(-12.5), places=12)     # chi-square with 2 df: p = exp(-W/2)
 
 
+class FastPathsMatchReference(unittest.TestCase):
+    """The speed-ups give the same numbers as the straightforward versions they replaced."""
+
+    def test_fast_cox_matches_stock_lifelines(self):
+        from lifelines import CoxPHFitter
+        d = fake(1200, seed=3)
+        d["days_open"] = np.ceil(d.days_open).clip(lower=1)  # integer days: many tied times, as in the real table
+        x = st.cox_design(d, "days_open", "closed", ["flag", "big", "role"], "company_id", ["role"])
+        fast = st._fast_cox_class()(penalizer=0.01).fit(x, "days_open", "closed", cluster_col="company_id", robust=True)
+        stock = CoxPHFitter(penalizer=0.01).fit(x, "days_open", "closed", cluster_col="company_id", robust=True)
+        np.testing.assert_allclose(fast.standard_errors_, stock.standard_errors_, rtol=1e-8)
+        a, b = st.proportional_hazards_check(fast, x), st.proportional_hazards_check(stock, x)
+        np.testing.assert_allclose(a.to_numpy(), b.to_numpy(), rtol=1e-7, atol=1e-10)
+
+    def test_conditional_mi_and_shared_shuffles_match_the_per_feature_version(self):
+        rng = np.random.default_rng(4)
+        n = 3000
+        cell, x, y = rng.integers(0, 40, n), rng.integers(-1, 3, n), rng.integers(0, 2, n)
+        d = pd.DataFrame({"c": cell, "x": x, "y": y})
+        ref = 0.0
+        cxy = d.groupby(["c", "x", "y"]).size()
+        for (c, xv, yv), k in cxy.items():
+            ref += k / n * np.log(k * (d.c == c).sum() / (((d.c == c) & (d.x == xv)).sum() * ((d.c == c) & (d.y == yv)).sum()))
+        self.assertAlmostEqual(st.conditional_mi(x, y, cell), ref, places=12)
+        shared = st.shuffled_outcomes(y, cell, n_shuffles=6, seed=5)
+        r1 = st.conditional_mi_vs_floor(x, y, cell, n_shuffles=6, seed=5)
+        r2 = st.conditional_mi_vs_floor(x, y, cell, shuffled=shared)
+        self.assertEqual(r1, r2)
+        gen = np.random.default_rng(5)  # the shuffle stream of the original per-feature loop
+        for y2 in shared:
+            np.testing.assert_array_equal(y2, st.shuffle_within(y, cell, gen))
+
+    def test_contingency_psi_and_group_gaps_match_pandas(self):
+        d = fake(2000, seed=6)
+        d.loc[::17, "role"] = None
+        tab = pd.crosstab(d.role, d.big)
+        np.testing.assert_array_equal(st._contingency(d.role, d.big), tab.to_numpy())
+        r, p = st.point_biserial(d.flag, d.x)
+        r0, p0 = __import__("scipy.stats", fromlist=["x"]).pointbiserialr(d.flag.astype(int), d.x)
+        self.assertAlmostEqual(r, r0, places=12)
+        by = st.effect_by_group(d, "closed7", "flag", "role", min_n=1)
+        for role, g in d.dropna(subset=["role"]).groupby("role"):
+            self.assertAlmostEqual(by.loc[role, "gap"], g.closed7[g.flag].mean() - g.closed7[~g.flag].mean(), places=12)
+            self.assertEqual(by.loc[role, "n_feature"], g.flag.sum())
+        a = pd.Series(np.random.default_rng(7).normal(size=3000))
+        shifted = a.iloc[:1500] + 0.5
+        self.assertGreater(st.psi(a, shifted), 0.1)
+        flags_b, flags_a = pd.Series([True, False, None, True] * 50, dtype="boolean"), pd.Series([True, True, None, None] * 50, dtype="boolean")
+        pb, pa = np.array([2 / 4, 1 / 4, 1 / 4]), np.array([2 / 4, 0, 2 / 4])  # True, False, missing
+        pa = np.clip(pa, 1e-4, None)
+        self.assertAlmostEqual(st.psi(flags_b, flags_a), float(((pa - pb) * np.log(pa / pb)).sum()), places=12)
+
+
 if __name__ == "__main__":
     unittest.main()
