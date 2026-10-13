@@ -161,7 +161,7 @@ class Preprocessing(unittest.TestCase):
         new = X.head(3).copy()
         new["c"] = "never seen"
         self.assertEqual(len(pipe.predict_proba(new)), 3)
-        cols = prep.get_feature_names_out()
+        cols = pipe.named_steps["prep"].get_feature_names_out()
         self.assertFalse(any("rare1" in c or "rare2" in c for c in cols))  # grouped as infrequent
 
     def test_prep_is_fit_on_training_rows_only(self):
@@ -302,6 +302,28 @@ class Queue(unittest.TestCase):
         w, p = rm.tune_weights(f, outcome, k=5, grid=(0.0, 1.0))
         self.assertEqual(w["still_open"], 1.0)
         self.assertEqual(p, 1.0)
+
+
+class ReviewFixes(unittest.TestCase):
+    def test_auc_diff_ignores_calibration(self):
+        # a model that ranks well but with inflated (balanced-weight) probabilities still beats the constant prior
+        rng = np.random.default_rng(0)
+        y = rng.integers(0, 2, 2000)
+        good = np.clip(0.6 + 0.3 * y + rng.normal(0, 0.1, 2000), 0, 1)
+        r = rm.clustered_bootstrap_auc_diff(y, good, np.full(2000, y.mean()), np.repeat(np.arange(200), 10), n_boot=200)
+        self.assertGreater(r["difference"], 0.3)
+        self.assertTrue(r["supported"])
+        self.assertEqual(r["n_clusters"], 200)
+
+    def test_shared_preprocessor_is_not_refit_by_other_pipelines(self):
+        from sklearn.linear_model import LogisticRegression
+        X = pd.DataFrame({"a": [1.0, 2.0, np.nan, 4.0] * 10, "c": list("xxyz") * 10})
+        y = np.array([0, 1] * 20)
+        prep = rm.make_preprocessor(["a"], ["c"], min_frequency=1)
+        p1 = rm.with_preprocessing(prep, LogisticRegression()).fit(X, y)
+        rm.with_preprocessing(prep, LogisticRegression()).fit(X.assign(a=X.a * 100), y)
+        self.assertIsNot(p1.named_steps["prep"], prep)
+        self.assertAlmostEqual(p1.named_steps["prep"].named_transformers_["num"].named_steps["impute"].statistics_[0], 2.0)
 
 
 if __name__ == "__main__":
