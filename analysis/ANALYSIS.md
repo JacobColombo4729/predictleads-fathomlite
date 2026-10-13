@@ -18,7 +18,7 @@
 
 ## Next
 
-- [agent] (ideas 1, 3 and 5 only) **Differentiation ideas (2026-10-10), lead with 1, 3 and 5:** seven planned additions, described in [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) (Planned additions): (1) which skill unlocks the most jobs; (2) certification payoff; (3) stepping-stone planner; (4) "apply now" alerts; (5) a backtested ranking claim; (6) pay now vs. one move later; (7) a map of reachable openings.
+- **Differentiation ideas (2026-10-10), lead with 1, 3 and 5** (1, 3 and 5 drafted as tested functions in `src/differentiators.py`, 2026-10-13; they need notebook cells once their inputs exist): seven planned additions, described in [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) (Planned additions): (1) which skill unlocks the most jobs; (2) certification payoff; (3) stepping-stone planner; (4) "apply now" alerts; (5) a backtested ranking claim; (6) pay now vs. one move later; (7) a map of reachable openings.
 - **Set up the GPU PC before ML_Fit** (or before EDA_SDA_3, if it uses transformer models; spaCy's small model is fine on the Mac): BGE embeddings of the scope's ~1.1M descriptions take hours on a GPU (Jesse: 244K in about 45 minutes on an RTX 3070) vs. likely a day or more on the Mac's CPU. Steps: clone the repo; Python 3.11 venv from `requirements.txt` with the CUDA build of PyTorch; `nbstripout --install`; set `PL_DATA_DIR` to the PC's data folder; copy only what's needed (`data/clean/analysis_table.parquet`, `scope_descriptions.parquet`) by external drive, or stream from S3 with the PC's own AWS profile; add the PC's data folder to the end-of-project deletion list. EDA_SDA_1 and 2 stay on the Mac (pandas is CPU-only; no gain).
 - **EDA_SDA_3 (text features; no matching models), in progress:**
   - **Sections 1–2 written** (setup, text loaded from the saved parts, HTML to structured text, boilerplate removal, lemmas; cached in `data/clean/eda3_text.pkl`): needs a run, then notes. Section 3 (years and degree rules) is next.
@@ -29,7 +29,7 @@
   - Evergreen wording (feeds the ghost-listing flag), required vs. preferred qualifications, **skills mapped to O*NET** (the input to `ML_Fit`'s skills-based matching).
   - **New text rules (added 2026-10-10):** security clearance required, "no visa sponsorship", travel percentage, shift or on-call work, contract-to-hire. Clearance and sponsorship are hard blockers for some career changers (per applicant in the app).
   - Save the scope table with text features for EDA_SDA_4 and `ML_Fit`.
-- [agent] (shared code, tests and notebook scaffolding only) **EDA_SDA_4 (statistics):**
+- **EDA_SDA_4 (statistics)** (scaffolded 2026-10-13: `src/stats_tests.py` and sections 1b–12; needs a run, then findings and the feature decisions in section 10):
   - Descriptive statistics by group; Pearson + Spearman, Cramér's V, point-biserial; VIF.
   - Group interactions, including by role bucket, and checks for confounding (Simpson's paradox).
   - Adjusted check: a Cox survival regression with every standard confounder (company volume, source and platform, staffing agency, role bucket, seniority, month, company type, has a description), company-clustered errors, hazard ratios with 95% intervals and a proportional-hazards check.
@@ -37,11 +37,6 @@
   - Company-clustered bootstrap intervals; survival checks (censoring, left truncation, competing risks).
   - **In-depth feature analysis (added 2026-10-10, full data):** (1) **stability over months**: does each feature's effect hold in every month, not just overall (ML_Rank trains on April–July, tests on September); (2) **within-company comparisons**: does it still matter between listings from the same company; (3) **effects by role bucket**; (4) **leakage audit**, one row per feature: known when the listing first appears?; (5) **drift checks**: which distributions shift over time, and do they line up with the collection changes (job boards after May, descriptions from June); (6) **information beyond the confounders** (mutual information or likelihood-ratio tests). Priority: 1, 2 and 4 first.
   - Record each feature kept, dropped or combined; save the modeling-ready table.
-  - [agent] **Port four helpers from the abandoned first EDA_SDA_4 draft (added 2026-10-13)** into `src/stats_tests.py` on top of branch `foreman/eda-sda-4-stats`, each with tests on synthetic data, and wire them into the notebook where noted. Code only; change no decisions already applied.
-    - `downcast(df)`, applied right after 1d's load and after the text merge: float64 → float32, plain ints to the smallest int that fits, object columns with ≤ 200 distinct non-bool values → category. Cox runs on all ~908K rows, so memory matters; test that values and NA are unchanged.
-    - `psi(before, after, bins=10)`, the population stability index, next to `drift_over_time` in 9e (a column, not a replacement): numbers binned at the `before` quantiles (open-ended first and last bins), categories compared by share, missing as its own bin, shares floored at 1e-4; read < 0.1 steady, 0.1–0.25 moderate, > 0.25 large.
-    - `conditional_mi(codes, y, cell_codes)` with a `shuffle_within(y, cell_codes, rng)` noise floor, as a cross-check beside the likelihood-ratio test in 9f: mutual information (nats) between a coded feature (flags 0/1, numbers in 8 quantile bins, categories factorized, missing −1) and the 0/1 outcome, summed over confounder cells; the floor is the same statistic with `y` permuted inside each cell (report observed vs. the floor's 95th percentile over a fixed number of seeded shuffles).
-    - `joint_wald(params, cov, columns)` for 8d: one chi-square test that all dummy columns of a multi-level feature are zero, from the Cox fit's coefficients and robust covariance (`pinv`), df = number of columns.
 - **TimeSeries:**
   - Daily and weekly series from `first_seen` and from `posted` (Central European dates), to separate crawler from employer rhythm.
   - Rolling stats, decomposition (STL), ACF/PACF, ADF and KPSS.
@@ -55,7 +50,7 @@
   - Score each step on hit rate@3/@5 for the role people actually moved into, per pool and overall, against a title-keyword baseline; measure old-field bias; exclude the current role for within-tech moves; folds grouped by person.
   - SHAP, including each listing's top fit features for the detail view's rating breakdown; hand fit scores and their breakdown to `ML_Rank`.
   - **Assemble the compass (last section):** Profiles' paths with people counts, each role's 2026 market and growth (EDA_SDA_2 3.12), and the Ideas tab's inputs (skills to build, options and time to switch, pay increase vs. the current field from 1c, growth); save the compass tables for the app.
-- [agent] **ML_Rank (the priority queue):**
+- **ML_Rank (the priority queue)** (v1 and v2 scaffolded 2026-10-13, 14-day window: needs EDA_SDA_4's `modeling_ready.parquet`, then a run):
   - Write the hypotheses with thresholds **before** any modeling.
   - Targets: closes within N days, days open, and the survival target.
   - Split by time (train April–July, validate August, test September), folds grouped by company; test used once.
@@ -64,7 +59,6 @@
   - Leakage: counts from earlier listings only; a date-picker model trained only on what was known by its date; check that `has_desc` and the text flags are known at first sighting (EDA_SDA_2 3.9) before using them.
   - **The priority queue:** combine the fit score, chance still open and apply-by, accessibility and pay in one formula; weights start from EDA_SDA_4's adjusted model and are tuned on the validation month; only features that survived EDA_SDA_4.
   - Evaluation (ROC-AUC, F1, C-index, precision@k, NDCG); the queue against newest-first: of each top 10, how many stay open long enough, are reachable and are in the role the person actually moved into; SHAP and the per-listing rating breakdown for the detail view (each factor's rating and share of the score, top features behind chance still open), sensitivity checks, solution report.
-  - [agent] **ML_Rank v2** (builds on the v1 draft, branch `worktree-agent-ad07b22a27850f072`): preprocessing in `ColumnTransformer` + `Pipeline`, class imbalance and threshold tuning, the model cells with grid search and `%%time`, Cox with proportional-hazards checks, AFT and survival forests, LambdaRank training.
 - **Job growth expectations** (one number per role bucket, over at most 5 years, from **BLS Employment Projections 2025–2035**; [data tables](https://www.bls.gov/emp/data.htm)):
   1. **Get PredictLeads' written consent first** to combine their data with BLS data (agreement 4.3), and note it in your change log (`JACOB.md` or `JESSE.md`). Check the BLS terms of use.
   2. Download the 2025–2035 occupation table into `data/external/` (a `fetch/` script).
@@ -73,7 +67,6 @@
   5. Save `role_growth.pkl` (role bucket, occupation codes, 2025 employment, 10-year growth, yearly rate, *n*-year growth, vintage) and add the expected-growth column to the compass (EDA_SDA_2 3.12), then rerun.
   6. `ML_Fit`: apply growth **after** the fit model as a visible, user-adjustable adjustment (not a trained input), and show how much it moved each suggestion. Always show it next to the role's entry-level share and today's openings.
   7. Write-up: say "expected growth (official projections)", never "will grow"; limitations: national, occupation-wide, assumes full employment, no business cycles.
-- [agent] **Date picker (as-of date):** a helper in `src/` that returns the listings live on a date with features computed as of that date; check it on July 1 vs. September 1, 2026 (counts only; EDA_SDA_1 8b shows dates before July are skewed young). The model for a date is trained only on what was known by then; the demo can start with test-period dates.
 - **Decide the time frames** for career options and job growth in the compass (team; growth at most 5 years), and which growth extensions to adopt (each reopens the 2026-10-09 decision to drop other external data):
   - **Error band** from BLS's own track record (an earlier projection vs. OEWS actuals), shown as a range: recommended, small.
   - **Listing momentum:** each bucket's new-listings trend from TimeSeries, shown next to growth, never blended in: recommended, small.
@@ -100,7 +93,7 @@
 - **predictleads-hackathon:** its `.venv` was removed 2026-10-10 to free space; rebuild it (`python -m venv .venv && pip install -r requirements.txt`) before working there.
 
 - **Profiles is frozen** (refrozen 2026-10-10). Reopen only if needed: a pool for moving up within the same role (training, then a senior or manager role; levels are already tagged), or more prior-career keywords ("other" is 115 of 706; 4a.2e lists the common titles). Any change means a rerun, then the ML notebook reloads `modeling_table.pkl`.
-- [agent] **Run log:** settings, seeds and metrics for every run, in a CSV or a local MLflow store. Never listing text.
+- **Run log:** built (`src/run_log.py`, a CSV that refuses listing text); call `log_run` from each modeling notebook.
 - **Stretch techniques:** transferable fit with embeddings; embeddings vs. TF-IDF; change-point detection (`ruptures`); topic modeling (NMF or BERTopic); several daily exports to observe closures directly; a one-page system card.
 
 ## Always
