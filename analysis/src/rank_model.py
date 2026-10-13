@@ -385,7 +385,8 @@ def c_index(duration, event, predicted_open_days):
 # ---------- the priority queue ----------
 
 FACTORS = ["fit", "still_open", "accessibility", "pay"]
-# Placeholder weights: replaced by EDA_SDA_4's Cox hazard ratios after it runs, then tuned on the validation month (tune_weights).
+# Starting weights, tuned on the validation month (tune_weights). EDA_SDA_4's Cox hazard ratios are about closing speed, so they do not set these four
+# weights; they enter through the listing model behind the `still_open` factor.
 START_WEIGHTS = {"fit": 0.4, "still_open": 0.3, "accessibility": 0.2, "pay": 0.1}
 
 
