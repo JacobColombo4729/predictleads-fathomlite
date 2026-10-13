@@ -15,9 +15,16 @@
 6. **Turn on Eve:** `git config core.hooksPath .githooks`. She needs Claude Code installed.
 7. **Run the app:** `.\app\run_demo_backend.ps1` (Mac: `./app/run_demo_backend.sh`), then `cd app/frontend; npm run dev`, and open http://127.0.0.1:5173 (README step 12).
 
-## 2. Meet Eve, the reviewer
+## 2. Meet Eve, the reviewer, and the helper agents
 
 Every time you push your branch, Eve (Claude, following [`.claude/agents/eve.md`](.claude/agents/eve.md)) tidies what's clearly messy in a commit of her own, asks about judgment calls in a normal Claude conversation with the usual question boxes (type `/exit` when she's done), and ends with an open question: what you want the other person to make sure they do (kept in [`.eve/ASKS.md`](.eve/ASKS.md)). How she works, and how to skip her: README step 14.
+
+Three more helpers run only when you ask, in any Claude Code session in this repo (definitions in `.claude/agents/`):
+- **Thread** keeps a notebook's text true to its results and the notebooks after it consistent: `thread <notebook>` after a code change, `thread <notebook> after a rerun` after a run.
+- **Pace** makes a notebook faster and lighter on memory without changing its results, measured on synthetic data: `pace <notebook>` before a long run.
+- **Foreman** drafts tasks you mark [agent] in your queue (`analysis/ANALYSIS.md` for Jacob, `app/APP.md` for Jesse), one branch each for you to review, in a `/loop` you start yourself (README step 14). It never merges or pushes.
+
+None of them reads data or keys, and none runs unless you turn it on.
 
 ## 3. How we work together
 
