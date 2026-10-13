@@ -1,7 +1,7 @@
 # Analysis
 
 > The analysis priority queue. Top = next. Delete a task when it's done. Add new tasks to the tier where they belong. The app has its own queue in [`../app/APP.md`](../app/APP.md).
-> **[agent] = Foreman may draft it in the background** (code only, tested on synthetic data, on its own branch for review; README step 14). Add or remove [agent] to control what it takes.
+> **[agent] = Jacob's Foreman may draft it in the background** (code only, tested on synthetic data, on its own branch for review; README step 14). Add or remove [agent] to control what it takes. `[agent: Jesse]` hands a task here to Jesse's Foreman instead.
 > Each notebook's full plan is in the notebook itself; how we work is in [`STANDARDS.md`](STANDARDS.md).
 
 ---
