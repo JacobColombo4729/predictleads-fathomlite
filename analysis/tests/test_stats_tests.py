@@ -96,6 +96,16 @@ class StatsTests(unittest.TestCase):
         self.assertEqual(cl["n_clusters"], 40)
         self.assertEqual(cl, st.clustered_bootstrap(d, "c", fn, 200, seed=1))
 
+    def test_fast_clustered_rate_matches_general(self):
+        # same draws (same seed and cluster order), so the fast version must give the same interval
+        rng = np.random.default_rng(4)
+        d = pd.DataFrame({"c": np.repeat(np.arange(30), 20), "y": rng.integers(0, 2, 600).astype(float)})
+        d.loc[::7, "y"] = np.nan
+        slow = st.clustered_bootstrap(d.dropna(), "c", lambda f: f.y.mean(), 200, seed=2)
+        fast = st.clustered_bootstrap_rate(d, "c", "y", 200, seed=2)
+        for k in ("estimate", "ci_low", "ci_high", "n_clusters"):
+            self.assertAlmostEqual(slow[k], fast[k])
+
     def test_cox_and_ph_check(self):
         cph, x, tab = st.cox_adjusted(self.df, "days_open", "closed", ["flag", "big", "role"], cluster="company_id", categorical=["role"])
         self.assertIn("flag", tab.index)

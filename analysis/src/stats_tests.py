@@ -180,6 +180,22 @@ def clustered_bootstrap(df, cluster, stat_fn, n_boot=1000, seed=0, ci=(2.5, 97.5
     return {"estimate": float(stat_fn(df)), "ci_low": float(lo), "ci_high": float(hi), "n_clusters": len(keys), "n_boot": n_boot}
 
 
+def clustered_bootstrap_rate(df, cluster, value, n_boot=1000, seed=0, ci=(2.5, 97.5)):
+    """Fast company-clustered bootstrap of a mean (e.g. a close rate): each company is reduced to its sum and
+    count once, and each resample reweights companies by how often they are drawn. Same answer as
+    `clustered_bootstrap` with `stat_fn = mean`, in seconds instead of hours on ~80K companies."""
+    d = df[[cluster, value]].dropna(subset=[value])
+    g = d.groupby(cluster, observed=True)[value].agg(["sum", "size"])
+    s, n = g["sum"].to_numpy(float), g["size"].to_numpy(float)
+    rng = np.random.default_rng(seed)
+    reps = np.empty(n_boot)
+    for b in range(n_boot):
+        w = np.bincount(rng.integers(0, len(g), len(g)), minlength=len(g))
+        reps[b] = (w @ s) / (w @ n)
+    lo, hi = np.nanpercentile(reps, ci)
+    return {"estimate": float(s.sum() / n.sum()), "ci_low": float(lo), "ci_high": float(hi), "n_clusters": len(g), "n_boot": n_boot}
+
+
 def plain_bootstrap(df, stat_fn, n_boot=1000, seed=0, ci=(2.5, 97.5)):
     """Row-level bootstrap, for comparing its width with the clustered one (design effect)."""
     rng = np.random.default_rng(seed)
