@@ -20,7 +20,7 @@ The core of the app is the **priority queue**: listings ranked for this career c
 | From the analysis | In the app |
 |---|---|
 | Prioritization model | The priority queue: the list sorted by the priority score |
-| Career-change accessibility | Listings a career changer can't get are hidden; the rest show what they ask of a newcomer: years asked, degree or equivalent experience, training offered |
+| Career-change accessibility | Every listing shows what it asks of a newcomer as labels: years asked, degree or equivalent experience, clearance, sponsorship, training offered; also "marketing specialist" (13-1161 without an analyst title) and "staffing agency, from the title" (both first-pass title rules, not hand-checked, decided 2026-10-13). Only reliable blockers hide by default; text blockers and these two title labels are opt-in filters |
 | Still open / apply-by | An estimated apply-by date on every listing, and an apply-by filter |
 | Source and arrival cadence | Check schedule: which sources and companies to watch, and how often; alerts for new listings |
 | Job growth expectations | Expected growth of each role over at most 5 years; it shifts role suggestions toward growing roles (a visible, adjustable weight) and is shown in role discovery and the compass |
@@ -39,17 +39,17 @@ The core of the app is the **priority queue**: listings ranked for this career c
   - **Occupation:** one or more role buckets (data science, software development, IT support, …; built in EDA_SDA_2 3.6), and within them specific O*NET occupations. Picking roles in role discovery or the compass sets this filter
   - **Priority:** minimum score, or top N
   - **Apply-by:** closing within N days, or before a date
-  - **Hidden automatically:** listings a career changer can't get (too many years asked, a degree or license this user lacks, or manager-level roles if the user has no management experience), listings for occupations that aren't a tech path (document management specialists), and **likely ghost listings**: more than 90 days old on the date being viewed **and** from a company that has posted nothing new in 60 days, or with a posting date over a year old (EDA_SDA_2 3.1). A note shows how many were hidden, and why. **Other listings over 90 days old stay visible,** labelled "open 90+ days" and ranked lower by the priority model; the freshness filter hides them for anyone who wants only recent listings. Hidden listings are never deleted: a "show hidden" toggle brings them back
+  - **Hidden automatically:** manager-level roles if the user has no management experience, listings for occupations that aren't a tech path (document management specialists; **not** marketing specialists, which since 2026-10-13 are a label with an opt-in filter), and **likely ghost listings**: more than 90 days old on the date being viewed **and** from a company that has posted nothing new in 60 days, or with a posting date over a year old (EDA_SDA_2 3.1). A note shows how many were hidden, and why. **Other listings over 90 days old stay visible,** labelled "open 90+ days" and ranked lower by the priority model; the freshness filter hides them for anyone who wants only recent listings. Hidden listings are never deleted: a "show hidden" toggle brings them back
   - **Training offered:** only listings that offer training or welcome career changers
   - **Transferable fit:** minimum score (needs the user's background profile)
   - **Pay:** minimum hourly rate; pay disclosed only
-  - **Freshness:** first seen within N days. **The age shown on a listing** (decided 2026-10-11): "posted X days ago" from the employer's posting date when there is one (39% of scope listings; implausible dates blanked), otherwise "found X days ago" from first seen, so a listing the crawler found late doesn't look fresher than it is (the crawler finds listings a median 1.5 days after posting, EDA_SDA_2 3.3)
+  - **Freshness:** first seen within N days. **The age shown on a listing** (decided 2026-10-11): "posted X days ago" from the employer's posting date when there is one (42% of scope listings; implausible dates blanked), otherwise "found X days ago" from first seen, so a listing the crawler found late doesn't look fresher than it is (the crawler finds listings a median 1.5 days after posting, EDA_SDA_2 3.3)
   - **Competition:** low, medium or high
   - **Source:** hiring platform or company site; specific platforms
   - **Location:** one or more states (from `location_data`), listings naming several locations included where any matches
   - **Work mode:** remote, hybrid, onsite (`work_mode`; "not stated" shown separately rather than hidden)
   - **Schedule and job type:** full time, part time (`schedule`); internship, temporary, contract, regular (`job_type`)
-  - **Role level:** entry, mid_senior, manager, leadership (`level`; leadership = director, head, vice president, president, c_level, founder, partner). "mid_senior" stays whole, as PredictLeads labels it (LinkedIn's single level for experienced individual contributors); a "senior" label marks titles with senior, lead, principal, staff or architect (`senior_title`, decided 2026-10-11), and for users without senior experience these listings are **shown but ranked lower, not hidden** (81% ask for 5+ years and 4.8% show openness to career changers, vs. 42% and 17% for other mid_senior listings; EDA_SDA_2 3.7c). Manager and leadership listings stay hidden for users without management experience unless they turn on "show hidden"
+  - **Role level:** entry, mid_senior, manager, leadership (`level`; leadership = director, head, vice president, president, c_level, founder, partner). "mid_senior" stays whole, as PredictLeads labels it (LinkedIn's single level for experienced individual contributors); a "senior" label marks titles with senior, lead, principal, staff or architect (`senior_title`, decided 2026-10-11), and for users without senior experience these listings are **shown but ranked lower, not hidden** (81% ask for 5+ years and 4.9% show openness to career changers, vs. 43% and 17% for other mid_senior listings; EDA_SDA_2 3.7c). Manager and leadership listings stay hidden for users without management experience unless they turn on "show hidden"
   - Every filter allows several choices at once (for example remote **or** hybrid, entry **or** mid); different filters narrow each other (remote or hybrid **and** entry or mid **and** data science)
 - **Each row shows:** title, company, priority score, an "open to career changers" badge, apply-by date, transferable fit, pay and a star.
 
@@ -102,7 +102,7 @@ Opens full screen on tap or click:
 - **No hindsight in the scores:** listing age is counted up to the chosen date; reposts and company hiring volume only from listings first seen before it; and `last_seen_at` only decides which listings were live, never a score.
 - **No hindsight in the model:** the model that scores a date is trained only on what was known by that date; a listing still open on that date counts as still open in training, even though we later know when it closed. The simple version for the demo offers only dates in the test period (September), which the main model never learned from; any earlier date needs a model retrained as of that date.
 - **A built-in check:** for past dates we know which listings actually closed and when, so the app can show how good its apply-by estimates were.
-- **Fair from July:** listings first seen before 2026-03-30 are missing, so earlier dates undercount long-open listings. Live listings jump from 2,459 on April 1 to about 32,000 by June 1, and their age mix settles from July (EDA_SDA_1 8b); the picker starts at July 1.
+- **Fair from July:** listings first seen before 2026-03-30 are missing, so earlier dates undercount long-open listings. Live listings jump from 9,324 on April 1 to about 140,000 by June 1, and their age mix settles from July (EDA_SDA_1 9.3c); the picker starts at July 1.
 
 ### Background profile (for transferable fit)
 
@@ -156,16 +156,16 @@ The point of expected job growth is to **recommend roles with the future in mind
 ### 3.4 Path questions it answers
 
 From the resume data; the app's Coach explains them in plain language.
-- **Should I retrain for a role directly, or take a first tech role and move from there?** For data science, 218 career changers moved in from another tech role and only 19 retrained straight into it.
+- **Should I retrain for a role directly, or take a first tech role and move from there?** For data science, 220 career changers moved in from another tech role and only 20 retrained straight into it.
 - **Which training led people like me to this role, and how many people is that based on?**
 - **How long did it take?** People who retrained after working took a median of 15 months from their last old-field job to their first tech job.
-- **Which role is the easiest door in?** IT support: the most entry-level listings (23%) and the most openness (44%), but the lowest pay ($31 an hour). Among TripleTen programs, Data Analytics roles are the most open (30%, $47.60 an hour).
+- **Which role is the easiest door in?** IT support: the most entry-level listings (22%) and the most openness (44%), but the lowest pay ($31 an hour). Among TripleTen programs, Quality Assurance and Data Analytics roles are the most open (27% and 26%; Data Analytics at $51.20 an hour; EDA_SDA_2 3.12a).
 
 ### 3.5 Moving across and up within tech
 
-- **2,049 people moved between tech roles** after 12+ months in the first. The strongest paths: IT support → networks and systems (279), networks and systems → IT support (199), IT support → security (163), developers → databases (142) and → data science (137).
+- **2,049 people moved between tech roles** after 12+ months in the first. The strongest paths: IT support → networks and systems (279), networks and systems → IT support (199), IT support → security (163), developers → databases (141) and → data science (139).
 - **Most moves are sideways:** 79% kept the same level, 8.5% moved up, 12.5% moved down (levels read from title words, so rough). "Moving up" needs more evidence before it leads the pitch.
-- **IT project management is a later move, not a first step:** 2% of its listings are entry level and 9% show openness, and 190 of its 264 career changers came from another tech role. Business backgrounds also move there (17% of retrained business people). **Decided 2026-10-10:** not suggested as a first tech job unless the user's prior career has a real path into it; shown to users already in tech as a step up; scope-wide openness figures are also shown without it.
+- **IT project management is a later move, not a first step:** 2% of its listings are entry level and 9% show openness, and 189 of its 262 career changers came from another tech role. Business backgrounds also move there (17% of retrained business people). **Decided 2026-10-10:** not suggested as a first tech job unless the user's prior career has a real path into it; shown to users already in tech as a step up; scope-wide openness figures are also shown without it.
 - **To try:** a "trained, then moved up in the same role" pool (for example a master's before a senior role). Profiles' rules don't capture it yet; it would reopen Profiles.
 
 ### 3.6 The Ideas tab
@@ -198,7 +198,7 @@ A separate tab built on the compass: a personal outlook from the user's résumé
 |:--|:--|:--|
 | Career paths from real switches | `Profiles.ipynb` | Frozen (2026-10-10) |
 | The 2026 market and the joined paths | `EDA_SDA_2.ipynb` 3.12 → `role_market.pkl`, `compass_paths_2026.pkl` | Built |
-| Skills mapped to O*NET | `EDA_SDA_3.ipynb` | Planned |
+| Skills mapped to O*NET | `EDA_SDA_3.ipynb` | Planned (O*NET 31.0 downloaded) |
 | Suggested roles and skills to build per user | `ML_Fit.ipynb` | Planned |
 | **Assembly** into the compass and Ideas tab tables for the app | `ML_Fit.ipynb`'s last section (a separate `Compass.ipynb` is proposed) | Planned |
 | The app views | Section 2: Retraining compass, Moving across and up, Ideas tab | Designed |

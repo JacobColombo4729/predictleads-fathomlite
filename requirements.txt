@@ -146,6 +146,7 @@ rpds-py==0.27.1
 s3transfer==0.16.1
 safetensors==0.8.0
 scikit-learn==1.6.1
+scikit-survival==0.24.1
 scipy==1.13.1
 Send2Trash==2.1.0
 sentence-transformers==6.1.0

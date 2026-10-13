@@ -1,0 +1,27 @@
+#!/bin/sh
+# Eve's quick check of each commit, in the background: report only (no edits, no commits, never blocks).
+# The report lands in .git/eve-commit-review.md a minute or two later.
+# Turn it off: git config eve.commitCheck false   (back on: git config eve.commitCheck true)
+# Skip once: EVE_SKIP=1 git commit ...
+
+[ -n "$EVE_SKIP" ] && exit 0
+[ "$(git config --get eve.commitCheck)" = "false" ] && exit 0
+command -v claude >/dev/null 2>&1 || exit 0
+
+# Not for Eve's own commits, merges, or commits made during a rebase
+case "$(git log -1 --format=%s)" in Eve:*|Keel:*) exit 0 ;; esac
+[ "$(git rev-list --parents -n 1 HEAD | wc -w)" -gt 2 ] && exit 0
+gitdir=$(git rev-parse --git-dir)
+[ -d "$gitdir/rebase-merge" ] || [ -d "$gitdir/rebase-apply" ] && exit 0
+
+commit=$(git rev-parse --short HEAD)
+report="$gitdir/eve-commit-review.md"
+echo "Eve is checking commit $commit in the background; report in $report"
+(
+  claude -p "Quick check of commit $commit only, following 'Commit check' in your instructions." \
+    --agent eve --model sonnet --allowedTools "Read,Glob,Grep,Bash(git show:*),Bash(git diff:*),Bash(git log:*)" \
+    < /dev/null > "$report.tmp" 2>&1 && mv "$report.tmp" "$report"
+  # One line per run in the local activity log (README step 14)
+  printf '%s | eve commit check | %s | %s\n' "$(date '+%Y-%m-%d %H:%M')" "$commit" "$(sed -n 2p "$report" | cut -c1-140)" >> "$gitdir/agent-activity.log"
+) > /dev/null 2>&1 &
+exit 0
