@@ -289,5 +289,17 @@ class FastPathsMatchReference(unittest.TestCase):
         self.assertAlmostEqual(st.psi(flags_b, flags_a), float(((pa - pb) * np.log(pa / pb)).sum()), places=12)
 
 
+class NullableNumbers(unittest.TestCase):
+    def test_welch_and_mann_whitney_accept_nullable_and_object_columns(self):
+        rng = np.random.default_rng(0)
+        a = pd.array(list(rng.integers(0, 50, 200)) + [None] * 5, dtype="Int64")
+        b = pd.Series(list(rng.integers(10, 60, 200).astype(float)) + [np.nan], dtype="object")
+        w, m = st.welch_test(a, b), st.mann_whitney(a, b)
+        self.assertEqual((w["n_a"], w["n_b"]), (200, 200))
+        self.assertTrue(np.isfinite(w["p"]) and np.isfinite(m["p"]))
+        flags = pd.array([True, False, None] * 40, dtype="boolean")
+        self.assertEqual(st.welch_test(flags, flags)["n_a"], 80)
+
+
 if __name__ == "__main__":
     unittest.main()
