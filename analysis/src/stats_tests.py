@@ -13,6 +13,27 @@ from scipy import stats
 ALPHA = 0.05
 
 
+# ---------- 1. memory ----------
+def downcast(df, max_categories=200):
+    """Smaller dtypes, same values: float64 -> float32, plain (non-nullable) ints -> the smallest int that fits, and
+    object columns with at most `max_categories` distinct non-bool values -> category. Bool-like object columns
+    (True/False/None) and nullable extension dtypes are left alone. Returns a new frame."""
+    out = df.copy()
+    for c in out.columns:
+        s = out[c]
+        if s.dtype == np.float64:
+            out[c] = s.astype(np.float32)
+        elif s.dtype.kind in "iu" and not isinstance(s.dtype, pd.api.extensions.ExtensionDtype):
+            out[c] = pd.to_numeric(s, downcast="integer" if s.dtype.kind == "i" else "unsigned")
+        elif s.dtype == object:
+            vals = s.dropna()
+            if vals.map(type).eq(bool).all():
+                continue
+            if vals.nunique() <= max_categories:
+                out[c] = s.astype("category")
+    return out
+
+
 # ---------- 2. descriptive statistics ----------
 def describe_by_group(df, value, group):
     """Count, mean, median, std, variance, min, Q1, Q3, max of `value` per `group` (course set)."""
@@ -239,6 +260,16 @@ def proportional_hazards_check(cph, design, time_transform="rank"):
     return r.summary[["test_statistic", "p"]]
 
 
+def joint_wald(params, cov, columns):
+    """One chi-square (Wald) test that every dummy column of a multi-level feature is zero, from a fit's coefficients
+    and (robust) covariance: W = b' pinv(V) b with df = number of columns. Returns dict: wald, df, p."""
+    cols = list(columns)
+    b = pd.Series(params).loc[cols].to_numpy(float)
+    v = pd.DataFrame(cov).loc[cols, cols].to_numpy(float)
+    w = float(b @ np.linalg.pinv(v) @ b)
+    return {"wald": w, "df": len(cols), "p": float(stats.chi2.sf(w, len(cols)))}
+
+
 # ---------- 8. survival checks ----------
 def censoring_summary(days, finished, group=None):
     """Share censored (still open at the end) and median days of finished vs censored listings."""
@@ -354,6 +385,68 @@ def drift_over_time(df, feature, month, reference=None):
                    "std_mean_diff": (x.mean() - ref.mean()) / sd if sd and sd > 0 else np.nan,
                    "ks": float(stats.ks_2samp(x, ref).statistic)}
     return pd.DataFrame(rows).T
+
+
+def psi(before, after, bins=10, floor=1e-4):
+    """Population stability index of `after` against `before`. Numbers are binned at `before`'s quantiles (the first
+    and last bins open-ended); categories and flags are compared by share of each level; missing is its own bin;
+    shares are floored at `floor`. Read: below 0.1 steady, 0.1 to 0.25 moderate, above 0.25 large."""
+    b, a = pd.Series(before), pd.Series(after)
+    numeric = pd.api.types.is_numeric_dtype(b) and not pd.api.types.is_bool_dtype(b)
+    if numeric:
+        edges = np.unique(np.nanquantile(b.astype(float), np.linspace(0, 1, bins + 1)[1:-1]))
+        cut = lambda s: pd.Series(np.where(s.isna(), "missing", np.searchsorted(edges, s.astype(float), side="right").astype(str)))
+    else:
+        cut = lambda s: s.astype(object).where(s.notna(), "missing").astype(str)
+    pb, pa = cut(b).value_counts(normalize=True), cut(a).value_counts(normalize=True)
+    levels = pb.index.union(pa.index)
+    pb, pa = (p.reindex(levels, fill_value=0).clip(lower=floor) for p in (pb, pa))
+    return float(((pa - pb) * np.log(pa / pb)).sum())
+
+
+def code_feature(s, bins=8):
+    """Integer codes for conditional_mi: flags 0/1, numbers in `bins` quantile bins, categories factorized; missing -1."""
+    s = pd.Series(s)
+    if pd.api.types.is_bool_dtype(s) or set(s.dropna().unique()) <= {0, 1, True, False}:
+        codes = s.astype(float)
+    elif pd.api.types.is_numeric_dtype(s):
+        codes = pd.Series(pd.qcut(s.astype(float), bins, labels=False, duplicates="drop"), index=s.index)
+    else:
+        codes = pd.Series(pd.factorize(s)[0], index=s.index).where(s.notna())
+    return codes.fillna(-1).astype(int).to_numpy()
+
+
+def conditional_mi(codes, y, cell_codes):
+    """Mutual information (nats) between a coded feature and a 0/1 outcome within confounder cells, summed over the
+    cells weighted by their share: I(X; Y | cell). Codes from code_feature; cell_codes = one integer per row naming its
+    cell (e.g. factorized combinations of the confounders)."""
+    d = pd.DataFrame({"c": np.asarray(cell_codes), "x": np.asarray(codes), "y": np.asarray(y).astype(int)})
+    n = len(d)
+    cxy = d.groupby(["c", "x", "y"]).size().rename("cxy").reset_index()
+    cxy = cxy.merge(d.groupby(["c", "x"]).size().rename("cx").reset_index(), on=["c", "x"])
+    cxy = cxy.merge(d.groupby(["c", "y"]).size().rename("cy").reset_index(), on=["c", "y"])
+    cxy = cxy.merge(d.groupby("c").size().rename("cc").reset_index(), on="c")
+    return float((cxy.cxy / n * np.log(cxy.cxy * cxy.cc / (cxy.cx * cxy.cy))).sum())
+
+
+def shuffle_within(y, cell_codes, rng):
+    """`y` permuted inside each confounder cell: the noise floor for conditional_mi (keeps each cell's outcome rate)."""
+    y, cells = np.asarray(y).copy(), np.asarray(cell_codes)
+    order = np.argsort(cells, kind="stable")
+    starts = np.r_[0, np.flatnonzero(np.diff(cells[order])) + 1, len(cells)]
+    for a, b in zip(starts[:-1], starts[1:]):
+        idx = order[a:b]
+        y[idx] = y[rng.permutation(idx)]
+    return y
+
+
+def conditional_mi_vs_floor(codes, y, cell_codes, n_shuffles=20, seed=0):
+    """Observed conditional MI against the 95th percentile of the same statistic with `y` shuffled within cells."""
+    rng = np.random.default_rng(seed)
+    obs = conditional_mi(codes, y, cell_codes)
+    floor = [conditional_mi(codes, shuffle_within(y, cell_codes, rng), cell_codes) for _ in range(n_shuffles)]
+    p95 = float(np.percentile(floor, 95))
+    return {"cmi": obs, "floor_p95": p95, "above_floor": bool(obs > p95)}
 
 
 def information_beyond_confounders(df, outcome, feature, confounders, categorical=()):

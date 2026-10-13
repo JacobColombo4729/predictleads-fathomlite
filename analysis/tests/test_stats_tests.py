@@ -172,5 +172,69 @@ class StatsTests(unittest.TestCase):
             st.modeling_ready(scope, text, st.decision_log([("zzz", "kept", "r", "3")]))
 
 
+class PortedHelpers(unittest.TestCase):
+    def test_downcast_keeps_values_and_blanks(self):
+        df = pd.DataFrame({"f": [1.5, np.nan, 3.25], "i": np.array([1, 200, 3], dtype=np.int64),
+                           "cat": ["a", None, "b"], "flag": [True, None, False], "nullable": pd.array([1, None, 3], dtype="Int64")})
+        df["many"] = [f"x{k}" for k in range(3)]
+        out = st.downcast(df, max_categories=2)
+        self.assertEqual(out.f.dtype, np.float32)
+        self.assertEqual(out.i.dtype, np.int16)
+        self.assertEqual(str(out.cat.dtype), "category")
+        self.assertEqual(out.flag.dtype, object)           # bool-like objects stay
+        self.assertEqual(str(out.nullable.dtype), "Int64")  # nullable ints stay
+        self.assertEqual(out.many.dtype, object)            # 3 distinct > max_categories
+        self.assertTrue(np.allclose(out.f.astype(float), df.f, equal_nan=True))
+        self.assertTrue((out.i == df.i).all())
+        self.assertEqual(out.cat.isna().tolist(), df.cat.isna().tolist())
+        self.assertEqual(out.flag.isna().tolist(), df.flag.isna().tolist())
+
+    def test_psi_steady_vs_shifted(self):
+        rng = np.random.default_rng(0)
+        a = pd.Series(rng.normal(size=5000))
+        self.assertLess(st.psi(a, pd.Series(rng.normal(size=5000))), 0.1)
+        self.assertGreater(st.psi(a, pd.Series(rng.normal(1, 1, 5000))), 0.25)
+        cats = pd.Series(rng.choice(list("abc"), 5000, p=[0.6, 0.3, 0.1]))
+        self.assertGreater(st.psi(cats, pd.Series(rng.choice(list("abcd"), 5000, p=[0.2, 0.3, 0.1, 0.4]))), 0.25)
+        with_missing = a.copy(); with_missing[:1000] = np.nan
+        self.assertGreater(st.psi(a, with_missing), 0.1)  # missing is its own bin
+
+    def test_conditional_mi_sees_signal_beyond_cells_and_not_confounding(self):
+        rng = np.random.default_rng(1)
+        n = 6000
+        cell = rng.integers(0, 4, n)
+        x_conf = (cell >= 2).astype(int)                            # fully explained by the cell
+        y = (rng.random(n) < 0.2 + 0.15 * (cell >= 2)).astype(int)
+        r = st.conditional_mi_vs_floor(st.code_feature(pd.Series(x_conf)), y, cell, n_shuffles=10)
+        self.assertAlmostEqual(r["cmi"], 0.0, places=10)
+        self.assertFalse(r["above_floor"])
+        x_real = rng.random(n) < 0.5
+        y2 = (rng.random(n) < 0.15 + 0.3 * x_real).astype(int)
+        r2 = st.conditional_mi_vs_floor(st.code_feature(pd.Series(x_real)), y2, cell, n_shuffles=10)
+        self.assertTrue(r2["above_floor"])
+
+    def test_shuffle_within_keeps_cell_rates(self):
+        rng = np.random.default_rng(2)
+        cell = rng.integers(0, 5, 500)
+        y = rng.integers(0, 2, 500)
+        s = st.shuffle_within(y, cell, rng)
+        for c in range(5):
+            self.assertEqual(s[cell == c].sum(), y[cell == c].sum())
+
+    def test_code_feature(self):
+        self.assertEqual(st.code_feature(pd.Series([True, None, False], dtype="boolean")).tolist(), [1, -1, 0])
+        self.assertEqual(st.code_feature(pd.Series(["b", None, "a", "b"])).tolist(), [0, -1, 1, 0])
+        self.assertEqual(sorted(set(st.code_feature(pd.Series(np.arange(100.0)), bins=8))), list(range(8)))
+
+    def test_joint_wald(self):
+        cov = pd.DataFrame(np.eye(3) * 0.01, index=list("abc"), columns=list("abc"))
+        null = st.joint_wald(pd.Series({"a": 0.0, "b": 0.01, "c": 5.0}), cov, ["a", "b"])
+        self.assertEqual(null["df"], 2)
+        self.assertGreater(null["p"], 0.5)
+        r = st.joint_wald(pd.Series({"a": 0.5, "b": 0.0, "c": 0.0}), cov, ["a", "b"])
+        self.assertAlmostEqual(r["wald"], 25.0)                      # 0.5^2 / 0.01
+        self.assertAlmostEqual(r["p"], np.exp(-12.5), places=12)     # chi-square with 2 df: p = exp(-W/2)
+
+
 if __name__ == "__main__":
     unittest.main()
