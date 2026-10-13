@@ -146,7 +146,23 @@ Each feature is a keyword rule on the cleaned text (`src/text_features.py`), rep
 
 ## 6. Skills mapped to O*NET
 
-**O*NET 31.0 is downloaded** (`python -m fetch.get_onet` into `data/external/onet/`; CC BY 4.0, credit the O*NET 31.0 Database, USDOL/ETA). Release 31.0 splits skills into Essential, Transferable and Software Skills. To do: skills extracted from the requirement lines (spaCy noun phrases plus a skills vocabulary), mapped to O*NET skills for `ML_Fit`'s skills-based matching. The cleaned text it needs is already saved (`eda3_desc_clean.parquet`).
+**Question:** which tools and skills does each listing ask for, and how do they line up with what O*NET says the occupation needs? The answer feeds `ML_Fit`'s skills-based matching and the retraining compass's "skills that carry over".
+
+Data: **O*NET 31.0 Database, USDOL/ETA (CC BY 4.0)**, downloaded with `python -m fetch.get_onet` into `data/external/onet/`. Release 31.0 splits skills into Essential Skills, Transferable Skills and Software Skills; `src/onet.py` reads them (importance `IM` and level `LV` ratings only; suppressed and not-relevant ratings dropped).
+
+| Step | What | Output |
+|:--|:--|:--|
+| 6a | **Skill vocabulary:** every software tool O*NET lists (the Workplace Example, with its hot-technology and in-demand flags) plus the skill element names, lowercased with punctuation removed and common aliases folded together ("js" to "javascript", "MS Excel" to "Microsoft Excel"; C++, C# and .NET keep their meaning). Matched as **whole phrases**, so "java" is not found inside "javascript". Everyday words that are also tool names ("Go", "R", "Word", "Access", ...) are left out, because matching them as phrases fires on ordinary sentences | The vocabulary and a compiled matcher |
+| 6b | **Extraction from requirement lines only** (a line under a requirements or preferred heading, or with a requirement cue such as "years", "experience", "proficiency"; responsibilities are not read), batch by batch from `eda3_desc_clean.parquet` with the same crash-safe `.part` writes as 2a-2b. Each match is marked **required** (on any required line) or **preferred** | `eda3_skills.parquet`: `id`, `name`, `kind` (tool or skill), `section`, `element_id` (cached; delete to rebuild) |
+| 6c | **Coverage** and the most-asked tools and skills per role bucket | Aggregates |
+| 6d | **Agreement with the listing's own occupation:** the share of a listing's matched skills that O*NET lists for its O*NET-SOC code | Aggregates |
+| 6e | **Job Zone per bucket** (O*NET's 1-5 scale of preparation needed) as an accessibility prior | Aggregates |
+| 6f | **Transferable skills that carry over** from each of Profiles' prior-career areas (`BACKGROUND_AREAS`, as O*NET groups in `BACKGROUND_SOC`) to each target bucket: the compass's "skills that carry over"; in the app, a user's own résumé is matched the same way (`ML_Fit`) | Aggregates |
+
+Limits: a skill element name such as "Programming" or "Writing" is also an ordinary word, so skill matches are looser than tool matches; the keyword rules are not hand-checked (as in section 4), so they are labels and matching features, never filters that hide listings.
+
+**What the data shows**
+- (fill in after the run)
 
 ## 7. Final table
 

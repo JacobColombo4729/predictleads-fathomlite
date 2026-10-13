@@ -56,7 +56,7 @@ For a given **career changer** (anyone switching from their current background t
 - **Career-switch counts during evaluation:** compass and path counts used as features are built from the training people only, so a test person never counts toward their own answer.
 - **Job growth expectations** are published projections, the same for every listing in a role; they come from outside the listing data, so they don't leak listing outcomes. **Growth backtests** (job growth tasks in `ANALYSIS.md`, 4a and 4d) use only data published before each origin year: the projection vintage and the rate, postings and openings series as they stood then.
 - **Never tune on the test period**, and use the test set once, at the end.
-- **Applicant profiles:** each synthetic profile stays in the same fold as the real profile it came from, and final results are reported on real profiles only.
+- **Applicant profiles:** each synthetic profile stays in the same fold as the real profile it came from, and final results are reported on real profiles only. Real profiles means Profiles' public résumés (or volunteers recruited with consent, `docs/volunteer_profiles.md`), never the team's own.
 
 ## Reproducibility
 
@@ -68,7 +68,7 @@ For a given **career changer** (anyone switching from their current background t
 
 - **Applicant side only.** "Best time to post" for employers would need hiring outcomes we don't have.
 - **English-language listings in the United States, first seen April–September 2026,** plus the data's first two days (2026-03-30 and 31), kept and flagged `partial_month`.
-- **Applicants are career changers:** anyone switching from their current background to a different role or field. Source backgrounds are the team's own. Listings a career changer can't get are hidden; the model weighs everything else.
+- **Applicants are career changers:** anyone switching from their current background to a different role or field. The team's own résumés and backgrounds are never used anywhere: not in the analysis, the models, the app's evaluation or its testing. Backgrounds come only from the public résumé data (Profiles); the app is tested with fictional profiles (`app/code/ai_ml_candidate_profiles.json`). Listings a career changer can't get are hidden; the model weighs everything else.
 - **Target: computer and mathematical (US).** EDA_SDA_2 splits it into role buckets shared with the career-switch profiles (not one role, since role discovery needs several), keeping buckets with enough data on both sides once unreachable listings are hidden: 908K listings in the scope table (`scope_table.parquet`) across 12 role buckets, eight of them the computer and mathematical buckets analysed on their own, plus technical sales, business and data analysis, marketing specialists and other computer roles.
 - **Transferable fit and role discovery** learn from real career switches in a public resume dataset (`notebooks/Profiles.ipynb`: 2,813 career changers; sourcing in README step 9). Volunteer profiles, collected with consent once the advisor approves, are a recent test set.
 
