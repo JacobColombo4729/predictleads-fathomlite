@@ -144,15 +144,24 @@ def stratified_gap(df, outcome, flag, strata):
 
 
 # ---------- 5. hypothesis tests with effect sizes ----------
+def _numeric(s):
+    """A plain float64 Series without missing values, from any numeric-like column: nullable Int64/Float64/boolean
+    (pd.NA), or object holding numbers. SciPy can't test nullable or object arrays ("data type object not inexact")."""
+    s = pd.Series(s)
+    if pd.api.types.is_bool_dtype(s):
+        s = s.astype("Float64")
+    return pd.to_numeric(s, errors="coerce").dropna().astype("float64")
+
+
 def cohens_d(a, b):
-    a, b = np.asarray(a, float), np.asarray(b, float)
+    a, b = _numeric(a).to_numpy(), _numeric(b).to_numpy()
     sp = np.sqrt(((len(a) - 1) * a.var(ddof=1) + (len(b) - 1) * b.var(ddof=1)) / (len(a) + len(b) - 2))
     return float((a.mean() - b.mean()) / sp) if sp > 0 else np.nan
 
 
 def welch_test(a, b):
     """Welch's t-test (unequal variances). Effect size: Cohen's d."""
-    a, b = pd.Series(a).dropna(), pd.Series(b).dropna()
+    a, b = _numeric(a), _numeric(b)
     t, p = stats.ttest_ind(a, b, equal_var=False)
     return {"test": "welch_t", "n_a": len(a), "n_b": len(b), "statistic": float(t), "p": float(p),
             "effect": cohens_d(a, b), "effect_name": "cohens_d"}
@@ -161,7 +170,7 @@ def welch_test(a, b):
 def mann_whitney(a, b):
     """Mann-Whitney U (Wilcoxon rank-sum). Effect size: rank-biserial correlation (-1 to 1).
     Never use it on days open: that measure is censored (use the log-rank test)."""
-    a, b = pd.Series(a).dropna(), pd.Series(b).dropna()
+    a, b = _numeric(a), _numeric(b)
     u, p = stats.mannwhitneyu(a, b, alternative="two-sided")
     return {"test": "mann_whitney", "n_a": len(a), "n_b": len(b), "statistic": float(u), "p": float(p),
             "effect": float(2 * u / (len(a) * len(b)) - 1), "effect_name": "rank_biserial"}
