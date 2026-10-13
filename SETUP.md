@@ -12,7 +12,7 @@
    - **BGE model:** `python -m fetch.get_bge`.
    - **The app's serving corpus:** move your existing copy into `data/matching/ai_ml_serving_v1` (one `data/` folder at the top now), or rebuild it (README step 13).
    - **The raw PredictLeads export** (optional): `python -m fetch.get_predictleads`.
-6. **Turn on Eve:** `git config core.hooksPath .githooks`. She needs Claude Code installed.
+6. **Eve (optional):** `git config core.hooksPath .githooks` turns her on. She runs Claude at every push and commit, so it uses your Claude allowance; leave it off if that matters.
 7. **Run the app:** `.\app\run_demo_backend.ps1` (Mac: `./app/run_demo_backend.sh`), then `cd app/frontend; npm run dev`, and open http://127.0.0.1:5173 (README step 12).
 
 ## 2. Meet Eve, the reviewer, and the helper agents
@@ -24,7 +24,7 @@ Three more helpers run only when you ask, in any Claude Code session in this rep
 - **Pace** makes a notebook faster and lighter on memory without changing its results, measured on synthetic data: `pace <notebook>` before a long run.
 - **Foreman** drafts tasks you mark [agent] in your queue (`analysis/ANALYSIS.md` for Jacob, `app/APP.md` for Jesse), one branch each for you to review, in a `/loop` you start yourself (README step 14). It never merges or pushes.
 
-None of them reads data or keys, and none runs unless you turn it on.
+None of them reads data or keys, and none runs unless you turn it on or ask for it by name. Each run uses your Claude allowance.
 
 ## 3. How we work together
 
