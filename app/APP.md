@@ -7,7 +7,7 @@
 
 ## Now
 
-- **Jesse:** clone the repo, `git switch jesse`, `git merge origin/main`, then `python -m fetch.get_bge` for the model and `git config core.hooksPath .githooks` to turn on Eve (README step 14); meet the helper agents (`SETUP.md` section 2) and mark tasks here [agent] for Foreman; log your changes in `JESSE.md`, and read `JACOB.md` to catch up.
+- **Jesse:** clone the repo, `git switch jesse`, `git merge origin/main`, then `python -m fetch.get_bge` for the model and log your changes; Eve and the helper agents are optional and use your Claude allowance, so they stay off unless you ask (`SETUP.md` section 2); log your changes in `JESSE.md`, and read `JACOB.md` to catch up.
 - **Test Ask the market** on the Signals tab as a person: typed questions, the example chips, **Talk** with a real microphone, and **Research this company**. So far Talk was only tested with a synthetic voice.
 - **End-to-end rehearsal** on a real profile with desired roles; fix what breaks. First edit the draft desired roles on the two real profiles if they're wrong.
 - **AI skills gap analysis:** live-tested and working (Jesse, 2026-10-10); still to record the cost and the time for 10 and 20 jobs. Anything that sends résumé text to a provider needs consent and a budget decision.
