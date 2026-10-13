@@ -41,7 +41,11 @@ def main() -> int:
     for path in args.labels:
         data = json.loads(path.read_text(encoding="utf-8"))
         by_reviewer[data["reviewer"]] = {pid: row["label"] for pid, row in data["labels"].items()}
-    # one label per pair: the profile owner for real profiles, otherwise the first reviewer who labelled it
+    # The team's own résumés are never used (CLAUDE.md): refuse a review that includes one.
+    personal = sorted({info["profile_id"] for info in key.values() if info["profile_id"].startswith("real_")})
+    if personal:
+        raise SystemExit(f"{len(personal)} personal profile(s) in this review: rebuild it from fictional profiles only")
+    # one label per pair: the first reviewer who labelled it
     pair_label: dict[str, str] = {}
     disagreements, overlap = [], []
     for pid, info in key.items():
@@ -51,10 +55,7 @@ def main() -> int:
             overlap.append((a, b))
             if a != b:
                 disagreements.append({"presentation_id": pid, "profile_id": info["profile_id"], "labels": labels})
-        owner = "jesse" if info["profile_id"].startswith("real_jesse") else "jacob" if info["profile_id"].startswith("real_jacob") else None
-        if owner and owner in labels:
-            pair_label[pid] = labels[owner]
-        elif labels:
+        if labels:
             pair_label[pid] = next(iter(labels.values()))
     by_profile_method: dict[tuple[str, str], list[str | None]] = defaultdict(list)
     for pid, info in key.items():

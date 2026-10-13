@@ -23,10 +23,6 @@ BOTH = {"ai_support_lead_to_solutions_engineer", "ai_finance_analyst_to_data_sci
 
 
 def _assignees(profile_id: str, fictional_index: int) -> list[str]:
-    if profile_id.startswith("real_jesse"):
-        return ["jesse"]
-    if profile_id.startswith("real_jacob"):
-        return ["jacob"]
     if profile_id in BOTH:
         return ["jesse", "jacob"]
     return ["jesse"] if fictional_index % 2 == 0 else ["jacob"]
@@ -52,7 +48,11 @@ def build(run_dir: Path, top: int, profile_paths: list[Path]) -> None:
         data = json.loads(path.read_text(encoding="utf-8"))
         for row in (data["profiles"] if isinstance(data, dict) else data):
             profiles[row["profile_id"]] = row
-    fictional_order = {pid: i for i, pid in enumerate(p for p in manifest["profiles"] if not p.startswith("real_"))}
+    # The team's own résumés are never used (CLAUDE.md): a run that includes one is refused, not reviewed.
+    personal = sorted(p for p in [*manifest["profiles"], *profiles] if p.startswith("real_"))
+    if personal:
+        raise SystemExit(f"{len(personal)} personal profile(s) in this run: rerun rank_candidates.py with fictional profiles only")
+    fictional_order = {pid: i for i, pid in enumerate(manifest["profiles"])}
 
     def card_profile(row: dict[str, Any]) -> dict[str, Any]:
         return {
@@ -68,15 +68,8 @@ def build(run_dir: Path, top: int, profile_paths: list[Path]) -> None:
 
     pairs = sorted(wanted)
     random.Random(SEED).shuffle(pairs)  # order within a candidate is shuffled so method/rank cannot be inferred
-    # Group by candidate so a partly finished session still leaves complete candidates. Real no-title profiles
-    # first, then fictional, then real profiles that name target titles.
-    def group_rank(profile_id: str) -> tuple[int, int]:
-        if profile_id.startswith("real_") and profile_id.endswith("_notitle"):
-            return (0, sorted(p for p in profiles if p.startswith("real_") and p.endswith("_notitle")).index(profile_id))
-        if profile_id.startswith("real_"):
-            return (2, sorted(p for p in profiles if p.startswith("real_") and not p.endswith("_notitle")).index(profile_id))
-        return (1, fictional_order.get(profile_id, 0))
-    pairs.sort(key=lambda pair: group_rank(pair[0]))  # stable sort keeps the shuffled order inside each candidate
+    # Group by candidate so a partly finished session still leaves complete candidates.
+    pairs.sort(key=lambda pair: fictional_order.get(pair[0], 0))  # stable sort keeps the shuffled order inside each candidate
     pool, key = [], {}
     for index, (profile_id, job_id) in enumerate(pairs, 1):
         job = jobs[job_id]
