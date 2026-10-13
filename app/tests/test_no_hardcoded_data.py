@@ -20,6 +20,9 @@ CODE_ONLY = {  # personal paths are allowed in docs as examples, not in code
     "a personal folder path (use paths relative to the repository)": re.compile(r"[A-Za-z]:\\{1,2}Users\\{1,2}|/Users/[A-Za-z]|/home/[a-z]"),
 }
 CODE_SUFFIXES = {".py", ".ipynb", ".ps1", ".sh", ".ts", ".tsx", ".js"}
+# The team's own résumés and backgrounds are never used anywhere (CLAUDE.md): no code may read the personal-profiles file
+# or name a teammate's profile. Docs may name them only to say they must be deleted.
+PERSONAL_PROFILES = re.compile(r"real_candidate_profiles|real_(?:jacob|jesse)\b|\bBACKGROUND_OCCUPATIONS\b", re.IGNORECASE)
 HOW_TO_FIX = "\nRead these from the top-level .env and fetch/ instead: README step 9."
 
 
@@ -48,6 +51,26 @@ class NoHardcodedDataTest(unittest.TestCase):
                     if pattern.search(line):
                         problems.append(f"{path.relative_to(REPO_ROOT).as_posix()}:{number}: {what}")
         self.assertEqual(problems, [], "Hard-coded data settings found:\n" + "\n".join(problems) + HOW_TO_FIX)
+
+
+    def test_no_personal_profiles_in_code(self):
+        try:
+            files = tracked_files()
+        except (OSError, subprocess.CalledProcessError):
+            self.skipTest("git is not available")
+        problems = []
+        for path in files:
+            if path == Path(__file__).resolve() or not path.is_file() or path.suffix not in CODE_SUFFIXES:
+                continue
+            try:
+                text = path.read_text(encoding="utf-8")
+            except (UnicodeDecodeError, OSError):
+                continue
+            for number, line in enumerate(text.splitlines(), 1):
+                if PERSONAL_PROFILES.search(line):
+                    problems.append(f"{path.relative_to(REPO_ROOT).as_posix()}:{number}")
+        self.assertEqual(problems, [], "Code refers to the team's own résumés or backgrounds, which are never used "
+                         "(CLAUDE.md; test with app/code/ai_ml_candidate_profiles.json):\n" + "\n".join(problems))
 
 
 if __name__ == "__main__":
