@@ -46,6 +46,27 @@ class Targets(unittest.TestCase):
         self.assertAlmostEqual(d.iloc[0], 4)
 
 
+    def test_one_closing_window_constant_drives_the_defaults(self):
+        t = rm.survival_target(listings())
+        pd.testing.assert_series_equal(rm.closes_within(t), rm.closes_within(t, rm.CLOSING_DAYS))
+        self.assertIn(rm.CLOSING_DAYS, rm.SENSITIVITY_DAYS)
+
+    def test_open_long_enough_is_the_opposite_with_the_same_unknowns(self):
+        t = rm.survival_target(listings())
+        a, b = rm.closes_within(t, 10), rm.open_long_enough(t, 10)
+        self.assertTrue((a.isna() == b.isna()).all())
+        self.assertTrue(((a + b).dropna() == 1).all())
+
+    def test_sensitivity_windows_has_a_column_per_window(self):
+        w = rm.sensitivity_windows(rm.survival_target(listings()), (7, 14, 30))
+        self.assertEqual(list(w.columns), ["closes_within_7", "closes_within_14", "closes_within_30"])
+        self.assertEqual(w["closes_within_7"].iloc[0], 1.0)  # a closed after 4 days
+
+    def test_tolerance_is_shared_with_the_date_picker(self):
+        from src import as_of
+        self.assertEqual(rm.LIVE_TOLERANCE_DAYS, as_of.LIVE_TOLERANCE_DAYS)
+
+
 class Split(unittest.TestCase):
     def test_time_split_by_month(self):
         s = rm.time_split(listings()["first_seen"])
@@ -122,6 +143,142 @@ class Models(unittest.TestCase):
         y = (X[:, 0] > 0).astype(int)
         r = rm.lambdarank_model().fit(X, y, group=[20, 20])
         self.assertEqual(len(r.predict(X)), 40)
+
+
+def synth(n=300, seed=5):
+    rng = np.random.RandomState(seed)
+    X = pd.DataFrame({"n": rng.normal(size=n), "m": np.where(rng.rand(n) < 0.1, np.nan, rng.normal(size=n)),
+                      "c": rng.choice(["a", "b", "rare1", "rare2"], size=n, p=[0.5, 0.45, 0.025, 0.025])})
+    y = (X["n"] + rng.normal(scale=0.5, size=n) > 0.8).astype(int)
+    return X, y
+
+
+class Preprocessing(unittest.TestCase):
+    def test_pipeline_handles_blanks_and_unseen_levels_and_groups_rare_ones(self):
+        X, y = synth()
+        prep = rm.make_preprocessor(["n", "m"], ["c"], min_frequency=20)
+        pipe = rm.with_preprocessing(prep, rm.build_models()["logistic"]).fit(X, y)
+        new = X.head(3).copy()
+        new["c"] = "never seen"
+        self.assertEqual(len(pipe.predict_proba(new)), 3)
+        cols = prep.get_feature_names_out()
+        self.assertFalse(any("rare1" in c or "rare2" in c for c in cols))  # grouped as infrequent
+
+    def test_prep_is_fit_on_training_rows_only(self):
+        X, y = synth()
+        prep = rm.make_preprocessor(["n", "m"], ["c"]).fit(X.iloc[:100])
+        self.assertAlmostEqual(prep.named_transformers_["num"]["impute"].statistics_[0], X["n"].iloc[:100].median())
+
+    def test_upsampling_balances_classes_and_keeps_originals(self):
+        X, y = synth()
+        X2, y2 = rm.upsample_minority(X, y)
+        self.assertEqual(y2.value_counts().nunique(), 1)
+        self.assertEqual(len(y2), 2 * (y == 0).sum())
+        self.assertTrue(X2.iloc[:len(X)].equals(X.reset_index(drop=True)))
+
+    def test_threshold_tuning_beats_the_default_on_rare_positives(self):
+        y = np.array([1] * 10 + [0] * 90)
+        p = np.concatenate([np.full(10, 0.3), np.full(90, 0.1)])  # nothing reaches 0.5
+        t, f1 = rm.best_threshold(y, p, "f1")
+        self.assertTrue(0.1 < t <= 0.3)
+        self.assertAlmostEqual(f1, 1.0)
+
+    def test_grid_search_over_company_folds(self):
+        X, y = synth()
+        comp = np.arange(len(y)) % 30
+        folds = rm.company_folds(comp, n_splits=3)
+        pipe = rm.with_preprocessing(rm.make_preprocessor(["n", "m"], ["c"]), rm.build_models()["tree"])
+        gs = rm.grid_search(pipe, {"model__max_depth": [2, 4]}, X, y, folds)
+        self.assertIn(gs.best_params_["model__max_depth"], [2, 4])
+        self.assertGreater(gs.best_score_, 0.7)
+        self.assertEqual(len(rm.cv_auc(pipe, X, y, folds)), 3)
+
+    def test_param_grids_name_every_model(self):
+        self.assertEqual(set(rm.PARAM_GRIDS), set(rm.build_models()))
+
+
+def surv(n=200, seed=7):
+    rng = np.random.RandomState(seed)
+    df = pd.DataFrame({"x": rng.normal(size=n), "z": rng.normal(size=n), "company_id": rng.randint(0, 40, size=n)})
+    df["duration"] = rng.exponential(np.exp(-0.7 * df["x"])) * 10 + 0.1
+    df["event"] = (rng.rand(n) < 0.8).astype(int)
+    return df
+
+
+class Survival(unittest.TestCase):
+    def test_cox_with_company_clusters_and_ph_check(self):
+        df = surv()
+        m = rm.fit_cox(df, ["x", "z"])
+        self.assertGreater(m.params_["x"], 0.3)
+        ph = rm.cox_ph_check(m, df, ["x", "z"])
+        self.assertEqual(list(ph.index), ["x", "z"])
+        self.assertTrue(ph["p"].between(0, 1).all())
+
+    def test_aft_models_fit_after_flooring_zero_durations(self):
+        df = surv()
+        df.loc[0, "duration"] = 0.0
+        ready = rm.aft_ready(df)
+        self.assertGreater(ready["duration"].min(), 0)
+        for kind in ["weibull", "lognormal", "loglogistic"]:
+            m = rm.aft_model(kind).fit(ready[["x", "z", "duration", "event"]], "duration", "event")
+            self.assertEqual(len(m.predict_median(ready[["x", "z"]])), len(df))
+
+    def test_survival_forest_orders_by_the_signal(self):
+        try:
+            import sksurv  # noqa: F401
+            from sksurv.ensemble import RandomSurvivalForest  # noqa: F401
+        except ImportError:
+            self.skipTest("scikit-survival not installed")
+        df = surv()
+        rsf = rm.survival_forest(n_estimators=30, min_samples_leaf=10).fit(df[["x", "z"]], rm.survival_y(df["duration"], df["event"]))
+        risk = rsf.predict(df[["x", "z"]])
+        self.assertGreater(rm.c_index(df["duration"], df["event"], -risk), 0.6)
+
+    def test_survival_y_shape(self):
+        y = rm.survival_y([3.0, 5.0], [1, 0])
+        self.assertEqual(list(y["event"]), [True, False])
+        self.assertEqual(list(y["time"]), [3.0, 5.0])
+
+
+class RankingTraining(unittest.TestCase):
+    def test_groups_are_sorted_blocks_and_training_ranks_the_signal(self):
+        rng = np.random.RandomState(4)
+        q = np.tile(["p1", "p2", "p3", "p4"], 30)  # interleaved on purpose
+        X = pd.DataFrame(rng.normal(size=(120, 3)), columns=list("abc"))
+        rel = (X["a"] > 0.5).astype(int) + (X["a"] > 1.2).astype(int)
+        order, sizes = rm.ranking_groups(q)
+        self.assertEqual(sizes, [30, 30, 30, 30])
+        self.assertEqual(list(q[order][:30]), ["p1"] * 30)
+        model = rm.train_lambdarank(X, rel, q)
+        self.assertGreater(rm.ndcg_at_k(rel, model.predict(X), 10), 0.9)
+
+
+class Hypotheses(unittest.TestCase):
+    def test_backtest_relevance_needs_all_three_and_treats_unknown_as_no(self):
+        r = rm.backtest_relevance([1, 1, 1, np.nan, 0], [1, 1, 0, 1, 1], [1, 0, 1, 1, 1])
+        self.assertEqual(list(r), [1, 0, 0, 0, 0])
+
+    def test_bootstrap_interval_excludes_zero_for_a_clear_win_and_not_for_noise(self):
+        rng = np.random.RandomState(8)
+        comp = np.repeat(np.arange(60), 5)
+        base = rng.rand(300)
+        win = rm.clustered_bootstrap_diff(base + 0.3, base, comp)
+        self.assertTrue(win["supported"])
+        self.assertAlmostEqual(win["difference"], 0.3)
+        noise = rm.clustered_bootstrap_diff(rng.rand(300), rng.rand(300), comp)
+        self.assertFalse(noise["supported"])
+        self.assertEqual(win["n_clusters"], 60)
+
+    def test_bootstrap_resamples_whole_companies_so_it_is_wide_when_companies_differ(self):
+        comp = np.repeat(np.arange(10), 30)
+        diff = np.repeat(np.random.RandomState(9).normal(size=10), 30)  # one value per company
+        r = rm.clustered_bootstrap_diff(diff, np.zeros(300), comp)
+        self.assertGreater(r["ci_high"] - r["ci_low"], 0.5)
+
+    def test_top_k_overlap(self):
+        a = np.arange(20, dtype=float)
+        self.assertEqual(rm.top_k_overlap(a, a, 10), 1.0)
+        self.assertEqual(rm.top_k_overlap(a, -a, 10), 0.0)
 
 
 class Queue(unittest.TestCase):
