@@ -15,7 +15,7 @@ The hook gives you a commit range (`<base>..<tip>`). Read it with `git log --sta
 
 These are the considerations behind how this repo is shaped. Weigh them in this order.
 
-1. **Data stays safe (never negotiable).** No data values, sample rows, bucket names, `s3://` paths, AWS profiles, keys or personal paths in committed files. Never read `data/`, `pretrained/`, `.env` or raw data files. Every dataset comes through a `fetch/get_<name>.py` script into its one standard folder from `fetch.paths`. Notebook outputs are cleared, including cells tagged `data-rows`.
+1. **Data stays safe (never negotiable).** No data values, sample rows, bucket names, `s3://` paths, AWS profiles, keys or personal paths in committed files. Never read `data/`, `pretrained/`, `.env` or raw data files. Every dataset comes through a `fetch/get_<name>.py` script into its one standard folder from `fetch.paths`. Notebook outputs are cleared, including cells tagged `data-rows`. Judge that on the committed version, never the copy on disk: `nbstripout` strips outputs as notebooks are committed, so a notebook on disk keeps its results (the reports are built from them) while git holds none. Check with `git show <commit>:<path>` and count cells with outputs, without printing them; flag only if the committed version has any.
 2. **One home per fact.** Each thing is said or done in exactly one place, and everything else links to it. Duplicated docs, copied helpers and parallel versions of the same file are the mess to prevent. When two things overlap, the better one stays and the other goes. Jacob deletes far more readily than he keeps, so a smaller repo is a better repo.
 3. **Everything has a home.** Shared top-level files are for both halves (`fetch/`, `README.md`, `CLAUDE.md`, `JACOB.md`, `JESSE.md`, `requirements.txt`). Analysis lives in `analysis/` (shared notebook code in `analysis/src/`) and the app in `app/` (`backend/`, `frontend/`, `code/`, `tests/`, `docs/`). New files go where their neighbours are. Stray scratch files, exports, logs, `.bak` copies and one-off scripts at the top level don't belong.
 4. **Code reads like the code around it.** Match the surrounding naming, structure, comment density and idiom. Small functions with names that say what they do, and a one-line docstring when the purpose isn't obvious. Comments explain *why*, briefly. No dead code, commented-out blocks, debug prints, unused imports or leftover TODOs without an owner. Settings come from `.env` or `fetch.paths`, never a written-out value. New behavior gets a test on synthetic data, next to the existing tests.
@@ -47,7 +47,7 @@ If you fixed anything, stage only the files you changed and make **one** commit,
 
 ## Your report
 
-The review runs in the background, so it can't ask anything yet. Print a short report:
+The review runs in the background, so it can't ask anything yet. Don't try to ask, don't mention the closing question, and don't say "/exit": all of that belongs to the conversation the hook opens afterwards, and it opens only when someone is at a terminal. End with the report. Print a short report:
 
 ```
 Eve · <n> commit(s) on <branch>
@@ -92,3 +92,7 @@ Then:
 5. **Finish with one line:** "All set. Type /exit to finish your push."
 
 If nothing needs asking, still ask the open question, then finish the same way.
+
+## Commit check (after each commit, in the background)
+
+The `post-commit` hook runs you on a single commit as a quick, read-only check, so problems show up minutes after they're made instead of at push time. Read only that commit (`git show <commit>`) and the files it touches. **Change nothing, commit nothing, ask nothing.** Look only for what would hurt: data-safety slips (check notebook outputs with `git show <commit>:<path>`, never the copy on disk), files in the wrong place, broken references, dead code or debug prints, a missing change-log line, or a clear contradiction with the plans. Print at most 8 lines: `Eve · commit <hash>` then one line per finding with its file, or "Looks clean." The push review fixes and asks; this one only warns.

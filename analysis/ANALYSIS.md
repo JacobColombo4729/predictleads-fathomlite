@@ -1,15 +1,15 @@
 # Analysis
 
 > The analysis priority queue. Top = next. Delete a task when it's done. Add new tasks to the tier where they belong. The app has its own queue in [`../app/APP.md`](../app/APP.md).
+> **[agent] = Foreman may draft it in the background** (code only, tested on synthetic data, on its own branch for review; README step 14). Add or remove [agent] to control what it takes.
 > Each notebook's full plan is in the notebook itself; how we work is in [`STANDARDS.md`](STANDARDS.md).
 
 ---
 
 ## Now
 
-- **Rerun EDA_SDA_1, then EDA_SDA_2, on the new layout** (one `data/` at the top) **with the US-only filter** (no-country listings dropped, 2026-10-12): refresh the counts quoted in each notebook's results and conclusion.
 - **Full dataset, full scale for every notebook** (decided 2026-10-10; stream test: ≈13.4M listings, ≈1.0M in scope, ≈40 minutes, ≈8.4 GB):
-  1. **Claude:** EDA_SDA_3 for full scale (also: a second ghost sign, since "company still posting" no longer separates forgotten listings at big companies (78% of stale listings): the same company and title still open after 90 days while newer copies of that title keep appearing) (reads `scope_table.parquet` and `scope_descriptions.parquet`): text read part by part, regex features over every listing, spaCy lemmas on a large stratified sample (about 150,000), cache in parts. Hold EDA_SDA_3's first run until then.
+  1. **Claude:** EDA_SDA_3 for full scale (also: a second ghost sign, since "company still posting" no longer separates forgotten listings at big companies (82% of stale listings): the same company and title still open after 90 days while newer copies of that title keep appearing) (reads `scope_table.parquet` and `scope_descriptions.parquet`): text read part by part, regex features over every listing, spaCy lemmas on a large stratified sample (about 150,000), cache in parts. Hold EDA_SDA_3's first run until then.
   2. **Jacob (any time):** delete `data/flat/all_fields_lean_full/` (1.1 GB): nothing reads it any more. After EDA_SDA_3 is adapted, also the sample-era tables in `data/clean/` (`analysis_table.pkl`, `scope_table.pkl`, `job_openings_lean_200000_v2.pkl`).
   3. **New analysis the full data opens** (added to each notebook's plan): real market sizes per role (openings, new per week), role buckets by month × source and by state, a company watch list (employers posting entry-level roles often), rare signals (cross-posts, evergreen wording, licenses, staffing agencies), full-scale daily series for TimeSeries, more training data and a proper test month for ML_Rank.
 - **Jacob (from 2026-10-11):** upload the slide deck `reports/Team update 2026-10-11.pptx` (24 slides, EDA_SDA_1 and 2 at full scale with the feature screening and the 2026-10-11 pass; local only) to Google Slides, then delete the 2026-10-09 and 2026-10-10 decks; tell the team (below).
@@ -18,18 +18,25 @@
 
 ## Next
 
-- **Differentiation ideas (2026-10-10), lead with 1, 3 and 5:** seven planned additions, described in [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) (Planned additions): (1) which skill unlocks the most jobs; (2) certification payoff; (3) stepping-stone planner; (4) "apply now" alerts; (5) a backtested ranking claim; (6) pay now vs. one move later; (7) a map of reachable openings.
-- **Set up the GPU PC before ML_Fit** (or before EDA_SDA_3, if it uses transformer models; spaCy's small model is fine on the Mac): BGE embeddings of the scope's ~1.1M descriptions take hours on a GPU (Jesse: 244K in about 45 minutes on an RTX 3070) vs. likely a day or more on the Mac's CPU. Steps: clone the repo; Python 3.11 venv from `requirements.txt` with the CUDA build of PyTorch; `nbstripout --install`; set `PL_DATA_DIR` to the PC's data folder; copy only what's needed (`data/clean/analysis_table.parquet`, `scope_descriptions.parquet`) by external drive, or stream from S3 with the PC's own AWS profile; add the PC's data folder to the end-of-project deletion list. EDA_SDA_1 and 2 stay on the Mac (pandas is CPU-only; no gain).
+- **Differentiation ideas (2026-10-10), lead with 1, 3 and 5** (1, 3 and 5 drafted as tested functions in `src/differentiators.py`, 2026-10-13; they need notebook cells once their inputs exist): seven planned additions, described in [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) (Planned additions): (1) which skill unlocks the most jobs; (2) certification payoff; (3) stepping-stone planner; (4) "apply now" alerts; (5) a backtested ranking claim; (6) pay now vs. one move later; (7) a map of reachable openings.
+- **Set up the GPU PC before ML_Fit** (or before EDA_SDA_3, if it uses transformer models; spaCy's small model is fine on the Mac): BGE embeddings of the scope's ~750K descriptions take hours on a GPU (Jesse: 244K in about 45 minutes on an RTX 3070) vs. likely a day or more on the Mac's CPU. Steps: clone the repo; Python 3.11 venv from `requirements.txt` with the CUDA build of PyTorch; `nbstripout --install`; set `PL_DATA_DIR` to the PC's data folder; copy only what's needed (`data/clean/analysis_table.parquet`, `scope_descriptions.parquet`) by external drive, or stream from S3 with the PC's own AWS profile; add the PC's data folder to the end-of-project deletion list. EDA_SDA_1 and 2 stay on the Mac (pandas is CPU-only; no gain).
 - **EDA_SDA_3 (text features; no matching models), in progress:**
   - **Sections 1–2 written** (setup, text loaded from the saved parts, HTML to structured text, boilerplate removal, lemmas; cached in `data/clean/eda3_text.pkl`): needs a run, then notes. Section 3 (years and degree rules) is next.
-  - **Check EDA_SDA_2's two title rules (decided 2026-10-11: first-pass keyword rules stay in EDA_SDA_2, EDA_SDA_3 checks them):** (1) staffing agencies from recruiter titles (`agency_recruiter`, `staffing_by_title`, 2b.1); (2) 13-1161 split into analysts vs. marketing specialists by job title (`marketing_specialist`, 3.0; marketing specialists hidden). Hand-check a sample of each, measure precision and recall, and replace a rule only if a text model does clearly better.
-  - **Hand-checking:** decide who marks the validation samples (section 5), about 100–150 matches per rule, locally.
-  - Validate the keyword flags: a teammate checks a random sample of matches locally (career-change flags, `urgency`, `mentions_remote`); precision and recall against EDA_SDA_1's rules.
-  - Hard-blocker rules per role bucket (years-asked threshold, required credentials), hidden in the app with a count of what each hides. The "asks 5+ years" preview would hide 31% of open listings (EDA_SDA_2 3.11): check required vs. preferred and the year counts first. The degree flag fires on only 3–6% of listings: widen and validate its pattern ("Bachelor's in …") before any degree rule.
+  - **Dropped 2026-10-13: checking EDA_SDA_2's two title rules** (they were first-pass keyword rules, decided 2026-10-11): (1) staffing agencies from recruiter titles (`agency_recruiter`, `staffing_by_title`, 2b.1); (2) 13-1161 split into analysts vs. marketing specialists by job title (`marketing_specialist`, 3.0). They won't be hand-checked, so both are labels ("staffing agency, from the title"; marketing specialist) and opt-in filters, not hidden or demoted by default. Marketing specialists were hidden before; `hidden_occupation` (`src/career_switch.py`) now covers document management only, and EDA_SDA_2 was rerun with that (2026-10-13).
+  - **Hand-checking:** not done (decided 2026-10-13: the samples are not hand-checked). Text rules are labels and opt-in filters, never hidden by default; section 5's samples stay unmarked, and the text says the rules are unvalidated.
+  - ~~Validate the keyword flags by hand~~ (dropped 2026-10-13): the flags stay keyword rules, reported by how often they fire and compared with EDA_SDA_1's rules.
+  - Text-blocker labels per role bucket (years-asked threshold, required credentials), shown in the app as labels and opt-in filters, each with a count of what it would hide. The "asks 5+ years" preview would hide 32% of open listings (EDA_SDA_2 3.11): check required vs. preferred and the year counts first. The degree flag fires on only 3.7% of listings: widen and validate its pattern ("Bachelor's in …") before any degree rule.
   - Evergreen wording (feeds the ghost-listing flag), required vs. preferred qualifications, **skills mapped to O*NET** (the input to `ML_Fit`'s skills-based matching).
+  - [agent] **EDA_SDA_3 section 6: skills mapped to O*NET (added 2026-10-13; O*NET 31.0 is downloaded).** Code, tests on synthetic tables and notebook cells only; Jacob runs it.
+    - **Reader** in `src/onet.py`: loads the tab-separated tables from `fetch.paths.external("onet")` (never a written-out path): `Occupation Data` (O*NET-SOC Code, Title, Description), `Essential Skills` and `Transferable Skills` (O*NET-SOC Code, Element ID, Element Name, Scale ID, Data Value, …, Recommend Suppress, Not Relevant; keep Scale ID `IM` importance and `LV` level, drop suppressed or not-relevant rows), `Software Skills` (O*NET-SOC Code, Workplace Example, Element ID, Element Name, Hot Technology, In Demand), `Job Zones` (O*NET-SOC Code, Job Zone), `Related Occupations` (O*NET-SOC Code, Related O*NET-SOC Code, Relatedness Tier, Index), `Content Model Reference` (Element ID, Element Name, Description).
+    - **Skill vocabulary:** the software tools (`Workplace Example`, with its commodity `Element Name`, hot and in-demand flags) plus the skill element names, normalized (lowercase, punctuation, common aliases such as "js" → "javascript"), matched as whole phrases.
+    - **Extraction** from each listing's **requirement lines** only (`eda3_desc_clean.parquet` + `tf.line_sections`), batch by batch with the same crash-safe `.part` writes as `tf.build` (Pace's pattern): per listing, the matched tools and skill elements, each marked required or preferred. Save `eda3_skills.parquet` (id, element or tool, kind, section) for `ML_Fit`.
+    - **Notebook (section 6):** coverage (share of listings with at least one matched skill, by role bucket); the most-asked tools and skills per bucket; how well listings agree with their own occupation's O*NET profile (share of a listing's matched skills that O*NET lists for its code); Job Zone per bucket as an accessibility prior; transferable skills shared between the team's background occupations and each target bucket (the compass's "skills that carry over"). Aggregates only, with `data-rows` tags on any row preview.
+    - **Tests:** synthetic O*NET tables with the real headers above and synthetic requirement lines (aliases, required vs. preferred, a phrase that must not match inside another word).
+    - Credit "O*NET 31.0 Database, USDOL/ETA (CC BY 4.0)" in the section text.
   - **New text rules (added 2026-10-10):** security clearance required, "no visa sponsorship", travel percentage, shift or on-call work, contract-to-hire. Clearance and sponsorship are hard blockers for some career changers (per applicant in the app).
   - Save the scope table with text features for EDA_SDA_4 and `ML_Fit`.
-- **EDA_SDA_4 (statistics):**
+- **EDA_SDA_4 (statistics)** (scaffolded 2026-10-13: `src/stats_tests.py` and sections 1b–12; needs a run, then findings and the feature decisions in section 10):
   - Descriptive statistics by group; Pearson + Spearman, Cramér's V, point-biserial; VIF.
   - Group interactions, including by role bucket, and checks for confounding (Simpson's paradox).
   - Adjusted check: a Cox survival regression with every standard confounder (company volume, source and platform, staffing agency, role bucket, seniority, month, company type, has a description), company-clustered errors, hazard ratios with 95% intervals and a proportional-hazards check.
@@ -50,7 +57,7 @@
   - Score each step on hit rate@3/@5 for the role people actually moved into, per pool and overall, against a title-keyword baseline; measure old-field bias; exclude the current role for within-tech moves; folds grouped by person.
   - SHAP, including each listing's top fit features for the detail view's rating breakdown; hand fit scores and their breakdown to `ML_Rank`.
   - **Assemble the compass (last section):** Profiles' paths with people counts, each role's 2026 market and growth (EDA_SDA_2 3.12), and the Ideas tab's inputs (skills to build, options and time to switch, pay increase vs. the current field from 1c, growth); save the compass tables for the app.
-- **ML_Rank (the priority queue):**
+- **ML_Rank (the priority queue)** (v1 and v2 scaffolded 2026-10-13, 14-day window: needs EDA_SDA_4's `modeling_ready.parquet`, then a run):
   - Write the hypotheses with thresholds **before** any modeling.
   - Targets: closes within N days, days open, and the survival target.
   - Split by time (train April–July, validate August, test September), folds grouped by company; test used once.
@@ -67,14 +74,13 @@
   5. Save `role_growth.pkl` (role bucket, occupation codes, 2025 employment, 10-year growth, yearly rate, *n*-year growth, vintage) and add the expected-growth column to the compass (EDA_SDA_2 3.12), then rerun.
   6. `ML_Fit`: apply growth **after** the fit model as a visible, user-adjustable adjustment (not a trained input), and show how much it moved each suggestion. Always show it next to the role's entry-level share and today's openings.
   7. Write-up: say "expected growth (official projections)", never "will grow"; limitations: national, occupation-wide, assumes full employment, no business cycles.
-- **Date picker (as-of date):** a helper in `src/` that returns the listings live on a date with features computed as of that date; check it on July 1 vs. September 1, 2026 (counts only; EDA_SDA_1 8b shows dates before July are skewed young). The model for a date is trained only on what was known by then; the demo can start with test-period dates.
 - **Decide the time frames** for career options and job growth in the compass (team; growth at most 5 years), and which growth extensions to adopt (each reopens the 2026-10-09 decision to drop other external data):
   - **Error band** from BLS's own track record (an earlier projection vs. OEWS actuals), shown as a range: recommended, small.
   - **Listing momentum:** each bucket's new-listings trend from TimeSeries, shown next to growth, never blended in: recommended, small.
   - **Interest-rate scenarios** for years 1–2 (FOMC paths; sensitivity from fed funds vs. Indeed/JOLTS postings), fading to BLS by year 5: stretch.
   - **Horizon-weighted blend** of a near-term postings signal with the BLS trend (weights 0.8 → 0 over years 1–5, tuned in a backtest): later; our six months can't support it.
   - **State level** (Projections Central): only if the app adds location-based growth.
-- **O*NET (in scope, small):** check the terms of use, then download only the **Career Changers Matrix** (latest release), the **skills** for computer and mathematical occupations plus the team's background occupations, and the **Job Zones** (O*NET's level of education and experience per occupation: an accessibility prior for the feature screening). Listings already carry O*NET codes, so they join directly.
+- **O*NET (in scope, small): downloaded 2026-10-13** (`python -m fetch.get_onet`, release 31.0, CC BY 4.0). Release 31.0 renamed the files: skills are **Essential Skills**, **Transferable Skills** and **Software Skills**, and the Career Changers Matrix is now **Related Occupations**; all occupations are kept (filter to computer and mathematical plus the team's background occupations when reading). Also the **Job Zones** (O*NET's level of education and experience per occupation: an accessibility prior for the feature screening). Listings already carry O*NET codes, so they join directly.
 - **Write up the analysis** and **choose the final format** (write-up, notebook demo, or app).
 
 ## Blocked
@@ -94,7 +100,7 @@
 - **predictleads-hackathon:** its `.venv` was removed 2026-10-10 to free space; rebuild it (`python -m venv .venv && pip install -r requirements.txt`) before working there.
 
 - **Profiles is frozen** (refrozen 2026-10-10). Reopen only if needed: a pool for moving up within the same role (training, then a senior or manager role; levels are already tagged), or more prior-career keywords ("other" is 115 of 706; 4a.2e lists the common titles). Any change means a rerun, then the ML notebook reloads `modeling_table.pkl`.
-- **Run log:** settings, seeds and metrics for every run, in a CSV or a local MLflow store. Never listing text.
+- **Run log:** built (`src/run_log.py`, a CSV that refuses listing text); call `log_run` from each modeling notebook.
 - **Stretch techniques:** transferable fit with embeddings; embeddings vs. TF-IDF; change-point detection (`ruptures`); topic modeling (NMF or BERTopic); several daily exports to observe closures directly; a one-page system card.
 
 ## Always

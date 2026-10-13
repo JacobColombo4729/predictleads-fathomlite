@@ -260,6 +260,7 @@ Everything lives in two git-ignored folders at the top, shared by the notebooks 
 | The raw export files (`data/raw/`): optional, so every script reads locally instead of streaming from S3 | `python -m fetch.get_predictleads` (both files, about 19 GB; skips what's already there; `--check` shows what's there; needs AWS, step 7) | depends on the connection |
 | The full-file listing tables (`data/flat/`), from `data/raw/` or S3 | `python -m src.stream_full --auto` (from `analysis/`), or just run EDA_SDA_1 (cell 4b). **Bulk** mode reads the file once and parses it on several cores (needs about 16 GB RAM and 8 threads); **stream** mode reads it three times, one piece at a time (for 8 GB machines); `--auto` picks. Resumable; S3 needs AWS (step 7) | bulk about 35 minutes; stream about 3–5 hours |
 | Public resumes from Kaggle (`data/external/resume_structured/`, for Profiles) | `python -m fetch.get_resumes` (no Kaggle account needed), or just run Profiles, which calls it first | under a minute |
+| O*NET 31.0 tables (`data/external/onet/`, for EDA_SDA_3 section 6 and ML_Fit: occupations, essential, transferable and software skills, job zones, related occupations) | `python -m fetch.get_onet` (a 13 MB download from the O*NET Resource Center, 10 MB kept, no account needed; CC BY 4.0, credit USDOL/ETA, kept in `SOURCE.json`) | a few seconds |
 | The BGE text-embedding model (`pretrained/bge-base-en-v1.5/`, for the app and ML_Fit) | `python -m fetch.get_bge` (about 0.44 GB from Hugging Face, the pinned version in `app/code/bge_text.py`; no account needed) | about a minute |
 | The cleaned tables (`data/clean/`, `data/profiles/`) | Run the notebooks in order: EDA_SDA_1, EDA_SDA_2, …; Profiles | |
 
@@ -383,6 +384,25 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 **Each person works on their own branch** (`jacob`, `jesse`) and merges it into `main` when the work is ready (step 5). **Log your changes** in your own file, [`JACOB.md`](JACOB.md) or [`JESSE.md`](JESSE.md), so the other person can catch up at a glance (decided 2026-10-12). There are no other rules. Merging `main` into your branch often keeps the two branches close: a long-running branch once left the team 155 commits behind.
 
 **Eve tidies every push.** Before each push to your branch, Eve (Claude, with the instructions in [`.claude/agents/eve.md`](.claude/agents/eve.md)) looks over the commits going up. It fixes what is clearly untidy in one `Eve: tidy …` commit (stray files, dead code, broken links, a missing change log line) and asks you about anything that needs a judgment call. Pushing from a terminal, Eve then opens a normal Claude conversation and asks with Claude's usual question boxes (pick an option, or type your own); she applies your choices, follows up if your answers open something up (three rounds at most), and always ends with an open question: anything you want the other person to make sure of. Type `/exit` when she's done and the push carries on. Eve keeps those asks in [`.eve/ASKS.md`](.eve/ASKS.md) and makes them questions on the other person's pushes, along with questions about how the push fits the other person's direction, so the two of you keep building one thing. Replies go back under each ask, and Eve clears it when it's done. Eve's own commit never holds up the push; it goes up with your next push, so there's nothing to do. (Eve does stop a push while you have uncommitted changes, to keep its commit separate.) It runs on Sonnet (set in `.claude/agents/eve.md`) and uses your own Claude Code subscription, nothing else. Turn it on once per clone: `git config core.hooksPath .githooks`. Skip it for one push: `EVE_SKIP=1 git push` (PowerShell: `$env:EVE_SKIP=1; git push; Remove-Item Env:EVE_SKIP`). Its last report is saved in `.git/eve-last-review.md`.
+
+**Eve also glances at each commit** (`.githooks/post-commit`): a quick, read-only check in the background that warns within a minute or two, so problems surface before the push. Report: `.git/eve-commit-review.md`. Off: `git config eve.commitCheck false` (on: `true`). It costs a little usage per commit.
+
+**Helper agents** (Claude Code, Sonnet, in `.claude/agents/`; ask for them in a Claude session):
+
+| Agent | Ask | What it does |
+|---|---|---|
+| **Thread** | "thread EDA_SDA_3" / "thread EDA_SDA_3 after a rerun" | Keeps the notebooks consistent: updates the ones downstream (and upstream) of a change; after a rerun, updates every quoted number and regenerates the reports (`python -m src.notebook_tools` does the checking) |
+| **Pace** | "pace EDA_SDA_3" | Makes a notebook faster and lighter on memory without changing its results, timed on synthetic data |
+| **Foreman** | the loop below | Drafts tasks marked [agent] in `analysis/ANALYSIS.md`, one at a time, each on its own branch (`worktree-agent-…`) for review; never merges or pushes |
+
+**Running Foreman** (in a second Claude Code window, so your own session stays free):
+1. Mark the tasks it may take with [agent] in `analysis/ANALYSIS.md` (remove the mark to take one back).
+2. Start it: `/loop Follow "The loop" in .claude/agents/foreman.md, with a cap of 3 tasks.` It drafts one task, pauses about 10 minutes, then takes the next, and **stops by itself** at the cap or when no [agent] task is left.
+3. Stop it early: press Esc in that window, or tell it "stop the loop". Closing the window also stops it.
+4. Review each draft: `git log --oneline jacob..worktree-agent-<id>`, then merge what you want (`git merge worktree-agent-<id>`).
+5. Clean up after merging or rejecting: `git worktree list`, then `git worktree remove .claude/worktrees/agent-<id>` and `git branch -D worktree-agent-<id>`. Its record of finished tasks is `.git/foreman-state.json` (delete it to start fresh).
+
+**Everything the agents do is logged.** What they change goes into the committer's change log (`JACOB.md` or `JESSE.md`) in the same commit. Every run, including checks that change nothing, adds one line to `.git/agent-activity.log` (local, one per clone): when, which agent, what it touched, and the outcome. Read it with `cat .git/agent-activity.log` (PowerShell: `Get-Content .git\agent-activity.log`).
 
 ```bash
 # 1. Start on your branch, with everything already merged into main
