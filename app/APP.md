@@ -1,12 +1,13 @@
 # App
 
 > The app's priority queue. Top = next. Delete a task when it's done. The design is in [`DESIGN.md`](DESIGN.md); the analysis side has its own queue in [`../analysis/ANALYSIS.md`](../analysis/ANALYSIS.md).
+> **[agent] = Jesse's Foreman may draft it in the background** (code and tests on made-up data, on its own branch for you to review; never merges, pushes or calls a paid API; README step 14). Start a task's line with [agent] to hand it off, or `[agent: Jacob]` to hand it to Jacob's Foreman; start the loop in a second Claude Code window: `/loop Follow "The loop" in .claude/agents/foreman.md, with a cap of 3 tasks`.
 
 ---
 
 ## Now
 
-- **Jesse:** clone the repo, `git switch jesse`, `git merge origin/main`, then `python -m fetch.get_bge` for the model and `git config core.hooksPath .githooks` to turn on Eve (README step 14); log your changes in `JESSE.md`, and read `JACOB.md` to catch up.
+- **Jesse:** clone the repo, `git switch jesse`, `git merge origin/main`, then `python -m fetch.get_bge` for the model and `git config core.hooksPath .githooks` to turn on Eve (README step 14); meet the helper agents (`SETUP.md` section 2) and mark tasks here [agent] for Foreman; log your changes in `JESSE.md`, and read `JACOB.md` to catch up.
 - **Test Ask the market** on the Signals tab as a person: typed questions, the example chips, **Talk** with a real microphone, and **Research this company**. So far Talk was only tested with a synthetic voice.
 - **End-to-end rehearsal** on a real profile with desired roles; fix what breaks. First edit the draft desired roles on the two real profiles if they're wrong.
 - **AI skills gap analysis:** live-tested and working (Jesse, 2026-10-10); still to record the cost and the time for 10 and 20 jobs. Anything that sends résumé text to a provider needs consent and a budget decision.
