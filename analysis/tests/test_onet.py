@@ -282,6 +282,14 @@ class Profiles(unittest.TestCase):
         self.assertEqual(g.loc["b", "n_listed"], 0)
         self.assertNotIn("z", g.index)
 
+    def test_listed_skills_need_importance_three_in_either_table(self):
+        tr = onet.ratings("Transferable Skills", self.dir)
+        listed = onet.listed_by_code(["15-1252.00"], self.soft, [self.ess, tr])
+        skills = set(listed[listed.kind == "skill"].name)
+        expected = set(pd.concat([self.ess, tr]).query("code == '15-1252.00' and scale == 'IM' and value >= 3").element)
+        self.assertEqual(skills, expected)
+        self.assertNotIn("Active Listening", skills)  # suppressed, and rated under 3
+
     def test_job_zone_exact_and_prefix(self):
         z = onet.job_zone_for(pd.Series(["15-1252.00", "15-12", "99-9999.00", None]), onet.job_zones(self.dir))
         self.assertEqual(z.iloc[0], 4)

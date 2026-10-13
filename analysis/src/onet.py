@@ -306,12 +306,18 @@ def codes_like(all_codes, code):
     return [x for x in all_codes if x.startswith(c)] if c else []
 
 
-def listed_by_code(listing_codes, software_table, essential):
-    """For each distinct listing code: the set of tools (software) and skill elements (essential, IM rows) O*NET lists
-    for it. A code matches the O*NET codes that start with it, so a 7-character code covers its detailed codes.
-    Returns a long table: listing_code, name, kind."""
+SKILL_LISTED_IMPORTANCE = 3.0  # a skill counts as "listed" for an occupation when O*NET rates its importance 3+ of 5
+
+
+def listed_by_code(listing_codes, software_table, skill_tables, min_importance=SKILL_LISTED_IMPORTANCE):
+    """For each distinct listing code: the tools (software) and the skill elements O*NET lists for it. A skill is listed
+    when its importance (IM) is `min_importance` or more in any of `skill_tables` (Essential and Transferable Skills:
+    every occupation rates every skill, so a rating alone would list them all). A code matches the O*NET codes that
+    start with it, so a 7-character code covers its detailed codes. Returns a long table: listing_code, name, kind."""
     tools = software_table[["code", "tool"]].rename(columns={"tool": "name"}).assign(kind="tool")
-    elements = essential[essential.scale == "IM"][["code", "element"]].rename(columns={"element": "name"}).assign(kind="skill")
+    ratings = pd.concat([skill_tables] if isinstance(skill_tables, pd.DataFrame) else list(skill_tables), ignore_index=True)
+    ratings = ratings[(ratings.scale == "IM") & (ratings.value >= min_importance)]
+    elements = ratings[["code", "element"]].rename(columns={"element": "name"}).assign(kind="skill")
     listed = pd.concat([tools, elements], ignore_index=True).drop_duplicates()
     rows = []
     for lc in pd.Series(listing_codes).dropna().astype(str).str.strip().unique():
