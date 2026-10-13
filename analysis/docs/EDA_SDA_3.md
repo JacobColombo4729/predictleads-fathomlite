@@ -157,7 +157,7 @@ Data: **O*NET 31.0 Database, USDOL/ETA (CC BY 4.0)**, downloaded with `python -m
 | 6c | **Coverage** and the most-asked tools and skills per role bucket | Aggregates |
 | 6d | **Agreement with the listing's own occupation:** the share of a listing's matched skills that O*NET lists for its O*NET-SOC code | Aggregates |
 | 6e | **Job Zone per bucket** (O*NET's 1-5 scale of preparation needed) as an accessibility prior | Aggregates |
-| 6f | **Transferable skills** each target bucket relies on most. The "from where" side is per user: the app matches a user's uploaded résumé against these profiles (`ML_Fit`); no team background enters the analysis | Aggregates |
+| 6f | **Transferable skills that carry over** from each of Profiles' prior-career areas (`BACKGROUND_AREAS`, as O*NET groups in `BACKGROUND_SOC`) to each target bucket: the compass's "skills that carry over"; in the app, a user's own résumé is matched the same way (`ML_Fit`) | Aggregates |
 
 Limits: a skill element name such as "Programming" or "Writing" is also an ordinary word, so skill matches are looser than tool matches; the keyword rules are not hand-checked (as in section 4), so they are labels and matching features, never filters that hide listings.
 
