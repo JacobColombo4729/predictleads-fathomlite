@@ -126,6 +126,26 @@ LAYOUTS = {
         ],
         "charts": ["# 2 Chart", "# 3 Chart"],
     },
+    "TimeSeries": {
+        "skip_sections": {"1.", "Roadmap"},
+        "full_text_sections": {"Job", "0.", "Clarifying", "What", "Answers", "Limitations", "Handoff"},  # the purpose, and the conclusion
+        "max_bullets": 4,
+        "bullets_by_section": {"4.": 5, "5.": 4},
+        "table_groups": [
+            ["2a Days and weeks", "2d Share of the week by weekday"],
+            ["2e Mix by month first seen"],
+            ["3b Strength of the STL components", "3d Stationarity tests"],
+            ["4a Features and split"],
+            ["4e Validation scores", "4f Rolling-origin cross-validation"],
+            ["4h Test scores"],
+            ["5a Closing speed by month first seen"],
+            ["5b Share of new listings you see still open, checking every N days: all originals",
+             "5b Share of new listings you see still open, checking every N days: what the app shows"],
+            ["5c Longest gap between checks", "5c Check cadence by role bucket"],
+            ["6b Listing momentum by role bucket"],
+        ],
+        "charts": ["# 2b", "# 2d", "# 2e", "# 3b", "# 4e", "# 4h", "# 5a", "# 5b", "# 6a"],
+    },
     "Profiles": {
         "skip_sections": {"1.", "3.", "4b", "5."},
         "full_text_sections": {"Job", "6."},
