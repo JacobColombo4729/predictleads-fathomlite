@@ -168,9 +168,11 @@ def make_preprocessor(numeric, categorical, min_frequency=50):
 
 
 def with_preprocessing(preprocessor, model):
-    """Pipeline(prep, model): the form every model is cross-validated and fit in."""
+    """Pipeline(prep, model): the form every model is cross-validated and fit in. The preprocessor is cloned, so
+    pipelines built from one shared PREP never refit each other's transformer."""
+    from sklearn.base import clone
     from sklearn.pipeline import Pipeline
-    return Pipeline([("prep", preprocessor), ("model", model)])
+    return Pipeline([("prep", clone(preprocessor)), ("model", model)])
 
 
 def upsample_minority(X, y, seed=SEED):
@@ -342,6 +344,29 @@ def clustered_bootstrap_diff(model_values, baseline_values, clusters, n_boot=100
     lo, hi = float(np.percentile(boots, 2.5)), float(np.percentile(boots, 97.5))
     return {"difference": float(sums.sum() / counts.sum()), "ci_low": lo, "ci_high": hi,
             "supported": bool(lo > 0), "n_clusters": int(len(g))}
+
+
+def clustered_bootstrap_auc_diff(y_true, proba_model, proba_baseline, clusters, n_boot=1000, seed=SEED):
+    """ROC-AUC of the model minus that of the baseline, with a company-clustered 95% bootstrap interval (whole
+    companies resampled together). AUC only uses the ranking, so models trained with class_weight='balanced' (whose
+    probabilities are not calibrated) are compared fairly; a constant baseline such as the prior has AUC 0.5.
+    Returns dict: difference, ci_low, ci_high, supported (ci_low above 0), n_clusters."""
+    from sklearn.metrics import roc_auc_score
+    y, pm, pb = (np.asarray(a, dtype=float) for a in (y_true, proba_model, proba_baseline))
+    codes = pd.factorize(np.asarray(clusters))[0]
+    order = np.argsort(codes, kind="stable")
+    starts = np.r_[0, np.flatnonzero(np.diff(codes[order])) + 1, len(codes)]
+    members = [order[a:b] for a, b in zip(starts[:-1], starts[1:])]
+    auc = lambda idx, p: roc_auc_score(y[idx], p[idx]) if np.unique(y[idx]).size == 2 else np.nan
+    rng = np.random.default_rng(seed)
+    boots = []
+    for _ in range(n_boot):
+        idx = np.concatenate([members[k] for k in rng.integers(0, len(members), len(members))])
+        boots.append(auc(idx, pm) - auc(idx, pb))
+    lo, hi = (float(v) for v in np.nanpercentile(boots, [2.5, 97.5]))
+    every = np.arange(len(y))
+    return {"difference": float(auc(every, pm) - auc(every, pb)), "ci_low": lo, "ci_high": hi,
+            "supported": bool(lo > 0), "n_clusters": len(members)}
 
 
 def top_k_overlap(score_a, score_b, k=10):
