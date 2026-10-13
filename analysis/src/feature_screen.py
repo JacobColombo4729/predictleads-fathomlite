@@ -113,7 +113,7 @@ def screen(base, values, meta, cell, y=None):
         lv = levels(s)
         lvls[f] = lv
         present = s.notna()
-        cov_by = [present.groupby(base.source_type).mean().min(), present.groupby(base.month.astype(str)).mean().min()]
+        cov_by = [present.groupby(base.source_type, observed=True).mean().min(), present.groupby(base.month.astype(str)).mean().min()]
         raw = raw_rates(lv, y)
         h1, h2 = (raw_rates(lv, y, half == h) for h in HALVES)
         common = h1.index.intersection(h2.index)
