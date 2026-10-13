@@ -95,7 +95,15 @@ ALIASES = {  # spelled-out forms to one canonical form, on normalized text (appl
 # Tool names that are everyday words or single letters: matching them as phrases would fire on ordinary sentences
 # ("go to market", "word of mouth"). Dropped from the vocabulary; the notebook reports how many names were skipped.
 AMBIGUOUS = {"spark", "chef", "puppet", "word", "access", "outlook", "project", "teams", "office",
-             "sketch", "unity", "express", "view", "flow", "pivot", "base", "tableau public"}
+             "sketch", "unity", "express", "view", "flow", "pivot", "base", "tableau public",
+             # product names that are ordinary words in listings (found in the first full run, 2026-10-13, and by
+             # checking O*NET's single-word tool names against its own task statements): "Act!" (a contact manager),
+             # "Analyze", "Google" alone (Google Analytics, Google Cloud Platform and the like still match)
+             "act", "analyze", "google", "tanks", "reduce", "sand", "freight", "route", "dig"}
+# Skill element names that are ordinary words in listings ("a degree in science", "writing code", "monitoring
+# systems"): dropped. Specific skills (Programming, Troubleshooting, Negotiation) and multi-word ones stay.
+GENERIC_SKILLS = {"science", "writing", "speaking", "mathematics", "monitoring", "coordination", "persuasion",
+                  "instructing", "installation", "repairing"}
 # Language names that are also everyday words or letters (R, Go, C, Swift): kept, but matched only in context, i.e.
 # next to another programming or analysis tool or the word "programming" / "language" ("Python or R", "C/C++",
 # "the Go programming language"), or through an unambiguous spelling (golang, rstudio, swiftui).
@@ -140,7 +148,8 @@ def vocabulary(software_table, skill_tables, extra_exclude=()):
     v["phrase"] = v["name"].map(normalize)
     v["context"] = v.phrase.isin(CONTEXTUAL) & v.kind.eq("tool")  # matched only in context (see CONTEXTUAL)
     excluded = AMBIGUOUS | {normalize(x) for x in extra_exclude}
-    drop = ~v.context & ((v.phrase.str.len() < MIN_PHRASE_CHARS) | v.phrase.isin(excluded | CONTEXTUAL))
+    drop = ~v.context & ((v.phrase.str.len() < MIN_PHRASE_CHARS) | v.phrase.isin(excluded | CONTEXTUAL)
+                         | (v.kind.eq("skill") & v.phrase.isin(GENERIC_SKILLS)))
     out = v[~drop].drop_duplicates(["phrase", "name", "kind"]).reset_index(drop=True)
     out.attrs["skipped"] = int(drop.sum())
     return out[["phrase", "name", "kind", "element_id", "hot", "in_demand", "n_occupations", "context"]]
