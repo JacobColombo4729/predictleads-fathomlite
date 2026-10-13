@@ -11,6 +11,7 @@ import pandas as pd
 
 NEEDED = ["id", "company_id", "first_seen", "last_seen", "desc_hash"]  # load only these (plus any you pass through)
 DAY = pd.Timedelta(days=1)
+LIVE_TOLERANCE_DAYS = 2  # last seen within this many days of a date = still open then (same rule as `live` at the data's end)
 
 
 def _day(as_of, like):
@@ -50,11 +51,12 @@ def live_on(listings, as_of):
 
 def training_as_of(listings, as_of):
     """Rows to train the model for a date: listings first seen by the day, their features, and the outcome as known
-    then. `days_observed` stops at the end of the day; `finished` is False (censored) for listings still open then."""
+    then. `days_observed` stops at the end of the day; `finished` is False (censored) for listings last seen
+    within LIVE_TOLERANCE_DAYS of the day (still open then, as at the end of the data)."""
     day = _day(as_of, listings["first_seen"])
     known = known_features(known_by(listings, as_of))
     end = known["last_seen"].clip(upper=day + DAY)
-    known["finished"] = known["last_seen"] < day
+    known["finished"] = known["last_seen"] < day - pd.Timedelta(days=LIVE_TOLERANCE_DAYS)  # more than 2 days before
     known["days_observed"] = ((end - known["first_seen"]) / DAY).clip(lower=0)
     return known.drop(columns=["last_seen"])
 
