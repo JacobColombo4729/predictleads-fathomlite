@@ -14,9 +14,9 @@ Builds the **listing model** and the **priority queue**. The listing model predi
 
 | Notebook | Question | Hands off |
 |:--|:--|:--|
-| EDA_SDA_1 | What's in the data, and what's the scope? | Final table 1 |
-| EDA_SDA_2 | Which listings do we study? The scope cut, additional cleaning, non-text checks, ghost listings | Scope table, non-text features, occupation summary |
-| EDA_SDA_3 | What do the descriptions say? Text features, validated blockers, skills mapped to O*NET (no matching models) | Scope table + text features |
+| EDA_SDA_1 | What's in the full file, how does tech compare with every field, and what's in the scope? (the scope cut, applied first) | Scope table and its descriptions, occupation summary, company activity |
+| EDA_SDA_2 | Which scope listings do we keep, and how do they behave? Additional cleaning, non-text checks by role bucket, ghost listings | Scope table, non-text features |
+| EDA_SDA_3 | What do the descriptions say? Text features, text rules as labels and opt-in filters (keyword rules, not validated), skills mapped to O*NET (no matching models) | Scope table + text features |
 | EDA_SDA_4 | Which features hold up? Statistics, confounders, the adjusted Cox check | Modeling-ready table |
 | TimeSeries | When do listings appear and close? | Timing features |
 | ML_Fit | Which roles and listings fit a career changer? Keyword → TF-IDF → BGE → RRF, skills-based matching, a trained layer on real career moves | Fit scores, role discovery, the compass |
@@ -59,6 +59,95 @@ Builds the **listing model** and the **priority queue**. The listing model predi
 | 11. Sensitivity | | Do conclusions hold under our choices (2-day live tolerance, scope boundaries, CET `posted`)? |
 | 12. Solution report | Steps performed, difficulties and how they were solved, the final model and its score | |
 
-## 2.–12.
+## 1c. Hypotheses and thresholds (written before any modeling)
 
-_To do, once EDA_SDA_4's table, the TimeSeries features and `ML_Fit`'s fit scores exist._
+Each hypothesis has a number that decides it. The test month (September) is used once, at the end; thresholds are fixed here and not changed after seeing results.
+
+| # | Hypothesis | Decided by | Threshold to count as supported |
+|:--|:--|:--|:--|
+| H1 | Features known at first sighting predict whether a listing closes within N days better than the prior | Validation ROC-AUC, CV mean ± std over company-grouped folds, vs. `DummyClassifier` (0.5) | Mean AUC at least 0.60 and above the dummy by more than 2 std |
+| H2 | The best model beats the logistic regression | Validation ROC-AUC difference | At least +0.01 (otherwise keep the simpler model) |
+| H3 | Survival model orders days open better than chance | C-index on validation (company-clustered bootstrap 95% CI) | CI lower bound above 0.50; reported against the best classifier's implied order |
+| H4 | The priority queue beats newest-first | Share of each top 10 still open 14+ days (precision@10), test month | Higher by at least 5 points with a company-clustered 95% CI excluding 0 |
+| H5 | The queue beats title keyword search | Same, plus the share of the top 10 in the role the person moved into | Higher on both |
+| H6 | Adding accessibility and fit changes the top 10 versus timing alone | Overlap of top 10 with and without them | Overlap below 80% |
+| H7 | Training without `likely_ghost` listings predicts the test month better | Validation AUC / C-index | Better by 0.01 or more |
+
+_N (the day cut-off) and the 14-day "open long enough" line are placeholders: fix them from EDA_SDA_4's and TimeSeries' closing-speed curves before running (2.1)._
+
+## 2. Targets
+
+Closes within N days (unknown, not "stayed open", when still open and seen for fewer than N days), days open (closed listings only), and the survival target (days open with censoring, so still-open listings are kept).
+
+**What the data shows**
+- (fill in after the run)
+
+## 3. Preprocessing and leakage checks
+
+Features come only from what is known at first sighting. Company counts use earlier listings only (`prior_company_counts`); `has_desc` and the text flags are checked below (EDA_SDA_2 3.9) before use. Preprocessing sits inside a `Pipeline` + `ColumnTransformer`, fit on training data only.
+
+**What the data shows**
+- (fill in after the run)
+
+## 4. Split
+
+Train April–July (plus the data's first two days), validate August, test September. Folds grouped by company. The test month is touched once, in section 8.
+
+**What the data shows**
+- (fill in after the run)
+
+## 5. Baselines
+
+`DummyClassifier`, newest first, and title keyword search (the career changer's keywords come from `ML_Fit`'s role queries).
+
+**What the data shows**
+- (fill in after the run)
+
+## 6. Class imbalance
+
+`class_weight="balanced"` is set in `rm.build_models()`; compare with upsampling (training folds only) and decision-threshold tuning on the validation month.
+
+_To do._
+
+## 7. Models
+
+Logistic regression, decision tree, random forest, LightGBM, CatBoost, XGBoost (`rm.build_models()`), each with GridSearchCV over the company-grouped folds and `%%time`; Cox and survival models (`rm.cox_model()`, proportional-hazards check, company-clustered errors); LightGBM LambdaRank (`rm.lambdarank_model()`).
+
+**What the data shows**
+- (fill in after the run)
+
+## 8. Evaluation
+
+ROC-AUC, F1, precision-recall, confusion matrix, classification report; C-index for survival; precision@k and NDCG for rankings. The test month is used once here.
+
+_To do._
+
+## 8b. The priority queue
+
+Fit score, chance still open and apply-by, accessibility and pay in one formula (`rm.priority_breakdown`). Weights start from EDA_SDA_4's adjusted model (`rm.START_WEIGHTS` is a placeholder) and are tuned on August with `rm.tune_weights`; only features that survived EDA_SDA_4. The queue against newest first: of each top 10, how many stay open long enough, are reachable and are in the role the person moved into.
+
+_To do, needs `ML_Fit`'s fit scores._
+
+## 9. Interpretation
+
+SHAP and partial dependence; the per-listing breakdown for the detail view (each factor's rating and share of the score from `priority_breakdown`, top SHAP features behind chance still open under plain-language names; check SHAP adds up to each prediction); saved with the scores.
+
+_To do._
+
+## 10. Business translation
+
+Top-10 results with company-clustered bootstrap intervals.
+
+_To do._
+
+## 11. Sensitivity
+
+Live tolerance (`rm.LIVE_TOLERANCE_DAYS`), scope boundaries, CET `posted`, with and without ghost listings (H7).
+
+_To do._
+
+## 12. Solution report
+
+Steps performed, difficulties and how they were solved, the final model and its score.
+
+_To do._

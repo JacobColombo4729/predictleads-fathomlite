@@ -25,7 +25,7 @@ def skill_unlock_table(listings, user_skills, skills_col="skills", hidden_col=No
     """For each skill the user lacks, how many more listings become reachable if they add it.
 
     listings: one row per listing; `skills_col` holds the skills the listing asks for (list/set/tuple).
-    hidden_col: optional boolean column, True for listings the hiding rules (EDA_SDA_2 3.11) hide; they are left out.
+    hidden_col: optional boolean column, True for listings the user's filters hide (seniority, plus any text-blocker filters they turned on); they are left out.
     A listing is reachable when every skill it asks for is one the user has. It is "unlocked" by skill s
     when s is the only skill it asks for that the user lacks. Listings asking for no skills are always reachable.
     Returns: skill, unlocks (listings that become reachable), asked_by (visible listings asking for it),

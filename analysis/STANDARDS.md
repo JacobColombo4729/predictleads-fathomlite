@@ -21,8 +21,8 @@ PredictLeads × TripleTen externship · **How we work.** Last updated 2026-10-09
 
 For a given **career changer** (anyone switching from their current background to a different role or field): suggest the computer and mathematical roles their skills transfer to, and rank listings in those roles by which to apply to first, and why (details in the outline). We succeed if:
 - The prioritization model ranks listings better than how a career changer searches today (newest first, title keyword search) on a later time period, using outcomes we can measure (such as whether a listing is still open).
-- Every ranked listing shows how open it is to a career changer, from text features validated in EDA_SDA_3.
-- Listings a career changer can't get are hidden, using only reliable or validated rules, with a count of what each rule hides.
+- Every ranked listing shows how open it is to a career changer, from EDA_SDA_3's text features, labelled as what the listing asks.
+- Listings a career changer can't get are hidden only on reliable rules (seniority), with a count of what each rule hides. Text blockers (years asked, degree with no equivalent, clearance, no sponsorship) and EDA_SDA_2's two title rules ("marketing specialist", the 13-1161 split; "staffing agency, from the title") are labels and optional filters the career changer turns on, never hidden by default, because they are unvalidated keyword rules (decided 2026-10-13: the samples are not hand-checked).
 - Role discovery ranks the role real career changers actually moved into near the top (hit rate in the top 3 and top 5), better than a title-keyword baseline.
 - Every factor in the model is backed by a measured pattern with a confidence interval, or reported plainly as having no usable signal.
 - Findings are nuanced: factors matter differently by role, source or listing type.
@@ -97,9 +97,9 @@ For a given **career changer** (anyone switching from their current background t
 | Too few postings in the chosen segment | EDA_SDA_2's depth check sizes it. Fall back to streaming the full file with filters, or a bigger segment. |
 | Data leaves approved locations | Keep data only in `data/` or S3. Never commit data. Clear notebook outputs before every commit. |
 | Notebook kernel crashes lose work | Flattening resumes from saved parts; cleaning is cached. Run cells from the top after a restart. |
-| Career-change flags are keyword rules with false positives ("bachelor's degree or equivalent experience required" counts as both) | EDA_SDA_3 validates them: a team member checks a random sample of matches locally |
+| Career-change flags are keyword rules with false positives ("bachelor's degree or equivalent experience required" counts as both) | Not hand-validated (decided 2026-10-13: the samples are not hand-checked): they are shown as labels and optional filters, never hidden by default; EDA_SDA_3 reports how often each fires, and the write-up calls them keyword rules, not validated blockers |
 | Accessibility read from what listings ask, not from who gets hired | Word claims as "open to newcomers on paper", never "hires career changers". State it in the limitations |
-| Hiding listings on keyword rules hides some a career changer could get | Hide only on reliable (seniority) or validated (EDA_SDA_3) rules; report how many listings each rule hides |
+| Hiding listings on keyword rules hides some a career changer could get | Hide by default only on reliable rules (seniority); text blockers are labels and opt-in filters, each with a count of what it would hide |
 | Applicant profiles are personal data | Collect only with written consent and the advisor's approval; keep them under `data/`; never commit them or share them with AI tools; use synthetic profiles in anything presented |
 | Combining PredictLeads data with outside data (job growth projections) | The agreement (4.3) allows it only with PredictLeads' prior written consent: get it before the join and note it in your change log (`JACOB.md` or `JESSE.md`). Public downloads stay in `data/external/` and count toward the final deletion (job growth tasks in `ANALYSIS.md`) |
 | Growth projections read as certain, or the extensions widen scope unnoticed | Word growth as "expected (official projections)" with its stated accuracy; extensions 4a–4e each need a team decision, since they reopen the 2026-10-09 external-data decision (job growth tasks in `ANALYSIS.md`) |
