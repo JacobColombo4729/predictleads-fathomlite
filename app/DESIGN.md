@@ -159,7 +159,7 @@ From the resume data; the app's Coach explains them in plain language.
 - **Should I retrain for a role directly, or take a first tech role and move from there?** For data science, 220 career changers moved in from another tech role and only 20 retrained straight into it.
 - **Which training led people like me to this role, and how many people is that based on?**
 - **How long did it take?** People who retrained after working took a median of 15 months from their last old-field job to their first tech job.
-- **Which role is the easiest door in?** IT support: the most entry-level listings (22%) and the most openness (44%), but the lowest pay ($31 an hour). Among TripleTen programs, Data Analytics roles are the most open (30%, $47.60 an hour).
+- **Which role is the easiest door in?** IT support: the most entry-level listings (22%) and the most openness (44%), but the lowest pay ($31 an hour). Among TripleTen programs, Quality Assurance and Data Analytics roles are the most open (27% and 26%; Data Analytics at $51.20 an hour; EDA_SDA_2 3.12a).
 
 ### 3.5 Moving across and up within tech
 
@@ -198,7 +198,7 @@ A separate tab built on the compass: a personal outlook from the user's résumé
 |:--|:--|:--|
 | Career paths from real switches | `Profiles.ipynb` | Frozen (2026-10-10) |
 | The 2026 market and the joined paths | `EDA_SDA_2.ipynb` 3.12 → `role_market.pkl`, `compass_paths_2026.pkl` | Built |
-| Skills mapped to O*NET | `EDA_SDA_3.ipynb` | Planned |
+| Skills mapped to O*NET | `EDA_SDA_3.ipynb` | Waiting on the O*NET download |
 | Suggested roles and skills to build per user | `ML_Fit.ipynb` | Planned |
 | **Assembly** into the compass and Ideas tab tables for the app | `ML_Fit.ipynb`'s last section (a separate `Compass.ipynb` is proposed) | Planned |
 | The app views | Section 2: Retraining compass, Moving across and up, Ideas tab | Designed |
