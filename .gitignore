@@ -87,3 +87,6 @@ tempCodeRunnerFile.py
 
 # Claude Code agent worktrees (temporary checkouts)
 .claude/worktrees/
+
+# CatBoost training logs (written when a model trains)
+catboost_info/
