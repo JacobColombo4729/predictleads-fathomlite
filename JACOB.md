@@ -28,6 +28,7 @@
 - **Deleted** the hackathon brief (`BRIEF.md`), the decision log (`analysis/DECISION_LOG.md`), the data reference (`analysis/docs/data.md`), the job growth plan (`analysis/JOB_GROWTH.md`) and the merge plan. (2026-10-12)
 - **Decisions** are recorded in these change logs instead of a decision log. (2026-10-12)
 - **Job growth** steps and extension options are now tasks in `analysis/ANALYSIS.md`. (2026-10-12)
+- **Foreman's queue** (`analysis/ANALYSIS.md`, [agent] tasks): differentiation ideas 1, 3 and 5, EDA_SDA_4 scaffolding and ML_Rank v2 added; ML_Rank v1, the date picker and the run log are drafted on their branches, waiting for review. (2026-10-13)
 - **Candidate-profile sourcing** (the Kaggle résumés, as the brief asks) is a short note in README step 9. (2026-10-12)
 
 ## Analysis

@@ -18,7 +18,7 @@
 
 ## Next
 
-- **Differentiation ideas (2026-10-10), lead with 1, 3 and 5:** seven planned additions, described in [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) (Planned additions): (1) which skill unlocks the most jobs; (2) certification payoff; (3) stepping-stone planner; (4) "apply now" alerts; (5) a backtested ranking claim; (6) pay now vs. one move later; (7) a map of reachable openings.
+- [agent] (ideas 1, 3 and 5 only) **Differentiation ideas (2026-10-10), lead with 1, 3 and 5:** seven planned additions, described in [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) (Planned additions): (1) which skill unlocks the most jobs; (2) certification payoff; (3) stepping-stone planner; (4) "apply now" alerts; (5) a backtested ranking claim; (6) pay now vs. one move later; (7) a map of reachable openings.
 - **Set up the GPU PC before ML_Fit** (or before EDA_SDA_3, if it uses transformer models; spaCy's small model is fine on the Mac): BGE embeddings of the scope's ~1.1M descriptions take hours on a GPU (Jesse: 244K in about 45 minutes on an RTX 3070) vs. likely a day or more on the Mac's CPU. Steps: clone the repo; Python 3.11 venv from `requirements.txt` with the CUDA build of PyTorch; `nbstripout --install`; set `PL_DATA_DIR` to the PC's data folder; copy only what's needed (`data/clean/analysis_table.parquet`, `scope_descriptions.parquet`) by external drive, or stream from S3 with the PC's own AWS profile; add the PC's data folder to the end-of-project deletion list. EDA_SDA_1 and 2 stay on the Mac (pandas is CPU-only; no gain).
 - **EDA_SDA_3 (text features; no matching models), in progress:**
   - **Sections 1–2 written** (setup, text loaded from the saved parts, HTML to structured text, boilerplate removal, lemmas; cached in `data/clean/eda3_text.pkl`): needs a run, then notes. Section 3 (years and degree rules) is next.
@@ -29,7 +29,7 @@
   - Evergreen wording (feeds the ghost-listing flag), required vs. preferred qualifications, **skills mapped to O*NET** (the input to `ML_Fit`'s skills-based matching).
   - **New text rules (added 2026-10-10):** security clearance required, "no visa sponsorship", travel percentage, shift or on-call work, contract-to-hire. Clearance and sponsorship are hard blockers for some career changers (per applicant in the app).
   - Save the scope table with text features for EDA_SDA_4 and `ML_Fit`.
-- **EDA_SDA_4 (statistics):**
+- [agent] (shared code, tests and notebook scaffolding only) **EDA_SDA_4 (statistics):**
   - Descriptive statistics by group; Pearson + Spearman, Cramér's V, point-biserial; VIF.
   - Group interactions, including by role bucket, and checks for confounding (Simpson's paradox).
   - Adjusted check: a Cox survival regression with every standard confounder (company volume, source and platform, staffing agency, role bucket, seniority, month, company type, has a description), company-clustered errors, hazard ratios with 95% intervals and a proportional-hazards check.
@@ -59,6 +59,7 @@
   - Leakage: counts from earlier listings only; a date-picker model trained only on what was known by its date; check that `has_desc` and the text flags are known at first sighting (EDA_SDA_2 3.9) before using them.
   - **The priority queue:** combine the fit score, chance still open and apply-by, accessibility and pay in one formula; weights start from EDA_SDA_4's adjusted model and are tuned on the validation month; only features that survived EDA_SDA_4.
   - Evaluation (ROC-AUC, F1, C-index, precision@k, NDCG); the queue against newest-first: of each top 10, how many stay open long enough, are reachable and are in the role the person actually moved into; SHAP and the per-listing rating breakdown for the detail view (each factor's rating and share of the score, top features behind chance still open), sensitivity checks, solution report.
+  - [agent] **ML_Rank v2** (builds on the v1 draft, branch `worktree-agent-ad07b22a27850f072`): preprocessing in `ColumnTransformer` + `Pipeline`, class imbalance and threshold tuning, the model cells with grid search and `%%time`, Cox with proportional-hazards checks, AFT and survival forests, LambdaRank training.
 - **Job growth expectations** (one number per role bucket, over at most 5 years, from **BLS Employment Projections 2025–2035**; [data tables](https://www.bls.gov/emp/data.htm)):
   1. **Get PredictLeads' written consent first** to combine their data with BLS data (agreement 4.3), and note it in your change log (`JACOB.md` or `JESSE.md`). Check the BLS terms of use.
   2. Download the 2025–2035 occupation table into `data/external/` (a `fetch/` script).
