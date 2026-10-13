@@ -15,7 +15,7 @@ New to the repo? About 20 minutes; each step links to its details below.
 2. **One Python 3.11 `.venv`** at the top, from `requirements.txt` ([steps 4–6](#4-create-your-virtual-environment)).
 3. **`.env`** from `.env.example`: the AWS settings and your `OPENAI_API_KEY` ([steps 7–8](#7-set-up-aws-credentials)).
 4. **Data:** `python -m fetch.get_bge` for the BGE model, the app's serving corpus in `data/matching/ai_ml_serving_v1` (move your copy there, or rebuild it), and optionally `python -m fetch.get_predictleads` ([step 9](#9-data-and-models), [step 13](#13-rebuild-the-apps-corpus)).
-5. **Turn on Eve**, the reviewer that tidies and checks every push: `git config core.hooksPath .githooks` ([step 14](#14-daily-git-workflow)).
+5. **Eve (optional)**, the reviewer that tidies and checks every push: `git config core.hooksPath .githooks` ([step 14](#14-daily-git-workflow)). She uses your Claude allowance at every push and commit.
 6. **Run the app** ([step 12](#12-run-the-app)).
 7. **Catch up:** the other person's change log (`JACOB.md` or `JESSE.md`) and any asks waiting for you in [`.eve/ASKS.md`](.eve/ASKS.md).
 
