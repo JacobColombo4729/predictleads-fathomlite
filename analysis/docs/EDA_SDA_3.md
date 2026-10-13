@@ -94,6 +94,7 @@ The rules in sections 3–4 run on the cleaned text, which keeps case, numbers a
 - **Listings keep most of their text:** the median listing keeps 85–86% of its words in every source type (company site 716 to 559 words, hiring platform 784 to 617, job board 620 to 496), and none is cleaned to nothing.
 
 **What the data shows**
+- **The chart:** the word counts are two humps on the log scale, a small group of very short descriptions (under about 60 words) and the main body at about 300-1,200 words; boilerplate removal shifts the main body left without changing its shape, and the lemma step moves it to about 250-500 words, leaving a spike of near-empty sampled listings at 1 word. On the right, equal opportunity and legal text is the largest block removed (6.6% of all words), then about the company and benefits (4.4% each), shared template text (3.7%) and application logistics (0.4%).
 - **Words per description fall at each step:** a median of 735 after HTML removal, 573 after boilerplate removal and 394 as lemmas with stopwords removed (the lemma step is on a 150,001-listing sample). Means are 732, 590 and 406.
 - **The longest descriptions are long before and after:** the 90th percentile is 1,149 words after HTML removal and 957 after boilerplate removal, and the maximum (7,827 words) is the same at both steps.
 
@@ -107,6 +108,7 @@ EDA_SDA_1's rules read every line the same way: "3+ years required" and "5 years
 The question for the app: **which rule can hide a listing from everyone** (too many years required), and which hide it only per applicant (a degree they don't have). Nothing hides until section 5 validates the rule.
 
 **What the data shows**
+- **The chart:** the requirement-line rule finds 5+ years in more listings than EDA_SDA_1's rule in every bucket but business and data analysis (about 24% vs. 26%), most in security (about 39% to 43%), networks and systems, other computer roles and quality assurance; the order barely changes, from IT project management (about 49%) at the top to IT support (about 14%) at the bottom.
 - **EDA_SDA_1's years rule was too narrow:** it finds 5+ years in 33.7% of listings with a description, the rebuilt rule in 39.1% (any line). The new rule finds more years in 12% of listings and fewer in 1.2%; both say no years in 34%.
 - **Required vs. preferred matters a little for years:** 5+ years on a requirement line is 35.6% of listings (36% of those open on September 30), and 3.4% ask it only on preferred lines. Hiding on 5+ years would hide about a third of open listings, so the threshold has to be chosen per role bucket, not once.
 - **The years asked climb with the bucket:** the median required is 3 years in IT support and marketing specialists, 4 in business and data analysis, 5 in most buckets and 6 in IT project management; 5+ required runs from 14% (IT support) to 49% (IT project management), and 2 years or fewer from 23% (IT support) down to 5.1% (IT project management).
