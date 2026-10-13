@@ -72,6 +72,6 @@ The summary gives the number of people and events, the final ratings (the last r
 
 ## What it can and cannot tell us
 
-- It measures **how good what we showed was**: the share of 👍 in the top 10. That is a real, quotable number once there are a few dozen ratings.
+- It measures **how good what we showed was** for the people who rated it: the share of 👍 in the top 10. While the raters are the team, that is usability feedback, not a measure of the ranker: the team's ratings are personal judgments and are never reported as model quality (`CLAUDE.md`).
 - It cannot tell us what we **missed**. People only rate what appears, so comparing rankers on these ratings favours the ranker that chose what was shown. Treat any comparison as weak evidence and say so.
-- With a handful of users, a learned model can only be **per-person**, trained on that person's own ratings ("Refine my matches", see the roadmap). A model across users needs far more people and ratings, and the data collected here is what makes that possible later.
+- With a handful of users, a learned model can only be **per-person**, trained on that person's own ratings ("Refine my matches", see the roadmap). A model across users needs far more people and ratings, and the data collected here is what makes that possible later. **The team's own events are never training data** for any shared model: a session's results may follow that user's own 👍/👎 (Rocchio, nothing retrained), but the team's clicks, ratings and profile embeddings stay out of anything learned across users.
