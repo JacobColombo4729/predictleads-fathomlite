@@ -596,6 +596,17 @@ def conditional_mi_vs_floor(codes, y, cell_codes, n_shuffles=20, seed=0, shuffle
     return {"cmi": obs, "floor_p95": p95, "above_floor": bool(obs > p95)}
 
 
+def _full_rank(X, tol=1e-9):
+    """X without the columns that are exact combinations of earlier ones (QR on the columns in order: the constant and the
+    first levels are kept). An all-zero dummy (a category level with no rows in this subset) or nested confounders (each
+    platform belongs to one source type) make the plain logit's Hessian singular; the dropped columns add nothing."""
+    if X.shape[1] == 0:
+        return X
+    r = np.linalg.qr(X.to_numpy(dtype=float), mode="r")
+    keep = np.abs(np.diag(r)) > tol * max(1.0, np.abs(np.diag(r)).max())
+    return X.loc[:, keep]
+
+
 def information_beyond_confounders(df, outcome, feature, confounders, categorical=(), base_cache=None):
     """Likelihood-ratio test: does `feature` improve a logistic model of a 0/1 outcome that already has
     the confounders? Returns the LR statistic, p, the pseudo-R2 gain and the odds ratio.
@@ -604,7 +615,7 @@ def information_beyond_confounders(df, outcome, feature, confounders, categorica
     import statsmodels.api as sm
     d = df[[outcome, feature, *confounders]].dropna()
     base = pd.get_dummies(d[confounders], columns=[c for c in categorical if c in confounders], drop_first=True, dtype=float)
-    base = sm.add_constant(base.astype(float), has_constant="add")
+    base = _full_rank(sm.add_constant(base.astype(float), has_constant="add"))
     full = base.assign(**{feature: d[feature].astype(float)})
     y = d[outcome].astype(float)
     key = (outcome, tuple(confounders), hash(d.index.to_numpy().tobytes())) if base_cache is not None else None
