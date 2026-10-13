@@ -26,7 +26,7 @@
   - **Hand-checking:** not done (decided 2026-10-13: the samples are not hand-checked). Text rules are labels and opt-in filters, never hidden by default; section 5's samples stay unmarked, and the text says the rules are unvalidated.
   - ~~Validate the keyword flags by hand~~ (dropped 2026-10-13): the flags stay keyword rules, reported by how often they fire and compared with EDA_SDA_1's rules.
   - Text-blocker labels per role bucket (years-asked threshold, required credentials), shown in the app as labels and opt-in filters, each with a count of what it would hide. The "asks 5+ years" preview would hide 32% of open listings (EDA_SDA_2 3.11): check required vs. preferred and the year counts first. The degree flag fires on only 3.7% of listings: widen and validate its pattern ("Bachelor's in …") before any degree rule.
-  - Evergreen wording (feeds the ghost-listing flag), required vs. preferred qualifications, **skills mapped to O*NET** (the input to `ML_Fit`'s skills-based matching): built 2026-10-13 (`src/onet.py`, section 6); to run, fill `BACKGROUND_OCCUPATIONS` in 6f with the team's O*NET codes.
+  - Evergreen wording (feeds the ghost-listing flag), required vs. preferred qualifications, **skills mapped to O*NET** (the input to `ML_Fit`'s skills-based matching): built 2026-10-13 (`src/onet.py`, section 6); to run: run section 6.
   - **New text rules (added 2026-10-10):** security clearance required, "no visa sponsorship", travel percentage, shift or on-call work, contract-to-hire. Clearance and sponsorship are hard blockers for some career changers (per applicant in the app).
   - Save the scope table with text features for EDA_SDA_4 and `ML_Fit`.
 - **EDA_SDA_4 (statistics)** (scaffolded 2026-10-13: `src/stats_tests.py` and sections 1b–12; needs a run, then findings and the feature decisions in section 10):
@@ -73,13 +73,12 @@
   - **Interest-rate scenarios** for years 1–2 (FOMC paths; sensitivity from fed funds vs. Indeed/JOLTS postings), fading to BLS by year 5: stretch.
   - **Horizon-weighted blend** of a near-term postings signal with the BLS trend (weights 0.8 → 0 over years 1–5, tuned in a backtest): later; our six months can't support it.
   - **State level** (Projections Central): only if the app adds location-based growth.
-- **O*NET (in scope, small): downloaded 2026-10-13** (`python -m fetch.get_onet`, release 31.0, CC BY 4.0). Release 31.0 renamed the files: skills are **Essential Skills**, **Transferable Skills** and **Software Skills**, and the Career Changers Matrix is now **Related Occupations**; all occupations are kept (filter to computer and mathematical plus the team's background occupations when reading). Also the **Job Zones** (O*NET's level of education and experience per occupation: an accessibility prior for the feature screening). Listings already carry O*NET codes, so they join directly.
+- **O*NET (in scope, small): downloaded 2026-10-13** (`python -m fetch.get_onet`, release 31.0, CC BY 4.0). Release 31.0 renamed the files: skills are **Essential Skills**, **Transferable Skills** and **Software Skills**, and the Career Changers Matrix is now **Related Occupations**; all occupations are kept (filter to the scope's occupations when reading). Also the **Job Zones** (O*NET's level of education and experience per occupation: an accessibility prior for the feature screening). Listings already carry O*NET codes, so they join directly.
 - **Write up the analysis** and **choose the final format** (write-up, notebook demo, or app).
 
 ## Blocked
 
 - **Team:**
-  - Each teammate writes down their background (current field and roles; no personal details), to fix the source backgrounds.
   - Assign owners for the notebooks above, the app, and the pitch.
   - Set a meeting cadence and a place for async discussion.
   - Confirm the final due date and deliverables.

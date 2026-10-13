@@ -464,6 +464,31 @@ BACKGROUND_AREAS = {
 }
 
 
+# Each background area as O*NET-SOC major or minor groups (code prefixes), for the O*NET skill profiles behind "skills that
+# carry over" (EDA_SDA_3 6f). Analysis only, like BACKGROUND_AREAS: it never changes who is a candidate. A profile averages
+# the O*NET occupations whose code starts with any prefix; "other" and "unknown" have none.
+BACKGROUND_SOC = {
+    "self-employed and small business": ["11-"],
+    "legal": ["23-"],
+    "customer service and support": ["43-4"],
+    "education": ["25-"],
+    "healthcare": ["29-", "31-"],
+    "food and hospitality": ["35-"],
+    "sales and retail": ["41-"],
+    "finance and accounting": ["13-2"],
+    "administration and office": ["43-"],
+    "agriculture and environment": ["45-"],
+    "business, marketing and management": ["11-", "13-1"],
+    "science and research": ["19-"],
+    "engineering (not software)": ["17-"],
+    "humanities and social sciences": ["21-", "19-3"],
+    "arts, media and communications": ["27-"],
+    "military and public service": ["33-", "55-"],
+    "logistics and trades": ["47-", "49-", "53-"],
+    "manufacturing and production": ["51-"],
+}
+
+
 def background_area(text):
     """The broad area of a job title or field of study; 'other' if none matches."""
     if not isinstance(text, str) or not text.strip():
