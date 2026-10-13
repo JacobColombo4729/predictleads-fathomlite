@@ -20,7 +20,7 @@ The core of the app is the **priority queue**: listings ranked for this career c
 | From the analysis | In the app |
 |---|---|
 | Prioritization model | The priority queue: the list sorted by the priority score |
-| Career-change accessibility | Listings a career changer can't get are hidden; the rest show what they ask of a newcomer: years asked, degree or equivalent experience, training offered |
+| Career-change accessibility | Every listing shows what it asks of a newcomer as labels: years asked, degree or equivalent experience, clearance, sponsorship, training offered; also "marketing specialist" (13-1161 without an analyst title) and "staffing agency, from the title" (both first-pass title rules, not hand-checked, decided 2026-10-13). Only reliable blockers hide by default; text blockers and these two title labels are opt-in filters |
 | Still open / apply-by | An estimated apply-by date on every listing, and an apply-by filter |
 | Source and arrival cadence | Check schedule: which sources and companies to watch, and how often; alerts for new listings |
 | Job growth expectations | Expected growth of each role over at most 5 years; it shifts role suggestions toward growing roles (a visible, adjustable weight) and is shown in role discovery and the compass |
@@ -39,7 +39,7 @@ The core of the app is the **priority queue**: listings ranked for this career c
   - **Occupation:** one or more role buckets (data science, software development, IT support, …; built in EDA_SDA_2 3.6), and within them specific O*NET occupations. Picking roles in role discovery or the compass sets this filter
   - **Priority:** minimum score, or top N
   - **Apply-by:** closing within N days, or before a date
-  - **Hidden automatically:** listings a career changer can't get (too many years asked, a degree or license this user lacks, or manager-level roles if the user has no management experience), listings for occupations that aren't a tech path (document management specialists), and **likely ghost listings**: more than 90 days old on the date being viewed **and** from a company that has posted nothing new in 60 days, or with a posting date over a year old (EDA_SDA_2 3.1). A note shows how many were hidden, and why. **Other listings over 90 days old stay visible,** labelled "open 90+ days" and ranked lower by the priority model; the freshness filter hides them for anyone who wants only recent listings. Hidden listings are never deleted: a "show hidden" toggle brings them back
+  - **Hidden automatically:** manager-level roles if the user has no management experience, listings for occupations that aren't a tech path (document management specialists; **not** marketing specialists, which since 2026-10-13 are a label with an opt-in filter), and **likely ghost listings**: more than 90 days old on the date being viewed **and** from a company that has posted nothing new in 60 days, or with a posting date over a year old (EDA_SDA_2 3.1). A note shows how many were hidden, and why. **Other listings over 90 days old stay visible,** labelled "open 90+ days" and ranked lower by the priority model; the freshness filter hides them for anyone who wants only recent listings. Hidden listings are never deleted: a "show hidden" toggle brings them back
   - **Training offered:** only listings that offer training or welcome career changers
   - **Transferable fit:** minimum score (needs the user's background profile)
   - **Pay:** minimum hourly rate; pay disclosed only

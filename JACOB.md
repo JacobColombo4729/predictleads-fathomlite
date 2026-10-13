@@ -2,6 +2,10 @@
 
 > What Jacob changed, by category, so Jesse can catch up at a glance. Categories and the lines in each are ranked most important first. Each line is the net result (a file moved and later deleted just reads "deleted"), with the date and anything Jesse needs to do. Details are in the commits (`git log`).
 
+## Decisions
+
+- **Text blockers are labels and opt-in filters, never hidden by default.** The EDA_SDA_3 samples won't be hand-checked, so years asked, degree with no equivalent, clearance, no sponsorship, certification and the other text flags are unvalidated keyword rules; the same goes for EDA_SDA_2's two title rules (marketing specialists, no longer hidden; "staffing agency, from the title"). Only seniority (for users without management experience), likely ghosts and non-tech occupations (document management) hide by default; every rule shows a count of what it would hide. **Jesse:** in the app, show them as listing labels and opt-in filters (for example "I have no degree"), and stop hiding marketing specialists by default (`app/DESIGN.md` updated). **Jacob:** EDA_SDA_2's `hidden_occupation` and `src/career_switch.py` still hide marketing specialists and need changing, then a rerun. (2026-10-13)
+
 ## Data and downloads
 
 - **`models/` renamed `pretrained/`** (`PRETRAINED_DIR` in `fetch/paths.py`). **Jesse:** rename your local `models/` folder to `pretrained/`, or the app won't find the BGE model. (2026-10-12)

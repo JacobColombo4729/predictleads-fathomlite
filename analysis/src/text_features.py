@@ -178,7 +178,7 @@ def _any(pattern):
 
 
 FLAGS = {
-    # blockers for some applicants (hidden per applicant in the app once validated)
+    # blockers for some applicants: labels and opt-in filters in the app, never hidden by default (not hand-validated)
     "clearance_required": _any(r"\b(?:active|current|must (?:have|hold|possess))\b[^.;]{0,40}\b(?:clearance|ts/sci|top secret|secret)\b"
                                r"|\b(?:ts/sci|top secret|secret|public trust)\b[^.;]{0,20}\bclearance\b(?![^.;]{0,30}\b(?:ability|able|eligible|obtain))"),
     "clearance_obtainable": _any(r"\b(?:ability|able|eligible|willing) to (?:obtain|acquire|get)\b[^.;]{0,40}\bclearance\b"),

@@ -22,7 +22,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 |:--|:--|:--|
 | EDA_SDA_1 | What's in the full file, how does tech compare with every field, and what's in the scope? (the scope cut, applied first) | Scope table and its descriptions, occupation summary, company activity |
 | **EDA_SDA_2 (you are here)** | **Which scope listings do we keep, and how do they behave? Additional cleaning, non-text checks by role bucket, ghost listings** | **Scope table, non-text features** |
-| EDA_SDA_3 | What do the descriptions say? Text features, validated blockers, skills mapped to O*NET (no matching models) | Scope table + text features |
+| EDA_SDA_3 | What do the descriptions say? Text features, text rules as labels and opt-in filters (keyword rules, not validated), skills mapped to O*NET (no matching models) | Scope table + text features |
 | EDA_SDA_4 | Which features hold up? Statistics, confounders, the adjusted Cox check | Modeling-ready table |
 | TimeSeries | When do listings appear and close? | Timing features |
 | ML_Fit | Which roles and listings fit a career changer? Keyword → TF-IDF → BGE → RRF, skills-based matching, a trained layer on real career moves | Fit scores, role discovery, the compass |
@@ -35,7 +35,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 - Is pay disclosure driven by state pay-transparency laws or job type, rather than employer intent?
 - Does high company volume mean more competition, or more openings to win? And are fast-closing recruiters just staffing agencies?
 - How are values missing: at random, or tied to groups (source, role bucket, state)?
-- How much of the scope is left once listings a career changer can't get are hidden?
+- How much of the scope is left once the reliable hiding rules (seniority, likely ghosts, non-tech occupations) are applied, and how much more would an opt-in text filter hide?
 - Which role buckets have enough listings and enough career changers for their own analysis?
 
 ### Roadmap
@@ -90,7 +90,7 @@ Some factors travel together, so a raw gap can belong to something else. **Every
 
 | # | Fix | How | Result |
 |:-:|:--|:--|:--|
-| 1 | **Staffing agencies** | Flag listings posted by recruiters or staffing firms: company name and domain words (staffing, recruiting, talent, well-known agency names), or an "about" text that says staffing or recruiting firm (companies table). **Added 2026-10-11: recruiter titles:** a company whose listings name agency-style recruiter titles (account, delivery or client manager, bench sales; at least 3 listings and half of those with a title) is flagged too (`staffing_by_title`); corporate titles (recruiter, talent acquisition) don't count. A review cell (2b.1 review, row-level) lists the most-flagged companies and the most common recruiter titles so a teammate can check the keywords | `is_staffing`, kept. Report their share by field and their days open; compute company volume with and without them (3.5), since agencies post at high volume and repost often. The app labels them "posted by a recruiter" |
+| 1 | **Staffing agencies** | Flag listings posted by recruiters or staffing firms: company name and domain words (staffing, recruiting, talent, well-known agency names), or an "about" text that says staffing or recruiting firm (companies table). **Added 2026-10-11: recruiter titles:** a company whose listings name agency-style recruiter titles (account, delivery or client manager, bench sales; at least 3 listings and half of those with a title) is flagged too (`staffing_by_title`); corporate titles (recruiter, talent acquisition) don't count. A review cell (2b.1 review, row-level) lists the most-flagged companies and the most common recruiter titles so a teammate can check the keywords. **Decided 2026-10-13: the recruiter-title rule will not be hand-checked,** so it is a label ("staffing agency, from the title") and an opt-in filter, and neither hides nor demotes a listing on its own | `is_staffing`, kept. Report their share by field and their days open; compute company volume with and without them (3.5), since agencies post at high volume and repost often. The app labels them "posted by a recruiter" |
 | – | **Salary sanity, standardized to hourly** | **Moved to EDA_SDA_1 6.5:** all pay cleaning in one place. `salary_hourly_usd` (salaried pay ÷ 2,080 hours) is the one pay column for the whole project; reversed ranges and clearly wrong units are fixed there and flagged `pay_suspect` | Arrives clean in EDA_SDA_1's table |
 | 2 | **Date consistency** | EDA_SDA_1 (6.3) already removed impossible timelines and blanked `posted` dates after `first_seen`. Here: `posted` more than a year before `first_seen` | `posted_old` flag, kept; it feeds the ghost-listing check (3.1) |
 | 3 | **Contract types, internships and temporary roles** | Contract labels (unified by EDA_SDA_1) split into employment-type flags, several of which can be true, plus title words (intern, temporary, seasonal, contract-to-hire) | `is_full_time`, `is_part_time`, `is_contract`, `is_temporary`, `is_internship`; and `job_type` (internship, temporary, contract, regular), one label for the app's filter. A table of the common label combinations shows the conflicts |
@@ -102,7 +102,7 @@ Some factors travel together, so a raw gap can belong to something else. **Every
 **Leakage:** every fix uses only what the listing showed when it was posted, so none of them leaks the outcome.
 
 **What the data shows**
-- **Staffing agencies are a small, fast group:** 2.0% of listings (753 companies), closing in a median 12.6 days vs. 24.0 for employers. **The new recruiter-title rule adds 33 companies:** agency-style titles (account, delivery or client manager) close in 6.2 days and come from name-flagged agencies about twice as often as corporate recruiter titles (13% vs. 6.8%). It doubles the share of busy recruiters' listings flagged (10% → 21%) but barely moves the total (1.9% → 2.0%); a first-pass rule, checked in EDA_SDA_3. **Recruiters aren't just staffing agencies:** among employers, recruiters with 5+ listings still close in 8.1 days vs. 24.1 with none named.
+- **Staffing agencies are a small, fast group:** 2.0% of listings (753 companies), closing in a median 12.6 days vs. 24.0 for employers. **The new recruiter-title rule adds 33 companies:** agency-style titles (account, delivery or client manager) close in 6.2 days and come from name-flagged agencies about twice as often as corporate recruiter titles (13% vs. 6.8%). It doubles the share of busy recruiters' listings flagged (10% → 21%) but barely moves the total (1.9% → 2.0%); a first-pass keyword rule, not hand-checked (decided 2026-10-13): a label ("staffing agency, from the title") and an opt-in filter, not something that hides or demotes on its own. **Recruiters aren't just staffing agencies:** among employers, recruiters with 5+ listings still close in 8.1 days vs. 24.1 with none named.
 - **Contract labels:** 55% full time, 9.7% contract, 3.8% part time, 3.3% internship, 18% none. Full and part time together is rare (1.2%). Where the work happens is stated for 54% (remote 17%, onsite 15%, hybrid 13%, several 8.3%), and remote labels agree with the description 94% of the time.
 - **Titles and levels:** cleaning changed 25% of titles; **9.0% name AI, machine learning or data science** (25% of data science, 14% of networks and systems). Role levels: mid_senior 77% (kept whole; 40% of it has a senior title, flagged `senior_title`), entry 10%, manager 9.4%, leadership 3.7%. No listing names more than one location: PredictLeads lists each location separately.
 
@@ -132,7 +132,7 @@ Steps: describe the long-open listings (how many, which occupation groups and so
 
 The app ranks only what a career changer can see, so the key results are also shown on that view: **listings visible to a newcomer without management experience** (no manager level or above, no likely ghost, no hidden occupation). Senior-titled listings stay in it, flagged (`senior_title`): **decided 2026-10-11, the app shows them ranked lower with a "senior" label rather than hiding them** (81% of them ask for 5+ years and 4.9% show openness, vs. 43% and 17% for other mid_senior listings, 3.7c; but a title is a rough signal, and some career changers have senior experience). A third column shows the view without them. The feature screening (3.13) uses this view first.
 
-**Result:** the view keeps 82% of the scope's original listings (marketing specialists are now hidden too) and looks like the whole scope (25% still open, a median 24.0 days, 29% closed within a week), paying a little less ($62.66 vs. $64.62 an hour). Without senior titles it keeps 53%: lower pay ($52.04), more entry level (17%) and more openness to career changers (33% vs. 22%), with similar timing.
+**Result:** the view keeps 82% of the scope's original listings (this run still counts marketing specialists as hidden; since 2026-10-13 they are only labelled, so the share will rise after the flag is changed and the notebook rerun) and looks like the whole scope (25% still open, a median 24.0 days, 29% closed within a week), paying a little less ($62.66 vs. $64.62 an hour). Without senior titles it keeps 53%: lower pay ($52.04), more entry level (17%) and more openness to career changers (33% vs. 22%), with similar timing.
 
 **What the data shows**
 - **Closing slows with age:** of listings first seen in April–May, 53% close in their first 30 days; past 60 days, 30–36% of those still open close each month. Old listings still close, so age alone isn't a ghost.
@@ -223,7 +223,7 @@ The app ranks only what a career changer can see, so the key results are also sh
 | other computer roles | 15-1299 | (none) |
 | technical sales (added 2026-10-10) | 41-9031 sales engineers | (none) |
 | business and data analysis (added 2026-10-10) | 13-1111 management analysts, 13-1161 market research analysts (titles naming analysis, research or insights; split 2026-10-11) | (none) |
-| marketing specialists (split 2026-10-11; hidden in the app) | 13-1161 listings whose title names no analysis or research | (none) |
+| marketing specialists (split 2026-10-11; since 2026-10-13 a label and an opt-in filter, not hidden by default) | 13-1161 listings whose title names no analysis or research | (none) |
 | credentialed math | 15-2011 actuaries, 15-2021 mathematicians | (none) |
 
 The listing side is `role_bucket(onet_code)` (`ONET_DETAILED_BUCKETS` for detailed 15-1299 codes first, then `ONET_ROLE_BUCKETS`, which also covers the older 2010 codes) and the resume side is `RULES["cm_buckets"]`, both in `src/career_switch.py`.
@@ -243,7 +243,7 @@ The listing side is `role_bucket(onet_code)` (`ONET_DETAILED_BUCKETS` for detail
 **What the data shows**
 - **Every bucket is deep enough on the listings side** (7-day intervals of 10 points or less in at least 80% of sub-groups, by source type or finer).
 - **Eight buckets get their own analysis and compass paths** (30+ career changers each; quality assurance is the thinnest at 38). Technical sales, business and data analysis and other computer roles have no career-switch paths in the frozen profiles, so they're analyzed combined; their listings stay.
-- **O*NET 13-1161 is mostly marketing:** 76% of its 39K original listings have no analyst, research or insights title. They're labelled marketing specialists and hidden (29K; 21% entry level, $28.90 an hour where open to newcomers), leaving business and data analysis at 34K. **IT project management is large** (106K) but mostly reached from another tech role (189 of its 262 career changers).
+- **O*NET 13-1161 is mostly marketing:** 76% of its 39K original listings have no analyst, research or insights title. They're labelled marketing specialists (29K; 21% entry level, $28.90 an hour where open to newcomers), leaving business and data analysis at 34K. **Decided 2026-10-13: the title rule will not be hand-checked, so marketing specialists are a label and an opt-in filter, no longer hidden by default;** the counts in this notebook were computed with them hidden and change after the flag is changed and the notebook rerun. **IT project management is large** (106K) but mostly reached from another tech role (189 of its 262 career changers).
 
 ### 3.7 Blind spots from Part 1
 
@@ -311,14 +311,15 @@ Boxplots and IQR rules for days open, words per description, hourly pay, times l
 
 ### 3.11 Career-change accessibility, and hiding what a career changer can't get
 
-**Decided (2026-10-09): listings a career changer can't get are hidden.** Three kinds of blocker, each hidden where it's reliable:
+**Decided (2026-10-09; text rules revised 2026-10-13): listings a career changer can't get are hidden where the rule is reliable.** Seniority, likely ghosts and non-tech occupations hide by default. The text rules are keyword rules that EDA_SDA_3 will not hand-validate (decided 2026-10-13), so they are **labels and opt-in filters** the career changer turns on, never hidden by default:
 
 | Blocker | Example | Hidden in |
 |:--|:--|:--|
 | Seniority, per applicant | Manager level and above (`manager`, `head`, `director`, `vice_president`, `president`, `c_level`, `partner`, `founder`; from EDA_SDA_1 Q3b) for applicants without management or senior experience | The app, per profile; this notebook's table keeps them, labelled |
-| Text, for everyone | Too many years of experience asked; a required license | EDA_SDA_3's final table, after the rules are validated |
-| Text, per applicant | A degree or certification this applicant doesn't have | The app, per profile |
+| Text, opt-in filter | Too many years of experience asked; a required license, clearance or sponsorship | EDA_SDA_3's final table, as labels; the app filters only when the user turns it on |
+| Text, opt-in filter, per applicant | A degree or certification this applicant doesn't have ("I have no degree") | The app, on request, per profile |
 | Occupation, for everyone | Document management specialists (O*NET 15-1299.03): records work, not a tech path (decided 2026-10-10) | The app; flagged `hidden_occupation` in 3.0 and kept in the table |
+| Title rules, opt-in filter | Marketing specialists (13-1161 without an analyst title, 3.0); staffing agency from recruiter titles (2b.1). First-pass keyword rules, not hand-checked (decided 2026-10-13) | Labels in the table; the app filters only when the user turns it on |
 
 Report how many listings each rule hides. Then check:
 
@@ -331,7 +332,7 @@ Report how many listings each rule hides. Then check:
 | Each part of `career_open` separately | One part (for example, entry-level wording) adds little | Use a stricter rule for the "open to career changers" view |
 
 **What the data shows**
-- **What a career changer without management experience doesn't see: 18% of open listings** (likely ghosts 3.7%, manager level or above 11%, hidden occupations 4.0%: marketing specialists and document management). The "asks 5+ years" rule would hide another 32%, so it waits for EDA_SDA_3's validation; "degree required, no equivalent" fires on only 2.6%.
+- **What a career changer without management experience doesn't see: 18% of open listings** (likely ghosts 3.7%, manager level or above 11%, hidden occupations 4.0%: marketing specialists and document management; since 2026-10-13 marketing specialists are only labelled, with an opt-in filter, so this share will fall after the flag is changed and the notebook rerun). An "asks 5+ years" filter would hide another 32% if a user turned it on (EDA_SDA_3 labels it and does not hide it by default); "degree required, no equivalent" fires on only 2.6%.
 - **Openness isn't company size or source in disguise:** 18–28% show any sign in every volume band × source cell. Seniority and years asked do most of the work (each is the only sign for 60–76% of its listings).
 - **Reachable listings pay $10–35 an hour less in every bucket** (smallest in IT support, largest in other computer roles), and close a little faster at small companies (30 vs. 39 days at 1–4 listings).
 
@@ -393,13 +394,13 @@ Every decision in this notebook, defended with its result from sections 2b and 3
 |:--|:--|:--|:--|
 | **The scope** | The roles TripleTen trains for plus adjacent tech roles (EDA_SDA_1 8.0, 8c): 908K listings | As cut by EDA_SDA_1 | Applied in EDA_SDA_1 |
 | **Role buckets** | Every bucket is deep enough on the listings side; eight have 30+ career changers (3.6) | Eight buckets with their own analysis and compass paths; technical sales, business and data analysis and other computer roles analyzed combined (no career-switch paths); document management flagged `hidden_occupation` | Decided; listings always kept |
-| **O*NET 13-1161 split by title** | 76% of its 39K original listings are marketing specialists (no analyst, research or insights title) (3.6) | `role_bucket` = marketing specialists, hidden in the app (`hidden_occupation`); a first-pass title rule that EDA_SDA_3 checks | **Applied in 3.0** |
+| **O*NET 13-1161 split by title** | 76% of its 39K original listings are marketing specialists (no analyst, research or insights title) (3.6) | `role_bucket` = marketing specialists, a label and an opt-in filter since 2026-10-13 (a first-pass title rule, not hand-checked; the code still sets `hidden_occupation` for it, to change) | **Applied in 3.0; hiding revised 2026-10-13** |
 | **IT project management** | 9.1% open to career changers, 2.1% entry level, 44% manager level; 189 of its 262 career changers came from another tech role (3.6, 3.11) | Kept as a later move: not suggested as a first tech job unless the prior career has a real path into it | Decided (app and ML_Fit) |
 | **Listings with no country** | Before the drop: 10% of the scope, all from US-based companies; more often remote (38% vs. 17%), rarely with a description (37%) | Dropped in EDA_SDA_1 8b (decided 2026-10-12; were kept and flagged `country_inferred`) | Applied in EDA_SDA_1 8b |
 | **Likely ghosts** | Closing slows with age but never stops; 19% of open listings are older than 90 days; 7.5K likely ghosts (3.5% of open) (3.1) | Flag `likely_ghost`, hidden in the app; other stale listings labelled "open 90+ days" and ranked lower | Decided; timing also shown without them |
 | **Manager level or above** | 11% of open listings (3.11) | Labelled, hidden per applicant | Decided (app) |
-| **Text blockers** | "Asks 5+ years" would hide 32% of open listings; "degree required, no equivalent" only 2.6% (3.11) | Previews only | Open: EDA_SDA_3 validates them first |
-| **Staffing agencies and recruiters** | 2.0% of listings (753 companies, 33 of them from recruiter titles), closing in 12.6 vs. 24.0 days; recruiters with 5+ listings close fast even at employers (8.1 vs. 24.1 days) (2b.1) | Flag `is_staffing` (the app labels "posted by a recruiter"); `recruiter_key` stays a candidate feature | Decided |
+| **Text blockers** | "Asks 5+ years" would hide 32% of open listings; "degree required, no equivalent" only 2.6% (3.11) | Previews only | Decided 2026-10-13: labels and opt-in filters, not validated (EDA_SDA_3) |
+| **Staffing agencies and recruiters** | 2.0% of listings (753 companies, 33 of them from recruiter titles), closing in 12.6 vs. 24.0 days; recruiters with 5+ listings close fast even at employers (8.1 vs. 24.1 days) (2b.1) | Flag `is_staffing` (the app labels "posted by a recruiter"); `recruiter_key` stays a candidate feature; the title rule (`staffing_by_title`) is a label and opt-in filter, not hand-checked (2026-10-13) | Decided |
 | **Contract types and where the work happens** | 55% full time, 9.7% contract, 3.3% internship; work arrangement stated for 54% (2b.3, 2b.6) | Employment flags, `job_type`, `work_arrangement`, `schedule` for the app's filters | Decided |
 | **AI/ML titles** | 9.0% of listings, across buckets (25% of data science) (2b.4); no closing-speed signal (0.8 points, 3.13) | `ai_ml_title` as a view for the hackathon app's AI/ML audience, not a ranking feature | Decided |
 | **Senior titles in `mid_senior`** | 36% of `mid_senior` titles; 81% ask 5+ years vs. 43%, 4.9% vs. 17% open to newcomers, $77 vs. $55 an hour (3.7c); 2.0 points of signal, right at the bar (3.13) | `mid_senior` kept whole; `senior_title` flag; the app shows them ranked lower with a "senior" label | Decided (app, ML_Rank) |
@@ -425,16 +426,16 @@ Every decision in this notebook, defended with its result from sections 2b and 3
 | Copies and reposts | 70% single, 21% same-source copies, 7.5% relisted (close in 10.6 days), 1.2% cross-posted (3.5) | Keep `copy_type` and the repost features | Kept; little urgency signal |
 | Company type | Public companies' listings stay open longer at high volume (3.8) | Keep `is_public`, `has_parent` | Kept; a standard confounder |
 | State | Known for 90%; pay transparency shows (3.7) | Keep `state` | Kept; the app's location filter and a confounder |
-| Career-change accessibility | 20% show any sign; similar in every volume band × source cell; seniority and years asked do most of the work (3.11) | Keep `career_open` and its parts | Kept; EDA_SDA_3 validates the text parts |
+| Career-change accessibility | 20% show any sign; similar in every volume band × source cell; seniority and years asked do most of the work (3.11) | Keep `career_open` and its parts | Kept; the text parts are unvalidated keyword rules in EDA_SDA_3 (labels) |
 
 **What the final table shows**
-- **The final scope table: 908K listings (849K originals) from 72K companies in 12 role buckets (marketing specialists split out, hidden), 128 columns** (`scope_table.parquet`, 0.26 GB). Nothing was removed; every decision is a flag.
-- **22.9% are open on September 30 and visible to everyone** (no likely ghost or hidden occupation). Flags kept: likely ghosts 0.9%, open 90+ days 4.7%, staffing agencies 2.0%, hidden occupations 4.0%, implausible pay 0.06%, senior title 36%.
+- **The final scope table: 908K listings (849K originals) from 72K companies in 12 role buckets (marketing specialists split out, labelled; hidden in this run's flags, to change), 128 columns** (`scope_table.parquet`, 0.26 GB). Nothing was removed; every decision is a flag.
+- **22.9% are open on September 30 and visible to everyone** (no likely ghost or hidden occupation). Flags kept: likely ghosts 0.9%, open 90+ days 4.7%, staffing agencies 2.0%, hidden occupations 4.0% (this run includes marketing specialists; they are only labelled since 2026-10-13), implausible pay 0.06%, senior title 36%.
 - **The added fields are complete** except state (90%) and company country (92%).
 
 ## 5. Conclusion and next steps
 
-**The scope:** 908K listings (849K originals) from 72K companies in 12 role buckets (marketing specialists hidden), cleaned, flagged and saved for EDA_SDA_3 (`scope_table.parquet`). Nothing was removed; every decision is a flag. The full data confirms the sample's main lesson: **how the data was collected explains many of the biggest gaps.** Crawl timing, job boards stopping after May and listings with no description (18%, closing in about 3 days) all look like signals until they're checked, so "has a description", company type and state stay standard confounders.
+**The scope:** 908K listings (849K originals) from 72K companies in 12 role buckets (marketing specialists split out and labelled), cleaned, flagged and saved for EDA_SDA_3 (`scope_table.parquet`). Nothing was removed; every decision is a flag. The full data confirms the sample's main lesson: **how the data was collected explains many of the biggest gaps.** Crawl timing, job boards stopping after May and listings with no description (18%, closing in about 3 days) all look like signals until they're checked, so "has a description", company type and state stay standard confounders.
 
 **What goes forward to modeling:** 48 of 68 candidate features, screened on the career-changer view, with a second measure (information) agreeing on 64 of 68 (3.13). The company's own history is the strongest new signal; AI/ML titles, the recruiter's history and the repost counts add nothing beyond the confounders, and `last_processed` leaks the outcome. `mid_senior` stays whole, with senior titles labelled and ranked lower.
 
@@ -448,8 +449,8 @@ Every decision in this notebook, defended with its result from sections 2b and 3
 | Is pay disclosure about state laws or source rather than intent? | Largely: pay-transparency states disclose 63–68% vs. about 30% elsewhere, hiring platforms 53–64% vs. job boards 12–16% (3.4, 3.7) |
 | Competition or more openings? Are fast recruiters just staffing agencies? | Busy employers fill faster, about a third like-for-like, mostly private companies; the data has no applicant counts, so volume reads as "apply sooner". Recruiters close fast even at employers (8.1 vs. 24.1 days), not only staffing agencies (2b.1b, 3.3, 3.5, 3.8) |
 | How are values missing? | Tied to source and month, not role bucket; no description rises to 23–25% from June. Nothing is imputed here (3.9) |
-| How much is left once blockers are hidden? | 82% of open listings stay visible to a career changer without management experience (marketing specialists, 13-1161 without an analyst title, are now hidden too); the "5+ years" rule would hide another 32%, so it waits for EDA_SDA_3 (3.11) |
-| Which role buckets are deep enough? | All 12 on the listings side (marketing specialists hidden); eight also have enough career changers for their own compass paths. Technical sales, business and data analysis and other computer roles are analyzed combined (3.6) |
+| How much is left once blockers are hidden? | 82% of open listings stay visible to a career changer without management experience (this run also hides marketing specialists, 13-1161 without an analyst title; since 2026-10-13 they are only labelled, so the share changes after a rerun); an opt-in "5+ years" filter would hide another 32% if turned on; EDA_SDA_3 labels it and does not hide by default (3.11) |
+| Which role buckets are deep enough? | All 12 on the listings side (marketing specialists labelled, not hidden by default since 2026-10-13); eight also have enough career changers for their own compass paths. Technical sales, business and data analysis and other computer roles are analyzed combined (3.6) |
 | Which features carry signal beyond the confounders? | 48 of 68 screened go forward. Strongest: has a description, the company's past closing speed, volume, platform, past closings and open roles. Dropped: AI/ML title, the recruiter's history, repost counts, `crawl_dropout`, `last_processed` (3.13) |
 
 ### For the career changer
@@ -459,6 +460,6 @@ Every decision in this notebook, defended with its result from sections 2b and 3
 - **Most paths are thin,** so the compass always shows how many people a path rests on.
 
 ### Next steps
-- **EDA_SDA_3 (text):** check EDA_SDA_2's two title rules (agency-style recruiter titles, the 13-1161 split) on a hand-checked sample; clean descriptions from `scope_descriptions.parquet`; validate the "5+ years" and degree rules before any text blocker hides listings; urgency read in context; map skills to O*NET; add evergreen wording to the ghost check.
+- **EDA_SDA_3 (text):** EDA_SDA_2's two title rules (agency-style recruiter titles, the 13-1161 split) are not hand-checked (dropped 2026-10-13): labels and opt-in filters; clean descriptions from `scope_descriptions.parquet`; report the "5+ years" and degree rules as unvalidated labels and opt-in filters (the hand validation was dropped, decided 2026-10-13), so no text blocker hides listings by default; urgency read in context; map skills to O*NET; add evergreen wording to the ghost check.
 - **EDA_SDA_4 (statistics):** volume × company type, pay disclosure within state and source, recruiters, and whether reachable listings close faster, in the adjusted Cox model.
 - **Ask PredictLeads:** why job-board listings stop after May, and why descriptions go missing more often from June.

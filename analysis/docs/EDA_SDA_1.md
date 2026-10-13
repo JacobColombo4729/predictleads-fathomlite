@@ -6,7 +6,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 ## Purpose
 
-For a career changer, the project suggests the computer and mathematical roles their skills transfer to, hides the listings they can't get, and ranks the rest; the **retraining compass** is the foundation. **This notebook** cleans PredictLeads' full job-openings file, compares computer and mathematical roles with every other field, applies the filters we already know we want (the scope: **the roles TripleTen trains for, plus adjacent tech roles**), and explores the scope by role bucket:
+For a career changer, the project suggests the computer and mathematical roles their skills transfer to, hides the listings they can't get (seniority, likely ghosts, occupations that aren't a tech path), labels the rest by what they ask (text rules as opt-in filters), and ranks them; the **retraining compass** is the foundation. **This notebook** cleans PredictLeads' full job-openings file, compares computer and mathematical roles with every other field, applies the filters we already know we want (the scope: **the roles TripleTen trains for, plus adjacent tech roles**), and explores the scope by role bucket:
 - **Q3 (section 7):** how do computer and mathematical roles compare with every other field?
 - **Q1 (9.1):** which factors should drive prioritization for a career changer?
 - **Q2 (9.2):** what time information can prioritization rely on?
@@ -26,8 +26,8 @@ For a career changer, the project suggests the computer and mathematical roles t
 | # | Notebook | Question | Hands off |
 |:-:|:--|:--|:--|
 | **1** | **EDA_SDA_1 (you are here)** | **What's in the full file, how does tech compare, and what's in the scope?** | **Scope table (every field) and its descriptions; occupation summary and company activity (every field)** |
-| 2 | EDA_SDA_2 | Which scope listings do we keep and how do they behave? Additional cleaning, ghost listings, non-text checks by role bucket, blockers hidden, the compass's 2026 side | Scope table, non-text features |
-| 3 | EDA_SDA_3 | What do the descriptions say? Text features, validated blockers, skills mapped to O*NET (no matching models) | Scope table + text features |
+| 2 | EDA_SDA_2 | Which scope listings do we keep and how do they behave? Additional cleaning, ghost listings, non-text checks by role bucket, reliable hiding rules, the compass's 2026 side | Scope table, non-text features |
+| 3 | EDA_SDA_3 | What do the descriptions say? Text features, text rules as labels and opt-in filters (keyword rules, not validated), skills mapped to O*NET (no matching models) | Scope table + text features |
 | 4 | EDA_SDA_4 | Which features hold up? Statistics | Modeling-ready table |
 | 5 | TimeSeries | When do listings appear and close? | Timing features |
 | 6 | ML_Fit | Which roles and listings fit a career changer? Keyword → TF-IDF → BGE → RRF, skills-based matching, a trained layer on real career moves | Fit scores, role discovery, the compass |
@@ -265,7 +265,7 @@ These decisions were made on the first 200,000 documents (and the scope on 2026-
 | Role bucket | Keep as its own feature (inside the scope the occupation group is one value) | The eight buckets a career changer chooses between; supports showing related roles in the app | Decided |
 | Reposts | **Keep as a feature:** `is_repost`, `times_listed`, `days_since_first_listed`, `days_since_repost_last_listed` | A job posted again and again may be hard to fill. Built from earlier copies only, so known when a listing appears | Decided |
 | Hiring difficulty | Keep: age so far, `times_listed`, `days_since_repost_last_listed` | A role open for long or relisted may be hard to fill; EDA_SDA_2 first separates real difficulty from ghost listings (done in 3.1: likely ghosts are hidden, other listings open 90+ days are labelled, and "possibly hard to fill" was dropped) | Kept for now |
-| Career-change accessibility | Keep: `entry_seniority`, `years_required`, `low_experience_ask`, `entry_wording`, `changer_wording`, `degree_required`, `equivalent_experience`, `career_open` | Core to the project: hard blockers **hide** a listing; softer signals raise it. From seniority and listing text, so known when a listing appears (no leakage). Keyword rules, checked in EDA_SDA_3 | Decided; rules validated in EDA_SDA_3 |
+| Career-change accessibility | Keep: `entry_seniority`, `years_required`, `low_experience_ask`, `entry_wording`, `changer_wording`, `degree_required`, `equivalent_experience`, `career_open` | Core to the project: seniority **hides** a manager-level listing from applicants without management experience; the text rules (years, degree) are **labels and opt-in filters, never hidden by default**; softer signals raise a listing. From seniority and listing text, so known when a listing appears (no leakage). Keyword rules, reported in EDA_SDA_3 with firing rates but not hand-validated (decided 2026-10-13) | Decided; text rules are labels and opt-in filters |
 | Recruiters | Keep: `recruiter_key` (anonymous), `recruiter_title` | A recruiter who fills roles fast or posts on a pattern is timing information; names and contacts are never kept | Kept for now (Q1h) |
 | Transferable fit | Keep for later | Needs career-changer profiles (`Profiles.ipynb`) and O*NET skills | Kept, not yet applicable |
 
@@ -345,7 +345,7 @@ A factor only helps ranking if it **varies**, so Q1a shows each factor across th
 | Mentions remote | Employer intent | Flexible or not | Keyword flag (urgency wording is left to EDA_SDA_3's NLP) |
 | From a hiring platform | Source | Where listings are hosted | From the url domain |
 | Top 10 companies' share | Competition, source | Whether a short watch list covers most listings | |
-| Entry-level seniority; asks 2 years or fewer; open to career changers | Career-change accessibility | Whether a newcomer can get in | Keyword rules; validated in EDA_SDA_3 |
+| Entry-level seniority; asks 2 years or fewer; open to career changers | Career-change accessibility | Whether a newcomer can get in | Keyword rules; not hand-validated (EDA_SDA_3, decided 2026-10-13); labels and opt-in filters |
 
 **What the data shows**
 - **Accessibility varies most between buckets:** entry-level seniority 10.8× (2.1% in IT project management to 22% in IT support), open to career changers 4.8× (9.1% to 44%), asks 2 years or fewer 4.7×.
@@ -458,7 +458,7 @@ Seniority and description length by role bucket, then the fields the project may
 | Source | Medians from 15 days (LinkedIn, Oracle, Taleo) to 71 (Ashby); company sites 21 (Q1c) | **Strong:** model with company volume, which it tracks |
 | Recruiters | Median 11.3 days with a named recruiter vs. 24.5 without; 6.5 days for recruiters with 5+ listings; only 1.3% of listings (Q1h) | **Promising but rare:** test against the staffing flag before using it |
 | Pay | Disclosed for 49%; disclosure goes with longer windows (79% vs. 64% open at 7 days); $31–$74 an hour by bucket (Q1a, Q1f) | **Useful:** as a value factor, and disclosure as a timing signal |
-| Career-change accessibility | Open to career changers from 9.1% (IT project management) to 44% (IT support); open listings pay a median $38.00 (Q1g) | **Core:** hides and raises listings; rules validated in EDA_SDA_3 |
+| Career-change accessibility | Open to career changers from 9.1% (IT project management) to 44% (IT support); open listings pay a median $38.00 (Q1g) | **Core:** seniority hides, text rules label and filter on request, the rest raises listings; text rules not hand-validated (EDA_SDA_3, decided 2026-10-13) |
 | Employer intent (text) | Long descriptions 81% vs. 68% open at 7 days; remote wording no gap (Q1f); urgency left to EDA_SDA_3 | **Mixed:** test richer NLP in EDA_SDA_3 |
 | Reposts | 6.5% of the scope; back a median 7.6 days later; 32% of job-board listings (6.4, Q1e) | **A feature,** read with the source: many are re-listings |
 | Crawl artifacts | 2.4% batch first sightings, 1.2% dropouts; timing barely moves without them (6.8, Q1b check) | **Flags, not filters** |
@@ -511,7 +511,7 @@ A short statistical summary of the final table: its size, how its key measures a
 ### Limits
 - **Six months of history,** so no seasonal advice. `first_seen` follows the crawler, so day-of-week patterns need `posted`.
 - **We see listings appear and disappear, not hires.** Openness to career changers is what listings *ask for*, not who gets hired.
-- **The text flags are keyword rules** with likely false positives ("urgent care") until EDA_SDA_3 validates them.
+- **The text flags are keyword rules** with likely false positives ("urgent care"); EDA_SDA_3 rebuilt them and reports firing rates, but the hand validation was dropped (decided 2026-10-13), so they stay unvalidated labels and opt-in filters.
 - **The six-month window misses older listings:** listings first seen before 2026-03-30 aren't in the data, so the earliest dates undercount what was open; the app's date picker starts at July 1.
 - **The field comparison (section 7) is descriptive:** fields differ in company size, source mix and seniority, so like-for-like comparisons happen inside the scope (EDA_SDA_2 and 4). The gaps here aren't significance tests; EDA_SDA_4 section 5 tests them.
 - **High-volume posters include staffing agencies,** which can inflate company volume; EDA_SDA_2 (2b) flags them.

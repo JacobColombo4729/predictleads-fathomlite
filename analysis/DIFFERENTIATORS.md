@@ -32,13 +32,13 @@ Proposed 2026-10-10; lead with 1, 3 and 5. Not built yet (tasks in [`ANALYSIS.md
 
 | Idea | What the user sees | Built from | Strengthens |
 |:--|:--|:--|:--|
-| **1. Which skill unlocks the most jobs** | For each skill or certification the user could add, how many more listings become reachable | EDA_SDA_3 skills + the hiding rules (EDA_SDA_2 3.11) | Angles 2 and 6 |
+| **1. Which skill unlocks the most jobs** | For each skill or certification the user could add, how many more listings become reachable | EDA_SDA_3 skills + the blocker labels the user filters on (EDA_SDA_2 3.11) | Angles 2 and 6 |
 | **2. Certification payoff** | How many listings ask for each certification, and which roles career changers with it moved into | EDA_SDA_3 skills + Profiles | Angle 4 |
 | **3. Stepping-stone planner** | Routes of two or more moves within tech (e.g. IT support → networks and systems → security), with how many people took each step and the 2026 openings at each stop | Profiles (moves between tech roles) + the compass | Angles 3 and 4 |
 | **4. "Apply now" alerts** | A nudge when a watched company starts a hiring burst, timed with our apply-by estimates | Jesse's Signals tab + timing (EDA_SDA_2 3.3) | Angles 1 and 5 |
 | **5. A backtested ranking claim** | One number for the pitch: trained on April–July, tested on September, how much more relevant the top 10 is than newest-first | ML_Rank | Rigor |
 | **6. Pay now vs. one move later** | Entry pay for a role next to the pay of the roles people moved to next | 2026 listing pay + Profiles paths | Angle 6 |
-| **7. Map of reachable openings** | Reachable listings by state or metro for the user's target role | Listings' locations + the hiding rules | Angle 5 |
+| **7. Map of reachable openings** | Reachable listings by state or metro for the user's target role | Listings' locations + the blocker labels the user filters on | Angle 5 |
 
 Same claim rules as below: idea 2 shows where certified switchers went, never that a certification gets someone hired; idea 5 is stated with its test months and baseline.
 
