@@ -393,8 +393,9 @@ EXTRA_ONET_BUCKETS = {
 EXTRA_ORDER = ["technical sales", "business and data analysis"]
 
 # O*NET 13-1161 mixes market research analysts with marketing specialists (decided 2026-10-11). Titles that name analysis
-# or research stay in business and data analysis; the rest are labelled marketing specialists and hidden in the app
-# (kept in the data), like document management: marketing work, not what the Data Analytics program trains for.
+# or research stay in business and data analysis; the rest are labelled marketing specialists: marketing work, not what
+# the Data Analytics program trains for. A label and opt-in filter, never hidden by default (title rule not hand-validated,
+# decided 2026-10-13); left out of the Data Analytics market (EDA_SDA_2 3.12a).
 MARKETING_BUCKET = "marketing specialists"
 MARKET_ANALYST_TITLE = (r"analy|research|insight|\bdata\b|intelligence|statistic|measurement|quantitative|reporting"
                         r"|\bbi\b|metrics|scientist")
