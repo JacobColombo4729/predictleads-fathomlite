@@ -8,7 +8,7 @@
 
 - **Helper agents are optional (2026-10-13).** Eve, Thread, Pace and Foreman cost Claude usage, so none runs unless you ask for it by name; your Claude won't suggest them or turn Eve's hooks on. If you ever want Eve: `git config core.hooksPath .githooks` (README step 14). No action needed.
 
-- **Never use your own résumé (2026-10-13).** Our personal backgrounds are irrelevant to the project: don't upload your résumé to the app, and delete your local `data/candidates/real_candidate_profiles.json` and any review files built from `real_jacob` / `real_jesse` profiles. Test with the fictional profiles (`app/code/ai_ml_candidate_profiles.json`). See `app/APP.md` (Now).
+- **The model is built only from evidence (2026-10-13).** Training, tuning, evaluation and reported results use only the scope's listings and Profiles' public résumés, never our own résumés, so the model has no personal bias. Entering your résumé in the running app as a user is fine: the finished model just scores it. Delete your local `data/candidates/real_candidate_profiles.json` and any review files built from `real_jacob` / `real_jesse` profiles. See `app/APP.md` (Now).
 
 ## For Jacob (from Jesse)
 

@@ -456,7 +456,7 @@ These come from the Training Services Agreements we each signed. Breaking them c
 - 🚫 Never upload data to personal cloud drives, public Colab/Kaggle, or anywhere outside the project.
 - 🚫 Never share data, screenshots of data, or notebook outputs outside the team.
 - 🚫 Don't try to re-identify the anonymized data.
-- Résumés stay out of git, and the team's own are never used anywhere (fictional profiles for testing). Missing information is **unknown**, not a gap. Null status is not "open".
+- Résumés stay out of git. The models are built only from the listings and Profiles' public résumés, never the team's own; anyone may enter a résumé in the running app as a user, and tests use fictional profiles. Missing information is **unknown**, not a gap. Null status is not "open".
 
 ### AI tools
 > **Pending written guidance from our advisors.** Until then:
