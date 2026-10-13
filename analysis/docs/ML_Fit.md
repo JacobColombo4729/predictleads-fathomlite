@@ -78,9 +78,17 @@ The cases are the **career changers** from Profiles. For each one, the input is 
 
 **20% of the people are held out as the test set and scored once, at the very end** (section 6b). Everything else is developed on 5 folds of the rest. Both are split by person and stratified by role and pool, so every role and pool shows up in each.
 
+**What the data shows**
+- **2,813 career changers, split before anything is scored:** 2,250 for development (1,640 changed roles within tech, 325 retrained after working in another field, 285 new grads from another field) and 563 held out for the test (409 / 82 / 72), 20% of each pool. Within-tech movers are 73% of the people (2,049), so every result below is also shown per pool.
+- **Everyone has pre-switch text:** 0 of the 2,813 are empty, so no person ties across all methods.
+- **One warning from the split (2a):** scikit-learn says the least populated class has only 2 members, fewer than the 5 folds. The role-by-pool groups with fewer than 7 people are lumped into one "rare" group before splitting, and the warning says a group has only 2 people in development, so the folds cannot spread it evenly. It touches a handful of people and no number below depends on it, but it is a loose end in `fit_eval.split_people` (the cutoff is counted on all people, not on development people), noted for Jacob rather than changed here, since changing it changes the split.
+
 ## 3. Role descriptions
 
 Each role bucket is described by its **2026 listings**: a reproducible sample of up to 2,000 per role from the full-file scope tables (EDA_SDA_1 cell 4b), each listing's title and description as plain text. The methods compare a person's background with these. No person is involved here, so nothing about the test people leaks into the methods. Later, EDA_SDA_3's cleaned text can replace these with one setting.
+
+**What the data shows**
+- **Every role is described by the same number of listings:** all 8 roles reached the cap of 2,000 sampled listings, including the smallest roles (quality assurance, data science). The sample says nothing about how many listings a role really has; it only gives each role the same amount of text to compare with.
 
 ## 4. The methods (ladder steps 1–4)
 
@@ -92,13 +100,38 @@ Each method scores every role for every person; the higher, the better the fit:
 
 The **baseline** suggests the roles in order of how common they are among the training people. None of the four methods learns from people, so each is scored once on everyone; only the baseline is refit per fold.
 
+**What the data shows**
+- **All four methods scored all 2,813 people against all 8 roles in 6.4 minutes** (BGE on the laptop's CPU included). The scores are computed once per person, so they are the same in the development folds (6a) and the test (6b); only the baseline is refit per fold.
+
 ## 5. The trained layer
 
 _To do: steps 5–6 of the ladder (skills-based matching, and the trained layer on these scores plus the Profiles features)._
 
 ## 6. Evaluation
 
-**Hit rate @k:** the share of people whose actual role is in the method's top k (3 and 5), overall and per pool. **Development (6a):** mean ± standard deviation over the 5 folds. **Test (6b):** run **once**, on the held-out 20%, with 95% intervals from resampling people (2,000 bootstrap samples). **Current-role pull (6c):** for moves within tech, how often a method would put the person's current role first if it were allowed: the old-field bias word matching tends to have.
+**Hit rate @k:** the share of people whose actual role is in the method's top k (3 and 5), overall and per pool. **Development (6a):** mean ± standard deviation over the 5 folds. **Test (6b):** run **once**, on the held-out 20%, with 95% intervals from resampling people (2,000 bootstrap samples). **Current-role pull (6c):** for moves within tech, how often a method would put the person's current role first if it were allowed: the old-field bias word matching tends to have. **Rule:** the test was run once to see steps 1–4; all choices in section 5 are made on development folds only, and 6b is run once more at the very end, with the trained layer.
+
+**What the data shows (development, 5 folds)**
+- **At top 3, the text methods beat the most-common-role baseline only modestly:** RRF 67.1% ± 1.4% and TF-IDF 66.6% ± 1.2% against the baseline's 63.3% ± 0.3%, BGE 65.5% ± 1.3%. Keyword overlap is below the baseline (53.9% ± 1.3%). The best method gains 3.8 points over the baseline; that is larger than the fold-to-fold spread but was not tested as a paired difference.
+- **At top 5, the baseline wins:** 87.1% ± 0.3% against 85.2% (RRF), 85.1% (TF-IDF), 85.0% (BGE) and 79.1% (keyword). With 8 roles, the five most common roles already cover most people, so there is little room for a text method to add.
+- **By pool (top 3), the gain is in the within-tech movers:** RRF 69.3% against the baseline's 62.9%; for people who retrained after working, RRF 64.9% against 58.8%.
+- **For new grads from another field, the baseline beats every method:** 70.9% against 57.6% (TF-IDF), 57.2% (BGE), 56.9% (RRF) and 43.8% (keyword). A likely reason, not tested: a student's pre-switch text is a degree and a few student jobs, which carries little of the vocabulary the roles' listings use, so the text methods have little to go on and the most common roles win.
+
+**What the data shows (test, 563 held-out people)**
+- **The ranking of the methods is the same as in development.** At top 3: RRF 70.0% [66.1%, 73.7%], TF-IDF 69.8% [66.1%, 73.4%], BGE 67.0% [63.4%, 70.9%], the baseline 63.2% [59.1%, 67.1%] and keyword overlap 60.2% [56.1%, 64.3%]. RRF is 6.8 points above the baseline, but the intervals overlap a little (they are not paired intervals, so this is a rough reading); BGE's gain over the baseline (3.8 points) is within the intervals.
+- **At top 5, the baseline is again the best:** 87.0% [84.2%, 89.7%] against RRF 86.7% [83.7%, 89.3%], TF-IDF 84.7%, BGE 84.4% and keyword 81.5%; at top 5 no method is distinguishable from the baseline.
+- **Per pool (top 3):** within tech RRF 73.1% [68.7%, 77.3%] against the baseline's 63.1% [58.2%, 67.7%] (the clearest gain). After working in another field (82 people), RRF 64.6% [54.9%, 74.4%] against 57.3% [46.3%, 68.3%]: the same direction, but the intervals overlap widely. New grads (72 people): the baseline 70.8% [59.7%, 80.6%] is above RRF 58.3% [47.2%, 69.4%], TF-IDF 59.7% and BGE 55.6%.
+- **These test numbers are not a final result for the project's fit model:** the trained layer and skills matching (section 5) are not built yet.
+
+**What the data shows (current-role pull, development, within-tech movers)**
+- **If allowed, TF-IDF and RRF would put the person's current role first for 73.7% of within-tech movers, and BGE for 69.3%.** That is the old-field pull: a person's pre-switch text is mostly their current role's titles, so they look most like it. In 6a and 6b this role is removed from the candidates, so the hit rates above are not inflated by it; but it shows the methods rank by "looks like where you are", not "where people like you go".
+- **Keyword overlap's 42.0% is lower, but that is not a point in its favor:** it is also the weakest method at hitting the real next role (53.9% at top 3), so its lower pull comes with weaker matching in general.
+- **The plan for section 5, stated as a plan, not a result:** skills-based matching (the person's and each listing's skills mapped to O*NET, which do not depend on the old field's vocabulary) and a trained layer on real career moves (steps 5 and 6 of the ladder) are meant to beat the baseline at top 5 as well, to do better for new grads, and to reduce this pull. Whether they do is not known yet.
+
+### Where the notebook stands (sections 1–6)
+- **Steps 1–4 are built, run on all 2,813 career changers and evaluated on real career moves.** The text methods find the role people moved into modestly more often than "the most common role" at top 3 (development: RRF 67.1% against 63.3%; test: 70.0% against 63.2%) and not at top 5 (baseline 87.1% in development, 87.0% in test, the best). They help most for within-tech movers and not at all for new grads from another field, and they favor the person's current role (TF-IDF and RRF 73.7%).
+- **Still to build: section 5 (skills matching, the trained layer) and sections 7–9** (interpretation, growth-adjusted recommendations, the compass, the solution report). No conclusion on the fit model can be drawn until then.
+- **Rule for what comes next:** the test (6b) has now been run once, to see how steps 1–4 do. Every choice in section 5 (features, model, settings, whether the neural network is kept) is made on the development folds only, and nothing is tuned to the test numbers above. 6b is run once more at the very end with the trained layer included, and that is the test result the project reports.
 
 ## 7.–9.
 
