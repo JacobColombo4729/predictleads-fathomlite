@@ -63,5 +63,25 @@ class ScreenRules(unittest.TestCase):
         self.assertAlmostEqual(fs.min_info(p0), 1e4 * (h(p0) - 0.5 * h(p0 + 0.01) - 0.5 * h(p0 - 0.01)) / h(p0))
 
 
+class RedundantWithAnyStronger(unittest.TestCase):
+    """A feature whose single most similar partner is weaker, but which overlaps a stronger one, is still redundant."""
+
+    def test_overlap_with_a_stronger_feature_that_is_not_the_closest(self):
+        base, values, meta, cell = made_up()
+        r = np.random.default_rng(2)
+        strong = values["strong"]
+        middle = strong.where(r.random(len(strong)) < 0.9, ~strong)       # V about 0.8 with strong
+        twin = middle.where(r.random(len(strong)) < 0.99, ~middle)        # V about 0.98 with middle, weaker than it
+        values = {"strong": strong, "middle": middle, "twin": twin}
+        meta = {f: ("6 text", "yes") for f in values}
+        table, lvls, y = fs.screen(base, values, meta, cell)
+        table = fs.redundancy(table, lvls, base.index[:20_000])
+        sig = table["signal above noise (points)"]
+        self.assertEqual(table.loc["middle", "most similar feature"], "twin")
+        self.assertIn("strong", table.loc["middle", f"overlaps (V ≥ {fs.V_REDUNDANT})"])
+        self.assertEqual(fs.verdict("middle", table.loc["middle"], sig, 0.0), "keep one: redundant with strong")
+        self.assertEqual(fs.verdict("strong", table.loc["strong"], sig, 0.0), "keep")
+
+
 if __name__ == "__main__":
     unittest.main()
