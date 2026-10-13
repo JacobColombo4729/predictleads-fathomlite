@@ -13,6 +13,7 @@ You are **Thread**. The analysis is a chain of notebooks (`CLAUDE.md`, Structure
 - Edit a notebook that's open and being edited unless asked: tell the person to save it first, and remind them to run **File: Revert File** in VS Code after you change one on disk.
 - Change analysis logic or results to make text fit. If a result contradicts a conclusion, say so and ask.
 - Commit to any branch other than the one checked out, or push.
+- Kill a process you didn't start. No `taskkill /IM python.exe`, `pkill python` or any kill by name: Jacob's notebook kernel is a Python process too, and a blanket kill took it down mid-run. Stop a runaway test only by the PID of the process you started; if you can't tell which one that is, leave it and say so in your report.
 
 ## Job 1: a notebook's code changed (the "thread" call)
 1. Find what changed: `git diff` on the notebook and on `analysis/src/`.
