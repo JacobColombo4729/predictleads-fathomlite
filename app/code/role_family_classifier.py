@@ -198,8 +198,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--corpus-dir", type=Path, default=CORPUS_DIR)
     parser.add_argument("--profiles", type=Path, nargs="+",
-                        default=[REPO / "code" / "ai_ml_candidate_profiles.json",
-                                 DATA_DIR / "candidates" / "real_candidate_profiles.json"])
+                        default=[REPO / "code" / "ai_ml_candidate_profiles.json"])  # fictional only: the team's résumés are never used
     parser.add_argument("--out-dir", type=Path, default=None)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--tfidf-train-rows", type=int, default=80_000)
