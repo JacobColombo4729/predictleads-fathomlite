@@ -29,14 +29,14 @@
   - Evergreen wording (feeds the ghost-listing flag), required vs. preferred qualifications, **skills mapped to O*NET** (the input to `ML_Fit`'s skills-based matching): built and run 2026-10-13 (`src/onet.py`, section 6): 1,518,984 matches over 459,912 listings into `eda3_skills.parquet`, with everyday-word tool names and generic skill names excluded; the matches are unchecked keyword hits.
   - **New text rules (added 2026-10-10):** security clearance required, "no visa sponsorship", travel percentage, shift or on-call work, contract-to-hire. Clearance and sponsorship are hard blockers for some career changers (per applicant in the app).
   - Save the scope table with text features for EDA_SDA_4 and `ML_Fit`.
-- **EDA_SDA_4 (statistics)** (scaffolded 2026-10-13: `src/stats_tests.py` and sections 1b–12; needs a run, then findings and the feature decisions in section 10):
+- **EDA_SDA_4 (statistics)** (run at full scale 2026-10-13, findings written, feature decisions from EDA_SDA_2's pre-set rule: 13 of 43 text features kept, 30 dropped, 45 non-text kept and 9 dropped, redundancy checked against every stronger feature; `modeling_ready.parquet` saved, 908,291 x 67; still to do: mark the text rows of 9d after EDA_SDA_2's 3.9 check, decide whether to test `career_open`):
   - Descriptive statistics by group; Pearson + Spearman, Cramér's V, point-biserial; VIF.
   - Group interactions, including by role bucket, and checks for confounding (Simpson's paradox).
-  - Adjusted check: a Cox survival regression with every standard confounder (company volume, source and platform, staffing agency, role bucket, seniority, month, company type, has a description), company-clustered errors, hazard ratios with 95% intervals and a proportional-hazards check.
+  - Adjusted check: a Cox survival regression with every standard confounder (company volume, source and platform, staffing agency, role bucket, seniority, month, has a description; company type is not in the scope table), company-clustered errors, hazard ratios with 95% intervals and a proportional-hazards check.
   - Welch's t-test plus Mann–Whitney (Wilcoxon rank-sum), chi-square and log-rank, with effect sizes and Benjamini–Hochberg; this is where EDA_SDA_1's and EDA_SDA_2's descriptive gaps get significance tests.
   - Company-clustered bootstrap intervals; survival checks (censoring, left truncation, competing risks).
   - **In-depth feature analysis (added 2026-10-10, full data):** (1) **stability over months**: does each feature's effect hold in every month, not just overall (ML_Rank trains on April–July, tests on September); (2) **within-company comparisons**: does it still matter between listings from the same company; (3) **effects by role bucket**; (4) **leakage audit**, one row per feature: known when the listing first appears?; (5) **drift checks**: which distributions shift over time, and do they line up with the collection changes (job boards after May, descriptions from June); (6) **information beyond the confounders** (mutual information or likelihood-ratio tests). Priority: 1, 2 and 4 first.
-  - Record each feature kept, dropped or combined; save the modeling-ready table.
+  - Record each feature kept or dropped by EDA_SDA_2's pre-set rule (3.13); save the modeling-ready table. Result: of 43 text features 13 kept and 30 dropped, the non-text features keep EDA_SDA_2's verdicts (45 kept, 9 dropped); the confounders (volume, source, having a description) matter far more than any text flag.
 - **TimeSeries:**
   - Daily and weekly series from `first_seen` and from `posted` (Central European dates), to separate crawler from employer rhythm.
   - Rolling stats, decomposition (STL), ACF/PACF, ADF and KPSS.
@@ -50,14 +50,14 @@
   - Score each step on hit rate@3/@5 for the role people actually moved into, per pool and overall, against a title-keyword baseline; measure old-field bias; exclude the current role for within-tech moves; folds grouped by person.
   - SHAP, including each listing's top fit features for the detail view's rating breakdown; hand fit scores and their breakdown to `ML_Rank`.
   - **Assemble the compass (last section):** Profiles' paths with people counts, each role's 2026 market and growth (EDA_SDA_2 3.12), and the Ideas tab's inputs (skills to build, options and time to switch, pay increase vs. the current field from 1c, growth); save the compass tables for the app.
-- **ML_Rank (the priority queue)** (v1 and v2 scaffolded 2026-10-13, 14-day window: needs EDA_SDA_4's `modeling_ready.parquet`, then a run):
+- **ML_Rank (the priority queue)** (v1 and v2 scaffolded 2026-10-13, 14-day window: 2a reads its features from `modeling_ready.parquet`, which EDA_SDA_4 has saved; needs a run):
   - Write the hypotheses with thresholds **before** any modeling.
   - Targets: closes within N days, days open, and the survival target.
   - Split by time (train April–July, validate August, test September), folds grouped by company; test used once.
   - Baselines: `DummyClassifier`, newest first, title keyword search.
   - Models: logistic regression, trees, random forest, LightGBM, CatBoost, XGBoost; Cox and survival models; LambdaRank.
   - Leakage: counts from earlier listings only; a date-picker model trained only on what was known by its date; check that `has_desc` and the text flags are known at first sighting (EDA_SDA_2 3.9) before using them.
-  - **The priority queue:** combine the fit score, chance still open and apply-by, accessibility and pay in one formula; weights start from EDA_SDA_4's adjusted model and are tuned on the validation month; only features that survived EDA_SDA_4.
+  - **The priority queue:** combine the fit score, chance still open and apply-by, accessibility and pay in one formula; weights start at 0.4 / 0.3 / 0.2 / 0.1 and are tuned on the validation month (EDA_SDA_4's hazard ratios are about closing speed, so they do not set these four); only features that survived EDA_SDA_4.
   - Evaluation (ROC-AUC, F1, C-index, precision@k, NDCG); the queue against newest-first: of each top 10, how many stay open long enough, are reachable and are in the role the person actually moved into; SHAP and the per-listing rating breakdown for the detail view (each factor's rating and share of the score, top features behind chance still open), sensitivity checks, solution report.
 - **Job growth expectations** (one number per role bucket, over at most 5 years, from **BLS Employment Projections 2025–2035**; [data tables](https://www.bls.gov/emp/data.htm)):
   1. **Get PredictLeads' written consent first** to combine their data with BLS data (agreement 4.3), and note it in your change log (`JACOB.md` or `JESSE.md`). Check the BLS terms of use.

@@ -289,5 +289,42 @@ class FastPathsMatchReference(unittest.TestCase):
         self.assertAlmostEqual(st.psi(flags_b, flags_a), float(((pa - pb) * np.log(pa / pb)).sum()), places=12)
 
 
+class NullableNumbers(unittest.TestCase):
+    def test_welch_and_mann_whitney_accept_nullable_and_object_columns(self):
+        rng = np.random.default_rng(0)
+        a = pd.array(list(rng.integers(0, 50, 200)) + [None] * 5, dtype="Int64")
+        b = pd.Series(list(rng.integers(10, 60, 200).astype(float)) + [np.nan], dtype="object")
+        w, m = st.welch_test(a, b), st.mann_whitney(a, b)
+        self.assertEqual((w["n_a"], w["n_b"]), (200, 200))
+        self.assertTrue(np.isfinite(w["p"]) and np.isfinite(m["p"]))
+        flags = pd.array([True, False, None] * 40, dtype="boolean")
+        self.assertEqual(st.welch_test(flags, flags)["n_a"], 80)
+
+
+class NestedConfounders(unittest.TestCase):
+    def test_lr_test_runs_when_one_confounder_nests_in_another(self):
+        rng = np.random.default_rng(1)
+        n = 5_000
+        platform = rng.choice(["p1", "p2", "p3", "p4"], n)
+        source = np.where(np.isin(platform, ["p1", "p2"]), "site", "board")   # each platform belongs to one source type
+        flag = rng.random(n) < 0.4
+        y = (rng.random(n) < 0.2 + 0.1 * flag).astype(float)
+        d = pd.DataFrame({"y": y, "flag": flag.astype(float), "platform": platform, "source": source})
+        r = st.information_beyond_confounders(d, "y", "flag", ["source", "platform"], categorical=["source", "platform"])
+        self.assertTrue(np.isfinite(r["lr_statistic"]) and r["lr_statistic"] > 10)
+
+    def test_lr_test_runs_with_an_unused_category_level(self):
+        # downcast() makes a column categorical; a subset (listings with a description) can lack a level, and its dummy
+        # column is then all zeros: the plain logit failed with "Singular matrix" (EDA_SDA_4 9f)
+        rng = np.random.default_rng(2)
+        n = 5_000
+        platform = pd.Categorical(rng.choice(["p1", "p2", "p3"], n), categories=["p1", "p2", "p3", "p4"])
+        flag = rng.random(n) < 0.4
+        y = (rng.random(n) < 0.2 + 0.1 * flag).astype(float)
+        d = pd.DataFrame({"y": y, "flag": flag.astype(float), "platform": platform})
+        r = st.information_beyond_confounders(d, "y", "flag", ["platform"], categorical=["platform"])
+        self.assertTrue(np.isfinite(r["lr_statistic"]) and r["lr_statistic"] > 10)
+
+
 if __name__ == "__main__":
     unittest.main()
