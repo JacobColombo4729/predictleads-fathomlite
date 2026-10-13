@@ -43,7 +43,7 @@ The core of the app is the **priority queue**: listings ranked for this career c
   - **Training offered:** only listings that offer training or welcome career changers
   - **Transferable fit:** minimum score (needs the user's background profile)
   - **Pay:** minimum hourly rate; pay disclosed only
-  - **Freshness:** first seen within N days. **The age shown on a listing** (decided 2026-10-11): "posted X days ago" from the employer's posting date when there is one (39% of scope listings; implausible dates blanked), otherwise "found X days ago" from first seen, so a listing the crawler found late doesn't look fresher than it is (the crawler finds listings a median 1.5 days after posting, EDA_SDA_2 3.3)
+  - **Freshness:** first seen within N days. **The age shown on a listing** (decided 2026-10-11): "posted X days ago" from the employer's posting date when there is one (42% of scope listings; implausible dates blanked), otherwise "found X days ago" from first seen, so a listing the crawler found late doesn't look fresher than it is (the crawler finds listings a median 1.5 days after posting, EDA_SDA_2 3.3)
   - **Competition:** low, medium or high
   - **Source:** hiring platform or company site; specific platforms
   - **Location:** one or more states (from `location_data`), listings naming several locations included where any matches
@@ -102,7 +102,7 @@ Opens full screen on tap or click:
 - **No hindsight in the scores:** listing age is counted up to the chosen date; reposts and company hiring volume only from listings first seen before it; and `last_seen_at` only decides which listings were live, never a score.
 - **No hindsight in the model:** the model that scores a date is trained only on what was known by that date; a listing still open on that date counts as still open in training, even though we later know when it closed. The simple version for the demo offers only dates in the test period (September), which the main model never learned from; any earlier date needs a model retrained as of that date.
 - **A built-in check:** for past dates we know which listings actually closed and when, so the app can show how good its apply-by estimates were.
-- **Fair from July:** listings first seen before 2026-03-30 are missing, so earlier dates undercount long-open listings. Live listings jump from 2,459 on April 1 to about 32,000 by June 1, and their age mix settles from July (EDA_SDA_1 8b); the picker starts at July 1.
+- **Fair from July:** listings first seen before 2026-03-30 are missing, so earlier dates undercount long-open listings. Live listings jump from 9,324 on April 1 to about 140,000 by June 1, and their age mix settles from July (EDA_SDA_1 9.3c); the picker starts at July 1.
 
 ### Background profile (for transferable fit)
 
@@ -156,16 +156,16 @@ The point of expected job growth is to **recommend roles with the future in mind
 ### 3.4 Path questions it answers
 
 From the resume data; the app's Coach explains them in plain language.
-- **Should I retrain for a role directly, or take a first tech role and move from there?** For data science, 218 career changers moved in from another tech role and only 19 retrained straight into it.
+- **Should I retrain for a role directly, or take a first tech role and move from there?** For data science, 220 career changers moved in from another tech role and only 20 retrained straight into it.
 - **Which training led people like me to this role, and how many people is that based on?**
 - **How long did it take?** People who retrained after working took a median of 15 months from their last old-field job to their first tech job.
-- **Which role is the easiest door in?** IT support: the most entry-level listings (23%) and the most openness (44%), but the lowest pay ($31 an hour). Among TripleTen programs, Data Analytics roles are the most open (30%, $47.60 an hour).
+- **Which role is the easiest door in?** IT support: the most entry-level listings (22%) and the most openness (44%), but the lowest pay ($31 an hour). Among TripleTen programs, Data Analytics roles are the most open (30%, $47.60 an hour).
 
 ### 3.5 Moving across and up within tech
 
-- **2,049 people moved between tech roles** after 12+ months in the first. The strongest paths: IT support → networks and systems (279), networks and systems → IT support (199), IT support → security (163), developers → databases (142) and → data science (137).
+- **2,049 people moved between tech roles** after 12+ months in the first. The strongest paths: IT support → networks and systems (279), networks and systems → IT support (199), IT support → security (163), developers → databases (141) and → data science (139).
 - **Most moves are sideways:** 79% kept the same level, 8.5% moved up, 12.5% moved down (levels read from title words, so rough). "Moving up" needs more evidence before it leads the pitch.
-- **IT project management is a later move, not a first step:** 2% of its listings are entry level and 9% show openness, and 190 of its 264 career changers came from another tech role. Business backgrounds also move there (17% of retrained business people). **Decided 2026-10-10:** not suggested as a first tech job unless the user's prior career has a real path into it; shown to users already in tech as a step up; scope-wide openness figures are also shown without it.
+- **IT project management is a later move, not a first step:** 2% of its listings are entry level and 9% show openness, and 189 of its 262 career changers came from another tech role. Business backgrounds also move there (17% of retrained business people). **Decided 2026-10-10:** not suggested as a first tech job unless the user's prior career has a real path into it; shown to users already in tech as a step up; scope-wide openness figures are also shown without it.
 - **To try:** a "trained, then moved up in the same role" pool (for example a master's before a senior role). Profiles' rules don't capture it yet; it would reopen Profiles.
 
 ### 3.6 The Ideas tab
