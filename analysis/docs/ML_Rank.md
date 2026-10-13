@@ -6,7 +6,7 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 ## 0. Purpose
 
-Builds the **listing model** and the **priority queue**. The listing model predicts how long each listing stays open (chance still open, apply-by date) from every factor that survived `EDA_SDA_4`, text included, plus the `TimeSeries` timing features. The priority queue then **combines** it with `ML_Fit`'s fit scores, career-change accessibility and pay into one score per listing, for a given career changer. Listings a career changer can't get are already hidden (never removed). Role discovery and the fit model are in `ML_Fit`.
+Builds the **listing model** and the **priority queue**. The listing model predicts how long each listing stays open (chance still open, apply-by date) from every feature that `EDA_SDA_4`'s screening rule kept, text included (2a reads them from `modeling_ready.parquet`, so this notebook holds no list of them), plus the `TimeSeries` timing features. The priority queue then **combines** it with `ML_Fit`'s fit scores, career-change accessibility and pay into one score per listing, for a given career changer. Listings a career changer can't get are already hidden (never removed). Role discovery and the fit model are in `ML_Fit`.
 
 **There's no single "priority" label to train on,** so the two models answer separate questions (will it stay open? does it fit this person?) and a formula with evidence-based, tunable weights combines them. Every score shows its parts.
 
@@ -45,7 +45,7 @@ Builds the **listing model** and the **priority queue**. The listing model predi
 
 | Section | Course standard (Intro2ML, SupervisedLearning, NumericalMethods, FinalProject, MLinBusiness) | Taken further |
 |:--|:--|:--|
-| 1. Setup | Load the modeling-ready table | |
+| 1. Setup | Load the modeling-ready table | The features are whatever columns `EDA_SDA_4` kept; none is named here |
 | 2. Targets | Classification: closes within N days. Regression: days open | **Survival** target (days open with censoring) |
 | 3. Preprocessing | Drop identifier columns; one-hot encoding with aligned columns; OrdinalEncoder for trees; **StandardScaler fit on training data only** | `Pipeline` + `ColumnTransformer`; rare levels grouped |
 | 4. Split | Train / validation / test **once**, `random_state=12345`, test used once at the end | Split **by time** (train April–July, validate August, test September), folds **grouped by company**; fit scores come from `ML_Fit`, trained on its own person-grouped folds |
@@ -59,21 +59,23 @@ Builds the **listing model** and the **priority queue**. The listing model predi
 | 11. Sensitivity | | Do conclusions hold under our choices (2-day live tolerance, scope boundaries, CET `posted`)? |
 | 12. Solution report | Steps performed, difficulties and how they were solved, the final model and its score | |
 
-## 1c. Hypotheses and thresholds (written before any modeling)
+## 1c. Hypotheses and decision rule (written before any modeling)
 
-Each hypothesis has a number that decides it. The test month (September) is used once, at the end; thresholds are fixed here and not changed after seeing results.
+The test month (September) is used once, at the end. **One rule decides H1 to H5 and H7:** the model beats its baseline, and the company-clustered 95% bootstrap interval for the difference (model minus baseline; whole companies resampled together) excludes zero (`rm.clustered_bootstrap_diff` for per-listing or per-person values, `rm.clustered_bootstrap_auc_diff` for ROC-AUC). No fixed cut-off numbers are set; the size of the difference is reported either way. The top-10 overlap test (H6) is secondary.
 
-| # | Hypothesis | Decided by | Threshold to count as supported |
+| # | Hypothesis | Compared with | Supported when |
 |:--|:--|:--|:--|
-| H1 | Features known at first sighting predict whether a listing closes within N days better than the prior | Validation ROC-AUC, CV mean ± std over company-grouped folds, vs. `DummyClassifier` (0.5) | Mean AUC at least 0.60 and above the dummy by more than 2 std |
-| H2 | The best model beats the logistic regression | Validation ROC-AUC difference | At least +0.01 (otherwise keep the simpler model) |
-| H3 | Survival model orders days open better than chance | C-index on validation (company-clustered bootstrap 95% CI) | CI lower bound above 0.50; reported against the best classifier's implied order |
-| H4 | The priority queue beats newest-first | Share of each top 10 still open 14+ days (precision@10), test month | Higher by at least 5 points with a company-clustered 95% CI excluding 0 |
-| H5 | The queue beats title keyword search | Same, plus the share of the top 10 in the role the person moved into | Higher on both |
-| H6 | Adding accessibility and fit changes the top 10 versus timing alone | Overlap of top 10 with and without them | Overlap below 80% |
-| H7 | Training without `likely_ghost` listings predicts the test month better | Validation AUC / C-index | Better by 0.01 or more |
+| H1 | Features known at first sighting predict whether a listing closes within N days better than the prior | `DummyClassifier` (prior, AUC 0.5); ROC-AUC difference, company-clustered (AUC, not Brier: the balanced class weights leave the probabilities uncalibrated) | Difference positive, interval excludes 0 |
+| H2 | The best model beats the logistic regression | Same, logistic regression as the baseline | Same (otherwise keep the simpler model) |
+| H3 | The survival model orders days open better than chance | C-index against 0.5 (the chance baseline), company-clustered bootstrap | Interval for C-index minus 0.5 excludes 0 |
+| H4 | The priority queue beats newest first | Share of each career changer's top 10 that is relevant (below), test month | Difference positive, interval excludes 0 |
+| H5 | The queue beats title keyword search | Same | Same |
+| H6 (secondary) | Adding accessibility and fit changes the top 10 versus timing alone | Overlap of the two top 10s (`rm.top_k_overlap`) | Overlap below 80% |
+| H7 | Training without `likely_ghost` listings predicts the test month better | Same rule, trained with ghosts as the baseline | Same |
 
-_N (the day cut-off) and the 14-day "open long enough" line are placeholders: fix them from EDA_SDA_4's and TimeSeries' closing-speed curves before running (2.1)._
+**N, the closing window.** One constant, `rm.CLOSING_DAYS`, drives the main target ("closes within N days"), "open long enough" (still open N days after the person first sees the listing) and every hypothesis. It is 14 for now (TimeSeries: 37-45% close within 14 days); 7, 14 and 30 days are repeated as a sensitivity check in section 11 (`rm.SENSITIVITY_DAYS`). Change it in `src/rank_model.py` only.
+
+**Backtest relevance (H4, H5).** For each career changer, a listing in their top 10 is relevant if it is (1) still open long enough, (2) reachable, and (3) in the role that person actually moved into (`rm.backtest_relevance`).
 
 ## 2. Targets
 
@@ -89,9 +91,28 @@ Features come only from what is known at first sighting. Company counts use earl
 **What the data shows**
 - (fill in after the run)
 
+### 3b Date picker check: July 1 vs. September 1, 2026
+
+`src/as_of.py` returns the listings live on a date (first seen on or before it, last seen on or after it) with features from earlier listings only, and the training rows as known that day: a listing last seen more than `LIVE_TOLERANCE_DAYS` (2) before the date is finished; the rest are censored at the date. Counts only; no rows are shown. EDA_SDA_1 8b shows dates before July are skewed young, so the demo starts with later dates.
+
+**What the data shows**
+- (fill in after the run)
+
+Decision to record: which dates the app's picker offers (test-period dates first; earlier dates need a model retrained as of that date).
+
+### 3c Preprocessing pipeline
+
+`ColumnTransformer`: median for blank numbers (with a was-blank flag), "unknown" for blank categories, one-hot with levels under 50 listings grouped as "infrequent" and unseen levels allowed. Scaling sits inside the logistic regression only. The transformer is fit inside each training fold by the `Pipeline`, never on all rows.
+
+**What the data shows**
+- (fill in after the run)
+
 ## 4. Split
 
 Train April–July (plus the data's first two days), validate August, test September. Folds grouped by company. The test month is touched once, in section 8.
+
+**What the data shows**
+- (fill in after the run)
 
 **What the data shows**
 - (fill in after the run)
@@ -105,9 +126,13 @@ Train April–July (plus the data's first two days), validate August, test Septe
 
 ## 6. Class imbalance
 
-`class_weight="balanced"` is set in `rm.build_models()`; compare with upsampling (training folds only) and decision-threshold tuning on the validation month.
+Three ways to handle the imbalance between closes-within-N and stays-open, compared on the validation month with the logistic regression: no handling, `class_weight="balanced"` (what `rm.build_models()` sets), and upsampling the minority class (training rows only). Then the decision threshold is tuned on the validation month and applied unchanged to the test month.
 
-_To do._
+**What the data shows**
+- (fill in after the run)
+
+**What the data shows**
+- (fill in after the run)
 
 ## 7. Models
 
@@ -116,17 +141,66 @@ Logistic regression, decision tree, random forest, LightGBM, CatBoost, XGBoost (
 **What the data shows**
 - (fill in after the run)
 
+### 7b Grid search
+
+`GridSearchCV` over the company-grouped folds, one grid per model (`rm.PARAM_GRIDS`), timed with `%%time`. The settings chosen here are fixed before the validation month is scored.
+
+**What the data shows**
+- (fill in after the run)
+
+### 7c Cox proportional hazards (company-clustered errors) with the proportional-hazards check
+
+The survival target keeps still-open listings (censored). A small p-value in the check means a feature's effect changes over a listing's life, so its hazard ratio is not one constant number. These estimates feed `START_WEIGHTS` for the queue.
+
+**What the data shows**
+- (fill in after the run)
+
+### 7d Accelerated failure time models
+
+Weibull, log-normal and log-logistic AFT models say how much a feature stretches or shrinks the time open (a ratio on days), without the proportional-hazards assumption. Compared on C-index and AIC.
+
+**What the data shows**
+- (fill in after the run)
+
+### 7e Random survival forest
+
+Non-linear effects and interactions without assuming a hazard shape. Fit on a random sample of training listings to keep memory in check; scored by C-index on the validation month.
+
+**What the data shows**
+- (fill in after the run)
+
+### 7f LambdaRank
+
+Learning to rank optimizes the order of a list directly. A "query" is one list that gets ranked; relevance is graded (0 = closed within N days, 1 = stayed open). Until `ML_Fit`'s career-changer lists are wired in, the query here is the day a listing first appeared (rank that day's new listings), as a stand-in; `rm.backtest_relevance` defines the final relevance.
+
+**What the data shows**
+- (fill in after the run)
+
 ## 8. Evaluation
 
-ROC-AUC, F1, precision-recall, confusion matrix, classification report; C-index for survival; precision@k and NDCG for rankings. The test month is used once here.
+ROC-AUC, F1, precision-recall, confusion matrix and classification report; C-index for survival; precision@k and NDCG for rankings. Each hypothesis is judged by the 1c rule (beats the baseline, company-clustered interval excludes zero). The test month is used once, with the settings and threshold fixed on validation.
 
-_To do._
+**What the data shows**
+- (fill in after the run)
 
-## 8b. The priority queue
+**What the data shows**
+- (fill in after the run)
 
-Fit score, chance still open and apply-by, accessibility and pay in one formula (`rm.priority_breakdown`). Weights start from EDA_SDA_4's adjusted model (`rm.START_WEIGHTS` is a placeholder) and are tuned on August with `rm.tune_weights`; only features that survived EDA_SDA_4. The queue against newest first: of each top 10, how many stay open long enough, are reachable and are in the role the person moved into.
+### 8c Test month (run once)
 
-_To do, needs `ML_Fit`'s fit scores._
+Set `RUN_TEST = True` only after every choice above is final. Same metrics as 8a with the validation threshold, no further tuning.
+
+**What the data shows**
+- (fill in after the run)
+
+## 8b. The priority queue (H4, H5, H6)
+
+Fit score, chance still open and apply-by, accessibility and pay in one formula (`rm.priority_breakdown`). `rm.START_WEIGHTS` are starting values for the four factors, tuned on August with `rm.tune_weights`. EDA_SDA_4's Cox hazard ratios describe closing speed, so they do not set these four weights (they enter through the listing model's chance still open); only features that survived EDA_SDA_4 are used. The queue against newest first and title keywords, per career changer: of the top 10, how many are relevant, meaning still open long enough, reachable, and in the role the person actually moved into (`rm.backtest_relevance`).
+
+_Needs `ML_Fit`'s fit scores and the career changers' moves; the cell below shows the evaluation once they exist._
+
+**What the data shows**
+- (fill in after the run)
 
 ## 9. Interpretation
 
@@ -142,9 +216,12 @@ _To do._
 
 ## 11. Sensitivity
 
-Live tolerance (`rm.LIVE_TOLERANCE_DAYS`), scope boundaries, CET `posted`, with and without ghost listings (H7).
+The 7, 14 and 30 day windows (`rm.SENSITIVITY_DAYS`) for the closing target, the live tolerance (`rm.LIVE_TOLERANCE_DAYS`), scope boundaries, CET `posted`, with and without ghost listings (H7).
 
-_To do._
+**What the data shows**
+- (fill in after the run)
+
+_Still to do: live tolerance, scope boundaries, CET `posted`, and H7 (ghosts)._
 
 ## 12. Solution report
 
