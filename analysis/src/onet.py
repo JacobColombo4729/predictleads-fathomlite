@@ -87,15 +87,24 @@ def content_model(folder=None):
 ALIASES = {  # spelled-out forms to one canonical form, on normalized text (applied to the vocabulary and the listings)
     "js": "javascript", "java script": "javascript", "node js": "nodejs", "vue js": "vuejs",
     "react js": "reactjs", "k8s": "kubernetes", "postgres": "postgresql", "postgre sql": "postgresql", "mongo": "mongodb",
-    "golang": "go", "gcp": "google cloud platform", "powerbi": "power bi", "sklearn": "scikit learn",
+    "gcp": "google cloud platform", "powerbi": "power bi", "sklearn": "scikit learn",
     "ms excel": "microsoft excel", "ms word": "microsoft word", "ms office": "microsoft office",
     "ms powerpoint": "microsoft powerpoint", "ms access": "microsoft access", "ms sql server": "microsoft sql server",
     "mssql": "microsoft sql server", "amazon web services": "aws",
 }
 # Tool names that are everyday words or single letters: matching them as phrases would fire on ordinary sentences
 # ("go to market", "word of mouth"). Dropped from the vocabulary; the notebook reports how many names were skipped.
-AMBIGUOUS = {"go", "r", "c", "swift", "spark", "chef", "puppet", "word", "access", "outlook", "project", "teams", "office",
+AMBIGUOUS = {"spark", "chef", "puppet", "word", "access", "outlook", "project", "teams", "office",
              "sketch", "unity", "express", "view", "flow", "pivot", "base", "tableau public"}
+# Language names that are also everyday words or letters (R, Go, C, Swift): kept, but matched only in context, i.e.
+# next to another programming or analysis tool or the word "programming" / "language" ("Python or R", "C/C++",
+# "the Go programming language"), or through an unambiguous spelling (golang, rstudio, swiftui).
+CONTEXTUAL = {"r", "go", "c", "swift"}
+SPELLINGS = {"golang": "go", "rstudio": "r", "swiftui": "swift"}
+NEIGHBORS = {"python", "java", "javascript", "typescript", "sql", "sas", "stata", "spss", "matlab", "scala", "julia",
+             "cpp", "csharp", "rust", "kotlin", "ruby", "php", "perl", "bash", "fortran", "haskell", "nodejs", "excel",
+             "tableau", "programming", "language", "languages", "lang", *CONTEXTUAL, *SPELLINGS}
+CONTEXT_WINDOW = 3  # tokens on each side
 MIN_PHRASE_CHARS = 2
 _ALIAS_RE = re.compile(r"(?<![a-z0-9])(" + "|".join(re.escape(a) for a in sorted(ALIASES, key=len, reverse=True)) + r")(?![a-z0-9])")
 
@@ -129,11 +138,12 @@ def vocabulary(software_table, skill_tables, extra_exclude=()):
     parts.append(sk)
     v = pd.concat(parts, ignore_index=True)
     v["phrase"] = v["name"].map(normalize)
+    v["context"] = v.phrase.isin(CONTEXTUAL) & v.kind.eq("tool")  # matched only in context (see CONTEXTUAL)
     excluded = AMBIGUOUS | {normalize(x) for x in extra_exclude}
-    drop = (v.phrase.str.len() < MIN_PHRASE_CHARS) | v.phrase.isin(excluded)
+    drop = ~v.context & ((v.phrase.str.len() < MIN_PHRASE_CHARS) | v.phrase.isin(excluded | CONTEXTUAL))
     out = v[~drop].drop_duplicates(["phrase", "name", "kind"]).reset_index(drop=True)
     out.attrs["skipped"] = int(drop.sum())
-    return out[["phrase", "name", "kind", "element_id", "hot", "in_demand", "n_occupations"]]
+    return out[["phrase", "name", "kind", "element_id", "hot", "in_demand", "n_occupations", "context"]]
 
 
 class Matcher:
@@ -141,16 +151,22 @@ class Matcher:
     start some phrase are looked at, so the cost per line stays small."""
 
     def __init__(self, vocab):
-        self.entries = {}   # phrase tokens -> [(name, kind, element_id)]
-        self.reach = {}     # first token -> longest phrase (in tokens) starting with it
-        for phrase, name, kind, eid in zip(vocab.phrase, vocab.name, vocab.kind, vocab.element_id):
+        self.entries = {}     # phrase tokens -> [(name, kind, element_id)]
+        self.reach = {}       # first token -> longest phrase (in tokens) starting with it
+        self.contextual = {}  # R, Go, C, Swift: token -> [(name, kind, element_id)], matched only in context
+        ctx = vocab["context"] if "context" in vocab else pd.Series(False, index=vocab.index)
+        for phrase, name, kind, eid, c in zip(vocab.phrase, vocab.name, vocab.kind, vocab.element_id, ctx):
             toks = tuple(phrase.split())
             if not toks:
+                continue
+            if c:
+                self.contextual.setdefault(phrase, []).append((name, kind, eid))
                 continue
             self.entries.setdefault(toks, []).append((name, kind, eid))
             self.reach[toks[0]] = max(self.reach.get(toks[0], 0), len(toks))
         self.fingerprint = hashlib.blake2b(
-            "\n".join(sorted(" ".join(k) + "|" + "|".join(f"{n}/{kd}" for n, kd, _ in v) for k, v in self.entries.items())).encode(),
+            "\n".join(sorted([" ".join(k) + "|" + "|".join(f"{n}/{kd}" for n, kd, _ in v) for k, v in self.entries.items()]
+                             + [f"~{k}|" + "|".join(f"{n}/{kd}" for n, kd, _ in v) for k, v in self.contextual.items()])).encode(),
             digest_size=8).hexdigest()
 
     def find(self, text):
@@ -158,6 +174,12 @@ class Matcher:
         toks = normalize(text).split()
         found = set()
         for i, t in enumerate(toks):
+            if t in SPELLINGS:
+                found.update(self.contextual.get(SPELLINGS[t], ()))
+            elif t in self.contextual:
+                window = toks[max(0, i - CONTEXT_WINDOW):i] + toks[i + 1:i + 1 + CONTEXT_WINDOW]
+                if any(w in NEIGHBORS for w in window):
+                    found.update(self.contextual[t])
             reach = self.reach.get(t)
             if reach:
                 for n in range(1, min(reach, len(toks) - i) + 1):
