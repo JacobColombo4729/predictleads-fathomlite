@@ -144,7 +144,7 @@ The best settings are chosen on the same folds that score them in 6a, so 6a's fi
 
 **What the data shows (current-role pull, development, within-tech movers)**
 - **If allowed, TF-IDF and RRF would put the person's current role first for 73.7% of within-tech movers, and BGE for 69.3%.** That is the old-field pull: a person's pre-switch text is mostly their current role's titles, so they look most like it. In 6a and 6b this role is removed from the candidates, so the hit rates above are not inflated by it; but it shows the methods rank by "looks like where you are", not "where people like you go".
-- **Keyword overlap's 42.9% is lower, but that is not a point in its favor:** it is also the weakest method at hitting the real next role (54.6% at top 3 in development), so its lower pull comes with weaker matching in general.
+- **Keyword overlap's 42.9% is lower, but that is not a point in its favor:** it is also the weakest of the text methods at hitting the real next role (54.6% at top 3 in development), so its lower pull comes with weaker matching in general.
 - **Skills-based matching does not fix the pull:** carry-over would put the current role first for 69.1% of within-tech movers, and profile cosine for 100.0%, which is by construction (a within-tech person's background is their current role's own skill profile, so it is its closest match).
 - **The trained layer has no pull:** 0.1% (0.0% with the Profiles features alone). It learns from real moves that a move is never to the current role, so this is learned from the people, not a sign that it matches skills better; in 6a and 6b the current role is removed from the candidates for every method.
 
