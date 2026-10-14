@@ -21,5 +21,19 @@
       "Read(./**/*.db)",
       "Read(~/.aws/**)"
     ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell|Read|Edit|Write|NotebookEdit|Grep|Glob|WebSearch|WebFetch|Artifact|SendUserFile|PushNotification|RemoteTrigger|mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"$CLAUDE_PROJECT_DIR/safety/guard.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   }
 }

@@ -189,7 +189,7 @@ LAYOUTS = {
         "skip_sections": {"1.", "Roadmap", "Leakage", "Data"},
         "full_text_sections": {"Job", "0.", "Where"},  # the purpose, and where the notebook stands
         "max_bullets": 3,
-        "bullets_by_section": {"6.": 4, "5.": 4},
+        "bullets_by_section": {"6.": 4, "5.": 4, "7.": 3, "8.": 3},
         "table_groups": [
             ["Career changers by pool"],
             ["5a People with a background profile", "5a Each role's most important skills"],
@@ -197,6 +197,12 @@ LAYOUTS = {
             ["Development: hit rate over 5 folds", "Development: top-3 hit rate per pool"],
             ["Test: hit rate with 95% intervals", "Test: top-3 hit rate per pool"],
             ["Current-role pull"],
+            ["7a Average size of each group", "7a For each test person"],
+            ["7a The 12 inputs"],
+            ["8a Paths by kind"],
+            ["8b Each role's most asked skills"],
+            ["8b Of each role's 10 most asked skills"],
+            ["8c Pay change moving into each role"],
         ],
         "charts": [],
     },

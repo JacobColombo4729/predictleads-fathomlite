@@ -56,6 +56,7 @@ predictleads-fathomlite/
 ├── JACOB.md  JESSE.md        each person's change log, most important first
 ├── .eve/ASKS.md              what each of us wants the other to make sure of (Eve keeps it)
 ├── fetch/                    where every dataset comes from and lives: one download script each, the shared folders
+├── safety/                   the data rules as checks on AI tools: a guard on Claude Code, an audit of what it saw
 ├── .venv/  .env              your own, git-ignored
 ├── data/  pretrained/        local only, git-ignored: raw/ (PredictLeads), external/ (outside data), the notebooks'
 │                             tables, the corpus and embeddings; the BGE model
@@ -346,6 +347,14 @@ Everything in the app is a hackathon prototype. Listings are **historical record
 
 It needs the serving corpus at `data/matching/ai_ml_serving_v1` (step 13) and the BGE model (step 9).
 
+**Quickest: the demo with the AI features off.** One command starts the backend with `-NoAI`, the frontend, and opens the app when the backend is ready. Nothing is sent to OpenAI, so it's the safe way to show the app until the AI gap analysis is cleared ([Data & Security Rules](#data--security-rules)):
+```powershell
+.\app\run_demo.ps1                    # Windows: opens two windows (backend, frontend); close both to stop. -Ranker tfidf for the lighter ranker
+```
+macOS / Linux: `./app/run_demo.sh` (Ctrl+C stops both; `--preview` for the light laptop preview, `--ranker tfidf`). It refuses to start if a backend is already running, so an AI-on backend can't be reused by mistake.
+
+To run the pieces by hand instead:
+
 1. **Backend** (about 3.5 minutes to load, about 2.5 GB of memory):
    ```powershell
    .\app\run_demo_backend.ps1            # -NoAI turns the OpenAI features off; -Ranker tfidf for the lighter ranker
@@ -391,7 +400,7 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 
 | Agent | Ask | What it does |
 |---|---|---|
-| **Thread** | "thread EDA_SDA_3" / "thread EDA_SDA_3 after a rerun" | Keeps the notebooks consistent: updates the ones downstream (and upstream) of a change; after a rerun, updates every quoted number and regenerates the reports (`python -m src.notebook_tools` does the checking) |
+| **Thread** | "thread EDA_SDA_3" / "thread EDA_SDA_3 after a rerun" | Keeps the notebooks consistent: updates the ones downstream (and upstream) of a change; after a rerun, updates every quoted number and regenerates the reports (`python -m src.notebook_tools` does the checking), including ML_Fit's leakage audit (`reports/ML_Fit_audit.md`, from `python -m src.leakage_audit`) |
 | **Pace** | "pace EDA_SDA_3" | Makes a notebook faster and lighter on memory without changing its results, timed on synthetic data |
 | **Foreman** | the loop below | Drafts tasks marked [agent] in `analysis/ANALYSIS.md`, one at a time, each on its own branch (`worktree-agent-…`) for review; never merges or pushes |
 
@@ -464,6 +473,10 @@ These come from the Training Services Agreements we each signed. Breaking them c
 - 🚫 Don't use AI coding extensions on files in this project (Copilot is disabled in `.vscode/settings.json`).
 - ✅ It's fine to ask AI general questions ("how do I groupby in pandas?") or use **synthetic** example data.
 - The app sends nothing to an outside AI service unless the person whose text it is agrees first. Magic fill removes emails, phone numbers and links before sending.
+- **Claude Code is guarded and audited** (`safety/`):
+  - **Guard (on for everyone, nothing to set up):** before each Claude Code tool call, `safety/guard.py` blocks reading `data/`, `pretrained/`, `.env` or `~/.aws`, printing data rows or AWS settings, reading notebooks whose row previews still have outputs, and web searches or fetches that carry project details, paths or `.env` values. Claude is told why and does it another way. It needs the `.venv` (step 4); without a working Python it blocks the checked calls.
+  - **Audit:** `python -m safety.audit` (from the root) checks every Claude Code session of this project, including Eve, Thread, Pace and Foreman: rule-breaking calls and whether they ran, `.env` values in anything Claude was sent, then the committed files and the app's OpenAI calls. Add `--fingerprints` to also look for the data's own listing ids in everything Claude was sent (reads `data/` locally; prints counts only). It never prints a matched value; exit code 1 means something needs attention. Run it before a push or at the end of the project.
+  - **Not covered:** AI tools outside Claude Code, and anything pasted into a chat by hand.
 
 ### Notebooks
 - ✅ **Clear all outputs before every commit.** Outputs can contain data.

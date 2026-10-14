@@ -77,7 +77,10 @@ def keyword_scores(people_text, listings, top_words=200):
     vocab = {}
     for role, titles in listings.groupby("role").title:
         counts = pd.Series([w for t in titles for w in words(t)]).value_counts()
-        vocab[role] = set(counts.index[:top_words])
+        # ties at the cutoff broken alphabetically: words() returns a set, whose order follows Python's string hash,
+        # which changes with every new process, so the tied words kept (and the trained layer's choice) changed by run
+        counts = counts.rename_axis("word").reset_index(name="n").sort_values(["n", "word"], ascending=[False, True])
+        vocab[role] = set(counts.word.iloc[:top_words])
     person_words = [words(t) for t in people_text]
     return np.array([[len(pw & vocab.get(r, set())) for r in ROLES] for pw in person_words], dtype=float)
 
