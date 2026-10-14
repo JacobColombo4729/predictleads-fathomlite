@@ -347,6 +347,14 @@ Everything in the app is a hackathon prototype. Listings are **historical record
 
 It needs the serving corpus at `data/matching/ai_ml_serving_v1` (step 13) and the BGE model (step 9).
 
+**Quickest: the demo with the AI features off.** One command starts the backend with `-NoAI`, the frontend, and opens the app when the backend is ready. Nothing is sent to OpenAI, so it's the safe way to show the app until the AI gap analysis is cleared ([Data & Security Rules](#data--security-rules)):
+```powershell
+.\app\run_demo.ps1                    # Windows: opens two windows (backend, frontend); close both to stop. -Ranker tfidf for the lighter ranker
+```
+macOS / Linux: `./app/run_demo.sh` (Ctrl+C stops both; `--preview` for the light laptop preview, `--ranker tfidf`). It refuses to start if a backend is already running, so an AI-on backend can't be reused by mistake.
+
+To run the pieces by hand instead:
+
 1. **Backend** (about 3.5 minutes to load, about 2.5 GB of memory):
    ```powershell
    .\app\run_demo_backend.ps1            # -NoAI turns the OpenAI features off; -Ranker tfidf for the lighter ranker

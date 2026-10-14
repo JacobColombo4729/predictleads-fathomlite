@@ -34,6 +34,11 @@
 - **`fetch/`** is where every dataset comes from: one download script each (`get_predictleads`, `get_resumes`, `get_bge`), one standard folder each, a disk-space check, and nothing hard-coded (bucket names and profiles come from `.env`). The PredictLeads export can be downloaded to `data/raw/`; everything reads it locally when it's there and streams from S3 otherwise. (2026-10-12)
 
 ## App
+- **One-command demo with the AI features off:** `app/run_demo.ps1` (Windows) and `app/run_demo.sh` (Mac/Linux) start the backend with `-NoAI` / `--no-ai`, then the frontend, wait for the backend's `/healthz` and open http://127.0.0.1:5173. Nothing goes to OpenAI, so it's the safe way to show the app until the AI gap analysis is cleared (Data safety, above).
+  - **Windows:** two windows; close both to stop.
+  - **Mac/Linux:** Ctrl+C stops both; passes `--preview` and `--ranker` through.
+  - **Safety:** both refuse to start while a backend is already running on port 8000, so an AI-on backend isn't reused by mistake.
+  - **Tested:** the Mac script's flow, already-running refusal and shutdown, in a sandbox with a fake backend and frontend; both scripts pass a syntax check. README step 12. **Jesse:** try `./app/run_demo.sh` on your Mac. (2026-10-14)
 
 - **Deleted `app/archive/`** (48 files of old matching experiments nothing used) and the `-Archive` / `--archive` test switch; it's in the git history. **Jesse:** if you still need anything from it, restore it from git. (2026-10-12)
 - **OpenAI features on by default:** `run_demo_backend.ps1` / `.sh` now start with Magic fill, the AI gap analysis and Ask the market's typed questions on; `-NoAI` / `--no-ai` turns them off. Each still asks for consent in the app and needs `OPENAI_API_KEY` in `.env`. **Jesse:** `-ResumeFill`, `-Assess` and `-Market` are gone; just run the script. (2026-10-12)
