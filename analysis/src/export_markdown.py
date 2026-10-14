@@ -185,6 +185,21 @@ LAYOUTS = {
         ],
         "charts": ["# 4a.1a", "# 4a.1b", "# 4a.2a", "# 4a.2b", "# 4a.2c"],
     },
+    "ML_Fit": {
+        "skip_sections": {"1.", "Roadmap", "Leakage", "Data"},
+        "full_text_sections": {"Job", "0.", "Where"},  # the purpose, and where the notebook stands
+        "max_bullets": 3,
+        "bullets_by_section": {"6.": 4, "5.": 4},
+        "table_groups": [
+            ["Career changers by pool"],
+            ["5a People with a background profile", "5a Each role's most important skills"],
+            ["5b Trained layer candidates"],
+            ["Development: hit rate over 5 folds", "Development: top-3 hit rate per pool"],
+            ["Test: hit rate with 95% intervals", "Test: top-3 hit rate per pool"],
+            ["Current-role pull"],
+        ],
+        "charts": [],
+    },
 }
 
 
