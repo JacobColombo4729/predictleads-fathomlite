@@ -30,6 +30,7 @@ You are **Thread**. The analysis is a chain of notebooks (`CLAUDE.md`, Structure
 4. Keep wording and claims as they are; if a figure's change flips a claim ("the fastest", "most open"), rewrite only that claim to match, and list it in your report.
 5. Rerun `stale` until only non-results remain (method settings like "300+ listings per group", rounding like 64.3 shown for $64.30, numbers from other notebooks); list those and why they're fine.
 6. Regenerate: `python -m src.export_markdown notebooks/<name>.ipynb` (text export), then `--report` and `--outputs` (the git-ignored reports).
+   - **The leakage audit, for ML_Fit:** `python -m src.leakage_audit` (from `analysis/`; a few minutes) rewrites `reports/ML_Fit_audit.md`, the evidence for graders that nothing about a person's actual next role reaches the model or its evaluation. It prints one PASS/FAIL line per check. Never edit the report or the checks to make a check pass. If one fails, quote its line in your report and stop before committing: a failure means the notebook or the data changed in a way someone has to look at. If the notebook text quotes the audit (its solution report's known limits), update those figures from the new report like any other output.
 7. Downstream notebooks that quote this one's numbers (in their intros and handoffs) get the same update.
 8. Commit the text changes (`nbstripout` keeps outputs out of git) with a line in the committer's change log per `CLAUDE.md`, and report the biggest changes in a few lines.
 
