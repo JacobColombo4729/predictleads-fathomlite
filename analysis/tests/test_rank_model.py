@@ -326,5 +326,73 @@ class ReviewFixes(unittest.TestCase):
         self.assertAlmostEqual(p1.named_steps["prep"].named_transformers_["num"].named_steps["impute"].statistics_[0], 2.0)
 
 
+class Backtest(unittest.TestCase):
+    ROLES = ["a", "b", "c"]
+
+    def pool(self, n=300, seed=4):
+        rng = np.random.RandomState(seed)
+        pay = rng.normal(30, 5, n)
+        pay[rng.rand(n) < 0.3] = np.nan
+        return pd.DataFrame({"role_bucket": rng.choice(self.ROLES, n), "p_still_open": rng.rand(n),
+                             "accessibility": rng.randint(0, 5, n), "pay": pay,
+                             "first_seen": pd.Timestamp("2026-09-01") + pd.to_timedelta(rng.randint(0, 14 * 24, n), unit="h")})
+
+    def fit(self, people=40, seed=5):
+        rng = np.random.RandomState(seed)
+        f = pd.DataFrame(rng.dirichlet(np.ones(3), people), columns=self.ROLES)
+        return rm.fit_ratings(f)
+
+    def test_fast_top_k_matches_scoring_every_listing(self):
+        pool, fr = self.pool(), self.fit()
+        ratings = rm.listing_ratings(pool)
+        w = {"fit": 0.4, "still_open": 0.3, "accessibility": 0.2, "pay": 0.1}
+        top = rm.queue_top_k(fr, ratings, pool["role_bucket"], w, k=10)
+        role_col = pool["role_bucket"].map({r: j for j, r in enumerate(self.ROLES)}).to_numpy()
+        for i in range(len(fr)):
+            factors = ratings.assign(fit=fr.to_numpy()[i, role_col])
+            score = sum(w[f] * factors[f].to_numpy() for f in rm.FACTORS)
+            self.assertEqual(list(top[i]), list(np.argsort(-score, kind="stable")[:10]))
+
+    def test_fit_rating_puts_the_best_role_at_100(self):
+        fr = rm.fit_ratings(pd.DataFrame({"a": [0.6, 0.1], "b": [0.3, 0.2], "c": [0.1, 0.7]}))
+        self.assertEqual(list(fr.max(axis=1)), [100.0, 100.0])
+        self.assertAlmostEqual(fr.loc[0, "b"], 50.0)
+
+    def test_pay_is_rated_within_its_role_and_missing_is_neutral(self):
+        pool = pd.DataFrame({"role_bucket": ["a", "a", "b", "b"], "p_still_open": [0.1, 0.2, 0.3, 0.4],
+                             "accessibility": [0, 1, 2, 3], "pay": [10.0, 20.0, 100.0, np.nan]})
+        r = rm.listing_ratings(pool)
+        self.assertEqual(list(r["pay"]), [50.0, 100.0, 100.0, 50.0])
+
+    def test_accessibility_counts_signs_and_unknown_is_absent(self):
+        df = pd.DataFrame({c: [True, None] for c in rm.ACCESS_SIGNS})
+        self.assertEqual(list(rm.accessibility_count(df)), [4, 0])
+
+    def test_newest_first_and_role_search(self):
+        pool = self.pool()
+        top = rm.newest_top_k(pool["first_seen"], 3, k=5)
+        self.assertEqual(top.shape, (3, 5))
+        self.assertTrue((pool["first_seen"].iloc[top[0]].diff().dropna() <= pd.Timedelta(0)).all())
+        searched = rm.newest_top_k(pool["first_seen"], 2, k=5, roles=pool["role_bucket"], search_role="b")
+        self.assertTrue((pool["role_bucket"].iloc[searched[0]] == "b").all())
+
+    def test_precision_needs_open_and_the_moved_role(self):
+        top = np.array([[0, 1], [0, 1]])
+        p = rm.precision_per_person(top, ok=[True, False], roles=["a", "a"], targets=["a", "b"])
+        self.assertEqual(list(p), [0.5, 0.0])
+
+    def test_tuning_finds_fit_when_relevance_follows_the_moved_role(self):
+        pool, fr = self.pool(), self.fit()
+        targets = fr.idxmax(axis=1).to_numpy()  # each person moved into their best-fitting role
+        ok = np.ones(len(pool), dtype=bool)
+        w, p, table = rm.tune_queue_weights(fr, rm.listing_ratings(pool), pool["role_bucket"], ok, targets, k=10, grid=(0.0, 1.0))
+        self.assertEqual(p, 1.0)
+        self.assertEqual(w["fit"], 1.0)
+        self.assertEqual(len(table), 15)
+
+    def test_overlap(self):
+        self.assertEqual(rm.mean_overlap(np.array([[1, 2], [3, 4]]), np.array([[2, 9], [3, 4]])), 0.75)
+
+
 if __name__ == "__main__":
     unittest.main()

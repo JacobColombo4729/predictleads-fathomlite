@@ -53,7 +53,7 @@ Builds the **listing model** and the **priority queue**. The listing model predi
 | 6. Class imbalance | `class_weight='balanced'`, upsampling (training only) | Decision-threshold tuning |
 | 7. Models | **LogisticRegression, DecisionTree, RandomForest, LightGBM, CatBoost, XGBoost**, GradientBoosting, each tuned with loops or **GridSearchCV + cross-validation**; **`%%time`** for speed | **Cox regression** (with proportional-hazards checks), accelerated failure time models, survival forests, competing-risks models; **learning-to-rank** (LightGBM LambdaRank), which optimizes the order of an applicant's list directly |
 | 8. Evaluation | ROC-AUC, F1, precision–recall and average precision, accuracy, **confusion matrix** (interpreted correctly), classification report; RMSE / MAE / R²; training vs. validation to check overfitting | **C-index** and time-dependent Brier score for survival; ranking metrics **precision@k** and **NDCG**; calibration; **conformal prediction** for apply-by ranges with guaranteed coverage |
-| 8b. The priority queue | | **Combine** `ML_Fit`'s fit score with this model's chance still open and apply-by date, career-change accessibility, pay and the TimeSeries features in one score: a formula with weights that start from the evidence (EDA_SDA_4's adjusted model) and are tuned on the validation month, with user sliders in the app. Only features that survived EDA_SDA_4 go in |
+| 8d. The priority queue | | **Combine** `ML_Fit`'s fit score with this model's chance still open and apply-by date, career-change accessibility, pay and the TimeSeries features in one score: a formula with weights that start from the evidence (EDA_SDA_4's adjusted model) and are tuned on the validation month, with user sliders in the app. Only features that survived EDA_SDA_4 go in |
 | 9. Interpretation | **Feature importance** from the final model | **SHAP** values and partial dependence. **Per-listing breakdown for the app's detail view:** each factor's 0–100 rating and its exact contribution to the priority score (rating × weight, adding up to the total), plus each listing's top SHAP features for chance still open, grouped under plain-language names; check that SHAP values add up to each prediction, and save the breakdown with the scores |
 | 10. Business translation | Top-N selection by prediction; **bootstrap** confidence intervals and risk (MLinBusiness) | "Of a career changer's top 10, how many are still open and realistically reachable", with company-clustered intervals |
 | 11. Sensitivity | | Do conclusions hold under our choices (2-day live tolerance, scope boundaries, CET `posted`)? |
@@ -75,7 +75,7 @@ The test month (September) is used once, at the end. **One rule decides H1 to H5
 
 **N, the closing window.** One constant, `rm.CLOSING_DAYS`, drives the main target ("closes within N days"), "open long enough" (still open N days after the person first sees the listing) and every hypothesis. It is 14 for now (TimeSeries: 37-45% close within 14 days); 7, 14 and 30 days are repeated as a sensitivity check in section 11 (`rm.SENSITIVITY_DAYS`). Change it in `src/rank_model.py` only.
 
-**Backtest relevance (H4, H5).** For each career changer, a listing in their top 10 is relevant if it is (1) still open long enough, (2) reachable, and (3) in the role that person actually moved into (`rm.backtest_relevance`).
+**Backtest relevance (H4, H5).** For each career changer, a listing in their top 10 is relevant if it is (1) still open long enough and not a likely ghost, (2) reachable, and (3) in the role that person actually moved into (`rm.precision_per_person`). H4 and H5 compare values per person, so the bootstrap resamples whole people.
 
 ## 2. Targets
 
@@ -193,11 +193,27 @@ Set `RUN_TEST = True` only after every choice above is final. Same metrics as 8a
 **What the data shows**
 - (fill in after the run)
 
-## 8b. The priority queue (H4, H5, H6)
+### 8d The priority queue (H4, H5, H6)
 
-Fit score, chance still open and apply-by, accessibility and pay in one formula (`rm.priority_breakdown`). `rm.START_WEIGHTS` are starting values for the four factors, tuned on August with `rm.tune_weights`. EDA_SDA_4's Cox hazard ratios describe closing speed, so they do not set these four weights (they enter through the listing model's chance still open); only features that survived EDA_SDA_4 are used. The queue against newest first and title keywords, per career changer: of the top 10, how many are relevant, meaning still open long enough, reachable, and in the role the person actually moved into (`rm.backtest_relevance`).
+Fit score, chance still open, accessibility and pay in one score (`rm.queue_top_k`, the same sum as `rm.priority_breakdown`): each factor rated 0–100, times its weight. EDA_SDA_4's Cox hazard ratios describe closing speed, so they do not set these four weights (they enter through the listing model's chance still open).
 
-_Needs `ML_Fit`'s fit scores and the career changers' moves; the cell below shows the evaluation once they exist._
+**The backtest.** One month's listings that a career changer sees (the 8 fit roles; not a hidden occupation; not manager level or above) with a known N-day answer, ranked for each career changer from `ML_Fit` (`fit_scores.parquet`):
+- **Fit:** the person's `ML_Fit` probability for the listing's role, rated so their best role is 100.
+- **Chance still open:** 1 minus the chosen listing model's chance of closing within N days (8a).
+- **Accessibility:** how many of the career-change signs a listing shows (entry seniority, 2 years or fewer asked, entry wording, career-changer wording; EDA_SDA_2 3.11).
+- **Pay:** hourly pay, rated within its role; missing pay is neutral (50).
+- **Relevant:** stayed open N days, not a likely ghost, and in the role the person actually moved into.
+
+**Leakage:** the weights are tuned on August with the **development people**, whose fit scores are out-of-fold; September is scored once, with the **test people**, whose fit scores come from a model trained without them. Relevance uses outcomes (closing, ghost), never as an input.
+
+**Baselines:** newest first (the same list for everyone), and a title search for the most common role among the development people (ML_Fit's baseline) sorted newest first. The search is a perfect one (every listing in that role and nothing else), so it flatters the baseline.
+
+**What the data shows**
+- (fill in after the run; the tuned row is optimistic on August, where its weights were chosen)
+
+### 8e The priority queue on the test month (run once)
+
+The weights from 8d, the test people, September's listings. H4 and H5: the tuned queue against newest first and the title search, per person, with a 95% bootstrap interval over people (`rm.clustered_bootstrap_diff`, one cluster per person). H6: how much of the queue's top 10 is also in the top 10 by chance still open alone (`rm.mean_overlap`; below 0.8 = they differ). Runs with `RUN_TEST` (8c).
 
 **What the data shows**
 - (fill in after the run)
