@@ -193,6 +193,30 @@ class Preprocessing(unittest.TestCase):
         self.assertGreater(gs.best_score_, 0.7)
         self.assertEqual(len(rm.cv_auc(pipe, X, y, folds)), 3)
 
+    def test_prepared_folds_give_the_same_search_as_gridsearchcv(self):
+        X, y = synth()
+        comp = np.arange(len(y)) % 30
+        folds = rm.company_folds(comp, n_splits=3)
+        prep = rm.make_preprocessor(["n", "m"], ["c"])
+        models = rm.build_models()
+        grids = {"tree": {"model__max_depth": [2, 4], "model__min_samples_leaf": [5, 50]},
+                 "logistic": {"model__logisticregression__C": [0.1, 1.0]}}
+        pf = rm.prepare_folds(prep, X, y, folds)
+        self.assertIs(pf, rm.prepare_folds(prep, X, y, folds))  # same rows, labels and folds: the earlier one
+        for name, grid in grids.items():
+            pipe = rm.with_preprocessing(prep, models[name])
+            old = rm.grid_search(pipe, grid, X, y, folds)
+            new = rm.grid_search(pipe, grid, X, y, folds, prepared=pf, fold_jobs=2)
+            self.assertEqual(old.best_params_, new.best_params_)
+            self.assertEqual(old.best_index_, new.best_index_)
+            self.assertAlmostEqual(old.best_score_, new.best_score_, places=10)
+            for key in ["mean_test_score", "std_test_score", "rank_test_score", "split0_test_score", "split2_test_score"]:
+                np.testing.assert_allclose(old.cv_results_[key], new.cv_results_[key], rtol=1e-9, atol=1e-12)
+            np.testing.assert_allclose(old.best_estimator_.predict_proba(X), new.best_estimator_.predict_proba(X), atol=1e-10)
+            np.testing.assert_allclose(rm.cv_auc(pipe, X, y, folds), rm.cv_auc(pipe, X, y, folds, prepared=pf), atol=1e-12)
+        other = rm.prepare_folds(prep, X, 1 - np.asarray(y), folds)  # other labels: not the earlier one
+        self.assertIsNot(other, pf)
+
     def test_param_grids_name_every_model(self):
         self.assertEqual(set(rm.PARAM_GRIDS), set(rm.build_models()))
 
@@ -214,6 +238,18 @@ class Survival(unittest.TestCase):
         self.assertEqual(list(ph.index), ["x", "z"])
         self.assertTrue(ph["p"].between(0, 1).all())
 
+    def test_fast_scaled_schoenfeld_equals_lifelines_with_and_without_ties(self):
+        for round_to in (None, 1.0):  # continuous times, then times rounded to whole days (many ties)
+            df = surv(n=400)
+            if round_to:
+                df["duration"] = np.ceil(df["duration"])
+            m = rm.fit_cox(df, ["x", "z"])
+            slow = m.compute_residuals(df[["x", "z", "duration", "event", "company_id"]], kind="scaled_schoenfeld")
+            fast = rm.scaled_schoenfeld(m, df, ["x", "z"])
+            self.assertEqual(list(fast.columns), list(slow.columns))
+            self.assertTrue(fast.index.equals(slow.index))
+            np.testing.assert_allclose(fast.to_numpy(), slow.to_numpy(), rtol=1e-9, atol=1e-10)
+
     def test_aft_models_fit_after_flooring_zero_durations(self):
         df = surv()
         df.loc[0, "duration"] = 0.0
@@ -233,6 +269,17 @@ class Survival(unittest.TestCase):
         rsf = rm.survival_forest(n_estimators=30, min_samples_leaf=10).fit(df[["x", "z"]], rm.survival_y(df["duration"], df["event"]))
         risk = rsf.predict(df[["x", "z"]])
         self.assertGreater(rm.c_index(df["duration"], df["event"], -risk), 0.6)
+
+    def test_low_memory_survival_forest_predicts_the_same_risk(self):
+        try:
+            import sksurv  # noqa: F401
+        except ImportError:
+            self.skipTest("scikit-survival not installed")
+        df = surv()
+        y = rm.survival_y(df["duration"], df["event"])
+        full = rm.survival_forest(n_estimators=20, min_samples_leaf=10, low_memory=False).fit(df[["x", "z"]], y)
+        lean = rm.survival_forest(n_estimators=20, min_samples_leaf=10).fit(df[["x", "z"]], y)
+        np.testing.assert_allclose(lean.predict(df[["x", "z"]]), full.predict(df[["x", "z"]]), rtol=1e-9)
 
     def test_survival_y_shape(self):
         y = rm.survival_y([3.0, 5.0], [1, 0])
@@ -314,6 +361,35 @@ class ReviewFixes(unittest.TestCase):
         self.assertGreater(r["difference"], 0.3)
         self.assertTrue(r["supported"])
         self.assertEqual(r["n_clusters"], 200)
+
+    def test_bootstraps_equal_the_one_draw_at_a_time_loop(self):
+        # the original loops: members per company by np.where, one draw at a time from one generator
+        from sklearn.metrics import roc_auc_score
+        from lifelines.utils import concordance_index
+        rng = np.random.default_rng(3)
+        n = 600
+        comp = rng.integers(0, 40, n).astype(str)
+        y = rng.integers(0, 2, n)
+        pm, pb = rng.random(n) + 0.3 * y, rng.random(n)
+        dur, ev, risk = rng.exponential(10, n), rng.integers(0, 2, n), rng.random(n)
+        codes = pd.factorize(comp)[0]
+        members = [np.where(codes == k)[0] for k in range(codes.max() + 1)]
+        g = np.random.default_rng(rm.SEED)
+        auc_loop, c_loop = [], []
+        for _ in range(12):
+            idx = np.concatenate([members[k] for k in g.integers(0, len(members), len(members))])
+            auc_loop.append(roc_auc_score(y[idx], pm[idx]) - roc_auc_score(y[idx], pb[idx]))
+        r = rm.clustered_bootstrap_auc_diff(y, pm, pb, comp, n_boot=12, workers=3)
+        self.assertAlmostEqual(r["ci_low"], np.percentile(auc_loop, 2.5), places=12)
+        self.assertAlmostEqual(r["ci_high"], np.percentile(auc_loop, 97.5), places=12)
+        g = np.random.default_rng(rm.SEED)
+        for _ in range(7):
+            idx = np.concatenate([members[k] for k in g.integers(0, len(members), len(members))])
+            c_loop.append(concordance_index(dur[idx], -risk[idx], ev[idx]))
+        for workers in (1, 3):
+            c = rm.clustered_bootstrap_c_index(dur, ev, risk, comp, n_boot=7, workers=workers)
+            np.testing.assert_allclose(c["boots"], c_loop, rtol=0, atol=1e-15)
+            self.assertAlmostEqual(c["c_index"], concordance_index(dur, -risk, ev), places=12)
 
     def test_shared_preprocessor_is_not_refit_by_other_pipelines(self):
         from sklearn.linear_model import LogisticRegression
