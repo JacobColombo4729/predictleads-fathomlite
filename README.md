@@ -392,7 +392,7 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 
 | Agent | Ask | What it does |
 |---|---|---|
-| **Thread** | "thread EDA_SDA_3" / "thread EDA_SDA_3 after a rerun" | Keeps the notebooks consistent: updates the ones downstream (and upstream) of a change; after a rerun, updates every quoted number and regenerates the reports (`python -m src.notebook_tools` does the checking) |
+| **Thread** | "thread EDA_SDA_3" / "thread EDA_SDA_3 after a rerun" | Keeps the notebooks consistent: updates the ones downstream (and upstream) of a change; after a rerun, updates every quoted number and regenerates the reports (`python -m src.notebook_tools` does the checking), including ML_Fit's leakage audit (`reports/ML_Fit_audit.md`, from `python -m src.leakage_audit`) |
 | **Pace** | "pace EDA_SDA_3" | Makes a notebook faster and lighter on memory without changing its results, timed on synthetic data |
 | **Foreman** | the loop below | Drafts tasks marked [agent] in `analysis/ANALYSIS.md`, one at a time, each on its own branch (`worktree-agent-…`) for review; never merges or pushes |
 
