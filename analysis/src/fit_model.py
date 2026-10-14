@@ -86,13 +86,14 @@ def features(people, scores):
         X[c] = X[c].astype("Float64").fillna(0).astype(float)
     for c in NUMERIC:
         X[c] = pd.to_numeric(X[c], errors="coerce").astype(float)
+    cols = {}
     for m, s in scores.items():
         s = np.asarray(s, dtype=float)
         name = m.split(" (")[0].replace(" ", "_").replace("-", "")
         for j, r in enumerate(ROLES):
-            X[f"{name}: {r}"] = s[:, j]
-            X[f"{name} vs own mean: {r}"] = s[:, j] - s.mean(axis=1)
-    return X
+            cols[f"{name}: {r}"] = s[:, j]
+            cols[f"{name} vs own mean: {r}"] = s[:, j] - s.mean(axis=1)
+    return pd.concat([X, pd.DataFrame(cols, index=X.index)], axis=1)  # one concat, not a column at a time
 
 
 def _preprocess(scale):
