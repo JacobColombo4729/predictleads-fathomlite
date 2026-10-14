@@ -193,7 +193,8 @@ def audit_ai_calls(repo, env_file):
     except OSError:
         pass
     checks = []
-    code = [p for p in _git(repo, "ls-files", "*.py", "*.ts", "*.tsx", "*.js").split("\n") if p and "/tests/" not in p and "test_" not in p]
+    code = [p for p in _git(repo, "ls-files", "*.py", "*.ts", "*.tsx", "*.js").split("\n") if p and "/tests/" not in p and "test_" not in p
+            and not p.startswith("safety/")]  # the audit names the services it looks for
     for path in code:
         try:
             calls = AI_ENDPOINT.search((Path(repo) / path).read_text(encoding="utf-8"))
