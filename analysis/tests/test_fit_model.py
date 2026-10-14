@@ -102,6 +102,16 @@ class TrainedLayer(unittest.TestCase):
         np.testing.assert_allclose(oof.sum(axis=1), 1.0, atol=1e-6)
 
 
+class ChooseTheModel(unittest.TestCase):
+    def test_simplest_within_one_standard_deviation_of_the_best(self):
+        t = pd.DataFrame({"top-3 hit rate (mean)": [0.832, 0.831, 0.825, 0.815], "std": [0.024, 0.016, 0.02, 0.02]},
+                         index=["catboost", "logistic regression", "xgboost", "neural network (MLP)"])
+        self.assertEqual(fm.choose(t), "logistic regression")
+        t.loc["logistic regression", "top-3 hit rate (mean)"] = 0.80  # more than one SD below the best
+        self.assertEqual(fm.choose(t), "xgboost")
+        self.assertEqual(fm.choose(t.assign(std=0.0)), "catboost")
+
+
 class WhyGrowthAndIdeas(unittest.TestCase):
     def test_groups_cover_every_kind_of_input(self):
         self.assertEqual(fm.group_of("origin_other-field job"), "prior career")
