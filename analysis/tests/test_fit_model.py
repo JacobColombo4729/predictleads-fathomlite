@@ -102,5 +102,60 @@ class TrainedLayer(unittest.TestCase):
         np.testing.assert_allclose(oof.sum(axis=1), 1.0, atol=1e-6)
 
 
+class WhyGrowthAndIdeas(unittest.TestCase):
+    def test_groups_cover_every_kind_of_input(self):
+        self.assertEqual(fm.group_of("origin_other-field job"), "prior career")
+        self.assertEqual(fm.group_of("background_area_tech: database"), "prior career")
+        self.assertEqual(fm.group_of("retrain_field_networking"), "training")
+        self.assertEqual(fm.group_of("retrained"), "training")
+        self.assertEqual(fm.group_of("missingindicator_years_before"), "prior career")
+        self.assertEqual(fm.group_of("tfidf vs own mean: security"), "text similarity")
+        self.assertEqual(fm.group_of("skills_profile_cosine: database"), "skills that carry over")
+
+    def test_linear_contributions_add_up_to_the_logit_gap(self):
+        people = made_up_people(300)
+        X = fm.features(people, {"tf-idf": np.random.default_rng(0).random((300, len(ROLES)))})
+        y = np.array([ROLES.index(t) for t in people.target_bucket])
+        pipe, _ = fm.candidates()["logistic regression"]
+        pipe.fit(X, y)
+        contrib, names = fm.linear_contributions(pipe, X, X.iloc[:5])
+        self.assertEqual(contrib.shape[:2], (5, len(ROLES)))
+        logits = pipe.decision_function(X)
+        model_classes = list(pipe.named_steps["model"].classes_)
+        for c in model_classes:  # sum of contributions = the person's logit minus the average logit
+            np.testing.assert_allclose(contrib[:, c, :].sum(axis=1), logits[:5, model_classes.index(c)] - logits[:, model_classes.index(c)].mean(), atol=1e-8)
+        g, groups = fm.grouped(contrib, names)
+        np.testing.assert_allclose(g.sum(axis=2), contrib.sum(axis=2), atol=1e-10)
+        self.assertEqual(groups[-1], "other")
+
+    def test_growth_adjust_is_visible_and_optional(self):
+        p = np.array([[0.5, 0.45, 0.05, 0, 0, 0, 0, 0]])
+        growth = {"networks and systems": 0.30, "it support": -0.05}
+        np.testing.assert_allclose(fm.growth_adjust(p, growth, weight=0), p)
+        adj = fm.growth_adjust(p, growth, weight=1)
+        self.assertGreater(adj[0, 1], adj[0, 0])  # networks overtakes it support
+        self.assertEqual(fm.top_k_changed(p, adj, k=1), 1.0)
+        self.assertTrue((fm.growth_adjust(p, {"it support": -5}, 1) >= 0).all())
+
+    def test_skill_demand_and_skills_to_build(self):
+        roles = pd.Series({"a": "data science", "b": "data science", "c": "security"})
+        skills = pd.DataFrame({"id": ["a", "a", "b", "c", "c"], "name": ["Python", "SQL", "Python", "Python", "Splunk"],
+                               "kind": ["tool"] * 5, "section": ["required"] * 5})
+        d = fm.role_skill_demand(skills, roles)
+        self.assertAlmostEqual(d.set_index(["role", "name"]).loc[("data science", "SQL"), "share"], 0.5)
+        b = fm.skills_to_build(d, {"education": {"Python"}})
+        self.assertTrue(b.set_index(["role", "name"]).loc[("data science", "Python"), "covered"])
+        self.assertFalse(b.set_index(["role", "name"]).loc[("security", "Splunk"), "covered"])
+
+    def test_background_pay_weights_by_listings(self):
+        occ = pd.DataFrame({"O*NET-SOC Code": ["25-2021.00", "25-1011.00", "41-2031.00"],
+                            "Title": ["Elementary School Teachers", "Professors", "Retail Salespersons"]})
+        pay = pd.DataFrame({"median hourly pay (USD)": [30.0, 50.0, 16.0], "listings": [300, 100, 50]},
+                           index=["Elementary School Teachers", "Professors", "Retail Salespersons"])
+        t = fm.background_pay(pay, occ, {"education": ["25-"], "sales and retail": ["41-"], "military": ["55-"]})
+        self.assertAlmostEqual(t.loc["education", "typical hourly pay"], 35.0)
+        self.assertTrue(np.isnan(t.loc["military", "typical hourly pay"]))
+
+
 if __name__ == "__main__":
     unittest.main()
