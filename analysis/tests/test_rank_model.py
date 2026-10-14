@@ -326,10 +326,6 @@ class ReviewFixes(unittest.TestCase):
         self.assertAlmostEqual(p1.named_steps["prep"].named_transformers_["num"].named_steps["impute"].statistics_[0], 2.0)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class Backtest(unittest.TestCase):
     ROLES = ["a", "b", "c"]
 
@@ -396,3 +392,7 @@ class Backtest(unittest.TestCase):
 
     def test_overlap(self):
         self.assertEqual(rm.mean_overlap(np.array([[1, 2], [3, 4]]), np.array([[2, 9], [3, 4]])), 0.75)
+
+
+if __name__ == "__main__":
+    unittest.main()
