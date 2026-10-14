@@ -52,7 +52,7 @@
   - Score each step on hit rate@3/@5 for the role people actually moved into, per pool and overall, against a title-keyword baseline; measure old-field bias; exclude the current role for within-tech moves; folds grouped by person.
   - SHAP, including each listing's top fit features for the detail view's rating breakdown; hand fit scores and their breakdown to `ML_Rank`.
   - **Assemble the compass (last section):** Profiles' paths with people counts, each role's 2026 market and growth (EDA_SDA_2 3.12), and the Ideas tab's inputs (skills to build, options and time to switch, pay increase vs. the current field from 1c, growth); save the compass tables for the app.
-- **ML_Rank (the priority queue)** (v1 and v2 scaffolded 2026-10-13, 14-day window: 2a reads its features from `modeling_ready.parquet`, which EDA_SDA_4 has saved; needs a run):
+- **ML_Rank (the priority queue)** (v1 and v2 scaffolded 2026-10-13, 14-day window: 2a reads its features from `modeling_ready.parquet`, which EDA_SDA_4 has saved; the queue backtest 8d-8e reads `ML_Fit`'s `fit_scores.parquet`, built 2026-10-14; needs a run):
   - Write the hypotheses with thresholds **before** any modeling.
   - Targets: closes within N days, days open, and the survival target.
   - Split by time (train April–July, validate August, test September), folds grouped by company; test used once.
