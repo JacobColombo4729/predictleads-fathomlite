@@ -174,6 +174,19 @@ def compare(X, y, fold, seed=12345, k=3):
     return table, searches
 
 
+SIMPLEST_FIRST = ["logistic regression", "random forest", "lightgbm", "xgboost", "catboost", "neural network (MLP)"]
+
+
+def choose(table, k=3):
+    """The trained layer's model, by a rule set before looking: the simplest candidate (SIMPLEST_FIRST) whose development
+    top-k hit rate is within one standard deviation of the best one's (the one-standard-error rule). Near-ties are
+    common with 2,250 people, and the simplest model is the most stable and the easiest to explain (exact SHAP)."""
+    col = f"top-{k} hit rate (mean)"
+    top = table[col].idxmax()
+    bar = table.loc[top, col] - table.loc[top, "std"]
+    return next(m for m in [*SIMPLEST_FIRST, *table.index] if m in table.index and table.loc[m, col] >= bar)
+
+
 def out_of_fold(estimator, X, y, fold):
     """Development people's probabilities, each from the model fit on the other folds."""
     from sklearn.base import clone
@@ -258,7 +271,8 @@ def role_skill_demand(skills, roles, top=10):
     n = roles.value_counts()
     d = s.groupby(["role", "name", "kind"]).size().rename("listings").reset_index()
     d["share"] = d.listings / d.role.map(n)
-    return d.sort_values(["role", "share"], ascending=[True, False]).groupby("role").head(top).reset_index(drop=True)
+    return (d.sort_values(["role", "share", "name"], ascending=[True, False, True], kind="stable")  # ties: by name
+            .groupby("role").head(top).reset_index(drop=True))
 
 
 def skills_to_build(demand, listed_by_background):
