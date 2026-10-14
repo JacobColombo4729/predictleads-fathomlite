@@ -18,3 +18,5 @@ jobs:
           python-version: "3.11"
       - name: Check for hard-coded data locations and credentials
         run: python -m unittest app/tests/test_no_hardcoded_data.py -v
+      - name: Check the data guard and audit for AI tools (safety/, made-up inputs only)
+        run: python -m unittest discover -s safety/tests -t . -v
