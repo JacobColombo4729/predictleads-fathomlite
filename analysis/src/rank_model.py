@@ -419,3 +419,97 @@ def tune_weights(factors, outcome, k=10, grid=(0.0, 0.1, 0.2, 0.3, 0.4, 0.5)):
         if p > best_p:
             best, best_p = w, p
     return best, best_p
+
+
+# ---------- the backtest: career changers x one month's listings (H4, H5, H6) ----------
+# The pool is one month's listings a career changer can see (in the 8 fit roles, not hidden), with a known N-day answer.
+# A listing in a person's top k is relevant when it stayed open long enough, was not a likely ghost, and is in the role
+# that person actually moved into. The listing factors don't depend on the person, so each role's k best listings on
+# the listing part are the only candidates a person's top k can draw from: the ranking below is exact and fast.
+
+ACCESS_SIGNS = ["entry_seniority", "low_experience_ask", "entry_wording", "changer_wording"]  # career_open's parts (EDA_SDA_2 3.11)
+
+
+def accessibility_count(df, cols=ACCESS_SIGNS):
+    """How many of the career-change signs a listing shows (0-4); a sign that is unknown (no description) counts as absent."""
+    return sum(df[c].astype("boolean").fillna(False).astype(int) for c in cols)
+
+
+def listing_ratings(pool):
+    """pool: role_bucket, p_still_open, accessibility, pay per listing. 0-100 ratings of the three listing factors within
+    the pool; pay is rated within its role (so a role's pay level doesn't decide it); missing = 50."""
+    pay = pool.groupby("role_bucket", observed=True)["pay"].rank(pct=True) * 100
+    return pd.DataFrame({"still_open": rating_0_100(pool["p_still_open"]).values,
+                         "accessibility": rating_0_100(pool["accessibility"]).values,
+                         "pay": pay.fillna(50.0).values}, index=pool.index)
+
+
+def fit_ratings(fit):
+    """fit: people x roles, ML_Fit's probabilities. Rated 0-100 per person: the best-fitting role is 100, the rest in
+    proportion, so the rating says how close a role is to the person's best."""
+    fit = pd.DataFrame(fit, dtype=float)
+    return fit.div(fit.max(axis=1), axis=0) * 100
+
+
+def _weights(weights):
+    w = pd.Series(weights or START_WEIGHTS, dtype=float).reindex(FACTORS).fillna(0.0)
+    return w / w.sum()
+
+
+def queue_top_k(fit_rating, ratings, roles, weights=None, k=10):
+    """Each person's k highest-scored pool listings (positions into the pool, best first). score = w_fit x the person's
+    fit rating for the listing's role + the weighted listing ratings; the parts add up as in priority_breakdown.
+    fit_rating: people x roles (columns = role names); ratings: listing_ratings(); roles: each listing's role."""
+    w = _weights(weights)
+    part = sum(w[f] * ratings[f].to_numpy(dtype=float) for f in ["still_open", "accessibility", "pay"])
+    roles = np.asarray(roles, dtype=object)
+    cand, cand_role = [], []
+    for j, r in enumerate(fit_rating.columns):
+        pos = np.flatnonzero(roles == r)
+        best = pos[np.argsort(-part[pos], kind="stable")[:k]]
+        cand.append(best)
+        cand_role.append(np.full(len(best), j))
+    cand, cand_role = np.concatenate(cand), np.concatenate(cand_role)
+    order = np.argsort(cand, kind="stable")  # ties go to the earlier pool position, as in one stable sort of the pool
+    cand, cand_role = cand[order], cand_role[order]
+    scores = w["fit"] * fit_rating.to_numpy(dtype=float)[:, cand_role] + part[cand]
+    top = np.argsort(-scores, axis=1, kind="stable")[:, :k]
+    return cand[top]
+
+
+def newest_top_k(first_seen, n_people, k=10, roles=None, search_role=None):
+    """The newest-first baseline: the k newest pool listings, the same list for everyone. With roles and search_role, a
+    title search for that role first (a perfect one: every listing in the role and nothing else), then newest first."""
+    t = _naive(pd.Series(first_seen)).astype("int64").to_numpy()
+    pos = np.arange(len(t)) if search_role is None else np.flatnonzero(np.asarray(roles, dtype=object) == search_role)
+    best = pos[np.argsort(-t[pos], kind="stable")[:k]]
+    return np.tile(best, (n_people, 1))
+
+
+def precision_per_person(top, ok, roles, targets):
+    """Share of each person's top k that is relevant: ok (stayed open long enough, not a ghost) and in the person's
+    actual role. top: people x k pool positions; ok, roles: per pool listing; targets: per person."""
+    ok, roles = np.asarray(ok, dtype=bool), np.asarray(roles, dtype=object)
+    hit = ok[top] & (roles[top] == np.asarray(targets, dtype=object)[:, None])
+    return hit.mean(axis=1)
+
+
+def tune_queue_weights(fit_rating, ratings, roles, ok, targets, k=10, grid=(0.0, 0.1, 0.2, 0.3, 0.4, 0.5)):
+    """Coarse grid of the four weights on the validation month and development people: the best mean precision@k.
+    Returns (best weights, best mean precision, table of every combination tried). Combinations that are multiples of
+    each other give the same ranking; the first one found is kept."""
+    rows, best, best_p = [], None, -1.0
+    for combo in itertools.product(grid, repeat=len(FACTORS)):
+        if sum(combo) == 0:
+            continue
+        w = dict(zip(FACTORS, combo))
+        p = float(precision_per_person(queue_top_k(fit_rating, ratings, roles, w, k), ok, roles, targets).mean())
+        rows.append({**w, "precision": p})
+        if p > best_p + 1e-12:
+            best, best_p = w, p
+    return best, best_p, pd.DataFrame(rows)
+
+
+def mean_overlap(top_a, top_b):
+    """Mean share of each person's top k (a) that is also in their top k (b): H6 (below 0.8 = the lists differ)."""
+    return float(np.mean([len(set(a) & set(b)) / len(a) for a, b in zip(top_a, top_b)]))
