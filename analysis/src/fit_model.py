@@ -174,6 +174,19 @@ def compare(X, y, fold, seed=12345, k=3):
     return table, searches
 
 
+SIMPLEST_FIRST = ["logistic regression", "random forest", "lightgbm", "xgboost", "catboost", "neural network (MLP)"]
+
+
+def choose(table, k=3):
+    """The trained layer's model, by a rule set before looking: the simplest candidate (SIMPLEST_FIRST) whose development
+    top-k hit rate is within one standard deviation of the best one's (the one-standard-error rule). Near-ties are
+    common with 2,250 people, and the simplest model is the most stable and the easiest to explain (exact SHAP)."""
+    col = f"top-{k} hit rate (mean)"
+    top = table[col].idxmax()
+    bar = table.loc[top, col] - table.loc[top, "std"]
+    return next(m for m in [*SIMPLEST_FIRST, *table.index] if m in table.index and table.loc[m, col] >= bar)
+
+
 def out_of_fold(estimator, X, y, fold):
     """Development people's probabilities, each from the model fit on the other folds."""
     from sklearn.base import clone
@@ -183,3 +196,104 @@ def out_of_fold(estimator, X, y, fold):
         m = clone(estimator).fit(X[f != k], y[f != k])
         out[f == k] = probabilities(m, X[f == k])
     return out
+
+
+# ---------- section 7: why a role is suggested ----------
+
+GROUPS = {  # plain-language names for the app's "why this role", from the trained layer's inputs
+    "prior career": ["origin", "background_area", "years_before", "n_jobs_before", "from_bucket", "from_level"],
+    "training": ["retrained", "retrain_field", "study_level_before", "study_undated"],
+    "text similarity": ["keyword_overlap", "tfidf", "bge", "rrf"],
+    "skills that carry over": ["skills_carryover", "skills_profile_cosine"],
+}
+
+
+def group_of(feature):
+    """The plain-language group of one model input (a one-hot level, a was-blank flag or a score column)."""
+    name = feature.removeprefix("missingindicator_")
+    best = max(((g, c) for g, cols in GROUPS.items() for c in cols if name == c or name.startswith(c + "_")
+                or name.startswith(c + ":") or name.startswith(c + " ")), key=lambda gc: len(gc[1]), default=None)
+    return best[0] if best else "other"
+
+
+def linear_contributions(pipeline, X_background, X_explain):
+    """SHAP values of a linear model (the trained layer when it is logistic regression): for each person, role and
+    input, coefficient x (the person's value - the average over X_background), on the role's log-odds scale. These are
+    the exact SHAP values of a linear model with independent inputs (what shap.LinearExplainer computes).
+    Returns (array people x roles x inputs, input names)."""
+    prep, model = pipeline.named_steps["prep"], pipeline.named_steps["model"]
+    xb, xe = prep.transform(X_background), prep.transform(X_explain)
+    names = list(prep.get_feature_names_out())
+    if not hasattr(model, "coef_"):  # a tree model won instead: shap's TreeExplainer (same output shape, raw scale)
+        import shap
+        sv = shap.TreeExplainer(model).shap_values(xe)
+        sv = np.stack(sv, axis=1) if isinstance(sv, list) else np.moveaxis(np.asarray(sv), 2, 1)
+        out = np.zeros((len(xe), len(ROLES), xe.shape[1]))
+        out[:, np.asarray(model.classes_, dtype=int), :] = sv
+        return out, names
+    coef = np.zeros((len(ROLES), xe.shape[1]))
+    coef[np.asarray(model.classes_, dtype=int)] = model.coef_
+    contrib = (xe - xb.mean(axis=0))[:, None, :] * coef[None, :, :]
+    return contrib, names
+
+
+def grouped(contrib, names):
+    """people x roles x groups: contributions summed within each plain-language group (GROUPS order, then "other")."""
+    groups = [g for g in [*GROUPS, "other"]]
+    of = np.array([groups.index(group_of(n)) for n in names])
+    return np.stack([contrib[:, :, of == k].sum(axis=2) for k in range(len(groups))], axis=2), groups
+
+
+# ---------- 7b: growth after the fit model ----------
+
+def growth_adjust(probs, growth, weight=1.0):
+    """Fit scores adjusted by each role's expected growth, after the model and never trained in: score x (1 + weight x
+    growth), growth as a fraction over the projection period (0.15 = +15%), floored so a score never turns negative.
+    A role with no growth figure is left as it is. weight 0 = no adjustment (the user's slider)."""
+    g = pd.Series(growth, dtype=float).reindex(ROLES).fillna(0.0).to_numpy()
+    return np.asarray(probs, dtype=float) * np.clip(1.0 + weight * g, 0.0, None)[None, :]
+
+
+def top_k_changed(before, after, k=3):
+    """Share of people whose top-k set of roles changes."""
+    a = np.argsort(-before, axis=1, kind="stable")[:, :k]
+    b = np.argsort(-after, axis=1, kind="stable")[:, :k]
+    return float(np.mean([set(x) != set(y) for x, y in zip(a, b)]))
+
+
+# ---------- section 8: the compass's Ideas inputs ----------
+
+def role_skill_demand(skills, roles, top=10):
+    """Each role's most asked skills: the share of the role's listings that ask each skill (required or preferred).
+    skills: id, name, kind rows (one per listing and skill); roles: Series of role per listing id.
+    Returns role, name, kind, share, listings (the top `top` per role)."""
+    s = skills[["id", "name", "kind"]].drop_duplicates().merge(roles.rename("role").rename_axis("id").reset_index(), on="id")
+    n = roles.value_counts()
+    d = s.groupby(["role", "name", "kind"]).size().rename("listings").reset_index()
+    d["share"] = d.listings / d.role.map(n)
+    return (d.sort_values(["role", "share", "name"], ascending=[True, False, True], kind="stable")  # ties: by name
+            .groupby("role").head(top).reset_index(drop=True))
+
+
+def skills_to_build(demand, listed_by_background):
+    """For each background and role, the role's most asked skills marked as already covered by the background (O*NET
+    lists them for the background's occupations) or to build. listed_by_background: {background: set of skill names}.
+    Returns background, role, name, kind, share, covered."""
+    rows = [demand.assign(background=b, covered=demand.name.isin(names)) for b, names in listed_by_background.items()]
+    return pd.concat(rows, ignore_index=True)[["background", "role", "name", "kind", "share", "covered"]]
+
+
+def background_pay(occupation_pay, occupations, prefixes_by_background):
+    """Typical hourly pay of each background: the listing-weighted mean of its occupations' median pay.
+    occupation_pay: DataFrame indexed by occupation name with 'median hourly pay (USD)' and 'listings';
+    occupations: O*NET code and title (onet.occupations()), to give each name a code. Returns a DataFrame per
+    background: pay, listings behind it, occupations matched."""
+    code_of = occupations.drop_duplicates("Title").set_index("Title")["O*NET-SOC Code"]
+    d = occupation_pay.assign(code=occupation_pay.index.map(code_of)).dropna(subset=["code", "median hourly pay (USD)"])
+    out = {}
+    for b, prefixes in prefixes_by_background.items():
+        g = d[d.code.astype(str).str.startswith(tuple(prefixes))]
+        w = g.listings.astype(float)
+        out[b] = {"typical hourly pay": float((g["median hourly pay (USD)"] * w).sum() / w.sum()) if w.sum() > 0 else np.nan,
+                  "listings behind it": int(w.sum()), "occupations": len(g)}
+    return pd.DataFrame(out).T

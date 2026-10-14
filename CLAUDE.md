@@ -26,6 +26,7 @@ This repository joins two earlier ones with their full histories: `analysis/` (w
 **Top level (shared)**
 - `data/` and `pretrained/`: local only, git-ignored, **never read by Claude** (also any leftover `models/`, `analysis/data/`, `app/data/`, `app/models/`, `app/backend/data/`)
 - `.env`: settings and keys for both halves, git-ignored. Environment: Python 3.11, one `.venv` from `requirements.txt`
+- `safety/`: the data rules below as checks on AI tools. `guard.py` runs before every Claude Code tool call (a `PreToolUse` hook in `.claude/settings.json`) and blocks reading `data/`, `pretrained/`, `.env` or `~/.aws`, printing rows or settings, reading notebooks whose row previews have outputs, and web requests that carry project details; when it blocks, do it another way (an existence check, `src.notebook_tools`, the Edit tool), never around it. `python -m safety.audit [--fingerprints]` checks the Claude Code transcripts, the committed tree and the app's OpenAI calls afterwards
 
 ## Data & AI rules (from project advisors)
 AI tools are allowed for coding, brainstorming, and debugging. **Do not upload or paste confidential project data into them.** For Claude, that means:

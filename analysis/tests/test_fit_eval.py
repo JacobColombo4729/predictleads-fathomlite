@@ -91,5 +91,25 @@ class FitEvalTests(unittest.TestCase):
         self.assertEqual(tfidf_all, 1.0)
 
 
+class SameEveryRun(unittest.TestCase):
+    """Keyword overlap must not depend on Python's string-hash seed, which changes with every new process (a kernel
+    restart): words tied at the top-words cutoff once came out in set (hash) order, and the trained layer's choice flipped."""
+
+    SCRIPT = (
+        "import sys, json; sys.path.insert(0, sys.argv[1]); import pandas as pd; from src import fit_eval as fe\n"
+        "titles = ['alpha bravo charlie delta echo foxtrot golf hotel india juliet'] * 3\n"  # ten words, all tied
+        "listings = pd.DataFrame({'role': fe.ROLES[0], 'title': titles})\n"
+        "people = ['alpha', 'bravo charlie', 'hotel india juliet', 'delta golf']\n"  # each has some of the ten words
+        "print(json.dumps(fe.keyword_scores(people, listings, top_words=4).tolist()))\n")
+
+    def test_keyword_overlap_is_the_same_whatever_the_hash_seed(self):
+        import os
+        import subprocess
+        root = str(Path(__file__).resolve().parents[1])
+        runs = {subprocess.run([sys.executable, "-c", self.SCRIPT, root], capture_output=True, text=True, check=True,
+                               env={**os.environ, "PYTHONHASHSEED": seed}).stdout for seed in ("1", "2", "3")}
+        self.assertEqual(len(runs), 1)
+
+
 if __name__ == "__main__":
     unittest.main()
