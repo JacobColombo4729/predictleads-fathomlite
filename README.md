@@ -56,6 +56,7 @@ predictleads-fathomlite/
 ├── JACOB.md  JESSE.md        each person's change log, most important first
 ├── .eve/ASKS.md              what each of us wants the other to make sure of (Eve keeps it)
 ├── fetch/                    where every dataset comes from and lives: one download script each, the shared folders
+├── safety/                   the data rules as checks on AI tools: a guard on Claude Code, an audit of what it saw
 ├── .venv/  .env              your own, git-ignored
 ├── data/  pretrained/        local only, git-ignored: raw/ (PredictLeads), external/ (outside data), the notebooks'
 │                             tables, the corpus and embeddings; the BGE model
@@ -464,6 +465,10 @@ These come from the Training Services Agreements we each signed. Breaking them c
 - 🚫 Don't use AI coding extensions on files in this project (Copilot is disabled in `.vscode/settings.json`).
 - ✅ It's fine to ask AI general questions ("how do I groupby in pandas?") or use **synthetic** example data.
 - The app sends nothing to an outside AI service unless the person whose text it is agrees first. Magic fill removes emails, phone numbers and links before sending.
+- **Claude Code is guarded and audited** (`safety/`):
+  - **Guard (on for everyone, nothing to set up):** before each Claude Code tool call, `safety/guard.py` blocks reading `data/`, `pretrained/`, `.env` or `~/.aws`, printing data rows or AWS settings, reading notebooks whose row previews still have outputs, and web searches or fetches that carry project details, paths or `.env` values. Claude is told why and does it another way. It needs the `.venv` (step 4); without a working Python it blocks the checked calls.
+  - **Audit:** `python -m safety.audit` (from the root) checks every Claude Code session of this project, including Eve, Thread, Pace and Foreman: rule-breaking calls and whether they ran, `.env` values in anything Claude was sent, then the committed files and the app's OpenAI calls. Add `--fingerprints` to also look for the data's own listing ids in everything Claude was sent (reads `data/` locally; prints counts only). It never prints a matched value; exit code 1 means something needs attention. Run it before a push or at the end of the project.
+  - **Not covered:** AI tools outside Claude Code, and anything pasted into a chat by hand.
 
 ### Notebooks
 - ✅ **Clear all outputs before every commit.** Outputs can contain data.
