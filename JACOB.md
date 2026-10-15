@@ -103,6 +103,7 @@
     - **Weights** are tuned on August with the development people: fit 0.3, still open 0.2, accessibility 0.1, pay 0. Pay can't score here because relevance doesn't measure it, so it stays a slider in the app. September is scored once, with the test people.
     - **Relevant** means the listing stayed open 14 days, isn't a likely ghost, and is in the role the person moved into.
   - **The test month counts only listings first seen more than 16 days before the data ends** (`rm.answer_known_either_way`). A later listing's 14-day answer is known only if it closed fast. The first test run kept those listings, which filled late September with early closers, so 8c and 8e were rerun with the model, threshold and weights unchanged.
+  - **Reproduced (2026-10-15):** a clean top-to-bottom rerun with `RUN_TEST = True` (all 26 cells, no errors) gives the same results throughout, the test month included; only the timings in 7b (the grid: 35 minutes) and 7e moved. `RUN_TEST` stays `True`, so a full rerun includes the test month.
   - **Fixes during the run:**
     - **7f:** LambdaRank splits any day with more than 10,000 new listings at random into equal parts, LightGBM's limit per query (`rm.split_large_queries`).
     - **8d:** it takes people's ids from the index of `fit_scores.parquet`.
