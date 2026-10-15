@@ -95,6 +95,7 @@
   - **Fixes during the run:**
     - **7f:** LambdaRank splits any day with more than 10,000 new listings at random into equal parts, LightGBM's limit per query (`rm.split_large_queries`).
     - **8d:** it takes people's ids from the index of `fit_scores.parquet`.
+    - **8a:** the threshold is chosen on XGBoost's own validation probabilities (0.35; 6b only shows the method on the logistic regression, whose 0.42 was used before). Test F1 0.733 (was 0.732); AUC unchanged.
     - **7e:** the survival forest fits a 20,000-row sample. That was chosen from a 13-minute estimate, but the real run took 1.5 minutes, so a larger sample is affordable.
   - **Speed, same results** (Pace; checked on synthetic data, every printed number identical):
     - **Folds:** the preprocessor is fit once per fold and shared by 7a, 7b and 11a (`rm.prepare_folds`, about 5 GB of temporary files, removed on exit).
@@ -105,7 +106,6 @@
   - **Still open:**
     - **Sections 9, 10 and 12, and H7** (training without ghost listings).
     - **Sensitivity** beyond the closing windows.
-    - **6b's threshold** is tuned on the logistic regression but applied to XGBoost.
     - **3a's text-flag leakage check** is commented out.
     - **7f** needs a baseline NDCG and the career changers' lists as its queries.
 
