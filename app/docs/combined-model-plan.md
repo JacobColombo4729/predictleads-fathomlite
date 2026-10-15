@@ -1,6 +1,6 @@
 # Combining the two models
 
-**Status:** plan, not started (Jacob, 2026-10-15). To agree with Jesse before building (`.eve/ASKS.md`).
+**Status:** plan, not started (Jacob, 2026-10-15). To agree with Jesse before building (`.eve/ASKS.md`). The combined model is a **third model**, built as its own package and pluggable into either app (see "Modular design"); `rrf` (Jesse's) and `mlrank` (Jacob's) stay as they are, as the baselines it is compared with.
 
 ## Goal
 
@@ -26,6 +26,32 @@ One ranker that uses both halves' work:
 
 The trained layer already builds on BGE. Combining the models means bringing it into the app, not replacing Jesse's ranker.
 
+**A second gap: the listings.** Both apps rank only Jesse's targeted pool (`app/code/extract_targeted_pool.py`): titles for AI/ML, data and technical sales plus six O*NET occupations, chosen when the audience was the team itself. The agreed scope (EDA_SDA_1 8c: the roles TripleTen trains for plus adjacent tech roles, 908,291 listings) also covers software and web development, QA, cybersecurity, IT support, networks and systems, database, IT project management and market research, which that pool mostly misses. A user whose background points there gets few relevant listings, whatever the ranker. The combined model serves the scope's listings instead (step 1a). Jesse's methods (BGE, TF-IDF, RRF) carry no personal data and are kept.
+
+## Modular design
+
+The combined model is one self-contained package at the top of the repository, shared by both halves like `fetch/`. Neither app nor any notebook is inside it; both plug into it.
+
+```
+combined/                       the third model (Python package, no web framework)
+  __init__.py                   CombinedModel.load(bundle) -> .roles(person), .rank(person, limit), .manifest
+  corpus.py                     the serving corpus from the scope, in the app's corpus format (step 1a)
+  person.py                     résumé entries -> ML_Fit's person features, via career_switch (step 2)
+  role_fit.py                   ML_Fit's trained layer at serving time: probabilities, growth, rating, reasons (step 3)
+  candidates.py                 text matches overall + within the person's top roles (step 4)
+  queue.py                      ML_Rank's queue: fit + still open + accessibility + pay (step 5)
+  bundle.py                     writes and checks the bundle and its manifest
+  build.py                      python -m combined.build: corpus, role-fit artefacts, queue snapshot -> one bundle
+  tests/                        synthetic data only
+app/backend/combined_ranker.py  thin adapter to the app's ranker interface: PREDICTLEADS_API_RANKER=combined
+```
+
+- **One bundle, one folder:** `data/clean/combined_v1/` (git-ignored), written by `python -m combined.build` and nothing else: the serving corpus (`jobs_prepared_corpus.jsonl`, `bge_embeddings.npy` and its manifest, the same format `rrf_ranker.py` reads), ML_Fit's trained layer and role artefacts, ML_Rank's listing scores and queue config, and `manifest.json` (versions, `ROLES`, feature lists, source commits, row counts). `CombinedModel.load` refuses a bundle whose manifest doesn't match the code.
+- **Dependencies point one way:** `combined/` imports `analysis/src` (`career_switch`, `fit_model`, `rank_model`, `text_features`) and Jesse's text-match code; nothing in `analysis/src` or `app/` imports `combined/` except the adapter. The rules can't drift from the notebooks because they are the same functions.
+- **Plugging in:** either launcher selects it with `-Ranker combined` (`run_demo_backend.ps1`, `run_jacob.ps1` and the `.sh` versions), pointing `PREDICTLEADS_API_CORPUS_DIR` and `PREDICTLEADS_API_JOBS_PATH` at the bundle's corpus. Jesse's app keeps its OpenAI features; Jacob's keeps them off. The analysis notebooks can load the same bundle to evaluate it.
+- **The other two stay:** `rrf` and `mlrank` are unchanged, so the three can be compared on the same people. They can also be pointed at the scope corpus, which fixes the listings gap for them too. Run one backend at a time (two already use about 9 GB).
+- **Version id:** `combined-v1` (`ranker_id = "combined"`).
+
 ## The combined ranker
 
 ```
@@ -48,7 +74,15 @@ Jesse's RRF ──► candidates: top text matches overall + top text matches wi
 
 ### 0. Agree with Jesse
 - Add an ask in `.eve/ASKS.md` that links this plan. The ranker lives in Jesse's half: the work goes on `jacob`, is logged in `JACOB.md`, and Jesse reviews before it reaches `main`.
-- Agree on the naming: `mlrank` stays Jacob's app; the combined ranker becomes a new version of it (`ml_rank-v2-ml-fit`), not a new switch.
+- Agree on the design above: a third model (`combined`) in its own package, selectable in both apps; `rrf` and `mlrank` unchanged.
+- Agree that the combined model serves the scope's listings, not the targeted pool.
+- Ask what the Compass thresholds were set on ("a few real examples", `ml-inventory.md` section 3); they stay out of the combined model until that is known.
+
+### 1a. The serving corpus from the scope
+- `combined/corpus.py`: take the scope listings still open when the data ends (`open_at_end` in ML_Rank's `listing_scores.parquet`), prepare them with Jesse's unchanged `prepare_jobs.prepare_resource` (so the app reads them like any other listing), and encode them with the same BGE model and text as `rank_candidates.py encode`.
+- Reads the raw export through `fetch` (the copy in `data/raw/`, or S3 from `.env`), like every other reader; nothing hard-coded.
+- Encoding time grows with the rows: measure it on a slice first, and use the GPU PC if the full set is too slow on the laptop.
+- Test: on synthetic listings, the corpus has the app's fields, ids match the embeddings row for row, and the manifest hash checks out.
 
 ### 1. ML_Fit saves what the app needs to score a new person
 ML_Fit saves scores for the Profiles people (`fit_scores.parquet`), not a model that can score someone new. Add a section that saves, to `data/clean/ml_fit/` (git-ignored):
@@ -112,8 +146,9 @@ Contrastive pairs (prior career → the role moved into) from the Profiles devel
 | Step | Owner |
 |:--|:--|
 | 0 | Jacob (ask), Jesse (agree) |
-| 1–3 | Jacob (`analysis/`) |
-| 4–5 | Jacob, in `app/backend/ml_rank_ranker.py` and `rrf_ranker.py`, reviewed by Jesse |
+| 1a | Jacob (`combined/corpus.py`), reviewed by Jesse (it reuses his preparation and encoding) |
+| 1–3 | Jacob (`analysis/` saves the artefacts; `combined/` serves them) |
+| 4–5 | Jacob, in `combined/` plus the adapter `app/backend/combined_ranker.py`, reviewed by Jesse; `ml_rank_ranker.py` and `rrf_ranker.py` unchanged |
 | 6 | Jesse, with Jacob |
 | 7 | Jacob |
 | 8 | either, later |
