@@ -54,7 +54,7 @@ The rules label instead of rejecting: every person who reached a computer and ma
 
 **What the data shows**
 - **Almost everyone has a readable job date** (17,950 of 17,952), up from 63% before the date fix.
-- **237 career changers moved into data science: 218 by changing roles within tech, only 19 by retraining.** That's why the retraining compass (4a.2b) shows almost no data science.
+- **240 career changers moved into data science: 220 by changing roles within tech, only 20 by retraining.** That's why the retraining compass (4a.2b) shows almost no data science.
 - **16,237 people (90%) held a computer and mathematical job;** 2,813 of them are career changers (4a.1). Counting IT project management as tech (since 2026-10-10) added about 1,100 people who reached tech.
 
 ### 4a.1 Viable candidates
@@ -75,9 +75,9 @@ How many people the rules leave, and who they are in numbers. **Viable** means t
 One row per viable candidate, stating their **prior career**, the **field they trained in** (grouped by `TRAINING_FIELDS` in `src/career_switch.py`) and the program as written. The full table is saved to `data/profiles/` for browsing; everything printed here is aggregate except the preview in 4a.2d.
 
 **What it shows**
-- **Prior career shapes where people land.** Arts and media (52 people), humanities (47) and engineering (47) went mostly into software (about half of each); business (129) spread across networks (24%), software (20%) and **IT project management (17%)**; administration and office (91) across networks, software and IT support; logistics and trades (36) about 40% into networks, and military and public service (29) about 40% into IT support. Overall, first tech jobs were software (30%), networks and systems (22%), IT support (15%), databases (12%), IT project management (10%), security (8%), data science (2.5%) and quality assurance (under 1%).
-- **The biggest single paths (% of all 764 retrained people):** computer science → software (75 people, 9.8%), software and web development → software (70, 9.2%), information technology → networks and systems (65, 8.5%) and → IT project management (56, 7.3%), networking → networks and systems (32, 4.2%). Information technology, the biggest field (284), spreads across every role.
-- **Only 19 of the 764 retrained people (2.5%) started in data science,** so its share is small in every training field. People reach data mostly by moving within tech (218, 4a.3), so the compass should point career changers to a first tech role on the way to data, not only to a data course.
+- **Prior career shapes where people land.** Arts and media (52 people), humanities (47) and engineering (47) went mostly into software (about half of each); business (129) spread across networks (24%), software (20%) and **IT project management (17%)**; administration and office (91) across networks, software and IT support; logistics and trades (36) about 40% into networks, and military and public service (29) about 40% into IT support. Overall, first tech jobs were software (30%), networks and systems (22%), IT support (15%), databases (12%), IT project management (10%), security (8%), data science (2.6%) and quality assurance (under 1%).
+- **The biggest single paths (% of all 764 retrained people):** computer science → software (75 people, 9.8%), software and web development → software (70, 9.2%), information technology → networks and systems (65, 8.5%) and → IT project management (55, 7.2%), networking → networks and systems (32, 4.2%). Information technology, the biggest field (284), spreads across every role.
+- **Only 20 of the 764 retrained people (2.6%) started in data science,** so its share is small in every training field. People reach data mostly by moving within tech (220, 4a.3), so the compass should point career changers to a first tech role on the way to data, not only to a data course.
 - **121 people (16%) fall in "other":** their job titles matched no area (4a.2e lists the common ones). They stay in: they're real career changers. The top programs as written are all computer science or information technology and are grouped correctly.
 
 **What it shows**
@@ -92,9 +92,9 @@ One row per viable candidate, stating their **prior career**, the **field they t
 People already in tech who moved into a **different role bucket** after at least 12 months in their first one (for example IT support → data science). For a user who already works in tech, these are the comparable paths: the compass for moving across or up. Each move is also labelled sideways or up, by comparing the level of the new job with the highest level held in the first role. Aggregates only.
 
 **What it shows**
-- **2,049 people changed roles within tech.** The largest moves (% of all 2,049): IT support → networks and systems (13.6%), networks and systems → IT support (9.7%; traffic runs both ways), IT support → security (8.0%), developers → databases (6.9%) and → data science (6.7%). **190 moved into IT project management**, mostly from networks and systems (about 70), IT support (about 45) and software development (about 45).
-- **218 moved into data science,** mostly from software development (about 140) and databases (about 55). With the 19 who retrained into it, 237 career changers reached data; quality assurance is the smallest destination (39).
-- **Most moves are sideways, not up:** 79% stayed at the same level, 8.5% moved up to a senior or manager title, and 12.5% moved to a lower one. The share moving up is similar for every role (8–10%; quality assurance's 17% rests on 36 people). Moves into IT project management look 26% "down" because project managers no longer count as managers, so a manager who became a project manager reads as a step down. Levels come from title words, so read these as rough.
+- **2,049 people changed roles within tech.** The largest moves (% of all 2,049): IT support → networks and systems (13.6%), networks and systems → IT support (9.7%; traffic runs both ways), IT support → security (8.0%), developers → databases (6.9%) and → data science (6.8%). **189 moved into IT project management**, mostly from networks and systems (about 70), IT support (about 45) and software development (about 45).
+- **220 moved into data science,** mostly from software development (about 140) and databases (about 55). With the 20 who retrained into it, 240 career changers reached data; quality assurance is the smallest destination (35).
+- **Most moves are sideways, not up:** 79% stayed at the same level, 8.5% moved up to a senior or manager title, and 12.5% moved to a lower one. The share moving up is similar for every role (8–10%; quality assurance's 17% rests on 35 people). Moves into IT project management look 26% "down" because project managers no longer count as managers, so a manager who became a project manager reads as a step down. Levels come from title words, so read these as rough.
 
 ### 4b Review round
 
@@ -133,7 +133,7 @@ Rerun this section after any change to the rules in `src/career_switch.py`.
 
 **What we found.**
 - **Where retrained people land depends on where they came from:** software (30% of first tech jobs) and networks and systems (22%) lead overall, but arts, humanities and engineering backgrounds went mostly into software, while administration, business and logistics spread across IT support and networks, and business also into IT project management (17%). Training follows the same split: computer science and software development led to software; networking and cybersecurity to infrastructure; information technology spread across every role, including IT project management.
-- **Data science is reached through tech, not straight from a course:** 237 career changers moved into it, 218 of them from another tech role (mostly developers and DBAs) and only 19 by retraining (2.5% of retrained people). The compass should show a first tech role as a step on the way to data.
+- **Data science is reached through tech, not straight from a course:** 240 career changers moved into it, 220 of them from another tech role (mostly developers and DBAs) and only 20 by retraining (2.6% of retrained people). The compass should show a first tech role as a step on the way to data.
 - **Most moves within tech are sideways:** 79% kept the same level and 8.5% moved up to a senior or manager title, so "moving up" needs its own evidence before it's part of the pitch.
 - **Switches take time and have shifted:** the typical switch came after 2.4 years in the previous field (median), people who retrained after working took about 15 months from their last old-field job to their first tech job, and retraining has shifted from new grads toward people who'd already worked.
 
