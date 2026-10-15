@@ -17,7 +17,7 @@ import uuid
 from collections.abc import Iterator, Mapping, Sequence
 from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Literal, Protocol
 
@@ -198,6 +198,46 @@ def job_level(source: Mapping[str, Any]) -> JobLevel:
     return "unstated"
 
 
+def _day(value: Any) -> str | None:
+    """The YYYY-MM-DD part of an ISO date or timestamp, or None."""
+    return value[:10] if isinstance(value, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", value[:10]) else None
+
+
+def listed_on(source: Mapping[str, Any]) -> tuple[str | None, str]:
+    """The day a listing was listed, and what it rests on: the earlier of the employer's posted date and the day the
+    crawler first saw it ("posted" or "first_seen"; a posted date after the first sighting is a refresh, not the
+    listing). ("None", "unknown") when neither is given."""
+    dates = source.get("dates_utc") if isinstance(source.get("dates_utc"), Mapping) else {}
+    posted, first = _day(dates.get("posted_at")), _day(dates.get("first_seen_at"))
+    if posted and first and _plausible_posted(posted, first):
+        return posted, "posted"
+    return (first, "first_seen") if first else (None, "unknown")
+
+
+POSTED_FLOOR = "2020-01-01"  # earlier posted dates are placeholders (some sources send 1969/1970, an empty date read as zero)
+POSTED_MAX_LEAD_DAYS = 365  # a posted date more than a year before the first sighting is not trusted
+
+
+def _plausible_posted(posted: str, first: str) -> bool:
+    """A posted date counts when it is on or before the first sighting, from 2020 on, and at most a year earlier."""
+    if posted > first or posted < POSTED_FLOOR:
+        return False
+    return (date.fromisoformat(first) - date.fromisoformat(posted)).days <= POSTED_MAX_LEAD_DAYS
+
+
+def last_seen_on(source: Mapping[str, Any]) -> str | None:
+    dates = source.get("dates_utc") if isinstance(source.get("dates_utc"), Mapping) else {}
+    return _day(dates.get("last_seen_at"))
+
+
+def open_on(source: Mapping[str, Any], day: str) -> bool:
+    """Was the listing open on `day` (YYYY-MM-DD)? Listed on or before it and not last seen before it (a listing with
+    no last sighting counts as still open). The analysis's date picker (analysis/src/as_of.py) uses the same rule."""
+    listed, _ = listed_on(source)
+    last = last_seen_on(source)
+    return listed is not None and listed <= day and (last is None or last >= day)
+
+
 class RecommendationFilters(BaseModel):
     model_config = ConfigDict(extra="forbid")
     query: str | None = Field(default=None, max_length=200)
@@ -207,6 +247,8 @@ class RecommendationFilters(BaseModel):
     seniority: str | None = Field(default=None, max_length=80)
     # Job levels to keep (job_level below); empty keeps every level
     levels: list[JobLevel] = Field(default_factory=list, max_length=7)
+    # Only listings open on this day (open_on); none = every listing in the snapshot
+    as_of: date | None = None
     work_arrangement: str | None = Field(default=None, max_length=80)
 
 
@@ -745,6 +787,10 @@ def _job_summary(row: JobRow, snapshot_id: str, snapshot_date: str) -> dict[str,
         "description_excerpt": description_excerpt,
         "source_url": source.get("url"),
         "observed_on": snapshot_date,
+        # the day it was listed (employer's posted date, or the first sighting when that is earlier or missing)
+        "listed_on": listed_on(source)[0],
+        "listed_basis": listed_on(source)[1],
+        "last_seen_on": last_seen_on(source),
         "source_status": {"raw": status_raw, "state": status_state},
         "availability": {"state": "unverified", "verified_at": None},
         "observed": {
@@ -829,6 +875,8 @@ def _search_indices(repository: JobRepository, filters: RecommendationFilters, *
             continue
         if filters.levels and job_level(source) not in filters.levels:
             continue
+        if filters.as_of is not None and not open_on(source, filters.as_of.isoformat()):
+            continue
         output.append(index)
     return output
 
@@ -849,7 +897,7 @@ def _search_scoped(repository: JobRepository, filters: RecommendationFilters) ->
 
 
 def _filters_digest(snapshot_id: str, filters: RecommendationFilters) -> str:
-    payload = {"snapshot_id": snapshot_id, **filters.model_dump()}
+    payload = {"snapshot_id": snapshot_id, **filters.model_dump(mode="json")}
     return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
 
 
@@ -1166,6 +1214,15 @@ def create_app(
     def health() -> dict[str, str]:
         return {"status": "ok"}
 
+    def _listed_range(jobs: JobRepository) -> dict[str, str | None]:
+        cached = getattr(app.state, "listed_range", None)
+        if cached is None or cached[0] is not jobs:
+            listed = [d for d in (listed_on(j.source)[0] for j in jobs.jobs) if d]
+            seen = [d for d in (last_seen_on(j.source) for j in jobs.jobs) if d]
+            cached = (jobs, {"first": min(listed) if listed else None, "last": max(seen + listed) if (seen or listed) else None})
+            app.state.listed_range = cached
+        return cached[1]
+
     @app.get("/api/v1/snapshots/current")
     def current_snapshot() -> dict[str, Any]:
         jobs: JobRepository = app.state.job_repository
@@ -1174,6 +1231,8 @@ def create_app(
             "date": jobs.snapshot_date,
             "job_count": len(jobs.jobs),
             "ranker": {"id": app.state.ranker.ranker_id, "version": app.state.ranker.version},
+            # the days the "Open on" picker offers: the first listing day to the last sighting
+            "listed_range": _listed_range(jobs),
             # how Magic fill reads a resume: "openai" (sent to OpenAI), "local" (on this computer) or "off"
             "resume_reader": getattr(app.state.extraction_provider, "reader", "openai") if app.state.extraction_provider is not None else "off",
             "availability": "unverified",
@@ -1274,6 +1333,7 @@ def create_app(
         category: str | None = Query(default=None, max_length=120),
         seniority: str | None = Query(default=None, max_length=80),
         levels: list[JobLevel] = Query(default=[]),
+        as_of: date | None = Query(default=None),
         work_arrangement: str | None = None,
         limit: int = Query(default=20, ge=1, le=MAX_PAGE_SIZE),
         cursor: str | None = None,
@@ -1281,7 +1341,7 @@ def create_app(
     ) -> dict[str, Any]:
         if work_arrangement is not None:
             raise APIError(400, "unsupported_filter", "Work arrangement is not represented in this prepared sample.")
-        filters = RecommendationFilters(query=q, location=location, description=description, category=category, seniority=seniority, levels=levels)
+        filters = RecommendationFilters(query=q, location=location, description=description, category=category, seniority=seniority, levels=levels, as_of=as_of)
         jobs: JobRepository = app.state.job_repository
         jobs.require_snapshot(snapshot_id)
         matching_indices = _search_indices(jobs, filters)

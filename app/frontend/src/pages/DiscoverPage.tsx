@@ -1,4 +1,4 @@
-import type { FeedbackSignal, Filters, Profile, Recommendation, SearchScope, Stage, TrackedJob } from "../types";
+import type { FeedbackSignal, Filters, ListedRange, Profile, Recommendation, SearchScope, Stage, TrackedJob } from "../types";
 import FilterBar from "../components/FilterBar";
 import JobCard from "../components/JobCard";
 import JobDetails from "../components/JobDetails";
@@ -16,6 +16,7 @@ interface Props {
   profile: Profile;
   snapshotId: string | null;
   snapshotDate: string | null;
+  listedRange?: ListedRange | null;
   ranker: string;
   searchScope: SearchScope;
   feedbackApplied: boolean;
@@ -56,7 +57,7 @@ export default function DiscoverPage(p: Props) {
           </span>
         </header>
 
-        <FilterBar filters={p.filters} onChange={p.onFiltersChange} />
+        <FilterBar filters={p.filters} onChange={p.onFiltersChange} listedRange={p.listedRange} />
 
         <div className="resultbar" aria-live="polite">
           <strong>{p.loading && p.recs.length === 0 ? "Finding jobs…" : `${p.recs.length} ${p.recs.length === 1 ? "job" : "jobs"}`}</strong>

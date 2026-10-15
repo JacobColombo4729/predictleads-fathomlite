@@ -146,6 +146,7 @@ export default function App() {
           profile={live.profile}
           snapshotId={live.snapshot?.id ?? null}
           snapshotDate={live.snapshot?.date ?? null}
+          listedRange={live.snapshot?.listedRange ?? null}
           ranker={live.ranker}
           searchScope={live.searchScope}
           feedbackApplied={live.feedbackApplied}
