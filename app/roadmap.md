@@ -45,7 +45,7 @@ Status terms: **Built** means working in the running app and verified; **Impleme
 **Not validated.** No relevance result exists for any ranker. The blinded review page is built (`data/matching/ai_ml_rankings_20261009/review/review.html`); labelling it is the top remaining item. Until then the demo and write-up must say plainly that RRF is a reasoned default, not a measured winner.
 
 **Built: role-family classifier (supporting model, not in the app)**
-- BGE + logistic regression predicts 17 role families from the provider's O*NET label. Test accuracy 94.7% (macro-F1 0.94) vs 69.4% TF-IDF and 29.8% majority class, company-held-out split. Measures agreement with provider labels, not fit.
+- Logistic regression predicts 17 classes (16 role families plus Other) from the job title, trained on the provider's O*NET label. Leak-free test accuracy about 72% (TF-IDF on title; BGE title embeddings 70.5%) vs 30% for the majority class, company-held-out, 3 splits. **The earlier 94.7% was inflated:** its text included the occupation name the labels come from (corrected 2026-10-13). Measures agreement with provider labels, not fit.
 
 **History, not evidence.** Earlier experiments (MiniLM, section-aware text, cross-encoder, weighted RRF, faceted text) were small and inconclusive; see [docs/archive/journal.md](docs/archive/journal.md). Do not quote them.
 
