@@ -1,4 +1,5 @@
 import { participantId } from "./research";
+import type { ResumeReader } from "../types";
 import type { MarketOverview, MarketQuery, MarketResponse, ResearchResponse, TranscribeResponse } from "./market";
 import type {
   GapBatchResult,
@@ -239,9 +240,9 @@ export const api = {
     return request("POST", "/profile-extraction", "text" in source ? { resume_text: source.text } : { resume_pdf_base64: source.pdfBase64 });
   },
 
-  async snapshot(): Promise<{ id: string; date: string; jobCount: number }> {
-    const r = await request<{ snapshot_id: string; date: string; job_count: number }>("GET", "/snapshots/current");
-    return { id: r.snapshot_id, date: r.date, jobCount: r.job_count };
+  async snapshot(): Promise<{ id: string; date: string; jobCount: number; resumeReader: ResumeReader }> {
+    const r = await request<{ snapshot_id: string; date: string; job_count: number; resume_reader?: ResumeReader }>("GET", "/snapshots/current");
+    return { id: r.snapshot_id, date: r.date, jobCount: r.job_count, resumeReader: r.resume_reader ?? "openai" };
   },
 
   async recommendations(

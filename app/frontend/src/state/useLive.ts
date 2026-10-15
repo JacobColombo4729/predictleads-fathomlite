@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { FeedbackReason, FeedbackSignal, Filters, Job, Profile, Recommendation, SearchScope, Stage, Tracker, TrackedJob } from "../types";
+import type { FeedbackReason, FeedbackSignal, Filters, Job, Profile, Recommendation, ResumeReader, SearchScope, Stage, Tracker, TrackedJob } from "../types";
 import { api, ApiError } from "../lib/api";
 import { blankProfile, isBlankProfile } from "../lib/profile";
 
-export interface Snapshot { id: string; date: string; jobCount: number }
+export interface Snapshot { id: string; date: string; jobCount: number; resumeReader: ResumeReader }
 
 type Boot = { status: "booting" } | { status: "ready" } | { status: "error"; message: string };
 

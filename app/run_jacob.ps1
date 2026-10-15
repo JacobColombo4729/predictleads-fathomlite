@@ -1,5 +1,5 @@
 # Jacob's app: the same app as run_demo.ps1, ranked by ML_Rank's priority queue (backend/ml_rank_ranker.py), with every
-# OpenAI feature off. Runs next to the demo: backend on port 8001, frontend on http://127.0.0.1:5174 (the demo keeps 8000/5173).
+# OpenAI feature off (Magic fill reads resumes on this computer). Runs next to the demo: backend on port 8001, frontend on http://127.0.0.1:5174 (the demo keeps 8000/5173).
 # Opens two windows (the backend and the frontend), waits for the backend to load (about 3.5 minutes), then opens the page.
 # Stop it by closing both windows. Needs what run_demo.ps1 needs plus ML_Rank's hand-off (ML_Rank section 13, data/clean/ml_rank/).
 # Both apps share the demo's session database, so a profile made in one shows in the other.
@@ -29,12 +29,14 @@ if (-not (Test-Path (Join-Path $frontend "node_modules"))) {
     Pop-Location
 }
 
-# Every OpenAI feature off, whatever this shell or .env says (only "openai" turns one on); the windows below inherit these
-$env:PREDICTLEADS_RESUME_EXTRACTION = "off"
+# Every OpenAI feature off, whatever this shell or .env says (only "openai" turns one on); the windows below inherit these.
+# Magic fill reads the resume on this computer instead (code/local_resume_reader.py).
+$env:PREDICTLEADS_RESUME_EXTRACTION = "local"
 $env:PREDICTLEADS_ASSESSMENT = "off"
 $env:PREDICTLEADS_MARKET = "off"
 $env:PREDICTLEADS_BACKEND_PORT = "$BackendPort"
 $env:PREDICTLEADS_FRONTEND_PORT = "$FrontendPort"
+$env:PREDICTLEADS_API_ORIGINS = "http://127.0.0.1:$FrontendPort,http://localhost:$FrontendPort"  # the backend accepts this page's port
 
 $backend = Start-Process powershell -PassThru -ArgumentList @(
     "-NoExit", "-ExecutionPolicy", "Bypass", "-File", "`"$backendScript`"", "-NoAI", "-Ranker", "mlrank", "-Port", $BackendPort)
