@@ -94,7 +94,11 @@ class JobLevelTests(unittest.TestCase):
             ("Head of Data", "head", "director"),
             ("VP, Data", "vice_president", "director"),
             ("Junior Data Analyst", None, "entry"),  # no stated seniority: the title decides
-            ("Data Science Intern", None, "entry"),
+            ("Data Science Intern", None, "internship"),  # internships are their own level, apart from entry
+            ("Software Engineering Intern", "junior", "internship"),  # whatever the seniority label says
+            ("Summer Internship - Data Analytics", None, "internship"),
+            ("Co-op Student, Data Engineering", None, "internship"),
+            ("Internal Audit Analyst", None, "unstated"),  # "internal" is not "intern"
             ("Data Analyst", None, "unstated"),
             ("Staffing Coordinator", None, "unstated"),  # "staff" only counts as a whole word
         ]
@@ -112,6 +116,7 @@ class JobLevelTests(unittest.TestCase):
             dict(source_job("senior-0", "Senior Data Analyst", "Lead analysis.", company_id="c2"), seniority="mid_senior"),
             dict(source_job("exp-0", "Data Scientist", "Build models.", company_id="c3"), seniority="mid_senior"),
             dict(source_job("mgr-0", "Analytics Manager", "Manage a team.", company_id="c4"), seniority="manager"),
+            dict(source_job("intern-0", "Data Analyst Intern", "Build reports.", company_id="c5"), seniority="junior"),
         ]
         (root / "jobs.jsonl").write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
         settings = Settings(db_path=root / "d.sqlite3", sample_path=root / "jobs.jsonl", session_ttl_seconds=3600,
@@ -128,9 +133,10 @@ class JobLevelTests(unittest.TestCase):
             self.assertEqual(response.status_code, 200, response.text)
             return {item["job"]["job_id"] for item in response.json()["items"]}
 
-        self.assertEqual(ids(["entry"]), {"entry-0", "entry-1"})
+        self.assertEqual(ids(["entry"]), {"entry-0", "entry-1"})  # the internship is not entry level
+        self.assertEqual(ids(["internship"]), {"intern-0"})
         self.assertEqual(ids(["entry", "experienced"]), {"entry-0", "entry-1", "exp-0"})
-        self.assertEqual(len(ids([])), 5)  # no levels chosen keeps everything
+        self.assertEqual(len(ids([])), 6)  # no levels chosen keeps everything
         response = client.post(f"/api/v1/profiles/{pid}/recommendations",
                                json={"snapshot_id": SNAPSHOT_ID, "profile_version": 1, "limit": 20, "filters": {"levels": ["intern"]}})
         self.assertEqual(response.status_code, 422)
