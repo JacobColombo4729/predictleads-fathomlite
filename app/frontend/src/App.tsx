@@ -204,6 +204,7 @@ export default function App() {
           profile={live.profile}
           edited={!isBlankProfile(live.profile)}
           recovered={false}
+          resumeReader={live.snapshot?.resumeReader ?? "openai"}
           onSave={live.saveProfile}
           onReset={async () => { await live.startOver(); compass.reset(); gapBatch.reset(); setPicked([]); }}
         />

@@ -49,6 +49,9 @@ export interface Recommendation {
 
 export type PreferredArrangement = Exclude<WorkArrangement, "Not provided">;
 
+/** How Magic fill reads a resume on this server: sent to OpenAI, read on this computer (Jacob's app), or switched off. */
+export type ResumeReader = "openai" | "local" | "off";
+
 export type EntryKind = "job" | "project" | "education";
 
 export interface ExperienceEntry {

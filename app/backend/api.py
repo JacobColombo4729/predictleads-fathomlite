@@ -980,8 +980,14 @@ def _default_assessment_provider() -> "grounded.ExplanationProvider | None":
 
 
 def _default_extraction_provider() -> "resume_extraction.ResumeProvider | None":
-    """Resume "magic fill" sends resume text to OpenAI, so it is off unless PREDICTLEADS_RESUME_EXTRACTION=openai."""
-    if os.environ.get("PREDICTLEADS_RESUME_EXTRACTION", "").strip().lower() != "openai":
+    """Resume "magic fill" sends resume text to OpenAI, so it is off unless PREDICTLEADS_RESUME_EXTRACTION=openai.
+    PREDICTLEADS_RESUME_EXTRACTION=local reads it on this computer instead (code/local_resume_reader.py, Jacob's app)."""
+    choice = os.environ.get("PREDICTLEADS_RESUME_EXTRACTION", "").strip().lower()
+    if choice == "local":
+        import local_resume_reader
+
+        return local_resume_reader.LocalResumeProvider()
+    if choice != "openai":
         return None
     return resume_extraction.OpenAIResumeProvider.from_environment()
 
@@ -1163,6 +1169,8 @@ def create_app(
             "date": jobs.snapshot_date,
             "job_count": len(jobs.jobs),
             "ranker": {"id": app.state.ranker.ranker_id, "version": app.state.ranker.version},
+            # how Magic fill reads a resume: "openai" (sent to OpenAI), "local" (on this computer) or "off"
+            "resume_reader": getattr(app.state.extraction_provider, "reader", "openai") if app.state.extraction_provider is not None else "off",
             "availability": "unverified",
             "note": "Historical listings from one snapshot; none are verified as currently open.",
         }
@@ -1909,7 +1917,8 @@ def create_app(
                     pdf_bytes = base64.b64decode(payload.resume_pdf_base64, validate=True)
                 except (binascii.Error, ValueError):
                     raise APIError(422, "resume_not_readable", "The PDF upload was not valid.") from None
-                resume_text = resume_extraction.pdf_to_text(pdf_bytes)
+                # a reader may bring its own PDF reading (the local reader keeps the page's lines); otherwise the shared one
+                resume_text = getattr(extraction_provider, "pdf_to_text", resume_extraction.pdf_to_text)(pdf_bytes)
             else:
                 resume_text = payload.resume_text or ""
             result = resume_extraction.extract_profile(resume_text, extraction_provider)

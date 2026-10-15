@@ -34,9 +34,11 @@ if [[ ! -d "$root/frontend/node_modules" ]]; then
   (cd "$root/frontend" && npm install)
 fi
 
-# Every OpenAI feature off, whatever this shell or .env says (only "openai" turns one on)
-export PREDICTLEADS_RESUME_EXTRACTION="off" PREDICTLEADS_ASSESSMENT="off" PREDICTLEADS_MARKET="off"
+# Every OpenAI feature off, whatever this shell or .env says (only "openai" turns one on); Magic fill reads
+# the resume on this computer instead (code/local_resume_reader.py)
+export PREDICTLEADS_RESUME_EXTRACTION="local" PREDICTLEADS_ASSESSMENT="off" PREDICTLEADS_MARKET="off"
 export PREDICTLEADS_BACKEND_PORT="$backend_port" PREDICTLEADS_FRONTEND_PORT="$frontend_port"
+export PREDICTLEADS_API_ORIGINS="http://127.0.0.1:$frontend_port,http://localhost:$frontend_port"  # the backend accepts this page's port
 
 trap 'trap - EXIT; kill 0' INT TERM EXIT  # Ctrl+C or exit stops the backend and the frontend with this script
 
