@@ -514,9 +514,27 @@ def ranking_groups(query_ids):
     return order, sorted_q.groupby(sorted_q.values, sort=False).size().tolist()
 
 
+LAMBDARANK_MAX_QUERY = 10_000  # LightGBM's limit on rows per query
+
+
+def split_large_queries(query_ids, max_rows=LAMBDARANK_MAX_QUERY, seed=SEED):
+    """Query ids with every query over `max_rows` rows split at random into the fewest equal-sized parts that fit
+    (LightGBM refuses longer queries). Each part is a random sample of its query, so it ranks the same kind of list;
+    queries that fit keep their id."""
+    q = pd.Series(np.asarray(query_ids)).astype(str)
+    sizes = q.map(q.value_counts()).values
+    parts = np.ceil(sizes / max_rows).astype(int)
+    if (parts == 1).all():
+        return q.values
+    position = pd.Series(np.random.default_rng(seed).permutation(len(q))).groupby(q.values).rank(method="first").values - 1
+    part = (position % parts).astype(int).astype(str)
+    return np.where(parts > 1, q.values + "#" + part, q.values)
+
+
 def train_lambdarank(X, relevance, query_ids, seed=SEED):
-    """Fit LambdaRank on graded relevance (non-negative integers) per query (one query = one career changer's list)."""
-    order, sizes = ranking_groups(query_ids)
+    """Fit LambdaRank on graded relevance (non-negative integers) per query (one query = one career changer's list).
+    Queries longer than LightGBM's limit are split at random into parts (split_large_queries)."""
+    order, sizes = ranking_groups(split_large_queries(query_ids, seed=seed))
     X = X.iloc[order] if hasattr(X, "iloc") else np.asarray(X)[order]
     return lambdarank_model(seed).fit(X, np.asarray(relevance)[order].astype(int), group=sizes)
 
