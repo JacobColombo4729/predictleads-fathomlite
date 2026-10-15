@@ -55,6 +55,13 @@ def closes_within(target, n_days=CLOSING_DAYS):
     return out
 
 
+def answer_known_either_way(first_seen, n_days=CLOSING_DAYS, end=EXPORT_END, tolerance=LIVE_TOLERANCE_DAYS):
+    """True for listings first seen early enough that their N-day answer is known whichever way it went: more than
+    N + tolerance days before the data ends. Later listings have a known answer only if they closed fast (one still open
+    hasn't been watched N days yet), so a month's known answers near the end are all early closers; evaluate on these."""
+    return (_naive(first_seen) < pd.Timestamp(end) - pd.Timedelta(days=n_days + tolerance)).to_numpy()
+
+
 def open_long_enough(target, n_days=CLOSING_DAYS):
     """1 = still open n days after the listing was first seen, 0 = closed within n days, NaN = censored before n days.
     The opposite of closes_within, with the same unknown cases."""

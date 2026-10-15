@@ -40,6 +40,21 @@ class Targets(unittest.TestCase):
         t2 = rm.survival_target(listings())
         self.assertTrue(np.isnan(rm.closes_within(t2, 10).iloc[5]))  # censored after 1 day: not "stayed open"
 
+    def test_answer_known_either_way_drops_the_last_n_plus_tolerance_days(self):
+        n, tol = 10, rm.LIVE_TOLERANCE_DAYS
+        late = rm.EXPORT_END - pd.Timedelta(days=n + tol)
+        first = pd.Series([late - pd.Timedelta(hours=1), late, rm.EXPORT_END - pd.Timedelta(days=1)])
+        self.assertEqual(list(rm.answer_known_either_way(first, n)), [True, False, False])
+        # Every listing kept has a known answer, whether it closed fast or stayed open
+        rng = np.random.default_rng(0)
+        fs = pd.Series(rm.EXPORT_END - pd.to_timedelta(rng.uniform(0, 60, 500), unit="D"))
+        ls = (fs + pd.to_timedelta(rng.uniform(0, 40, 500), unit="D")).clip(upper=rm.EXPORT_END)
+        df = pd.DataFrame({"id": range(500), "first_seen": fs, "last_seen": ls})
+        y = rm.closes_within(rm.survival_target(df), n)
+        keep = rm.answer_known_either_way(df["first_seen"], n)
+        self.assertFalse(y[keep].isna().any())
+        self.assertTrue(y[~keep].isna().any())
+
     def test_days_open_only_for_closed(self):
         d = rm.days_open(rm.survival_target(listings()))
         self.assertTrue(d.iloc[2:3].isna().all())
