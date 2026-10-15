@@ -146,6 +146,7 @@ export default function App() {
           profile={live.profile}
           snapshotId={live.snapshot?.id ?? null}
           snapshotDate={live.snapshot?.date ?? null}
+          listedRange={live.snapshot?.listedRange ?? null}
           ranker={live.ranker}
           searchScope={live.searchScope}
           feedbackApplied={live.feedbackApplied}
@@ -204,6 +205,7 @@ export default function App() {
           profile={live.profile}
           edited={!isBlankProfile(live.profile)}
           recovered={false}
+          resumeReader={live.snapshot?.resumeReader ?? "openai"}
           onSave={live.saveProfile}
           onReset={async () => { await live.startOver(); compass.reset(); gapBatch.reset(); setPicked([]); }}
         />

@@ -148,7 +148,7 @@ function DetailsBody({ item, tracked, profile, snapshotId, onToggleSave, onStage
             <section className="section section--first">
               <h3>Listing</h3>
               <dl className="kv">
-                <div><dt>Observed</dt><dd>{formatDate(job.observedOn)}</dd></div>
+                <div><dt>Listed</dt><dd>{job.listedOn ? formatDate(job.listedOn) : "Not given"}{job.listedBasis === "first_seen" && <span className="muted"> (first seen by our crawler)</span>}</dd></div>
                 <div><dt>Status in snapshot</dt><dd>{historicalStatusText[job.historicalStatus]}</dd></div>
                 <div><dt>Current availability</dt><dd className="muted">Not verified. This is a historical listing.</dd></div>
                 <div>
