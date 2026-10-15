@@ -25,8 +25,12 @@ export interface Job {
   /** Plain text. Blank line separates paragraphs; lines starting "- " are bullets. */
   description: string | null;
   sourceUrl: string;
-  /** ISO date (YYYY-MM-DD) on which the listing was observed. */
+  /** ISO date (YYYY-MM-DD) of the snapshot the listing comes from (the same for every listing). */
   observedOn: string;
+  /** ISO date the listing was listed: the employer's posted date, or the crawler's first sighting when that is earlier
+   *  or no posted date is given (listedBasis says which). Null when neither is known. */
+  listedOn: string | null;
+  listedBasis: "posted" | "first_seen" | "unknown";
   historicalStatus: HistoricalStatus;
   level?: JobLevel;
 }
@@ -51,6 +55,9 @@ export type PreferredArrangement = Exclude<WorkArrangement, "Not provided">;
 
 /** How Magic fill reads a resume on this server: sent to OpenAI, read on this computer (Jacob's app), or switched off. */
 export type ResumeReader = "openai" | "local" | "off";
+
+/** The days the "Open on" picker offers: the first listing day to the last sighting in the snapshot. */
+export interface ListedRange { first: string | null; last: string | null }
 
 export type EntryKind = "job" | "project" | "education";
 
@@ -115,6 +122,8 @@ export interface Filters {
   description: DescriptionFilter;
   /** Levels to show; empty shows every level. */
   levels: JobLevel[];
+  /** Show only the listings open on this day (YYYY-MM-DD); empty shows every listing. */
+  asOf?: string;
 }
 
 export type FeedbackSignal = "good" | "bad";

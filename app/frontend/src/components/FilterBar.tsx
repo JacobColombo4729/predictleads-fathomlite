@@ -1,6 +1,12 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { JOB_LEVELS, type DescriptionFilter, type Filters, type JobLevel } from "../types";
-import { SearchIcon } from "./Icons";
+import { JOB_LEVELS, type DescriptionFilter, type Filters, type JobLevel, type ListedRange } from "../types";
+import { CalendarIcon, SearchIcon } from "./Icons";
+
+// "Tuesday, Aug 12, 2026" for the chosen day, so the day of the week is visible
+const longDay = (iso: string) => {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", year: "numeric" });
+};
 
 const toggle = (levels: JobLevel[], id: JobLevel) =>
   levels.includes(id) ? levels.filter((l) => l !== id) : JOB_LEVELS.map((l) => l.id).filter((l) => l === id || levels.includes(l));
@@ -8,9 +14,11 @@ const toggle = (levels: JobLevel[], id: JobLevel) =>
 interface Props {
   filters: Filters;
   onChange: (next: Filters) => void;
+  /** The days the "Open on" picker offers (from the snapshot). */
+  listedRange?: ListedRange | null;
 }
 
-export default function FilterBar({ filters, onChange }: Props) {
+export default function FilterBar({ filters, onChange, listedRange }: Props) {
   // The search words are applied with the Search button (or Enter); location and description apply as you change them.
   const [draft, setDraft] = useState(filters.query);
   useEffect(() => setDraft(filters.query), [filters.query]);
@@ -64,7 +72,31 @@ export default function FilterBar({ filters, onChange }: Props) {
             <option value="without">No description</option>
           </select>
         </label>
+        <label className="select">
+          <span>Open on</span>
+          <span className="dateinput">
+            <CalendarIcon />
+            <input
+              type="date"
+              value={filters.asOf ?? ""}
+              min={listedRange?.first ?? undefined}
+              max={listedRange?.last ?? undefined}
+              onChange={(e) => set("asOf", e.target.value)}
+              aria-label="Show the listings that were open on a day"
+            />
+          </span>
+        </label>
       </div>
+      <p className="muted small">
+        {filters.asOf ? (
+          <>
+            Showing the listings open on {longDay(filters.asOf)}.{" "}
+            <button type="button" className="btn btn--ghost btn--sm" onClick={() => set("asOf", "")}>Show every listing</button>
+          </>
+        ) : (
+          "Showing every listing. Pick a day under Open on to see what was listed then."
+        )}
+      </p>
       <fieldset className="levels">
         <legend>Job level</legend>
         {JOB_LEVELS.map((level) => (
