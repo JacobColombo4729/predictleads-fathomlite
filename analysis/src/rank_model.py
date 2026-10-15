@@ -110,8 +110,11 @@ def prior_company_counts(df):
 
 def known_at_first_sight(df, flag_cols, has_desc="has_desc"):
     """Leakage audit for has_desc and the text flags: share of listings where a flag is set although has_desc is
-    False (should be 0: flags are unknown, not False, without a description)."""
-    rows = [{"feature": c, "set_without_description": float(((~df[has_desc].astype(bool)) & df[c].notna()).mean())}
+    False (should be 0: flags are unknown, not False, without a description), and the same as a share of the listings
+    without a description. A blank has_desc counts as no description."""
+    no_desc = ~pd.Series(df[has_desc]).fillna(0).astype(bool)
+    rows = [{"feature": c, "set_without_description": float((no_desc & df[c].notna()).mean()),
+             "share_of_no_description": float((no_desc & df[c].notna()).sum() / max(int(no_desc.sum()), 1))}
             for c in flag_cols]
     return pd.DataFrame(rows)
 

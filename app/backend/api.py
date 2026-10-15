@@ -999,14 +999,21 @@ class ResumeExtractionRequest(BaseModel):
 
 
 def _default_ranker(jobs: Sequence[matching.JobRecord]) -> "RankingBackend":
-    """TF-IDF by default; PREDICTLEADS_API_RANKER=rrf selects TF-IDF+BGE fusion (needs PREDICTLEADS_API_CORPUS_DIR)."""
-    if os.environ.get("PREDICTLEADS_API_RANKER", "tfidf").strip().lower() == "rrf":
+    """TF-IDF by default; PREDICTLEADS_API_RANKER=rrf selects TF-IDF+BGE fusion (needs PREDICTLEADS_API_CORPUS_DIR);
+    mlrank selects ML_Rank's priority queue on top of that fusion (backend/ml_rank_ranker.py, Jacob's app)."""
+    name = os.environ.get("PREDICTLEADS_API_RANKER", "tfidf").strip().lower()
+    if name in {"rrf", "mlrank"}:
         from .rrf_ranker import RrfRankingBackend
 
         corpus_dir = os.environ.get("PREDICTLEADS_API_CORPUS_DIR")
         if not corpus_dir:
-            raise ValueError("PREDICTLEADS_API_RANKER=rrf requires PREDICTLEADS_API_CORPUS_DIR.")
-        return RrfRankingBackend(jobs, Path(corpus_dir))
+            raise ValueError(f"PREDICTLEADS_API_RANKER={name} requires PREDICTLEADS_API_CORPUS_DIR.")
+        fused = RrfRankingBackend(jobs, Path(corpus_dir))
+        if name == "mlrank":
+            from .ml_rank_ranker import MlRankRankingBackend
+
+            return MlRankRankingBackend.from_handoff(fused)
+        return fused
     return TfIdfRankingBackend(jobs)
 
 
