@@ -97,9 +97,10 @@ export type Tracker = Record<string, TrackedJob>;
 export type DescriptionFilter = "any" | "with" | "without";
 
 /** The listing's level, from PredictLeads' seniority plus the title (backend `job_level`). */
-export type JobLevel = "entry" | "experienced" | "senior" | "manager" | "director" | "unstated";
+export type JobLevel = "internship" | "entry" | "experienced" | "senior" | "manager" | "director" | "unstated";
 
 export const JOB_LEVELS: { id: JobLevel; label: string }[] = [
+  { id: "internship", label: "Internship" },
   { id: "entry", label: "Entry level" },
   { id: "experienced", label: "Experienced" },
   { id: "senior", label: "Senior" },

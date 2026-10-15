@@ -164,24 +164,29 @@ class ProfilePatch(BaseModel):
     constraints: str | None = Field(default=None, max_length=1000)
 
 
-JobLevel = Literal["entry", "experienced", "senior", "manager", "director", "unstated"]
+JobLevel = Literal["internship", "entry", "experienced", "senior", "manager", "director", "unstated"]
 _DIRECTOR_AND_ABOVE = {"head", "director", "vice_president", "president", "c_level", "partner", "founder"}
 _SENIOR_TITLE = re.compile(r"\b(senior|sr|lead|principal|staff|architect)\b", re.IGNORECASE)
-_ENTRY_TITLE = re.compile(r"\b(junior|jr|entry[- ]level|intern|internship|graduate|new grad|apprentice|trainee)\b", re.IGNORECASE)
+_INTERN_TITLE = re.compile(r"\b(interns?|internships?|co-?ops?)\b", re.IGNORECASE)
+_ENTRY_TITLE = re.compile(r"\b(junior|jr|entry[- ]level|graduate|new grad|apprentice|trainee)\b", re.IGNORECASE)
 
 
 def job_level(source: Mapping[str, Any]) -> JobLevel:
     """The listing's level for the job-level filter, from PredictLeads' `seniority` and the title.
 
+    An internship or co-op in the title is its own level, whatever the seniority label says (PredictLeads labels many
+    internships `junior`), so internships can be shown or hidden apart from entry-level jobs.
     PredictLeads' `mid_senior` is LinkedIn's one level for experienced individual contributors, so a senior word in the
     title (senior, lead, principal, staff, architect) splits "senior" out of it, and also overrides a `junior` label.
-    A title word like "junior" or "intern" places listings with no stated seniority at entry level."""
+    A title word like "junior" or "trainee" places listings with no stated seniority at entry level."""
     seniority = str(source.get("seniority") or "").casefold()
     title = " ".join(str(source.get(key) or "") for key in ("title_raw", "title_normalized"))
     if seniority in _DIRECTOR_AND_ABOVE:
         return "director"
     if seniority == "manager":
         return "manager"
+    if _INTERN_TITLE.search(title) or seniority in {"intern", "internship"}:
+        return "internship"
     if _SENIOR_TITLE.search(title):
         return "senior"
     if seniority == "junior":
@@ -201,7 +206,7 @@ class RecommendationFilters(BaseModel):
     category: str | None = Field(default=None, max_length=120)
     seniority: str | None = Field(default=None, max_length=80)
     # Job levels to keep (job_level below); empty keeps every level
-    levels: list[JobLevel] = Field(default_factory=list, max_length=6)
+    levels: list[JobLevel] = Field(default_factory=list, max_length=7)
     work_arrangement: str | None = Field(default=None, max_length=80)
 
 
