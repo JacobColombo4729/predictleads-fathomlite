@@ -353,6 +353,8 @@ It needs the serving corpus at `data/matching/ai_ml_serving_v1` (step 13) and th
 ```
 macOS / Linux: `./app/run_demo.sh` (Ctrl+C stops both; `--preview` for the light laptop preview, `--ranker tfidf`). It refuses to start if a backend is already running, so an AI-on backend can't be reused by mistake.
 
+**Jacob's app: the same app ranked by the analysis models, AI always off.** `.\app\run_jacob.ps1` (macOS / Linux: `./app/run_jacob.sh`) starts the same backend and frontend with the `mlrank` ranker (`app/backend/ml_rank_ranker.py`): ML_Rank's priority queue (chance still open, accessibility, pay, with ML_Rank's tuned weights) reorders the listings that match the user's text, and hides what ML_Rank hides by default. Until ML_Fit is wired in, the fit factor is the app's own text match. It runs next to the demo, on http://127.0.0.1:5174 with the backend on port 8001, and shares the demo's sessions. Needs ML_Rank's hand-off (`data/clean/ml_rank/`, ML_Rank section 13). Every shared change to the app reaches both; only the ranker differs.
+
 To run the pieces by hand instead:
 
 1. **Backend** (about 3.5 minutes to load, about 2.5 GB of memory):

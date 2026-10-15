@@ -102,6 +102,13 @@ class Leakage(unittest.TestCase):
         df = pd.DataFrame({"has_desc": [True, False, False], "urgency": [False, pd.NA, True]})
         r = rm.known_at_first_sight(df, ["urgency"])
         self.assertAlmostEqual(r["set_without_description"].iloc[0], 1 / 3)
+        self.assertAlmostEqual(r["share_of_no_description"].iloc[0], 1 / 2)
+
+    def test_blank_has_desc_counts_as_no_description(self):
+        df = pd.DataFrame({"has_desc": [1.0, np.nan, 0.0], "urgency": [0.0, 1.0, np.nan]})  # floats, as ML_Rank 2a loads them
+        r = rm.known_at_first_sight(df, ["urgency"])
+        self.assertAlmostEqual(r["set_without_description"].iloc[0], 1 / 3)
+        self.assertAlmostEqual(r["share_of_no_description"].iloc[0], 1 / 2)
 
 
 class Baselines(unittest.TestCase):
