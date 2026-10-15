@@ -299,6 +299,16 @@ class RankingTraining(unittest.TestCase):
         model = rm.train_lambdarank(X, rel, q)
         self.assertGreater(rm.ndcg_at_k(rel, model.predict(X), 10), 0.9)
 
+    def test_queries_over_the_limit_are_split_into_equal_random_parts(self):
+        q = np.array(["big"] * 25 + ["small"] * 4)
+        split = rm.split_large_queries(q, max_rows=10)
+        counts = pd.Series(split).value_counts()
+        self.assertEqual(counts["small"], 4)
+        self.assertEqual(sorted(counts.drop("small").tolist()), [8, 8, 9])
+        self.assertTrue(all(s.startswith("big#") for s in split[:25]))
+        self.assertNotEqual(list(split[:9]), [split[0]] * 9)  # parts are random samples, not consecutive rows
+        self.assertEqual(list(rm.split_large_queries(q[25:], max_rows=10)), ["small"] * 4)
+
 
 class Hypotheses(unittest.TestCase):
     def test_backtest_relevance_needs_all_three_and_treats_unknown_as_no(self):
