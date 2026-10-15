@@ -11,7 +11,7 @@ A plain inventory for defending the project. For each piece: what it does, the p
 | 3. Compass analysis | Compass | Embeddings + clustering + similarity matching + MMR | No | No (thresholds hand-tuned on a few examples) |
 | 4. Magic fill (resume to profile) | Profile | GenAI (LLM) with grounding checks | No (hosted model) | Checked by hand on two real resumes |
 | 5. Hiring signals | Signals, job-card badge | Anomaly detection + entity resolution, backtested | Models tried, not shipped | **Yes, temporal backtest** |
-| 6. Role-family classifier | Not in the app | Logistic regression on BGE | Yes | Yes, against provider labels (not against fit) |
+| 6. Role-family classifier | Not in the app | Keyword (TF-IDF) + logistic regression on job titles; BGE title embeddings tried | Yes | Yes, against provider labels (about 72% agreement; not against fit) |
 | 7. Match explanations | Off by default | GenAI with grounding | No | Not run in the demo |
 | 8. Ask the market | Signals tab | GenAI turns a question into a validated search; the answer is plain data analysis | No (hosted model) | Checked by tests and live on public questions; the engine's numbers are counts and medians of real listings |
 | 9. Company research and voice | Signals tab | GenAI with web search (cited sentences only); speech-to-text | No (hosted model) | Tested on one company and one synthetic voice; not measured at scale |
@@ -53,9 +53,11 @@ A plain inventory for defending the project. For each piece: what it does, the p
 
 ## 6. Role-family classifier (supporting, not shipped in the app)
 
-- **What:** BGE embeddings + logistic regression predicting 17 role families, trained on the provider's own O*NET occupation labels (no human labels), with a company-held-out 80/20 split so one company's wording cannot leak.
-- **Result:** test accuracy 94.7% (macro-F1 0.94) vs 69.4% for TF-IDF + logistic regression and 29.8% for always guessing the biggest class.
-- **Honest limits:** it measures agreement with the provider's labels, not whether a job fits a person. On resumes it describes past career, not the target. The Signals layer uses rule-based role families, not this classifier.
+- **What:** logistic regression predicting 17 classes (16 role families plus Other) from the job title (one variant also reads the first 2,500 characters of the description), trained on the provider's own O*NET occupation labels (no human labels). Company-held-out 80/20 splits, repeated over 3 random splits so a result comes with a spread.
+- **Result (2026-10-13, 244,527 labelled listings, mean over 3 splits):** always guessing the biggest class 30.2% accuracy; TF-IDF on the title **72.1%** (macro-F1 0.64); BGE embedding of the title 70.5% (0.62); TF-IDF on title + description 68.9% (0.57). Spread between splits is about 0.5 points. Strongest families: Technical Sales / Solutions Engineer 86%, Data Scientist 80%. Weakest: QA / Test 27%, Systems Analyst 39%, Network / Systems Admin 43%, Web Developer 48%.
+- **Correction (2026-10-13):** an earlier version reported 94.7% accuracy (macro-F1 0.94) for BGE + logistic regression against 69.4% for TF-IDF. That comparison was not valid. The saved BGE job text includes "Occupation: <O*NET occupation name>", and the labels come from that same name, so the model could read the answer. A control that deliberately adds the occupation name to the keyword model scores 96.4%; with it removed, the BGE model scored about 62% in a same-split check on 6,000 jobs. Model inputs now never include the occupation, and `tests/test_role_family_classifier.py` keeps it that way. **Do not quote 94.7%.**
+- **What it suggests:** the provider's labels follow the job title closely. The title alone scores as well as or better than title + description, and embeddings did not beat keywords at the same data size. (A reading, not a proof: the provider's labelling method is not documented.)
+- **Honest limits:** it measures agreement with the provider's labels, not whether a job fits a person. Some fits stopped at their iteration limit, so the numbers are approximate. The earlier resume-profile prediction step was removed: it applied a job-title model to resumes, was never validated, and described past career, not the target. The Signals layer uses rule-based role families, not this classifier.
 
 ## 7. Match explanations (off by default)
 
