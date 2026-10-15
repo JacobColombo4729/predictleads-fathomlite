@@ -1,7 +1,7 @@
 import { JOB_LEVELS, type FeedbackSignal, type JobLevel, type Recommendation } from "../types";
 
 const levelLabel = (level: JobLevel) => JOB_LEVELS.find((l) => l.id === level)?.label ?? level;
-import { formatDate, historicalStatusText } from "../lib/jobs";
+import { cleanDescription, formatDate, historicalStatusText } from "../lib/jobs";
 import { useSignalPattern } from "../lib/signals";
 import PatternBadge from "./signals/PatternBadge";
 import { BookmarkIcon, BuildingIcon, CalendarIcon, CashIcon, PinIcon, ThumbDownIcon, ThumbUpIcon } from "./Icons";
@@ -50,11 +50,16 @@ export default function JobCard({ item, selected, saved, onSelect, onViewDetails
       {similar && (
         <p className="card__similar">More like “{similar.title ?? "a job you liked"}”, which you marked as a good match.</p>
       )}
-      {job.description && <p className="card__why">{job.description.replace(/\s+/g, " ").slice(0, 200)}{job.description.length > 200 ? "…" : ""}</p>}
+      {job.description && (() => {
+        const text = cleanDescription(job.description).replace(/^- /gm, "").replace(/\s+/g, " ").trim();
+        return <p className="card__why">{text.slice(0, 200)}{text.length > 200 ? "…" : ""}</p>;
+      })()}
 
       <footer className="card__foot">
         <div className="card__status">
-          <span className="obs"><CalendarIcon />Observed {formatDate(job.observedOn)}</span>
+          <span className="obs" title={job.listedBasis === "first_seen" ? "The day our crawler first saw it (the employer gave no earlier posting date)" : undefined}>
+            <CalendarIcon />{job.listedOn ? `Listed ${formatDate(job.listedOn)}` : "Date listed not given"}
+          </span>
           <span className={`status status--${job.historicalStatus}`}>
             Status in snapshot: {historicalStatusText[job.historicalStatus]}. Not verified as open.
           </span>

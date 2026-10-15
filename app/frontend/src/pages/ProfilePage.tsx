@@ -1,7 +1,7 @@
 import { api } from "../lib/api";
 import { listSourceProfiles, profileFromSource } from "../lib/importProfile";
 import { useRef, useState, type ReactNode } from "react";
-import type { EntryKind, PreferredArrangement, Profile } from "../types";
+import type { EntryKind, PreferredArrangement, Profile, ResumeReader } from "../types";
 import {
   ARRANGEMENT_OPTIONS, ENTRY_KINDS, LIMITS, fromDraft, newId, toDraft, validateDraft, type ProfileDraft,
 } from "../lib/profile";
@@ -15,6 +15,8 @@ interface Props {
   profile: Profile;
   edited: boolean;
   recovered: boolean;
+  /** "local" (Jacob's app): the resume is read on this computer, so no consent to send it is needed. */
+  resumeReader?: ResumeReader;
   onSave: (p: Profile) => Promise<void>;
   onReset: () => Promise<void>;
 }
@@ -30,7 +32,8 @@ function Field({ id, label, error, hint, children }: { id: string; label: string
   );
 }
 
-export default function ProfilePage({ profile, edited, onSave, onReset }: Props) {
+export default function ProfilePage({ profile, edited, resumeReader = "openai", onSave, onReset }: Props) {
+  const localReader = resumeReader === "local";
   const [draft, setDraft] = useState<ProfileDraft>(() => draftOf(profile));
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<"idle" | "saved" | "cancelled" | "reset">("idle");
@@ -89,7 +92,7 @@ export default function ProfilePage({ profile, edited, onSave, onReset }: Props)
     }
   };
   const magicFill = async () => {
-    if (!resume || !resumeConsent) return;
+    if (!resume || !(resumeConsent || localReader)) return;
     setFilling(true);
     setFillMessage(null);
     try {
@@ -223,15 +226,22 @@ export default function ProfilePage({ profile, edited, onSave, onReset }: Props)
                 anything it cannot find is left as it was. It does not guess your desired roles. Nothing is saved until you press Save.
               </p>
               <input type="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" onChange={(e) => void onResumeFile(e.target.files?.[0])} aria-label="Resume file (PDF or text)" />
+              {localReader ? (
+                <p className="muted">
+                  The resume is read on this computer: nothing is sent anywhere, and the text is not stored by this app. It reads ordinary
+                  one-column resumes best; check every entry before you save. Scanned (image-only) PDFs cannot be read.
+                </p>
+              ) : (
+                <p>
+                  <label>
+                    <input type="checkbox" checked={resumeConsent} onChange={(e) => setResumeConsent(e.target.checked)} />{" "}
+                    I agree to send the text of this resume to OpenAI so it can be read. Emails, phone numbers and links are removed first, and the
+                    text is not stored by this app. Scanned (image-only) PDFs cannot be read.
+                  </label>
+                </p>
+              )}
               <p>
-                <label>
-                  <input type="checkbox" checked={resumeConsent} onChange={(e) => setResumeConsent(e.target.checked)} />{" "}
-                  I agree to send the text of this resume to OpenAI so it can be read. Emails, phone numbers and links are removed first, and the
-                  text is not stored by this app. Scanned (image-only) PDFs cannot be read.
-                </label>
-              </p>
-              <p>
-                <button type="button" className="btn btn--sm" disabled={!resume || !resumeConsent || filling} onClick={() => void magicFill()}>
+                <button type="button" className="btn btn--sm" disabled={!resume || !(resumeConsent || localReader) || filling} onClick={() => void magicFill()}>
                   {filling ? "Reading resume…" : "Magic fill"}
                 </button>
                 {resume && <span className="muted"> {resume.name}</span>}

@@ -164,12 +164,17 @@ def bootstrap_ci(hits, n_boot=2000, seed=0, level=0.95):
     return hits.mean(), lo, hi
 
 
+def split_strata(people, folds=5):
+    """The groups the split is stratified by: role x pool, with groups under folds + 2 people lumped into "rare"."""
+    strata = people.target_bucket.astype(str) + "|" + people.pool.astype(str)
+    return strata.where(strata.map(strata.value_counts()) >= folds + 2, "rare")
+
+
 def split_people(people, test_share=0.2, folds=5, seed=0):
     """A held-out test set (scored once, at the end) and development folds, both by person and stratified by role
     and pool, so every role and pool appears in each. Returns (dev index, test index, fold number per dev person)."""
     from sklearn.model_selection import StratifiedKFold, train_test_split
-    strata = people.target_bucket.astype(str) + "|" + people.pool.astype(str)
-    strata = strata.where(strata.map(strata.value_counts()) >= folds + 2, "rare")
+    strata = split_strata(people, folds)
     dev, test = train_test_split(people.index, test_size=test_share, random_state=seed, stratify=strata)
     fold = pd.Series(-1, index=dev)
     skf = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
