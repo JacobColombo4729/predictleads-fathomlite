@@ -190,6 +190,8 @@ Time to switch isn't in the data (Profiles has years in the old field, not how l
 
 **Hand-off to `ML_Rank`:** each career changer's fit score for every role (development people out-of-fold, test people from the model fit on the development people), with their split, pool, current and actual role, and, for the test people, each role's fit broken into the four groups (7a). `ML_Rank`'s backtest (8b) scores listings for test people only.
 
+**Hand-off to the app (9b, the combined model's step 1):** what scoring a new person needs, saved to `data/clean/ml_fit/` with `src/fit_handoff.py`: the trained layer fit on all development people (the fit that scored the test people in 5c), the role side of every method (each role's keyword words, the TF-IDF vectorizer and role centroids, the BGE role centroids, the O*NET skill profiles; aggregates only, no listing or person) and a manifest (roles, methods, the 106 input columns, versions). A parity check rescores the test people from the saved pieces: they must match 5c within 1e-4 and keep the same top 3 roles, or the cell stops.
+
 ### Solution report
 
 - **Steps:**
@@ -221,4 +223,4 @@ Time to switch isn't in the data (Profiles has years in the old field, not how l
 - **Hand-off and what's left:**
   - Saved for `ML_Rank`: `fit_scores.parquet` (2,813 people × 8 roles, development out-of-fold) and `fit_breakdown.parquet` (22,520 rows for the 563 test people).
   - Saved for the app: the compass tables (paths, skills to build, pay, market).
-  - Left: growth (BLS, waiting on consent); scoring a new résumé in the app (the listing sample, TF-IDF and BGE pieces have to be packaged); a smaller C to try in a future version, with a fresh test set.
+  - Left: growth (BLS, waiting on consent); turning a résumé into the trained layer's inputs in the app (the combined model's step 2; the pieces are saved in 9b); a smaller C to try in a future version, with a fresh test set.

@@ -89,6 +89,8 @@ Jesse's RRF ──► candidates: top text matches overall + top text matches wi
 
 ### 1. ML_Fit saves what the app needs to score a new person
 
+**Built (2026-10-15):** ML_Fit 9b with `analysis/src/fit_handoff.py` (`RoleScorer`, `save`, `load`), tested in `analysis/tests/test_fit_handoff.py`. `fit_eval`'s keyword, TF-IDF and BGE methods are split into a role half and a person half, and the old functions call the same halves, so ML_Fit's results are unchanged (test top 3 still 81.7%; the leakage audit's 8 checks pass). Parity on the 563 test people rescored from the saved pieces: largest input gap 4.2e-07, largest probability gap 1.5e-06 (BGE batching), the same top 3 roles for 100%.
+
 ML_Fit saves scores for the Profiles people (`fit_scores.parquet`), not a model that can score someone new. Add a section that saves, to `data/clean/ml_fit/` (git-ignored):
 - the chosen trained layer, fit on all development people (the same `Pipeline` that was evaluated), with `joblib`;
 - what the per-role method scores need at serving time: each role's keyword set, TF-IDF role documents and vectorizer, BGE role vectors (same `bge-base-en-v1.5`), role skill profiles (`fit_model.role_profiles`);
