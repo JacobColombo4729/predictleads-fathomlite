@@ -385,7 +385,7 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 1. `python code/extract_targeted_pool.py --scan` streams the full snapshot (about 19 GB from S3 with `S3_PATH` and `AWS_PROFILE` from `.env`, or from `data/raw/` if downloaded; about 36 minutes) and keeps AI/ML, data and technical-sales listings. `--check-sample` tests the matcher offline.
 2. `python code/rank_candidates.py build-corpus --targeted-dir ../data/matching/targeted_pool_<timestamp>` builds the deduplicated corpus. `encode` then `finalize-encode` compute the BGE embeddings (GPU recommended).
 3. `python code/rank_candidates.py export-serving` writes the serving subset the backend loads.
-4. `python code/rank_candidates.py rank ...` ranks the 12 test profiles; `python code/build_review_page.py --run-dir <ranking run> --profiles <profile files>` builds an optional blinded review page.
+4. `python code/rank_candidates.py rank ...` ranks the fictional test profiles; `python code/build_review_page.py --run-dir <ranking run> --profiles <profile files>` builds an optional blinded review page, a usability check only: the rankers are evaluated on real career moves (`analysis/STANDARDS.md`, Validation design).
 5. `python code/role_family_classifier.py` trains and evaluates the supporting role-family classifier.
 
 ---
