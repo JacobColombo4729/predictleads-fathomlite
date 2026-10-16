@@ -136,6 +136,8 @@ A career changer's résumé reads like their old field. Text-only candidates can
 Hidden listings stay out, as now.
 
 ### 5. The fit factor
+
+**Built (2026-10-15):** `combined/queue.py` (`Queue`) and `combined/model.py` (`CombinedModel.load(job_ids)`, `.recommend(entries, rank)`: steps 3–5 end to end), tested in `combined/tests/test_queue.py`. Over the same pool the queue's top 10 equals ML_Rank's backtest (`rm.queue_top_k`); listings outside ML_Fit's 8 roles get a neutral fit of 50 and say so. On the scope corpus with Jesse's RRF ranker, two fictional career changers each got a top 20 in about 1.6 seconds, all 20 in their top 3 roles, and 19 and 16 of the 20 came only through a role call. With fit weighted half and the best role rated 100, the trained layer picks the roles, the text match picks the listings within them, and still open and accessibility order them. That follows the tuned weights; the match blend below is the knob if the text match should count more.
 - **Default: fit = role fit** of the listing's role bucket. That is what the backtest measured, so the tuned weights still apply.
 - **Option: blend in the listing match**, `fit = (1 − a) · role fit + a · listing match`, with `a` a visible, adjustable weight (default 0). It breaks ties within a role using Jesse's text match. No data links people to listings, so `a` can't be tuned or reported as a result. It's a stated choice.
 - Each result's breakdown shows role fit and listing match separately.
