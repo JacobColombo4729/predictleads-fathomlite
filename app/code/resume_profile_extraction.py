@@ -29,10 +29,8 @@ REPO_ROOT = PROJECT_ROOT.parent  # data/, pretrained/ and .env are shared with a
 ENTRY_KINDS = ("job", "project", "education")
 MIN_RESUME_CHARS = 200
 MAX_RESUME_CHARS = 30_000
-# Each limit fits the Profile form (frontend/src/lib/profile.ts LIMITS) and the backend (api.py ProfileData), so whatever
-# Magic fill returns can be saved. Description, entries and skills take the backend's room, so a full resume fits.
-LIMITS = {"name": 80, "headline": 120, "title": 120, "organization": 120, "description": 4000,
-          "skill": 80, "evidence": 400, "location": 120, "max_experience": 30, "max_skills": 100}
+LIMITS = {"name": 80, "headline": 120, "title": 120, "organization": 120, "description": 1200,
+          "skill": 80, "evidence": 400, "location": 120, "max_experience": 12, "max_skills": 40}
 
 
 class ResumeProvider(Protocol):
@@ -166,8 +164,7 @@ def pdf_to_text(data: bytes) -> str:
 
 
 def extract_profile(resume_text: str, provider: ResumeProvider) -> dict[str, Any]:
-    """Return {"profile": {...}, "dropped": int, "shortened": int, "schema_version": str}. Raises on provider or schema
-    failure. "shortened": values cut to their limit, plus entries and skills over the maximum, left out."""
+    """Return {"profile": {...}, "dropped": int, "schema_version": str}. Raises on provider or schema failure."""
     text = redact_contact_details(resume_text.replace("\r\n", "\n")).strip()
     if len(text) < MIN_RESUME_CHARS:
         raise ResponseValidationError("The resume text is too short to read.")
@@ -178,13 +175,6 @@ def extract_profile(resume_text: str, provider: ResumeProvider) -> dict[str, Any
         raise ProviderFailure("Provider did not return an object.")
     resume_norm = _norm(text)
     dropped = 0
-    shortened = 0
-
-    def clip(value: str, limit: int) -> str:
-        nonlocal shortened
-        out = _clip(value, limit)
-        shortened += out != value.strip()
-        return out
 
     def single(field: str, limit: int) -> str:
         nonlocal dropped
@@ -194,7 +184,7 @@ def extract_profile(resume_text: str, provider: ResumeProvider) -> dict[str, Any
         if not _is_grounded(raw.get(f"{field}_quote"), resume_norm):
             dropped += 1
             return ""
-        return clip(value, limit)
+        return _clip(value, limit)
 
     experience: list[dict[str, str]] = []
     for item in raw.get("experience") or []:
@@ -211,9 +201,9 @@ def extract_profile(resume_text: str, provider: ResumeProvider) -> dict[str, Any
         kind = item.get("kind")
         experience.append({
             "kind": kind if kind in ENTRY_KINDS else "job",
-            "title": clip(item["title"], LIMITS["title"]),
-            "organization": clip(organization, LIMITS["organization"]) if isinstance(organization, str) else "",
-            "description": clip(str(item.get("description") or ""), LIMITS["description"]),
+            "title": _clip(item["title"], LIMITS["title"]),
+            "organization": _clip(organization, LIMITS["organization"]) if isinstance(organization, str) else "",
+            "description": _clip(str(item.get("description") or ""), LIMITS["description"]),
         })
     skills: list[dict[str, str]] = []
     seen: set[str] = set()
@@ -228,9 +218,8 @@ def extract_profile(resume_text: str, provider: ResumeProvider) -> dict[str, Any
             dropped += 1
             continue
         seen.add(key)
-        skills.append({"name": clip(item["name"], LIMITS["skill"]),
-                       "evidence": clip(str(item.get("evidence") or ""), LIMITS["evidence"])})
-    shortened += max(len(experience) - LIMITS["max_experience"], 0) + max(len(skills) - LIMITS["max_skills"], 0)
+        skills.append({"name": _clip(item["name"], LIMITS["skill"]),
+                       "evidence": _clip(str(item.get("evidence") or ""), LIMITS["evidence"])})
     return {
         "schema_version": SCHEMA_VERSION,
         "profile": {
@@ -241,7 +230,6 @@ def extract_profile(resume_text: str, provider: ResumeProvider) -> dict[str, Any
             "skills": skills[: LIMITS["max_skills"]],
         },
         "dropped": dropped,
-        "shortened": shortened,
     }
 
 

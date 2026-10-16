@@ -34,7 +34,6 @@ from src import rank_model as rm  # noqa: E402  analysis/src: the same ratings a
 HANDOFF_DIR = DATA_DIR / "clean" / "ml_rank"
 DEPTH = 200  # how many text-match candidates the queue reorders (the RRF ranker returns at most 100)
 LISTING_FACTORS = ["still_open", "accessibility", "pay"]
-COMPANY_CAP = 2  # listings per company among the results, before the rest (rm.cap_per_company)
 
 log = logging.getLogger("predictleads.ml_rank")
 
@@ -59,15 +58,6 @@ class MlRankRankingBackend:
         ratings = rm.listing_ratings(pool)
         ratings.loc[app["p_still_open"].isna().to_numpy()] = 50.0  # no ML_Rank score: neutral on every listing factor
         self.listing_ratings = ratings
-        # Titles that read as no tech role ("Data Entry", "Data Contributor") get no fit, whatever their occupation code,
-        # and at most COMPANY_CAP listings per company come first (src.career_switch, src.rank_model; 2026-10-16)
-        from src import career_switch as cs
-
-        jobs = getattr(base, "jobs", None) or []
-        sources = {str(j.job_id): j.source for j in jobs}
-        self.not_tech = {i for i, s in sources.items()
-                         if cs.NOT_A_TECH_ROLE.search(str(s.get("title_searchable") or s.get("title_raw") or ""))}
-        self.company = {i: str((s.get("company_reference") or {}).get("id") or "") or None for i, s in sources.items()}
         self.matched = int(app["p_still_open"].notna().sum())
         log.info("ML_Rank scores for %d of %d app listings; %d hidden by default", self.matched, len(job_ids), len(self.hidden_ids))
 
@@ -98,13 +88,11 @@ class MlRankRankingBackend:
         ids = [str(c["job_id"]) for c in candidates]
         match = np.array([float(c["score"]) for c in candidates])
         fit = match / match.max() * 100 if match.max() > 0 else np.full(len(match), 50.0)
-        fit = np.where([i in self.not_tech for i in ids], 0.0, fit)  # a title that reads as no tech role: no fit
         listing = self.listing_ratings.loc[ids]
         ratings = listing.assign(fit=fit)[rm.FACTORS]
         parts = ratings * self.weights
         total = parts.sum(axis=1).to_numpy()
-        order = rm.cap_per_company(list(np.argsort(-total, kind="stable")), [self.company.get(i) for i in ids],
-                                   cap=COMPANY_CAP, limit=limit)
+        order = np.argsort(-total, kind="stable")[:limit]
         return [{"job_id": ids[i], "rank": rank, "score": float(total[i]),
                  "breakdown": {f: {"rating": round(float(ratings.iloc[i][f]), 1), "part": round(float(parts.iloc[i][f]), 2)}
                                for f in rm.FACTORS}}

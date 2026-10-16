@@ -93,21 +93,6 @@ class MlRankRankerTests(unittest.TestCase):
         self.assertTrue(self.ranker.supports_compass)
         self.assertEqual(self.ranker.query_vector(None), "vector")
 
-    def test_no_tech_role_titles_get_no_fit_and_companies_are_capped(self) -> None:
-        from types import SimpleNamespace
-
-        listings = {"a": ("Data Contributor", "gig"), "b": ("Data Scientist", "acme"), "c": ("Data Scientist", "acme"),
-                    "d": ("Data Analyst", "acme"), "e": ("Data Analyst", "beta"), "f": ("Data Analyst", "gamma")}
-        base = FakeTextMatch({"a": 1.0, "b": 0.9, "c": 0.85, "d": 0.8, "e": 0.7, "f": 0.6})
-        base.jobs = [SimpleNamespace(job_id=j, source={"title_raw": t, "company_reference": {"id": c}})
-                     for j, (t, c) in listings.items()]
-        snap = snapshot().assign(id=["a", "b", "c", "d", "e"], level="entry", likely_ghost=False)
-        ranked = MlRankRankingBackend(base, snap, {"weights": WEIGHTS, "hidden_levels": []}).rank(None, 6, range(6))
-        by_id = {r["job_id"]: r for r in ranked}
-        self.assertEqual(by_id["a"]["breakdown"]["fit"]["rating"], 0.0)  # the best text match, but not a tech role
-        top4 = [listings[r["job_id"]][1] for r in ranked[:4]]
-        self.assertLessEqual(top4.count("acme"), 2)  # two per company, before the rest
-
     def test_missing_hand_off_says_to_run_ml_rank(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaisesRegex(FileNotFoundError, "ML_Rank section 13"):

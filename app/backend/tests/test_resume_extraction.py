@@ -87,23 +87,6 @@ class FakeProvider:
 
 
 class ExtractProfileTests(unittest.TestCase):
-    def test_long_values_are_cut_to_the_limits_and_counted(self) -> None:
-        response = good_response()
-        response["experience"][0]["description"] = "Handled escalated tickets. " * 200  # about 5,400 characters
-        result = rpe.extract_profile(RESUME, FakeProvider(response))
-        description = result["profile"]["experience"][0]["description"]
-        self.assertEqual(len(description), rpe.LIMITS["description"])
-        self.assertTrue(description.endswith("…"))
-        self.assertEqual(result["shortened"], 1)
-        self.assertEqual(rpe.extract_profile(RESUME, FakeProvider(good_response()))["shortened"], 0)
-
-    def test_entries_past_the_maximum_are_left_out_and_counted(self) -> None:
-        response = good_response()
-        response["experience"] = response["experience"] * (rpe.LIMITS["max_experience"] + 3)
-        result = rpe.extract_profile(RESUME, FakeProvider(response))
-        self.assertEqual(len(result["profile"]["experience"]), rpe.LIMITS["max_experience"])
-        self.assertEqual(result["shortened"], 3)
-
     def test_grounded_items_pass_through(self) -> None:
         result = rpe.extract_profile(RESUME, FakeProvider(good_response()))
         profile = result["profile"]
