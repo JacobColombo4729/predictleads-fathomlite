@@ -22,7 +22,7 @@ One ranker that uses both halves' work:
 |:--|:--:|
 | Most-common-role baseline | 63.2% |
 | Text match (RRF of TF-IDF and BGE) | 70.0% |
-| Trained layer (uses the text scores, BGE included, as inputs) | 82.4% |
+| Trained layer (uses the text scores, BGE included, as inputs) | 81.7% |
 
 The trained layer already builds on BGE. Combining the models means bringing it into the app, not replacing Jesse's ranker.
 
@@ -142,8 +142,10 @@ Hidden listings stay out, as now.
 Check what the app's Compass and role suggestions currently use (`app/code/role_family_classifier.py`, `app/DESIGN.md` section 3). Then decide with Jesse whether the trained layer's top roles drive them or are shown next to them.
 
 ### 7. Evaluation (what we can and can't claim)
-- **Role level:** ML_Fit's held-out test hit rates stand, as long as the serving model is the evaluated one (step 1 manifest).
-- **Serving matches training:** a parity check that the step 2 features from the fictional profiles fall inside the Profiles ranges. This is checked on aggregates only.
+Against real outcomes, with no labelling (`analysis/STANDARDS.md`, Validation design).
+- **Role level, the trained layer:** ML_Fit's held-out test hit rates stand (81.7% [78.5%, 84.7%] at top 3, against the baseline's 63.2%), as long as the serving model is the evaluated one. ML_Fit 9b's parity check shows it is: inputs, probabilities, top 3 and reasons all match.
+- **Serving matches training:** `fit_serving` is tested to give exactly Profiles' features and pre-switch text for people who switched at a given month (`analysis/tests/test_fit_serving.py`).
+- **Role level, the app rankers (to build):** each app ranker (`rrf`, `mlrank`, the combined model) is run on every Profiles test person's pre-switch background over the serving corpus. Its top listings are turned into a role ranking (by the role buckets of the listings it returns), and it is scored on hit rate @3 and @5 against the same most-common-role baseline, with 95% intervals from resampling people, per pool, and the test run once. This puts the rankers the app actually serves next to ML_Fit's methods on the same answer key.
 - **Listing level:** ML_Rank's backtest against newest-first. Rerun it with the step 4 candidate pool if that changes which listings are eligible.
 - **Not a measure:** the team's ratings and logged app feedback are usability feedback only, never a reported result or training data.
 

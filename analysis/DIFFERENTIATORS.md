@@ -48,6 +48,8 @@ Same claim rules as below: idea 2 shows where certified switchers went, never th
 
 > **Pitch:** "Everyone tells career changers what they match. We tell them what's realistically reachable, which training actually got people like them there, and how fast they have to move, using real career switches and live 2026 listings."
 
+**The strongest evidence, with no labelling:** role suggestions are scored on real career moves. For 2,813 real career changers we know which role each actually moved into; from their background alone, the fit model puts that role in its top 3 for **81.7%** of held-out people [78.5%, 84.7%], against 63.2% for simply suggesting the most common roles and 70.0% for the best text match (ML_Fit 6b). Thousands of answers we didn't write, no AI grader, no human labels (`STANDARDS.md`, Validation design).
+
 **Rigor is a quiet differentiator:** testing on later months, testing on held-out real career changers, checking collection effects before calling something a signal (listings with no description close in 3 days, which made missing pay look predictive), and limits stated plainly. Teams that don't overclaim stand out.
 
 ## How we talk about the data
