@@ -127,6 +127,8 @@ The trained layer reads ten Profiles columns plus the method scores per role:
 - Show the top roles and their reasons (ML_Fit's grouped SHAP: prior career / training / text similarity / skills) next to the listings.
 
 ### 4. Candidates: don't lose the roles the résumé doesn't read like
+
+**Built (2026-10-15):** `combined/candidates.py` (`ListingIndex.from_handoff`, `gather`), tested in `combined/tests/test_candidates.py` with a made-up text matcher. The text matcher is passed in as a function; in the app it is Jesse's `RrfRankingBackend.rank`, unchanged. On the scope corpus, every one of the 193,043 listings has a role bucket from ML_Rank's hand-off and 28,249 are hidden by default. For two fictional career changers the pool held 316 and 312 listings: 100 from the overall text match and 216 and 212 added by their top 3 roles, none hidden, in about 1.5 seconds each (after a one-time load of about 5.6 minutes, mostly the RRF ranker's TF-IDF fit, as in Jesse's app).
 A career changer's résumé reads like their old field. Text-only candidates can miss the very roles the trained layer recommends. Take the union of:
 - the top text matches overall (as now), and
 - the top text matches **within each of the person's top 3 roles** (RRF restricted to listings of that role bucket). Jesse's ranker already takes the listings it may return (`candidate_indices`), so `combined/candidates.py` calls it once overall and once per role; `rrf_ranker.py` doesn't change.
