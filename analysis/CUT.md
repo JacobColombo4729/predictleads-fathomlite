@@ -38,6 +38,29 @@ Everything else is supporting detail.
 | **Listings** | Half (0.500) of each career changer's top 10 is relevant: still open 14 days, not a ghost, in the role they moved into | 0.031 for newest first, 0.071 for a title search | ML_Rank 8e (test month) |
 | **Timing** | 29% of scope listings are gone within a week (median 24 days) | | EDA_SDA_1 Q1b |
 
+## Owning the project: one path to explain
+
+Shrink what has to be explained to **one path: résumé → role fit → candidate pool → queue**, plus the three numbers. If each of those four boxes can be explained on a whiteboard without notes, the project is ours. Everything in the appendices only needs to be recognised: "we tested Cox and AFT, the survival forest did X, we chose XGBoost because Y".
+
+| Box | What it does | How we know it works | What could go wrong |
+|:--|:--|:--|:--|
+| **Résumé** | Reads a résumé on this computer and turns it into the person's background with Profiles' own rules (`fit_serving`) | Gives exactly Profiles' features for people who switched at a known month (tests) | A scrambled résumé gives a scrambled timeline; undated entries can't be placed |
+| **Role fit** | The trained layer predicts which role someone moves into from their background, with the reasons | On 563 held-out real career changers, the right role is in its top 3 for 81.7%, against 63.2% for guessing the common roles | Only 8 roles have a fit model; growth is blank until BLS data arrives |
+| **Candidate pool** | Text matches overall plus the best text matches within the person's top 3 roles, hidden listings left out | Fictional people: the top roles add about 210 listings the text match alone misses | The text match decides which listings of a role are considered |
+| **Queue** | ML_Rank's weighted sum of fit, still open, accessibility and pay | On the test month, half of each career changer's top 10 is relevant, against 0.031 for newest first | Listings outside the 8 roles get a neutral fit; the weights come from one validation month |
+
+For each main-path piece, be able to answer three questions:
+1. **What does it do?** For example, "the trained layer predicts which role someone moves into from their background."
+2. **How do we know it works?** "On 563 held-out real career changers it gets the right role in the top 3 for 81.7%, against 63.2% for just guessing the common roles."
+3. **What could go wrong?** "A scrambled résumé gives a scrambled timeline; listings outside the 8 roles get a neutral fit."
+
+**The concepts worth knowing cold,** because judges and interviewers ask about them:
+- **Leakage:** why features only use what's known when a listing first appears (never `last_seen_at`, status or days open).
+- **Censoring:** why still-open listings aren't dropped (dropping them makes windows look shorter than they are; survival methods count them as unfinished).
+- **Baselines:** why 81.7% only means something next to 63.2%.
+- **Held-out test, run once:** and why tuning on it would be cheating (the score would measure how well we fit the test, not how well it generalises).
+- **The weighted sum:** what the queue's score is. Each factor is rated 0–100 and multiplied by its tuned weight (fit 0.3, still open 0.2, accessibility 0.1, pay 0; so fit is half the score), and the parts add up to the score shown on each listing.
+
 ## What to do
 
 ### 1. Lead with the three numbers
