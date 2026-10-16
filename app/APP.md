@@ -41,7 +41,7 @@
 
 ## Keep in mind (honesty rules and limits)
 
-- **Nothing is validated yet:** the demo ranker (equal-weight TF-IDF + BGE RRF), the Compass thresholds and relevance feedback have no measured result. Say so plainly in the demo until the ratings above give a first number.
+- **What's measured and what isn't:** the role level is measured on real career moves (ML_Fit, held-out people: RRF 70.0% and the trained layer 81.7% at top 3, against 63.2% for the most-common-role baseline; `analysis/STANDARDS.md`). The demo ranker itself (equal-weight TF-IDF + BGE RRF over listings), scored on the same career moves (`analysis/notebooks/Evaluate.ipynb`), reaches 66.3% at top 3, not shown above the baseline; `mlrank` 69.8% and the combined model 76.4%. The Compass thresholds and relevance feedback have no measured result yet; the team's ratings are usability feedback only, never that measure.
 - **Listings are historical, not verified openings.** Listings marked `closed` in the source are left out; the 81,284 served have unknown status, and openness is never inferred from dates or a missing status.
 - **Missing information on a profile is unknown, not a gap.** Years, degree and certification requirements are never marked "supported" automatically.
 - **A Signals burst is a timing trigger, not a volume forecast** (about 64% of the volume carries into the next month, vs. 99% for sustained hiring).

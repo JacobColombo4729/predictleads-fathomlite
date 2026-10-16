@@ -46,6 +46,15 @@ For a given **career changer** (anyone switching from their current background t
 - **Censoring:** still-open postings are kept and handled by survival methods, never dropped.
 - **Baselines:** the segment's overall average, last year's value for seasonality, newest-first and title keyword search for prioritization.
 - **Statistics:** bootstrap 95% confidence intervals; Benjamini–Hochberg correction when testing many features or segments.
+- **Role matching is evaluated against real outcomes, with no labelling** (the project's strongest evidence). Profiles' 2,813 real career changers each have a known answer: the role they actually moved into. Each method gets a person's pre-switch background only and is scored on whether that role is in its top 3 and top 5 (hit rate @3, @5). This gives an objective score over thousands of cases, with no AI grader and no human labels. The rules:
+  - **The same simple baseline for every method:** the most common roles among the training people.
+  - **Every method side by side:** keyword overlap, TF-IDF, BGE and the fused RRF, then skills matching and the trained layer, plus any new matcher (Jesse's ranker, the combined model).
+  - **Split by person:** development and test people never overlap, and folds are grouped by person.
+  - **Confidence intervals:** 95%, from resampling people; development as mean ± std over the folds.
+  - **Results per pool:** retrained after working, new grads from another field, moved within tech.
+  - **The test once, at the end.**
+
+  ML_Fit sections 2–6 meet this (`src/fit_eval.py`). Test (6b): the trained layer reaches 81.7% [78.5%, 84.7%] at top 3, against the baseline's 63.2%; the best text method, RRF, reaches 70.0%. Any matcher that serves the app (`rrf`, `mlrank`, the combined model) is scored the same way before its results are reported.
 - **Confounders: compare within groups, don't filter.** Every factor shows its raw gap, then the gap within company-volume band × source type (and role bucket where possible); it counts only if the gap holds. Standard confounders: company volume, source and platform, staffing agencies, role bucket and seniority, month first seen, state (pay-transparency laws), company type (publicly traded, has a parent), has a description (list in EDA_SDA_2 section 2). EDA_SDA_4 confirms the survivors in one Cox survival regression adjusting for all of them, with company-clustered errors. **Timing results are also shown without likely ghost listings** (EDA_SDA_2 3.1d): ghosts stay in the data and hidden in the app, but a forgotten listing's days open isn't a real hiring window. **They are also shown with a description only** (3.9): listings with no description close in about 3 days and look like crawl stubs.
 
 ### Leakage rules
