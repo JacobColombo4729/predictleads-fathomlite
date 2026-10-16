@@ -34,7 +34,7 @@ Everything else is supporting detail.
 
 | | Result | Against | Source |
 |:--|:--|:--|:--|
-| **Roles** | 81.7% [78.5%, 84.7%] of held-out real career changers have the role they actually moved into in our top 3 | 63.2% for suggesting the most common roles | ML_Fit 6b |
+| **Roles** | 81.7% [78.5%, 84.7%] of held-out real career changers have the role they actually moved into in our top 3 | 63.2% for suggesting the most common roles | ML_Fit 6b; the app's combined model reaches 76.4% over its listings (Evaluate) |
 | **Listings** | Half (0.500) of each career changer's top 10 is relevant: still open 14 days, not a ghost, in the role they moved into | 0.031 for newest first, 0.071 for a title search | ML_Rank 8e (test month) |
 | **Timing** | 29% of scope listings are gone within a week (median 24 days) | | EDA_SDA_1 Q1b |
 
@@ -79,7 +79,8 @@ For each main-path piece, be able to answer three questions:
 ### 4. Freeze the scope
 **Finish:**
 - [ ] Combined model steps 4–5: candidates within the person's top roles, then ML_Rank's queue (`combined/`).
-- [ ] The real-outcome evaluation of `rrf`, `mlrank` and the combined model (`ANALYSIS.md`; combined-model plan step 7).
+- [x] The real-outcome evaluation of `rrf`, `mlrank` and the combined model (done 2026-10-15, `notebooks/Evaluate.ipynb`: combined 76.4%, `mlrank` 69.8%, `rrf` 66.3%, baseline 63.2% at top 3) (`ANALYSIS.md`; combined-model plan step 7).
+- [ ] The per-factor breakdown in the app ("Why this listing": the four factors and the role's top reason), after the evaluation (`ANALYSIS.md`); it meets `STANDARDS.md`'s "every ranking can be explained".
 - [x] The plug-in, as its own app: `combined_demo/` (built 2026-10-15; nothing in `app/` changed).
 
 **Defer or drop** (record as "later" where they are planned):
