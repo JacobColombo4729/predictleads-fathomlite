@@ -53,20 +53,21 @@ class CombinedRankingBackend:
             raise AttributeError(name)
         return getattr(self.base, name)
 
-    def entries(self, profile: Any) -> list[Mapping[str, Any]]:
+    def saved(self, profile: Any) -> tuple[list[Mapping[str, Any]], list[str]]:
+        """(entries, desired roles) as saved; without a saved profile, its summary's entries as undated jobs."""
         data = self.profiles(profile.profile_id)
         if data is not None:
-            return list(data.get("experience", []))
+            return list(data.get("experience", [])), list(data.get("desired_roles", []))
         log.warning("profile %s not in the session database: reading its summary as undated jobs", profile.profile_id)
-        return [{"kind": "job", "title": text, "description": ""} for text in profile.experience]
+        return [{"kind": "job", "title": text, "description": ""} for text in profile.experience], list(profile.desired_roles)
 
     def rank(self, profile: Any, limit: int, candidate_indices: Sequence[int], **kwargs: Any) -> list[dict[str, Any]]:
         """The combined queue for this profile, best first; each result carries its factor breakdown and its role."""
         kwargs.pop("explore", None)
         kwargs.pop("rng", None)
-        result = self.model.recommend(self.entries(profile),
-                                      lambda n, idx: self.base.rank(profile, n, idx, **kwargs),
-                                      limit=limit, indices=list(candidate_indices))
+        entries, desired = self.saved(profile)
+        result = self.model.recommend(entries, lambda n, idx: self.base.rank(profile, n, idx, **kwargs),
+                                      limit=limit, indices=list(candidate_indices), desired_roles=desired)
         return [{"job_id": row.job_id, "rank": rank, "score": float(row.score), "role": row.role,
                  "breakdown": {f: {"rating": round(float(row[f"rating: {f}"]), 1), "part": round(float(row[f"part: {f}"]), 2)}
                                for f in FACTORS}}

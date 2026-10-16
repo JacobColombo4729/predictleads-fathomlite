@@ -27,6 +27,7 @@ from combined._paths import ML_RANK_DIR
 from combined.candidates import Candidate, ListingIndex
 
 NEUTRAL = 50.0
+COMPANY_CAP = 2  # listings per company among the results, before the rest (rm.cap_per_company)
 LISTING_FACTORS = ["still_open", "accessibility", "pay"]
 
 
@@ -71,7 +72,10 @@ class Queue:
         match = np.array([c.match for c in pool], dtype=float)
         match_rating = match / match.max() * 100 if match.max() > 0 else np.full(len(pool), NEUTRAL)
         has_fit = np.array([c.role in self.fit_roles for c in pool])
-        role_fit = np.array([float(role_ratings.get(c.role, NEUTRAL)) if c.role in self.fit_roles else NEUTRAL for c in pool])
+        not_tech = (np.zeros(len(pool), bool) if self.listings.not_tech is None
+                    else np.array([bool(self.listings.not_tech[c.index]) for c in pool]))
+        role_fit = np.array([0.0 if nt else float(role_ratings.get(c.role, NEUTRAL)) if c.role in self.fit_roles else NEUTRAL
+                             for c, nt in zip(pool, not_tech)])
         fit = (1 - match_weight) * role_fit + match_weight * match_rating
         ratings = self.listing_ratings.reindex(idx).fillna(NEUTRAL)
         table = pd.DataFrame({"job_id": [c.job_id for c in pool], "role": [c.role for c in pool],
@@ -79,9 +83,14 @@ class Queue:
         for f in ["fit", *LISTING_FACTORS]:
             table[f"part: {f}"] = self.weights[f] * table[f"rating: {f}"]
         table["score"] = table[[f"part: {f}" for f in ["fit", *LISTING_FACTORS]]].sum(axis=1)
-        table["fit source"] = np.where(has_fit, "role fit", "no fit model for this role (neutral 50)")
+        table["fit source"] = np.where(not_tech, "title reads as no tech role (no fit)",
+                                       np.where(has_fit, "role fit", "no fit model for this role (neutral 50)"))
         table["role fit"], table["match"] = role_fit, match_rating
         table["found by"] = [", ".join(c.sources) for c in pool]
         table["index"] = idx
-        order = np.argsort(-table["score"].to_numpy(), kind="stable")[:limit]
-        return table.iloc[order].reset_index(drop=True)
+        order = list(np.argsort(-table["score"].to_numpy(), kind="stable"))
+        if self.listings.companies is not None:  # at most COMPANY_CAP per company on a page (rm.cap_per_company)
+            from src import rank_model as rm
+
+            order = rm.cap_per_company(order, [self.listings.companies[i] for i in idx], cap=COMPANY_CAP)
+        return table.iloc[order[:limit]].reset_index(drop=True)

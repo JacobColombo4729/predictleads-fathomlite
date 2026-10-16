@@ -10,7 +10,8 @@ per pool, with bootstrap intervals, leaving the current role out for moves withi
 The rankers, all over the same serving corpus (combined/corpus.py), as the apps serve them:
   - rrf:      Jesse's TF-IDF + BGE fusion (app/backend/rrf_ranker.py), unchanged;
   - mlrank:   Jacob's app: ML_Rank's queue over the text match (app/backend/ml_rank_ranker.py), unchanged;
-  - combined: the combined model (steps 3-5), its role fit from the test person's Profiles features.
+  - combined: the combined model (steps 3-5), its trained-layer role fit from the test person's Profiles features,
+    blended with the role mix of their text matches (v2; no desired roles: Profiles has none).
 Each test person's background is given as a profile of their pre-switch entries (titles and programs, as in ML_Fit).
 Prints and returns aggregates only.
 """
@@ -99,14 +100,19 @@ class AppRankers:
 
         from combined.candidates import ListingIndex
         from combined.queue import Queue
+        from combined.model import CombinedModel
         from combined.role_fit import RoleFit
 
         jobs, _ = matching.load_prepared_jobs(corpus_dir / "jobs_prepared_corpus.jsonl")
         self.base = RrfRankingBackend(jobs, corpus_dir)
         self.mlrank = MlRankRankingBackend.from_handoff(self.base)
-        self.listings = ListingIndex.from_handoff(self.base.job_ids)
+        from combined.candidates import titles_and_companies
+
+        titles, companies = titles_and_companies(self.base.jobs)
+        self.listings = ListingIndex.from_handoff(self.base.job_ids, titles=titles, companies=companies)
         self.queue = Queue.from_handoff(self.listings)
         self.role_fit = RoleFit.load(bge=bge)
+        self.model = CombinedModel(self.role_fit, self.listings, self.queue)
         self.everyone = list(range(len(self.base.job_ids)))
         self.position = {j: i for i, j in enumerate(self.base.job_ids)}
 
@@ -126,7 +132,7 @@ class AppRankers:
         return pd.DataFrame(rm.fit_ratings(probs).to_numpy(), index=people.index, columns=self.role_fit.roles_order)
 
     def rankers(self, people: pd.DataFrame, n: int = TOP_N, probs: np.ndarray | None = None) -> dict[str, RankOne]:
-        from combined.candidates import gather
+        from combined.role_fit import RoleFitResult
 
         ratings = self.fit_ratings(people, probs)
 
@@ -139,11 +145,15 @@ class AppRankers:
         def mlrank(pid, text, row):
             return positions(self.mlrank.rank(text_profile(pid, text), n, self.everyone))
 
+        model_probs = pd.DataFrame(self.trained_layer(people) if probs is None else probs, index=people.index,
+                                   columns=self.role_fit.roles_order)
+
         def combined(pid, text, row):
             profile = text_profile(pid, text)
-            person = ratings.loc[pid]
-            top_roles = list(person.sort_values(ascending=False, kind="stable").index[:3])
-            pool = gather(lambda m, idx: self.base.rank(profile, m, idx), self.listings, top_roles)
-            return list(self.queue.rank(pool, person.to_dict(), limit=n)["index"])
+            p = model_probs.loc[pid]
+            table = pd.DataFrame({"probability": p, "score": p, "rating": ratings.loc[pid]})
+            model_roles = RoleFitResult(table.sort_values("score", ascending=False, kind="stable"), [], "profiles", 0)
+            result = self.model.recommend_from(model_roles, lambda m, idx: self.base.rank(profile, m, idx), limit=n)
+            return list(result.queue["index"])
 
         return {"rrf (Jesse's app)": rrf, "mlrank (Jacob's app)": mlrank, "combined model": combined}

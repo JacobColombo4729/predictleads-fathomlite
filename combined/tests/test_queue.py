@@ -76,6 +76,21 @@ class QueueTests(unittest.TestCase):
         self.assertTrue((sales["rating: fit"] == 50.0).all())
         self.assertTrue(sales["fit source"].str.startswith("no fit model").all())
 
+    def test_titles_that_are_no_tech_role_get_no_fit_and_companies_are_capped(self):
+        scores = made_up_scores(n=12, roles=np.array(["data science"] * 12))
+        titles = ["Data Contributor"] * 4 + ["Data Scientist"] * 8
+        companies = ["gig-co"] * 4 + ["acme"] * 5 + ["beta", "gamma", "delta"]
+        listings = ListingIndex.from_scores(list(scores.id), scores, titles=titles, companies=companies)
+        self.assertEqual([listings.roles[i] for i in range(4)], [None] * 4)  # the title overrides the occupation code
+        queue = Queue.from_scores(listings, scores, WEIGHTS, fe.ROLES)
+        t = queue.rank(pool_of(listings, list(range(12))), {"data science": 100.0}, limit=12)
+        gig = t[t.job_id.isin([f"j{i}" for i in range(4)])]
+        self.assertTrue((gig["rating: fit"] == 0.0).all())
+        self.assertTrue(gig["fit source"].str.startswith("title reads as no tech role").all())
+        top7 = [companies[int(j[1:])] for j in t.job_id[:7]]
+        self.assertLessEqual(top7.count("acme"), 2)  # two per company, before the rest
+        self.assertLessEqual(top7.count("gig-co"), 2)
+
     def test_an_empty_pool_gives_an_empty_queue(self):
         self.assertTrue(self.queue.rank([], self.ratings).empty)
 

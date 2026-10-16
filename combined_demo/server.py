@@ -30,6 +30,7 @@ Path(os.environ["PREDICTLEADS_API_DB_PATH"]).parent.mkdir(parents=True, exist_ok
 from backend.api import JobRepository, Settings, create_app  # noqa: E402
 from backend.rrf_ranker import RrfRankingBackend  # noqa: E402
 
+from combined.candidates import titles_and_companies  # noqa: E402
 from combined.model import CombinedModel  # noqa: E402
 from combined_demo.ranker import CombinedRankingBackend, sqlite_profiles  # noqa: E402
 
@@ -41,7 +42,8 @@ def build():
     settings = Settings.from_environment()
     jobs = JobRepository.from_jsonl(CORPUS_DIR / "jobs_prepared_corpus.jsonl")
     base = RrfRankingBackend(jobs.jobs, CORPUS_DIR)
-    model = CombinedModel.load(base.job_ids)
+    titles, companies = titles_and_companies(base.jobs)  # title-checked roles and the per-company cap
+    model = CombinedModel.load(base.job_ids, titles=titles, companies=companies)
     ranker = CombinedRankingBackend(base, model, sqlite_profiles(settings.db_path))
     log.warning("combined demo ready: %d listings, %d hidden by default, loaded in %.0fs",
                 len(base.job_ids), int(model.listings.hidden.sum()), time.time() - started)
