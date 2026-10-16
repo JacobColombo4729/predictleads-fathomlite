@@ -6,7 +6,10 @@ centroids, the O*NET role and background-area skill profiles) and scores people 
 (fit_eval, fit_model), so the scores can't drift from the notebook's. The trained layer is the chosen Pipeline fit on
 all development people, the same fit that scored the test people in 5c.
 
-    save(directory, scorer, layer, feature_columns, info)   -> role_scorer.joblib, fit_layer.joblib, manifest.json
+    save(directory, scorer, layer, feature_columns, info, explain_background)
+                                                            -> role_scorer.joblib, fit_layer.joblib, manifest.json
+                                                               (with the SHAP background's average input)
+    reasons(layer, X, manifest)                             -> ML_Fit 7a's grouped SHAP for new people
     load(directory)                                         -> (scorer, layer, manifest); refuses a manifest that
                                                                doesn't match this code's roles or methods
 Saved to data/clean/ml_fit/ (git-ignored). Nothing here reads people's text; the scorer holds role-side aggregates
@@ -59,8 +62,10 @@ class RoleScorer:
         return fm.features(people, self.scores(people, bge_model))
 
 
-def save(directory, scorer, layer, feature_columns, info):
-    """Write the scorer, the fitted trained layer and a manifest (roles, methods, columns, versions, `info`)."""
+def save(directory, scorer, layer, feature_columns, info, explain_background=None):
+    """Write the scorer, the fitted trained layer and a manifest (roles, methods, columns, versions, `info`).
+    explain_background: the people SHAP compares against (ML_Fit 7a: the development people); only their average
+    preprocessed input is kept (fit_model.background_mean), with the preprocessed input names to check it against."""
     import joblib
     import sklearn
 
@@ -70,6 +75,9 @@ def save(directory, scorer, layer, feature_columns, info):
     joblib.dump(layer, directory / "fit_layer.joblib")
     manifest = {"format": FORMAT, "roles": list(fe.ROLES), "methods": METHODS, "feature_columns": list(feature_columns),
                 "sklearn_version": sklearn.__version__, **info}
+    if explain_background is not None:
+        manifest["explain_mean"] = [float(v) for v in fm.background_mean(layer, explain_background[list(feature_columns)])]
+        manifest["explain_inputs"] = list(layer.named_steps["prep"].get_feature_names_out())
     (directory / "manifest.json").write_text(json.dumps(manifest, indent=1), encoding="utf-8")
     return manifest
 
@@ -94,6 +102,17 @@ def probabilities(layer, X, feature_columns):
     if missing:
         raise ValueError(f"{len(missing)} trained-layer inputs are missing, e.g. {missing[0]!r}")
     return fm.probabilities(layer, X[list(feature_columns)])
+
+
+def reasons(layer, X, manifest):
+    """people x roles x groups: why each role is suggested (ML_Fit 7a's grouped SHAP, on the log-odds scale), against
+    the saved background average. Returns (array, group names)."""
+    if "explain_mean" not in manifest:
+        raise ValueError("this hand-off has no SHAP background: rerun ML_Fit 9b")
+    contrib, names = fm.contributions_from_mean(layer, np.asarray(manifest["explain_mean"]), X[manifest["feature_columns"]])
+    if names != manifest["explain_inputs"]:
+        raise ValueError("the trained layer's inputs don't match the saved SHAP background: rerun ML_Fit 9b")
+    return fm.grouped(contrib, names)
 
 
 def max_difference(a, b):

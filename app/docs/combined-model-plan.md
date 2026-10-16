@@ -119,6 +119,9 @@ The trained layer reads ten Profiles columns plus the method scores per role:
 - Tests on the fictional profiles (`app/code/ai_ml_candidate_profiles.json`) and synthetic timelines: every column present, right dtypes, the rules give the same tags as Profiles on the same synthetic timeline.
 
 ### 3. Role fit at serving time
+
+**Built (2026-10-15):** `combined/role_fit.py` (`RoleFit.load()`, `.roles(entries, growth, growth_weight)`), tested in `combined/tests/test_role_fit.py`: per role, the trained layer's probability, the growth-adjusted score (weight 0 until BLS growth exists), the fit rating (ML_Rank's `rm.fit_ratings`, best = 100) and ML_Fit 7a's grouped SHAP reasons. For the reasons, ML_Fit 9b also saves 7a's SHAP background as its average preprocessed input only (`fit_model.background_mean`; `fit_handoff.reasons`); tested to give 7a's values exactly.
+
 - Probabilities per role from the trained layer; growth applied afterwards with its visible weight (ML_Fit 7b), exactly as in ML_Fit.
 - Rate them so that the person's best role is 100, as ML_Fit's fit rating does. That is what ML_Rank's weights were tuned on.
 - Show the top roles and their reasons (ML_Fit's grouped SHAP: prior career / training / text similarity / skills) next to the listings.
@@ -126,7 +129,7 @@ The trained layer reads ten Profiles columns plus the method scores per role:
 ### 4. Candidates: don't lose the roles the résumé doesn't read like
 A career changer's résumé reads like their old field. Text-only candidates can miss the very roles the trained layer recommends. Take the union of:
 - the top text matches overall (as now), and
-- the top text matches **within each of the person's top 3 roles** (RRF restricted to listings of that role bucket).
+- the top text matches **within each of the person's top 3 roles** (RRF restricted to listings of that role bucket). Jesse's ranker already takes the listings it may return (`candidate_indices`), so `combined/candidates.py` calls it once overall and once per role; `rrf_ranker.py` doesn't change.
 
 Hidden listings stay out, as now.
 
@@ -158,7 +161,8 @@ Contrastive pairs (prior career → the role moved into) from the Profiles devel
 | 0 | Jacob (ask), Jesse (agree) |
 | 1a | Jacob (`combined/corpus.py`), reviewed by Jesse (it reuses his preparation and encoding) |
 | 1–3 | Jacob (`analysis/` saves the artefacts; `combined/` serves them) |
-| 4–5 | Jacob, in `combined/` plus the adapter `app/backend/combined_ranker.py`, reviewed by Jesse; `ml_rank_ranker.py` and `rrf_ranker.py` unchanged |
+| 4–5 | Jacob, in `combined/`; it reuses Jesse's code (preparation, encoding, the RRF ranker) without changing it |
+| Plug-in | Jacob, reviewed by Jesse: a new adapter `app/backend/combined_ranker.py`, about 3 lines in `api.py`'s ranker switch, and a launcher pointed at the combined corpus. These add to `app/` and change nothing his app or `mlrank` does |
 | 6 | Jesse, with Jacob |
 | 7 | Jacob |
 | 8 | either, later |
