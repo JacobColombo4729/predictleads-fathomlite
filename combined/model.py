@@ -6,7 +6,7 @@
     result.roles    the person's roles: probability, score, rating, reasons (combined.role_fit)
     result.queue    the listings, best first, each with its factor breakdown (combined.queue)
 
-Nothing here knows about the web app; app/backend/combined_ranker.py adapts it to the app's ranker interface.
+Nothing here knows about the web app; combined_demo/ranker.py adapts it to the app's ranker interface.
 """
 from __future__ import annotations
 

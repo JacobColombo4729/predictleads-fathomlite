@@ -80,7 +80,7 @@ For each main-path piece, be able to answer three questions:
 **Finish:**
 - [ ] Combined model steps 4–5: candidates within the person's top roles, then ML_Rank's queue (`combined/`).
 - [ ] The real-outcome evaluation of `rrf`, `mlrank` and the combined model (`ANALYSIS.md`; combined-model plan step 7).
-- [ ] The plug-in for the app (adapter, about 3 lines in `api.py`, a launcher), reviewed by Jesse.
+- [x] The plug-in, as its own app: `combined_demo/` (built 2026-10-15; nothing in `app/` changed).
 
 **Defer or drop** (record as "later" where they are planned):
 - [ ] Combined step 6 (Compass redesign) and step 8 (BGE fine-tuning).
