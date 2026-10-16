@@ -72,8 +72,8 @@ def role_listings(n_per_role=2000, seed=0, root=None, table=SCOPE_TABLE):
 
 # ---------- the methods: each returns a people x roles score matrix (higher = better fit) ----------
 
-def keyword_scores(people_text, listings, top_words=200):
-    """Keyword overlap: how many of a role's most common title words appear in the person's background."""
+def keyword_vocab(listings, top_words=200):
+    """Each role's most common title words (the role side of keyword overlap): {role: set of words}."""
     vocab = {}
     for role, titles in listings.groupby("role").title:
         counts = pd.Series([w for t in titles for w in words(t)]).value_counts()
@@ -81,29 +81,56 @@ def keyword_scores(people_text, listings, top_words=200):
         # which changes with every new process, so the tied words kept (and the trained layer's choice) changed by run
         counts = counts.rename_axis("word").reset_index(name="n").sort_values(["n", "word"], ascending=[False, True])
         vocab[role] = set(counts.word.iloc[:top_words])
+    return vocab
+
+
+def keyword_overlap(people_text, vocab):
+    """People x roles: how many of each role's vocabulary words appear in the person's background."""
     person_words = [words(t) for t in people_text]
     return np.array([[len(pw & vocab.get(r, set())) for r in ROLES] for pw in person_words], dtype=float)
 
 
-def tfidf_scores(people_text, listings):
-    """TF-IDF cosine between the person's background and each role's average listing vector. The vocabulary and word
-    weights come from the individual listings (no person is involved); a role is the mean of its listings' vectors."""
+def keyword_scores(people_text, listings, top_words=200):
+    """Keyword overlap: how many of a role's most common title words appear in the person's background."""
+    return keyword_overlap(people_text, keyword_vocab(listings, top_words))
+
+
+def tfidf_roles(listings):
+    """The role side of TF-IDF: (vectorizer fit on the individual listings, roles x terms unit-length centroids)."""
     from sklearn.feature_extraction.text import TfidfVectorizer
     from sklearn.preprocessing import normalize
     vec = TfidfVectorizer(ngram_range=(1, 2), sublinear_tf=True, max_df=0.5, min_df=2, stop_words="english")
     x = vec.fit_transform(listings.text)
     centroids = np.vstack([np.asarray(x[listings.role.eq(r).to_numpy()].mean(axis=0)) if listings.role.eq(r).any()
                            else np.zeros((1, x.shape[1])) for r in ROLES])
-    people = vec.transform([clean(t) for t in people_text])
-    return np.asarray(people @ normalize(centroids).T)
+    return vec, normalize(centroids)
 
 
-def bge_scores(people_text, listings, n_per_role=300, model_dir=None, batch_size=32):
-    """BGE cosine between the person's background (as a query) and the average embedding of each role's listings."""
+def tfidf_cosine(people_text, vec, centroids):
+    """People x roles: TF-IDF cosine between the person's background and each role's centroid (from tfidf_roles)."""
+    return np.asarray(vec.transform([clean(t) for t in people_text]) @ centroids.T)
+
+
+def tfidf_scores(people_text, listings):
+    """TF-IDF cosine between the person's background and each role's average listing vector. The vocabulary and word
+    weights come from the individual listings (no person is involved); a role is the mean of its listings' vectors."""
+    return tfidf_cosine(people_text, *tfidf_roles(listings))
+
+
+BGE_QUERY_PREFIX = "Represent this sentence for searching relevant passages: "  # BGE's query prefix (app/code/bge_text.py)
+
+
+def bge_model(model_dir=None):
+    """The pretrained BGE model, on the CPU (the same settings everywhere ML_Fit encodes)."""
     from sentence_transformers import SentenceTransformer
     from fetch.paths import PRETRAINED_DIR
     model = SentenceTransformer(str(model_dir or PRETRAINED_DIR / "bge-base-en-v1.5"), device="cpu")
     model.max_seq_length = 512
+    return model
+
+
+def bge_roles(listings, model, n_per_role=300, batch_size=32):
+    """The role side of BGE: roles x dims, each role the unit-length mean embedding of its first n_per_role listings."""
     centroids = []
     for role in ROLES:
         texts = listings.loc[listings.role.eq(role), "text"].head(n_per_role).tolist()
@@ -113,10 +140,20 @@ def bge_scores(people_text, listings, n_per_role=300, model_dir=None, batch_size
         emb = model.encode(texts, batch_size=batch_size, normalize_embeddings=True, show_progress_bar=False)
         c = emb.mean(axis=0)
         centroids.append(c / (np.linalg.norm(c) or 1))
-    prefix = "Represent this sentence for searching relevant passages: "  # BGE's query prefix (app/code/bge_text.py)
-    people = model.encode([prefix + clean(t) for t in people_text], batch_size=batch_size, normalize_embeddings=True,
-                          show_progress_bar=False)
-    return people @ np.vstack(centroids).T
+    return np.vstack(centroids)
+
+
+def bge_cosine(people_text, model, centroids, batch_size=32):
+    """People x roles: BGE cosine between the person's background (as a query) and each role's centroid."""
+    people = model.encode([BGE_QUERY_PREFIX + clean(t) for t in people_text], batch_size=batch_size,
+                          normalize_embeddings=True, show_progress_bar=False)
+    return people @ centroids.T
+
+
+def bge_scores(people_text, listings, n_per_role=300, model_dir=None, batch_size=32):
+    """BGE cosine between the person's background (as a query) and the average embedding of each role's listings."""
+    model = bge_model(model_dir)
+    return bge_cosine(people_text, model, bge_roles(listings, model, n_per_role, batch_size), batch_size)
 
 
 def ranks(scores):
