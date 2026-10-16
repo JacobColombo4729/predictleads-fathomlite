@@ -1,20 +1,18 @@
 import type { EntryKind, Profile, PreferredArrangement } from "../types";
 
-// At least what Magic fill can return (code/resume_profile_extraction.py LIMITS), so a filled profile always saves, and
-// never more than the backend accepts (backend/api.py ProfileData). Description, entries and skills take the backend's room.
 export const LIMITS = {
   name: 80,
   headline: 120,
   title: 120,
-  organization: 120,
-  experienceText: 4000,
-  skillName: 80,
+  organization: 80,
+  experienceText: 1200,
+  skillName: 60,
   evidence: 400,
   role: 60,
-  location: 120,
+  location: 80,
   constraints: 300,
-  maxExperience: 30,
-  maxSkills: 100,
+  maxExperience: 15,
+  maxSkills: 40,
   maxRoles: 8,
 } as const;
 

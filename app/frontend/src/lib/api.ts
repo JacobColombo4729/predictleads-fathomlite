@@ -234,7 +234,6 @@ export const api = {
     | {
         state: "completed";
         dropped: number;
-        shortened?: number; // values cut to the form's limits, or entries and skills over the maximum, left out
         profile: {
           name: string; headline: string; location: string;
           experience: { kind: EntryKind; title: string; organization: string; description: string }[];
