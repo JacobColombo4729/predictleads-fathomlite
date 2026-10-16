@@ -79,12 +79,16 @@ Jesse's RRF ──► candidates: top text matches overall + top text matches wi
 - Ask what the Compass thresholds were set on ("a few real examples", `ml-inventory.md` section 3); they stay out of the combined model until that is known.
 
 ### 1a. The serving corpus from the scope
+
+**Built (2026-10-15):** `combined/corpus.py` (`python -m combined.corpus build`, then `encode`), tested in `combined/tests/test_corpus.py` on a made-up export. 214,197 scope listings are still open when the data ends. A 5,000-listing slice took 10 seconds to build and about 70 seconds to encode on the GPU (21 s of text, 50 s of encoding), and Jesse's `rrf` backend serves it unchanged: a fictional profile gets its ranked top 10. **Full corpus:** 193,043 listings (of 214,197: 14,989 without a usable description, 6,165 duplicates; every id found), built in 6.4 minutes and encoded in 58 (25 of text, 33 on the GPU); the vectors match the ids row for row, and the `rrf` backend serves all 193,043 (ready in about 2 minutes) and ranks a fictional profile.
+
 - `combined/corpus.py`: take the scope listings still open when the data ends (`open_at_end` in ML_Rank's `listing_scores.parquet`), prepare them with Jesse's unchanged `prepare_jobs.prepare_resource` (so the app reads them like any other listing), and encode them with the same BGE model and text as `rank_candidates.py encode`.
 - Reads the raw export through `fetch` (the copy in `data/raw/`, or S3 from `.env`), like every other reader; nothing hard-coded.
 - Encoding time grows with the rows: measure it on a slice first, and use the GPU PC if the full set is too slow on the laptop.
 - Test: on synthetic listings, the corpus has the app's fields, ids match the embeddings row for row, and the manifest hash checks out.
 
 ### 1. ML_Fit saves what the app needs to score a new person
+
 ML_Fit saves scores for the Profiles people (`fit_scores.parquet`), not a model that can score someone new. Add a section that saves, to `data/clean/ml_fit/` (git-ignored):
 - the chosen trained layer, fit on all development people (the same `Pipeline` that was evaluated), with `joblib`;
 - what the per-role method scores need at serving time: each role's keyword set, TF-IDF role documents and vectorizer, BGE role vectors (same `bge-base-en-v1.5`), role skill profiles (`fit_model.role_profiles`);
