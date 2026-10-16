@@ -99,6 +99,10 @@ ML_Fit saves scores for the Profiles people (`fit_scores.parquet`), not a model 
 Test: a round trip on synthetic people gives the same probabilities as the in-memory model.
 
 ### 2. Résumé → the trained layer's inputs
+
+**Built (2026-10-15):** `analysis/src/fit_serving.py` (`person_features(entries)`), tested in `analysis/tests/test_fit_serving.py`. The app's entries become Profiles' job and education tables (dates from the start of each description, as the local reader writes them; projects left out) and go through `career_switch` unchanged. A career changer is described at a switch now, with a placeholder tech job this month; someone already in tech moves from their current tech role, with Profiles' rules at their first tech job for origin and training. The pre-switch text is Profiles 5c's (titles and programs, internships and high school left out). Parity: for three made-up people who switched at month M, `find_switches` and Profiles 5c's text rule give exactly the features `person_features` computes as of M. End to end, three fictional résumés go through the local reader, `person_features` and ML_Fit's saved scorer and layer in 0.1–0.4 seconds each, after a one-time load of about 9 seconds.
+
+What it can't know: undated jobs and programs can't be placed on the timeline (counted in `undated_entries`), a single year on a program is read as its start, and a résumé the reader scrambles gives a scrambled timeline. The app should show these, not hide them.
 The trained layer reads ten Profiles columns plus the method scores per role:
 
 | Input | From the app's résumé reader |
