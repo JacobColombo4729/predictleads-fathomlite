@@ -111,7 +111,7 @@ export default function ProfilePage({ profile, edited, resumeReader = "openai", 
       // they are kept if you have edited the profile, and cleared if the form still holds the example's.
       setDraft((d) => ({
         ...d,
-        name: p.name,
+        name: p.name || d.name, // a resume the reader finds no name in keeps the name already typed (the form needs one)
         headline: p.headline,
         location: p.location,
         experience: p.experience.map((x) => ({ id: newId("exp"), kind: x.kind, title: x.title, organization: x.organization, description: x.description })),
@@ -124,6 +124,7 @@ export default function ProfilePage({ profile, edited, resumeReader = "openai", 
         kind: "ok",
         text: `Filled ${p.experience.length} experience ${p.experience.length === 1 ? "entry" : "entries"} and ${p.skills.length} ${p.skills.length === 1 ? "skill" : "skills"} from the resume, replacing the name, headline, location, experience and skills in the form (Cancel undoes it).` +
           (result.dropped > 0 ? ` ${result.dropped} suggested ${result.dropped === 1 ? "item was" : "items were"} left out because ${result.dropped === 1 ? "it" : "they"} could not be matched to your resume text.` : "") +
+          ((result.shortened ?? 0) > 0 ? ` ${result.shortened} ${result.shortened === 1 ? "item was" : "items were"} too long for the form and ${result.shortened === 1 ? "was" : "were"} shortened (or left out past the form's maximum): check the ends of long entries.` : "") +
           " Review everything, add your desired roles (a resume does not say what you want next), then press Save.",
       });
     } catch (err) {
@@ -152,7 +153,11 @@ export default function ProfilePage({ profile, edited, resumeReader = "openai", 
     setErrors(e);
     if (Object.keys(e).length) {
       setStatus("idle");
-      setTimeout(() => summaryRef.current?.focus(), 0);
+      // the form scrolls inside its own panel, so bring the summary into view before focusing it
+      setTimeout(() => {
+        summaryRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
+        summaryRef.current?.focus({ preventScroll: true });
+      }, 0);
       return;
     }
     const next = fromDraft(draft);
