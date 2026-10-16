@@ -1,6 +1,6 @@
 # Combining the two models
 
-**Status:** plan, not started (Jacob, 2026-10-15). To agree with Jesse before building (`.eve/ASKS.md`). The combined model is a **third model**, built as its own package and pluggable into either app (see "Modular design"); `rrf` (Jesse's) and `mlrank` (Jacob's) stay as they are, as the baselines it is compared with.
+**Status:** steps 1a–5 built and running as `combined_demo/` (Jacob, 2026-10-15); step 7's evaluation of the app rankers is next. The design asks for Jesse's agreement (`.eve/ASKS.md`). The combined model is a **third model**, built as its own package and run as its own app (see "Modular design"); `rrf` (Jesse's) and `mlrank` (Jacob's) stay as they are, as the baselines it is compared with.
 
 ## Goal
 
@@ -43,12 +43,14 @@ combined/                       the third model (Python package, no web framewor
   bundle.py                     writes and checks the bundle and its manifest
   build.py                      python -m combined.build: corpus, role-fit artefacts, queue snapshot -> one bundle
   tests/                        synthetic data only
-app/backend/combined_ranker.py  thin adapter to the app's ranker interface: PREDICTLEADS_API_RANKER=combined
+combined_demo/                  the combined model as its own app: Jesse's app built with create_app(ranker=...)
+  ranker.py                     the adapter to the app's ranker interface
+  server.py, run.ps1, run.sh    its own backend (port 8002), page (5175) and session database
 ```
 
 - **One bundle, one folder:** `data/clean/combined_v1/` (git-ignored), written by `python -m combined.build` and nothing else: the serving corpus (`jobs_prepared_corpus.jsonl`, `bge_embeddings.npy` and its manifest, the same format `rrf_ranker.py` reads), ML_Fit's trained layer and role artefacts, ML_Rank's listing scores and queue config, and `manifest.json` (versions, `ROLES`, feature lists, source commits, row counts). `CombinedModel.load` refuses a bundle whose manifest doesn't match the code.
 - **Dependencies point one way:** `combined/` imports `analysis/src` (`career_switch`, `fit_model`, `rank_model`, `text_features`) and Jesse's text-match code; nothing in `analysis/src` or `app/` imports `combined/` except the adapter. The rules can't drift from the notebooks because they are the same functions.
-- **Plugging in:** either launcher selects it with `-Ranker combined` (`run_demo_backend.ps1`, `run_jacob.ps1` and the `.sh` versions), pointing `PREDICTLEADS_API_CORPUS_DIR` and `PREDICTLEADS_API_JOBS_PATH` at the bundle's corpus. Jesse's app keeps its OpenAI features; Jacob's keeps them off. The analysis notebooks can load the same bundle to evaluate it.
+- **Running it:** `combined_demo/run.ps1` / `run.sh` (OpenAI off unless `-AI` / `--ai`). Jesse's `create_app()` already takes a repository and a ranker, so the combined demo builds his app with the combined corpus and ranker without changing anything in `app/` (decided 2026-10-15, instead of adding `-Ranker combined` to his `api.py` and launchers: no merge conflicts, and it can't break the other two apps). The analysis notebooks can load the same bundle to evaluate it.
 - **The other two stay:** `rrf` and `mlrank` are unchanged, so the three can be compared on the same people. They can also be pointed at the scope corpus, which fixes the listings gap for them too. Run one backend at a time (two already use about 9 GB).
 - **Version id:** `combined-v1` (`ranker_id = "combined"`).
 
@@ -168,7 +170,7 @@ Contrastive pairs (prior career → the role moved into) from the Profiles devel
 | 1a | Jacob (`combined/corpus.py`), reviewed by Jesse (it reuses his preparation and encoding) |
 | 1–3 | Jacob (`analysis/` saves the artefacts; `combined/` serves them) |
 | 4–5 | Jacob, in `combined/`; it reuses Jesse's code (preparation, encoding, the RRF ranker) without changing it |
-| Plug-in | Jacob, reviewed by Jesse: a new adapter `app/backend/combined_ranker.py`, about 3 lines in `api.py`'s ranker switch, and a launcher pointed at the combined corpus. These add to `app/` and change nothing his app or `mlrank` does |
+| Plug-in | **Built (2026-10-15) as `combined_demo/`**, its own app: `server.py` builds Jesse's app with `create_app(repository=..., ranker=...)`, `ranker.py` adapts the combined model to the app's ranker interface (reading the saved profile entries by id, read-only), `run.ps1` / `run.sh` start it on ports 8002 / 5175 with its own session database. Nothing in `app/` changes, so there's nothing to review there. Not yet shown on the page: the per-factor breakdown (the API keeps only job, rank and score from a ranker; the same for `mlrank`) |
 | 6 | Jesse, with Jacob |
 | 7 | Jacob |
 | 8 | either, later |
