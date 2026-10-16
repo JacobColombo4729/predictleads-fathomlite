@@ -221,8 +221,19 @@ def linear_contributions(pipeline, X_background, X_explain):
     input, coefficient x (the person's value - the average over X_background), on the role's log-odds scale. These are
     the exact SHAP values of a linear model with independent inputs (what shap.LinearExplainer computes).
     Returns (array people x roles x inputs, input names)."""
+    return contributions_from_mean(pipeline, background_mean(pipeline, X_background), X_explain)
+
+
+def background_mean(pipeline, X_background):
+    """The average preprocessed input over X_background: all a linear model's SHAP values need from the background
+    (an aggregate, so the app can keep it instead of the background people)."""
+    return np.asarray(pipeline.named_steps["prep"].transform(X_background)).mean(axis=0)
+
+
+def contributions_from_mean(pipeline, mean, X_explain):
+    """linear_contributions with the background given by its average (background_mean). Returns (contributions, names)."""
     prep, model = pipeline.named_steps["prep"], pipeline.named_steps["model"]
-    xb, xe = prep.transform(X_background), prep.transform(X_explain)
+    xe = prep.transform(X_explain)
     names = list(prep.get_feature_names_out())
     if not hasattr(model, "coef_"):  # a tree model won instead: shap's TreeExplainer (same output shape, raw scale)
         import shap
@@ -233,7 +244,7 @@ def linear_contributions(pipeline, X_background, X_explain):
         return out, names
     coef = np.zeros((len(ROLES), xe.shape[1]))
     coef[np.asarray(model.classes_, dtype=int)] = model.coef_
-    contrib = (xe - xb.mean(axis=0))[:, None, :] * coef[None, :, :]
+    contrib = (xe - np.asarray(mean))[:, None, :] * coef[None, :, :]
     return contrib, names
 
 

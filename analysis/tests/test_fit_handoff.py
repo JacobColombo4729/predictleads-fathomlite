@@ -94,6 +94,25 @@ class FitHandoffTests(unittest.TestCase):
         self.assertEqual(fh.max_difference(again, fm.probabilities(layer, X)), 0.0)
         self.assertTrue(np.allclose(again.sum(axis=1), 1.0))
 
+    def test_saved_shap_background_gives_ml_fits_reasons(self):
+        from sklearn.base import clone
+        X = self.scorer.features(self.people, self.model)
+        y = np.array([fe.ROLES.index(t) for t in self.people.target_bucket])
+        dev, new = X.iloc[:150], X.iloc[150:]
+        layer = clone(fm.candidates()["logistic regression"][0]).set_params(model__C=0.3).fit(dev, y[:150])
+        with tempfile.TemporaryDirectory() as d:
+            fh.save(d, self.scorer, layer, X.columns, {}, explain_background=dev)
+            _, loaded, manifest = fh.load(d)
+        self.assertEqual(len(manifest["explain_mean"]), len(manifest["explain_inputs"]))
+        got, groups = fh.reasons(loaded, new, manifest)
+        expected, expected_groups = fm.grouped(*fm.linear_contributions(layer, dev, new))
+        self.assertEqual(groups, expected_groups)
+        self.assertLess(fh.max_difference(got, expected), 1e-12)
+        with self.assertRaisesRegex(ValueError, "SHAP background"):
+            fh.reasons(loaded, new, {k: v for k, v in manifest.items() if k != "explain_mean"})
+        with self.assertRaisesRegex(ValueError, "don't match"):
+            fh.reasons(loaded, new, {**manifest, "explain_inputs": manifest["explain_inputs"][:-1]})
+
     def test_load_refuses_a_hand_off_for_other_roles(self):
         import json
         with tempfile.TemporaryDirectory() as d:

@@ -8,6 +8,7 @@
   - **Listings:** it serves the agreed scope's listings (EDA_SDA_1 8c), prepared with your `prepare_jobs` and encoded with your BGE code, instead of the targeted pool. The pool covers AI/ML, data and technical sales only, and misses most of software, QA, cybersecurity, IT support, networks, database and IT PM. Your `rrf` could point at the same corpus.
   - **Compass thresholds:** `ml-inventory.md` says they were set by looking at "a few real examples". Were those listings, or résumés (ours)? They stay out of the combined model until we know.
   - **Candidates within the person's top roles** (step 4) and **what drives the Compass and role suggestions** (step 6).
+  - **Your code doesn't change.** The combined model reuses your preparation, encoding and RRF ranker as they are (step 4 uses your ranker's `candidate_indices`). Plugging it in adds a new `app/backend/combined_ranker.py`, about 3 lines in `api.py`'s ranker switch and a launcher; I'll send those for your review.
 
 - **Text blockers and title rules are labels, not hiding (2026-10-13).** Years asked, degree with no equivalent, clearance, no sponsorship, "marketing specialist" and "staffing agency, from the title" are unvalidated keyword rules: show them as listing labels and opt-in filters (each with a count of what it would hide), never hidden by default. Only seniority (manager or leadership for users without management experience), likely ghosts and document management specialists hide by default. See `app/DESIGN.md` and the Decisions line in `JACOB.md`.
 
