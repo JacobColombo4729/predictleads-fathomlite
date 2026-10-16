@@ -22,6 +22,17 @@ import pandas as pd
 from combined._paths import DATA_DIR
 
 FIT_DIR = DATA_DIR / "clean" / "ml_fit"
+TEXT_WEIGHT = 0.5  # the text match's share of the role choice (v2): an equal blend, fixed before any result was seen
+
+
+def role_of_title(title: str) -> str | None:
+    """A job title's role bucket by Profiles' own title rules (career_switch RULES["cm_buckets"], first match wins)."""
+    import re
+
+    from src import career_switch as cs
+
+    low = str(title or "").lower()
+    return next((bucket for bucket, pattern in cs.RULES["cm_buckets"].items() if re.search(pattern, low)), None)
 
 
 @dataclass
@@ -36,6 +47,26 @@ class RoleFitResult:
 
     def ratings(self) -> dict[str, float]:
         return self.table["rating"].to_dict()
+
+    def with_evidence(self, text_mix: Mapping[str, float], desired_roles: Sequence[str] = (),
+                      text_weight: float = TEXT_WEIGHT) -> "RoleFitResult":
+        """The roles from the whole profile, not the trained layer alone (v2). The trained layer reads only titles,
+        programs and dates (all Profiles' resumes have), so a profile's skills and descriptions never reach it. Here:
+          score = (1 - w) x the trained layer's score + w x the role's share of the person's top text matches (which read
+          the whole profile: titles, descriptions, skills), w = 0.5, fixed before any result was seen;
+        and the roles the person asked for (desired roles, matched to a role by Profiles' title rules) always come first.
+        The rating is recomputed (best = 100); the trained layer's own score stays in "model score"."""
+        from src import rank_model as rm
+
+        t = self.table.copy()
+        t["model score"] = t["score"]
+        t["text match"] = [float(text_mix.get(r, 0.0)) for r in t.index]
+        wanted = {role_of_title(d) for d in desired_roles} - {None}
+        t["desired"] = [r in wanted for r in t.index]
+        t["score"] = (1 - text_weight) * t["model score"] + text_weight * t["text match"] + t["desired"].astype(float)
+        t["rating"] = rm.fit_ratings(t["score"].to_numpy()[None, :]).to_numpy()[0]
+        t = t.sort_values("score", ascending=False, kind="stable")
+        return RoleFitResult(t, self.reason_groups, self.case, self.undated_entries)
 
 
 class RoleFit:

@@ -440,6 +440,29 @@ def role_bucket(onet_code):
     return ONET_DETAILED_BUCKETS.get(code[:10]) or ONET_ROLE_BUCKETS.get(code[:7]) or EXTRA_ONET_BUCKETS.get(code[:7])
 
 
+# A listing's role checked against its title (serving only, 2026-10-16; never changes Profiles or the notebooks). The
+# occupation code can put a title that isn't a tech job in a tech bucket ("Data Entry", "Data Contributor"), so the title
+# decides when it can: titles that read as no tech role at all have no role; titles that Profiles' rules place in a
+# different bucket move there; anything else keeps the occupation code's bucket.
+NOT_A_TECH_ROLE = re.compile(r"\bdata entry\b|\bdata contributors?\b|\bai (?:trainers?|tutors?)\b|\bannotat(?:or|ors|ion)\b"
+                             r"|\bdata label(?:ing|ling|ers?)\b|\blabel(?:l)?ers?\b|\braters?\b|\btranscri(?:bers?|ptions?|ptionists?)\b"
+                             r"|\bclerks?\b|\btypists?\b", re.IGNORECASE)
+
+
+def title_bucket(title, rules=RULES):
+    """A job title's role bucket by Profiles' title rules (RULES["cm_buckets"], first match wins), or None."""
+    low = str(title or "").lower()
+    return next((bucket for bucket, pattern in rules["cm_buckets"].items() if re.search(pattern, low)), None)
+
+
+def listing_role(title, coded_role, rules=RULES):
+    """The role a listing is ranked as: None if its title reads as no tech role (whatever the code says), the title's
+    bucket if Profiles' rules give one, else the occupation code's bucket."""
+    if NOT_A_TECH_ROLE.search(str(title or "")):
+        return None
+    return title_bucket(title, rules) or coded_role
+
+
 # Broad areas for describing where career changers come from (analysis only: changing these never changes who is a
 # candidate). Applied to the main background job title, or the field studied. First match wins.
 BACKGROUND_AREAS = {

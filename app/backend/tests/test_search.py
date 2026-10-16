@@ -98,6 +98,19 @@ class JobLevelTests(unittest.TestCase):
             ("Software Engineering Intern", "junior", "internship"),  # whatever the seniority label says
             ("Summer Internship - Data Analytics", None, "internship"),
             ("Co-op Student, Data Engineering", None, "internship"),
+            ("Data Science Graduate Program 2026", None, "program"),  # programs are their own level, apart from entry
+            ("Data Engineering Apprentice", "junior", "program"),
+            ("IT Trainee", None, "program"),
+            ("Leadership Development Program - Analytics", None, "program"),
+            ("Data Science Fellowship", None, "program"),
+            ("Graduate Data Analyst", None, "entry"),  # "graduate" alone is an entry-level job, not a program
+            ("Program Manager, Data", None, "unstated"),  # a program manager is a job
+            ("Technical Fellow", "director", "director"),  # a senior title, not a fellowship
+            ("Data Contributor - Remote", None, "gig"),  # gig / AI-training data work is its own level too
+            ("AI Trainer (Python)", "junior", "gig"),
+            ("Senior AI Trainer", "mid_senior", "gig"),
+            ("Search Quality Rater", None, "gig"),
+            ("Data Annotator", None, "gig"),
             ("Internal Audit Analyst", None, "unstated"),  # "internal" is not "intern"
             ("Data Analyst", None, "unstated"),
             ("Staffing Coordinator", None, "unstated"),  # "staff" only counts as a whole word

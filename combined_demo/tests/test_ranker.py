@@ -36,8 +36,9 @@ class FakeModel:
     def __init__(self):
         self.seen = None
 
-    def recommend(self, entries, rank, limit, indices):
+    def recommend(self, entries, rank, limit, indices, desired_roles=()):
         self.seen = (entries, indices, rank(5, indices))
+        self.desired = list(desired_roles)
         rows = [{"job_id": "b", "role": "it support", "score": 80.0}, {"job_id": "a", "role": "data science", "score": 60.0}]
         for row in rows:
             for f in FACTORS:
@@ -46,7 +47,7 @@ class FakeModel:
 
 
 def profile(pid="prf_1", experience=("Store Lead Ran the store.",)):
-    return SimpleNamespace(profile_id=pid, experience=experience)
+    return SimpleNamespace(profile_id=pid, experience=experience, desired_roles=())
 
 
 def session_db(directory, profiles):
@@ -63,7 +64,7 @@ class AdapterTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        self.db = session_db(self.tmp.name, {"prf_1": {"name": "X", "experience": ENTRIES}})
+        self.db = session_db(self.tmp.name, {"prf_1": {"name": "X", "experience": ENTRIES, "desired_roles": ["Data Scientist"]}})
         self.base, self.model = FakeBase(), FakeModel()
         self.ranker = CombinedRankingBackend(self.base, self.model, sqlite_profiles(self.db))
 
@@ -76,11 +77,12 @@ class AdapterTests(unittest.TestCase):
         self.assertEqual(out[0]["breakdown"]["fit"], {"rating": 70.0, "part": 17.5})
         self.assertEqual(self.ranker.ranker_id, "combined")
 
-    def test_saved_entries_reach_the_model(self):
+    def test_saved_entries_and_desired_roles_reach_the_model(self):
         self.ranker.rank(profile(), 10, [0, 2])
         entries, indices, _ = self.model.seen
         self.assertEqual(entries, ENTRIES)
         self.assertEqual(indices, [0, 2])
+        self.assertEqual(self.model.desired, ["Data Scientist"])
 
     def test_feedback_reaches_the_text_match_and_exploration_is_dropped(self):
         self.ranker.rank(profile(), 10, [0, 1], liked_job_ids=["a"], disliked_job_ids=["c"], explore=3, rng=object())

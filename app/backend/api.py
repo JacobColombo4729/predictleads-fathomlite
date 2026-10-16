@@ -164,18 +164,29 @@ class ProfilePatch(BaseModel):
     constraints: str | None = Field(default=None, max_length=1000)
 
 
-JobLevel = Literal["internship", "entry", "experienced", "senior", "manager", "director", "unstated"]
+JobLevel = Literal["internship", "program", "gig", "entry", "experienced", "senior", "manager", "director", "unstated"]
 _DIRECTOR_AND_ABOVE = {"head", "director", "vice_president", "president", "c_level", "partner", "founder"}
 _SENIOR_TITLE = re.compile(r"\b(senior|sr|lead|principal|staff|architect)\b", re.IGNORECASE)
 _INTERN_TITLE = re.compile(r"\b(interns?|internships?|co-?ops?)\b", re.IGNORECASE)
-_ENTRY_TITLE = re.compile(r"\b(junior|jr|entry[- ]level|graduate|new grad|apprentice|trainee)\b", re.IGNORECASE)
+# Training and early-career programs: a different thing from an entry-level job, so their own level (2026-10-16)
+_PROGRAM_TITLE = re.compile(r"\b(?:graduate|early[- ]careers?|rotational|development|trainee|residency|apprenticeship) "
+                            r"(?:program|programme|scheme)s?\b|\bapprentice(?:ship)?s?\b|\btrainee(?:ship)?s?\b"
+                            r"|\bfellowships?\b|\bresidency\b|\bbootcamp\b", re.IGNORECASE)
+# Gig and AI-training data work (label, rate or write data for AI models): open to anyone and posted constantly by a few
+# platforms, so their own level instead of flooding entry level (2026-10-16)
+_GIG_TITLE = re.compile(r"\bdata contributors?\b|\bai (?:trainers?|tutors?|data (?:specialists?|contributors?|annotators?)"
+                        r"|(?:writing|model|response) evaluators?)\b|\bannotat(?:or|ors|ion)\b|\bdata label(?:ing|ling|ers?)\b"
+                        r"|\blabel(?:l)?ers?\b|\braters?\b|\bprompt (?:writers?|evaluators?)\b", re.IGNORECASE)
+_ENTRY_TITLE = re.compile(r"\b(junior|jr|entry[- ]level|graduate|new grad)\b", re.IGNORECASE)
 
 
 def job_level(source: Mapping[str, Any]) -> JobLevel:
     """The listing's level for the job-level filter, from PredictLeads' `seniority` and the title.
 
     An internship or co-op in the title is its own level, whatever the seniority label says (PredictLeads labels many
-    internships `junior`), so internships can be shown or hidden apart from entry-level jobs.
+    internships `junior`), so internships can be shown or hidden apart from entry-level jobs. So are training and
+    early-career programs ("program": graduate programs, apprenticeships, trainee programs, fellowships, residencies)
+    and gig / AI-training data work ("gig": data contributor, AI trainer, annotator, rater).
     PredictLeads' `mid_senior` is LinkedIn's one level for experienced individual contributors, so a senior word in the
     title (senior, lead, principal, staff, architect) splits "senior" out of it, and also overrides a `junior` label.
     A title word like "junior" or "trainee" places listings with no stated seniority at entry level."""
@@ -187,6 +198,10 @@ def job_level(source: Mapping[str, Any]) -> JobLevel:
         return "manager"
     if _INTERN_TITLE.search(title) or seniority in {"intern", "internship"}:
         return "internship"
+    if _PROGRAM_TITLE.search(title):
+        return "program"
+    if _GIG_TITLE.search(title):
+        return "gig"
     if _SENIOR_TITLE.search(title):
         return "senior"
     if seniority == "junior":
@@ -246,7 +261,7 @@ class RecommendationFilters(BaseModel):
     category: str | None = Field(default=None, max_length=120)
     seniority: str | None = Field(default=None, max_length=80)
     # Job levels to keep (job_level below); empty keeps every level
-    levels: list[JobLevel] = Field(default_factory=list, max_length=7)
+    levels: list[JobLevel] = Field(default_factory=list, max_length=9)
     # Only listings open on this day (open_on); none = every listing in the snapshot
     as_of: date | None = None
     work_arrangement: str | None = Field(default=None, max_length=80)

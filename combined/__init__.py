@@ -9,4 +9,4 @@ Plan and design: app/docs/combined-model-plan.md ("Modular design"). Built so fa
     model.py        CombinedModel: steps 3-5 end to end
 """
 
-VERSION = "combined-v1"
+VERSION = "combined-v2"  # v2: the roles come from the whole profile, not the trained layer alone

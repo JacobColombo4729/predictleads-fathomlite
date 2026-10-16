@@ -744,6 +744,20 @@ def listing_ratings(pool):
                          "pay": pay.fillna(50.0).values}, index=pool.index)
 
 
+def cap_per_company(order, companies, cap=2, limit=None):
+    """Positions of `order` (best first) with at most `cap` per company, so one company posting hundreds of near-identical
+    listings can't fill a page (serving only, 2026-10-16; the backtest is unchanged). The rest follow in their order,
+    after every listing within the cap. A listing with no company counts as its own. Returns up to `limit` positions."""
+    seen, first, later = {}, [], []
+    for pos in order:
+        company = companies[pos]
+        key = company if isinstance(company, str) and company else ("none", pos)
+        seen[key] = seen.get(key, 0) + 1
+        (first if seen[key] <= cap else later).append(pos)
+    out = first + later
+    return out if limit is None else out[:limit]
+
+
 def fit_ratings(fit):
     """fit: people x roles, ML_Fit's probabilities. Rated 0-100 per person: the best-fitting role is 100, the rest in
     proportion, so the rating says how close a role is to the person's best."""
