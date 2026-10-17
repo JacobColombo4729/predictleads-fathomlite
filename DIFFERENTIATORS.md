@@ -28,7 +28,7 @@ Every compass idea, with status and where it's built: [`app/DESIGN.md`](app/DESI
 
 ## Planned additions
 
-Seven further ideas (which skill unlocks the most jobs, certification payoff, a stepping-stone planner, "apply now" alerts, a backtested ranking claim, pay now vs. one move later, a map of reachable openings) are cut for now ([`analysis/ANALYSIS.md`](analysis/ANALYSIS.md)). The backtested ranking claim exists anyway: ML_Rank 8e, in [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md).
+Seven further ideas (which skill unlocks the most jobs, certification payoff, a stepping-stone planner, "apply now" alerts, a backtested ranking claim, pay now vs. one move later, a map of reachable openings) are cut for now ([`analysis/ANALYSIS.md`](analysis/ANALYSIS.md)). The backtested ranking claim exists anyway: ML_Rank 8e, in [`analysis/PROJECT.md`](analysis/PROJECT.md).
 
 ## What we lead with
 
@@ -36,7 +36,7 @@ Seven further ideas (which skill unlocks the most jobs, certification payoff, a 
 
 > **Pitch:** "Everyone tells career changers what they match. We tell them what's realistically reachable, which training actually got people like them there, and how fast they have to move, using real career switches and live 2026 listings."
 
-**The strongest evidence, with no labelling:** role suggestions are scored on real career moves. For 2,813 real career changers we know which role each actually moved into; from their background alone, the fit model puts that role in its top 3 for **81.7%** of held-out people [78.5%, 84.7%], against 63.2% for simply suggesting the most common roles and 70.0% for the best text match (ML_Fit 6b). Thousands of answers we didn't write, no AI grader, no human labels ([`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md), How we keep it honest).
+**The strongest evidence, with no labelling:** role suggestions are scored on real career moves. For 2,813 real career changers we know which role each actually moved into; from their background alone, the fit model puts that role in its top 3 for **81.7%** of held-out people [78.5%, 84.7%], against 63.2% for simply suggesting the most common roles and 70.0% for the best text match (ML_Fit 6b). Thousands of answers we didn't write, no AI grader, no human labels ([`analysis/PROJECT.md`](analysis/PROJECT.md), How we keep it honest).
 
 **Rigor is a quiet differentiator:** testing on later months, testing on held-out real career changers, checking collection effects before calling something a signal (listings with no description close in 3 days, which made missing pay look predictive), and limits stated plainly. Teams that don't overclaim stand out.
 
