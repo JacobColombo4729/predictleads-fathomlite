@@ -235,10 +235,9 @@ Open `.env` in VS Code and fill in:
 AWS_PROFILE=team_project
 AWS_REGION=us-east-2
 S3_PATH=s3://<bucket>/<YYYY>/<MM>/<DD>/
-HANDOFF_S3_PATH=s3://<bucket>/<prefix>/
 ```
 
-Ask the team for the bucket and export date, and for `HANDOFF_S3_PATH`: where the trained models' hand-offs are shared (step 9, `fetch.get_handoffs`). Each variable goes on its own line. `scratch.py` (step 11), the notebooks and the app all read it.
+Ask the team for the bucket and export date. Each variable goes on its own line. `scratch.py` (step 11), the notebooks and the app all read it.
 
 `OPENAI_API_KEY` is needed for the app's OpenAI features (step 12), which are on by default.
 
@@ -264,7 +263,7 @@ Everything lives in two git-ignored folders at the top, shared by the notebooks 
 | Public resumes from Kaggle (`data/external/resume_structured/`, for Profiles) | `python -m fetch.get_resumes` (no Kaggle account needed), or just run Profiles, which calls it first | under a minute |
 | O*NET 31.0 tables (`data/external/onet/`, for EDA_SDA_3 section 6 and ML_Fit: occupations, essential, transferable and software skills, job zones, related occupations) | `python -m fetch.get_onet` (a 13 MB download from the O*NET Resource Center, 10 MB kept, no account needed; CC BY 4.0, credit USDOL/ETA, kept in `SOURCE.json`) | a few seconds |
 | The BGE text-embedding model (`pretrained/bge-base-en-v1.5/`, for the app and ML_Fit) | `python -m fetch.get_bge` (about 0.44 GB from Hugging Face, the pinned version in `app/code/bge_text.py`; no account needed) | about a minute |
-| The trained models' hand-offs (`data/clean/ml_fit/`, `data/clean/ml_rank/`, `data/clean/combined_v1/corpus/`): everything the combined demo and Jacob's app read from the analysis, so they run without the notebooks | `python -m fetch.get_handoffs` (the version pinned in the script, from `HANDOFF_S3_PATH`; checked file by file, all three or none; skips what's current and never replaces the notebooks' own output without `--force`; `--check` shows what's there). After a rerun, Jacob bumps `VERSION` and runs `--upload` | depends on the connection |
+| The trained models' hand-offs (`data/clean/ml_fit/`, `data/clean/ml_rank/`, `data/clean/combined_v1/corpus/`): everything the combined demo and Jacob's app read from the analysis, so they run without the notebooks | `python -m fetch.get_handoffs` (the version pinned in the script, from `handoffs/` in `S3_PATH`'s bucket, or `HANDOFF_S3_PATH` in `.env` if set; checked file by file, all three or none; skips what's current and never replaces the notebooks' own output without `--force`; `--check` shows what's there). After a rerun, Jacob bumps `VERSION` and runs `--upload` | depends on the connection |
 | The cleaned tables (`data/clean/`, `data/profiles/`) | Run the notebooks in order: EDA_SDA_1, EDA_SDA_2, …; Profiles | |
 
 **Why scripts:** one setup for both halves, and no bucket names, AWS profiles or personal paths in committed files (our data agreement). The S3 location and profile come only from `.env` (`S3_PATH`, `AWS_PROFILE`, step 8). Each script skips data that's already in its folder, and checks disk space and asks before downloading. Data that can't be downloaded by script goes in its standard folder by hand, with its source noted in the table above. A check on every push (and in the app tests) fails if a committed file hard-codes any of these.
