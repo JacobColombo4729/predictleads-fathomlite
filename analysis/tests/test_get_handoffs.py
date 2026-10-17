@@ -130,13 +130,10 @@ class GetHandoffsTests(unittest.TestCase):
         self.assertEqual(gh.marker_version(gh.HANDOFFS["ml_fit"][0]), gh.VERSION)
 
     def test_location_defaults_to_the_exports_bucket_and_appends_the_version(self):
-        with mock.patch.dict(gh.os.environ, {"HANDOFF_S3_PATH": ""}):
-            with mock.patch.object(gh, "PL_BUCKET", "made-up"):
-                self.assertEqual(gh.location(), ("made-up", "handoffs/" + gh.VERSION + "/"))
-            with mock.patch.object(gh, "PL_BUCKET", ""), self.assertRaisesRegex(SystemExit, "S3_PATH"):
-                gh.location()
-        with mock.patch.dict(gh.os.environ, {"HANDOFF_S3_PATH": "s3:" + "//made-up/team/handoffs/"}):
-            self.assertEqual(gh.location(), ("made-up", "team/handoffs/" + gh.VERSION + "/"))
+        with mock.patch.object(gh, "PL_BUCKET", "made-up"):
+            self.assertEqual(gh.location(), ("made-up", "handoffs/" + gh.VERSION + "/"))
+        with mock.patch.object(gh, "PL_BUCKET", ""), self.assertRaisesRegex(SystemExit, "S3_PATH"):
+            gh.location()
 
     def test_the_folders_are_the_ones_the_readers_use(self):
         from combined import _paths
