@@ -114,6 +114,31 @@ Each notebook answers one question and hands its final table to the next. The Tr
 - **Pick a date (as-of date):** the queue can be shown as it stood on any date in the data: listings live that day (first seen on or before it, last seen on or after it), scored, and its model trained, only with what was known that day.
 - **Two supervised models, combined by a formula:** listings → how long they stay open (PredictLeads), and career changers → the role bucket they moved into (the 2,813 career changers). No data links a person to a listing, so the role buckets connect the two. Volunteer profiles, once the advisor approves, are a recent test set.
 
+## Reproducibility: built once, runs on a laptop
+
+**What we train, and what we don't.** No LLM is trained. BGE (`BAAI/bge-base-en-v1.5`, 0.44 GB) is a pretrained text-embedding model, downloaded at a pinned version and only used to turn listings and résumés into vectors. What we train are tabular models: ML_Fit's trained layer (which roles a person's background transfers to) and ML_Rank's listing models (logistic regression, gradient boosting and survival models), each saved in about 0.05 GB.
+
+**Where the compute goes.** The heavy work is data processing, done once: reading the 19 GB PredictLeads export and encoding the serving listings with BGE. Every step also runs on a laptop, only slower:
+
+| Step | On the desktop (GPU) | On a laptop |
+|---|---|---|
+| Read the export into the listing tables (`src.stream_full`) | about 35 minutes (bulk mode: 16 GB RAM, 8 threads) | 3–5 hours (stream mode, for 8 GB machines) |
+| Score all 2,813 career changers against all 8 roles (ML_Fit) | not timed | 6.3 minutes, BGE on the CPU included |
+| Tune the trained layer (ML_Fit, six candidate models) | not timed | 1.4 minutes |
+| Encode the 193,043 serving listings with BGE | 58 minutes | not run; estimated several hours on a CPU: the one step worth a GPU |
+| Load the app's rankers, then rank one person | 3.3 minutes; 0.4 s (`rrf`, `mlrank`) to 1.5 s (combined model) | to time on Jesse's laptop (serving uses no GPU; about 2.5 GB of memory) |
+
+**The same results on any machine.**
+- **Pinned environment:** one `requirements.txt` with every version pinned, Python 3.11.
+- **Fixed seeds:** every split, bootstrap and model has a fixed seed (people split with seed 0, models with 12345), and each run's settings, seeds and metrics go to a run log (`src/run_log.py`).
+- **Fixed data:** one export (2026-09-30), and the scope's listing ids are saved with the analysis table.
+- **Checked hand-offs:** the trained models are saved once (ML_Fit 9b, ML_Rank section 13), and a parity check rescores the test people from the saved files (largest probability gap 1.5e-06, the same top 3 roles for 100%).
+- **Portable:** the saved models and the encoded listings travel as one checked zip (`python -m fetch.get_handoffs`), so the apps run on a laptop without rerunning any notebook.
+
+**What we can't hand over:** the PredictLeads data stays under our data agreement, so outsiders can rerun the code but not the data without their own access. The tests run on made-up data so the code can still be checked (`analysis/tests/`, `combined/tests/`, `app/tests/`).
+
+**In the pitch:** "Built once offline, runs anywhere: the heavy step is encoding 193,000 listings, done once on a GPU; the role-fit model trains in minutes on a laptop, and the app runs on one."
+
 ## Honest limits
 
 - We see listings appear and disappear, **not hires**. A listing closing could mean filled, cancelled or moved.
