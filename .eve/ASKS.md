@@ -4,6 +4,8 @@
 
 ## For Jesse (from Jacob)
 
+- **Run the combined demo without the notebooks (2026-10-16).** You don't need to train anything: the apps only read saved outputs. Once Jacob has uploaded `v1`, add `HANDOFF_S3_PATH` to your `.env` (Jacob sends it), run `python -m fetch.get_handoffs`, then `.\combined_demoun.ps1` (or `.ppun_jacob.ps1`). Rerun the fetch whenever Jacob bumps the version.
+
 - **Combining our models as a third model (2026-10-15).** Read `app/docs/combined-model-plan.md` ("Modular design") and say whether you agree (steps 1a–5 are built). The combined model is its own package (`combined/`, shared like `fetch/`), run as its own app (`combined_demo/`); your `rrf` and my `mlrank` stay unchanged as baselines. It uses ML_Fit's trained layer (which builds on your TF-IDF + BGE scores) as the fit factor of ML_Rank's queue, with your RRF picking the candidates. Your calls:
   - **Listings:** it serves the agreed scope's listings (EDA_SDA_1 8c), prepared with your `prepare_jobs` and encoded with your BGE code, instead of the targeted pool. The pool covers AI/ML, data and technical sales only, and misses most of software, QA, cybersecurity, IT support, networks, database and IT PM. Your `rrf` could point at the same corpus.
   - **Compass thresholds:** `ml-inventory.md` says they were set by looking at "a few real examples". Were those listings, or résumés (ours)? They stay out of the combined model until we know.
