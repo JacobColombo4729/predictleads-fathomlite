@@ -1,5 +1,8 @@
 # One ignore list for the whole repository (analysis/ and app/).
 
+# TripleTen's own course notebooks, dropped in locally for comparison: not part of this project
+/TripleTen/
+
 # Secrets and credentials: never commit
 .env
 .env.*
