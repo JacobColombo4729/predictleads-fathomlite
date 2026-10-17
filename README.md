@@ -1,6 +1,6 @@
 # predictleads-fathomlite
 
-PredictLeads × TripleTen externship project: role discovery and job listing prioritization for career changers, built on PredictLeads job data. Which tech roles a person's background transfers to, which listings they can realistically get, and which to apply to first. See [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md).
+PredictLeads × TripleTen externship project: role discovery and job listing prioritization for career changers, built on PredictLeads job data. Which tech roles a person's background transfers to, which listings they can realistically get, and which to apply to first. **Start with [`analysis/SUMMARY.md`](analysis/SUMMARY.md)** (how it works and how we know, in one page); the full overview is [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md).
 
 > ⚠️ **This repo is private and confidential.** Everything in it is covered by our Training Services Agreements. Read the [Data & Security Rules](#data--security-rules) before you start working.
 
