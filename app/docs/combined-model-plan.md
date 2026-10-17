@@ -144,7 +144,7 @@ Hidden listings stay out, as now.
 - **Option: blend in the listing match**, `fit = (1 − a) · role fit + a · listing match`, with `a` a visible, adjustable weight (default 0). It breaks ties within a role using Jesse's text match. No data links people to listings, so `a` can't be tuned or reported as a result. It's a stated choice.
 - Each result's breakdown shows role fit and listing match separately.
 
-### 6. Role discovery and the Compass
+### 6. Role discovery and the Compass (cut 2026-10-16: later; the Compass stays as it is, `analysis/CUT.md`)
 Check what the app's Compass and role suggestions currently use (`app/code/role_family_classifier.py`, `app/DESIGN.md` section 3). Then decide with Jesse whether the trained layer's top roles drive them or are shown next to them.
 
 ### 7. Evaluation (what we can and can't claim)
@@ -155,7 +155,7 @@ Against real outcomes, with no labelling (`analysis/STANDARDS.md`, Validation de
 - **Listing level:** ML_Rank's backtest against newest-first. Rerun it with the step 4 candidate pool if that changes which listings are eligible.
 - **Not a measure:** the team's ratings and logged app feedback are usability feedback only, never a reported result or training data.
 
-### 8. Later, optional: fine-tune BGE on career moves
+### 8. Later, optional: fine-tune BGE on career moves (cut 2026-10-16, `analysis/CUT.md`)
 Contrastive pairs (prior career → the role moved into) from the Profiles development people, with sentence-transformers. Keep it only if, on the same test people, it beats the trained layer, or improves the trained layer as an input. Caveats: 2,813 people is small, it needs the GPU PC, and the app's corpus has to be re-encoded.
 
 ## Risks
