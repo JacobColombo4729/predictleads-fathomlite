@@ -64,7 +64,7 @@ For each main-path piece, be able to answer three questions:
 ## What to do
 
 ### 1. Lead with the three numbers
-- [ ] One short entry page, "How it works and how we know" (`analysis/SUMMARY.md` or the top of `README.md`): the three numbers, the pipeline in five lines, links to the rest.
+- [x] One short entry page, "How it works and how we know": `analysis/SUMMARY.md` (2026-10-16), linked from the top of `README.md`: the three numbers, the one path, how we know, what we don't claim, links to the rest.
 - [ ] The same three numbers open the pitch deck and each notebook's purpose cell.
 
 ### 2. A main path and an appendix in each notebook (nothing deleted)
