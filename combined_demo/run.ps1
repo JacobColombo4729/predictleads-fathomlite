@@ -3,7 +3,8 @@
 # 8002, the page on http://127.0.0.1:5175 (Jesse's app keeps 8000/5173, Jacob's 8001/5174), with its own session database.
 # Opens two windows (the backend and the frontend), waits for the backend (a few minutes), then opens the page.
 # Stop it by closing both windows. Needs the combined corpus (python -m combined.corpus build, then encode), ML_Fit's
-# hand-off (ML_Fit 9b) and ML_Rank's (ML_Rank section 13); the backend says which is missing.
+# hand-off (ML_Fit 9b) and ML_Rank's (ML_Rank section 13), or all three from python -m fetch.get_handoffs; the backend
+# says which is missing.
 #   .\combined_demo\run.ps1          every OpenAI feature off; Magic fill reads resumes on this computer
 #   .\combined_demo\run.ps1 -AI      Jesse's OpenAI features on (each asks for consent in the app before sending anything)
 param([switch]$AI, [int]$BackendPort = 8002, [int]$FrontendPort = 5175)
