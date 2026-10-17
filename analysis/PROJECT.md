@@ -81,7 +81,7 @@ No LLM is trained. BGE (`BAAI/bge-base-en-v1.5`, 0.44 GB) is a pretrained text-e
 
 Each answers one question and hands its final table to the next (`data/clean/`). The TripleTen course templates are the baseline; shared code lives in `src/`.
 
-| Notebook | Question | Hands on |
+| Notebook | Question | Product |
 |:--|:--|:--|
 | **EDA_SDA_1** | What's in the data, and what's the scope? | The scope table |
 | **EDA_SDA_2** | Which scope listings do we keep, and how do they behave? | Cleaned and flagged scope table (ghosts, hiding rules) |
