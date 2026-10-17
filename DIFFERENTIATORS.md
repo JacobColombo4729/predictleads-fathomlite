@@ -11,7 +11,7 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 - **Live 2026 listings with timing:** when each listing appeared and when it closed (PredictLeads), so we can say how fast to act, not only what fits.
 - **Real career switches:** people who retrained into computer and mathematical roles, found in a public resume dataset (`notebooks/Profiles.ipynb`): 2,813 career changers (README step 9).
 - **Role buckets that connect the two:** the same buckets on listings (O*NET codes) and on career switches (job titles).
-- **Job growth expectations per role:** expected growth over at most the next 5 years, from official occupational projections (BLS 2025–2035) joined on the same occupation codes, so role recommendations look ahead. Plan: the job growth tasks in [`ANALYSIS.md`](ANALYSIS.md).
+- **Job growth expectations per role (planned, not built before the pitch):** expected growth over at most the next 5 years from official projections (BLS), joined on the same occupation codes; a visible weight at 0 until added.
 
 ## Angles
 
@@ -24,23 +24,11 @@ A résumé compared with job descriptions, returning a match score, maybe with a
 | **5. Where and when to look** | A watch list of employers hiring at volume or posting entry-level roles, plus a check-every-N-days cadence; a date picker shows how the list changed (July vs. September 2026) | Half of scope listings come from companies with 500+ listings in any field; the top 10% of companies post 47–74% of each role bucket's listings; every listing has first-seen and last-seen dates |
 | **6. Ideas tab** | A separate tab built on the compass, from the résumé: skills to build, career options down the line, the pay increase, expected job growth, and stepping-stone roles (to try; time frames kept vague) | Profiles (time to switch, paths, level at the switch), 2026 listing pay by role, job growth expectations |
 
-Every compass idea, with status and where it's built: [`app/DESIGN.md`](../app/DESIGN.md#3-the-retraining-compass), section 3.
+Every compass idea, with status and where it's built: [`app/DESIGN.md`](app/DESIGN.md#3-the-retraining-compass), section 3.
 
 ## Planned additions
 
-Proposed 2026-10-10; lead with 1, 3 and 5. Not built yet (tasks in [`ANALYSIS.md`](ANALYSIS.md)).
-
-| Idea | What the user sees | Built from | Strengthens |
-|:--|:--|:--|:--|
-| **1. Which skill unlocks the most jobs** | For each skill or certification the user could add, how many more listings become reachable | EDA_SDA_3 skills + the blocker labels the user filters on (EDA_SDA_2 3.11) | Angles 2 and 6 |
-| **2. Certification payoff** | How many listings ask for each certification, and which roles career changers with it moved into | EDA_SDA_3 skills + Profiles | Angle 4 |
-| **3. Stepping-stone planner** | Routes of two or more moves within tech (e.g. IT support → networks and systems → security), with how many people took each step and the 2026 openings at each stop | Profiles (moves between tech roles) + the compass | Angles 3 and 4 |
-| **4. "Apply now" alerts** | A nudge when a watched company starts a hiring burst, timed with our apply-by estimates | Jesse's Signals tab + timing (EDA_SDA_2 3.3) | Angles 1 and 5 |
-| **5. A backtested ranking claim** | One number for the pitch: trained on April–July, tested on September, how much more relevant the top 10 is than newest-first | ML_Rank | Rigor |
-| **6. Pay now vs. one move later** | Entry pay for a role next to the pay of the roles people moved to next | 2026 listing pay + Profiles paths | Angle 6 |
-| **7. Map of reachable openings** | Reachable listings by state or metro for the user's target role | Listings' locations + the blocker labels the user filters on | Angle 5 |
-
-Same claim rules as below: idea 2 shows where certified switchers went, never that a certification gets someone hired; idea 5 is stated with its test months and baseline.
+Seven further ideas (which skill unlocks the most jobs, certification payoff, a stepping-stone planner, "apply now" alerts, a backtested ranking claim, pay now vs. one move later, a map of reachable openings) are cut for now ([`analysis/ANALYSIS.md`](analysis/ANALYSIS.md)). The backtested ranking claim exists anyway: ML_Rank 8e, in [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md).
 
 ## What we lead with
 
@@ -48,7 +36,7 @@ Same claim rules as below: idea 2 shows where certified switchers went, never th
 
 > **Pitch:** "Everyone tells career changers what they match. We tell them what's realistically reachable, which training actually got people like them there, and how fast they have to move, using real career switches and live 2026 listings."
 
-**The strongest evidence, with no labelling:** role suggestions are scored on real career moves. For 2,813 real career changers we know which role each actually moved into; from their background alone, the fit model puts that role in its top 3 for **81.7%** of held-out people [78.5%, 84.7%], against 63.2% for simply suggesting the most common roles and 70.0% for the best text match (ML_Fit 6b). Thousands of answers we didn't write, no AI grader, no human labels (`STANDARDS.md`, Validation design).
+**The strongest evidence, with no labelling:** role suggestions are scored on real career moves. For 2,813 real career changers we know which role each actually moved into; from their background alone, the fit model puts that role in its top 3 for **81.7%** of held-out people [78.5%, 84.7%], against 63.2% for simply suggesting the most common roles and 70.0% for the best text match (ML_Fit 6b). Thousands of answers we didn't write, no AI grader, no human labels ([`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md), How we keep it honest).
 
 **Rigor is a quiet differentiator:** testing on later months, testing on held-out real career changers, checking collection effects before calling something a signal (listings with no description close in 3 days, which made missing pay look predictive), and limits stated plainly. Teams that don't overclaim stand out.
 

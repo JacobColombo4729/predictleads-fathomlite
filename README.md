@@ -1,6 +1,6 @@
 # predictleads-fathomlite
 
-PredictLeads × TripleTen externship project: role discovery and job listing prioritization for career changers, built on PredictLeads job data. Which tech roles a person's background transfers to, which listings they can realistically get, and which to apply to first. **Start with [`analysis/SUMMARY.md`](analysis/SUMMARY.md)** (how it works and how we know, in one page); the full overview is [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md).
+PredictLeads × TripleTen externship project: role discovery and job listing prioritization for career changers, built on PredictLeads job data. Which tech roles a person's background transfers to, which listings they can realistically get, and which to apply to first. **Start with [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md)** (what we built and how we know it works); how it stands out and how to pitch it: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
 
 > ⚠️ **This repo is private and confidential.** Everything in it is covered by our Training Services Agreements. Read the [Data & Security Rules](#data--security-rules) before you start working.
 
@@ -15,7 +15,7 @@ New to the repo? About 20 minutes; each step links to its details below.
 2. **One Python 3.11 `.venv`** at the top, from `requirements.txt` ([steps 4–6](#4-create-your-virtual-environment)).
 3. **`.env`** from `.env.example`: the AWS settings and your `OPENAI_API_KEY` ([steps 7–8](#7-set-up-aws-credentials)).
 4. **Data:** `python -m fetch.get_bge` for the BGE model, the app's serving corpus in `data/matching/ai_ml_serving_v1` (move your copy there, or rebuild it), and optionally `python -m fetch.get_predictleads` ([step 9](#9-data-and-models), [step 13](#13-rebuild-the-apps-corpus)).
-5. **Eve (optional)**, the reviewer that tidies and checks every push: `git config core.hooksPath .githooks` ([step 14](#14-daily-git-workflow)). She uses your Claude allowance at every push and commit.
+5. **Eve (optional)**, the reviewer that tidies and checks every push: `git config core.hooksPath .githooks` ([step 14](#14-daily-git-workflow)). She uses your Claude allowance at every push and commit. The other helpers (Thread, Pace, Foreman) run only when you ask for them by name; none of them reads data or keys.
 6. **Run the app** ([step 12](#12-run-the-app)).
 7. **Catch up:** the other person's change log (`JACOB.md` or `JESSE.md`) and any asks waiting for you in [`.eve/ASKS.md`](.eve/ASKS.md).
 
@@ -52,7 +52,7 @@ predictleads-fathomlite/
 ├── .env.example              template for your .env (settings and keys)
 ├── .gitattributes  .gitignore
 ├── requirements.txt          one pinned list for everything (Python 3.11)
-├── SETUP.md                  a welcome for newcomers: setup, Eve, where things live
+├── DIFFERENTIATORS.md        how the project stands out, and how to pitch it
 ├── JACOB.md  JESSE.md        each person's change log, most important first
 ├── .eve/ASKS.md              what each of us wants the other to make sure of (Eve keeps it)
 ├── fetch/                    where every dataset comes from and lives: one download script each, the shared folders
@@ -61,10 +61,10 @@ predictleads-fathomlite/
 ├── data/  pretrained/        local only, git-ignored: raw/ (PredictLeads), external/ (outside data), the notebooks'
 │                             tables, the corpus and embeddings; the BGE model
 ├── analysis/
-│   ├── notebooks/            EDA_SDA_1–4, TimeSeries, Profiles, ML_Fit, ML_Rank
+│   ├── notebooks/            EDA_SDA_1–4, TimeSeries, Profiles, ML_Fit, ML_Rank, Evaluate
 │   ├── src/                  shared code imported by the notebooks
 │   ├── docs/                 notebook text exports, the volunteer profile form
-│   └── ANALYSIS (the analysis priority queue), PROJECT_OUTLINE, STANDARDS, DIFFERENTIATORS
+│   └── PROJECT_OUTLINE.md (what we built, how we know)  ANALYSIS.md (what's left)
 └── app/
     ├── backend/              FastAPI demo API
     ├── frontend/             React + Vite app
@@ -76,7 +76,7 @@ predictleads-fathomlite/
     └── run_demo_backend / run_tests (.ps1 for Windows, .sh for macOS / Linux)
 ```
 
-What each analysis doc is for: the table at the top of [`analysis/STANDARDS.md`](analysis/STANDARDS.md). What the app has left to do: [`app/APP.md`](app/APP.md).
+What the analysis has left to do: [`analysis/ANALYSIS.md`](analysis/ANALYSIS.md); the app: [`app/APP.md`](app/APP.md).
 
 ---
 
@@ -388,7 +388,7 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 1. `python code/extract_targeted_pool.py --scan` streams the full snapshot (about 19 GB from S3 with `S3_PATH` and `AWS_PROFILE` from `.env`, or from `data/raw/` if downloaded; about 36 minutes) and keeps AI/ML, data and technical-sales listings. `--check-sample` tests the matcher offline.
 2. `python code/rank_candidates.py build-corpus --targeted-dir ../data/matching/targeted_pool_<timestamp>` builds the deduplicated corpus. `encode` then `finalize-encode` compute the BGE embeddings (GPU recommended).
 3. `python code/rank_candidates.py export-serving` writes the serving subset the backend loads.
-4. `python code/rank_candidates.py rank ...` ranks the fictional test profiles; `python code/build_review_page.py --run-dir <ranking run> --profiles <profile files>` builds an optional blinded review page, a usability check only: the rankers are evaluated on real career moves (`analysis/STANDARDS.md`, Validation design).
+4. `python code/rank_candidates.py rank ...` ranks the fictional test profiles; `python code/build_review_page.py --run-dir <ranking run> --profiles <profile files>` builds an optional blinded review page, a usability check only: the rankers are evaluated on real career moves (`analysis/PROJECT_OUTLINE.md`, How we keep it honest).
 5. `python code/role_family_classifier.py` trains and evaluates the supporting role-family classifier.
 
 ---
@@ -519,7 +519,7 @@ Everyone must **permanently delete all copies of the data** (local `data/` folde
 
 ## Where to read more
 
-**Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we're doing), [`analysis/STANDARDS.md`](analysis/STANDARDS.md) (how we work), [`analysis/DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md), [`app/DESIGN.md`](app/DESIGN.md), [`analysis/ANALYSIS.md`](analysis/ANALYSIS.md), [`analysis/docs/volunteer_profiles.md`](analysis/docs/volunteer_profiles.md) (the on-hold plan for volunteer career-changer profiles, with its blank form).
+**Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we built, how we know, how we keep it honest), [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) (the pitch), [`app/DESIGN.md`](app/DESIGN.md), [`analysis/ANALYSIS.md`](analysis/ANALYSIS.md), [`analysis/docs/volunteer_profiles.md`](analysis/docs/volunteer_profiles.md) (the on-hold plan for volunteer career-changer profiles, with its blank form).
 
 **App:**
 1. [app/APP.md](app/APP.md) and [app/roadmap.md](app/roadmap.md)

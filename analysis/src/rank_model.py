@@ -18,7 +18,7 @@ import pandas as pd
 
 from .as_of import LIVE_TOLERANCE_DAYS  # one definition of "still open" for the targets and the date picker
 
-EXPORT_END = pd.Timestamp("2026-09-30")  # the data's end date (STANDARDS.md)
+EXPORT_END = pd.Timestamp("2026-09-30")  # the data's end date (PROJECT_OUTLINE.md, Data)
 CLOSING_DAYS = 14  # THE closing window: the main target "closes within N days" and "open long enough" (first seen + N days). Change it here only.
 SENSITIVITY_DAYS = (7, 14, 30)  # windows the sensitivity check (ML_Rank 11) repeats the main result for
 SPLIT = {"train": ("2026-03-30", "2026-07-31"), "validation": ("2026-08-01", "2026-08-31"),

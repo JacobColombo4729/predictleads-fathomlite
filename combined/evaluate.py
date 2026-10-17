@@ -1,4 +1,4 @@
-"""Step 7: the app's rankers scored on real career moves, with ML_Fit's own evaluation (analysis/STANDARDS.md,
+"""Step 7: the app's rankers scored on real career moves, with ML_Fit's own evaluation (analysis/PROJECT_OUTLINE.md,
 Validation design). Run from notebooks/Evaluate.ipynb.
 
 The answer key is ML_Fit's: Profiles' career changers, the same split (fit_eval.split_people, seed 0), the test people
