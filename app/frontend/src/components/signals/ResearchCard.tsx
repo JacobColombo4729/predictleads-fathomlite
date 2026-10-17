@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ResearchResponse } from "../../lib/market";
 import { api } from "../../lib/api";
+import MlNote from "../MlNote";
 
 type State = { status: "idle" } | { status: "loading" } | { status: "error"; message: string } | { status: "done"; data: ResearchResponse };
 
@@ -25,6 +26,7 @@ export default function ResearchCard({ companyId, companyName }: { companyId: st
       <div className="mk-research">
         <p className="cp-sub">Want more than our data shows? We can research {companyName} on the web: a short summary of what the company does, with its sources. Only the company's name and website are sent to OpenAI.</p>
         <button type="button" className="btn btn--sm" onClick={() => void run()}>Research this company</button>
+        <MlNote id="company-research" />
       </div>
     );
   }

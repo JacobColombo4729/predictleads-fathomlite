@@ -2,6 +2,7 @@ import type { FeedbackSignal, Filters, ListedRange, Profile, Recommendation, Sea
 import FilterBar from "../components/FilterBar";
 import JobCard from "../components/JobCard";
 import JobDetails from "../components/JobDetails";
+import MlNote from "../components/MlNote";
 import { isBlankProfile } from "../lib/profile";
 
 // Career changers start at entry level, so that is the default; the filter bar changes it.
@@ -67,6 +68,8 @@ export default function DiscoverPage(p: Props) {
           </span>
         </div>
 
+        <MlNote id="ranker" variant={p.ranker === "combined" || p.ranker === "ml_rank_queue" ? p.ranker : undefined} />
+
         {p.filters.query.trim() && p.searchScope !== "all" && (
           <p className="muted small searchnote" role="status">
             {p.searchScope === "title"
@@ -90,6 +93,7 @@ export default function DiscoverPage(p: Props) {
             )}
           </p>
         </section>
+        <MlNote id="feedback" />
 
         {p.error && (
           <p className="notice" role="alert">

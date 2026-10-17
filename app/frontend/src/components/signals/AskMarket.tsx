@@ -4,6 +4,7 @@ import { fullQuery, withoutFields } from "../../lib/market";
 import { api } from "../../lib/api";
 import { VOICE_MAX_SECONDS, useVoiceRecorder, voiceSupported } from "../../lib/voice";
 import MarketResultView from "./MarketResultView";
+import MlNote from "../MlNote";
 
 function MicIcon() {
   return (
@@ -124,6 +125,7 @@ export default function AskMarket() {
           ? "Your question (nothing from your profile) is sent to OpenAI to be turned into a search. The answer then comes from our data." + (voiceOn ? " Talk records up to 30 seconds from your microphone, sends it to OpenAI to be turned into text, and does not keep it." : "")
           : "Typing your own questions needs the AI switched on for this server. The examples above work without it."}
       </p>
+      <MlNote id="ask-market" />
 
       {error && <p className="field__error" role="alert">{error}</p>}
       {response?.state === "unavailable" && (

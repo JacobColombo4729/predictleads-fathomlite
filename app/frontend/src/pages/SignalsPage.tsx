@@ -6,6 +6,7 @@ import PatternBadge from "../components/signals/PatternBadge";
 import Sparkline from "../components/signals/Sparkline";
 import SignalDetail from "../components/signals/SignalDetail";
 import AskMarket from "../components/signals/AskMarket";
+import MlNote from "../components/MlNote";
 
 const PAGE = 25;
 const PATTERNS: SignalPattern[] = ["burst", "sustained", "cooling"];
@@ -72,6 +73,8 @@ export default function SignalsPage() {
       </header>
 
       <AskMarket />
+
+      <MlNote id="signals" />
 
       <section className="cp-card sg-explain" aria-label="What the patterns mean">
         {PATTERNS.slice(0, 2).map((p) => {

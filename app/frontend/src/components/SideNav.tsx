@@ -1,4 +1,4 @@
-import { BookmarkIcon, CompassIcon, FindIcon, SignalsIcon, UserIcon } from "./Icons";
+import { BookmarkIcon, CompassIcon, FindIcon, GearIcon, SignalsIcon, UserIcon } from "./Icons";
 import { routeHref, type Route } from "../lib/router";
 import ThemeToggle from "./ThemeToggle";
 import markUrl from "../assets/fathomlite-icon.png";
@@ -14,6 +14,7 @@ const items: { route: Route; label: string; Icon: typeof CompassIcon }[] = [
   { route: "compass", label: "Compass", Icon: CompassIcon },
   { route: "signals", label: "Signals", Icon: SignalsIcon },
   { route: "profile", label: "Profile", Icon: UserIcon },
+  { route: "settings", label: "Settings", Icon: GearIcon },
 ];
 
 export default function SideNav({ route, savedCount }: Props) {

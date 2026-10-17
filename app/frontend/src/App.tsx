@@ -18,6 +18,8 @@ import LandingPage from "./pages/LandingPage";
 import DiscoverPage, { defaultFilters } from "./pages/DiscoverPage";
 import SavedJobsPage from "./pages/SavedJobsPage";
 import ProfilePage from "./pages/ProfilePage";
+import SettingsPage from "./pages/SettingsPage";
+import { AdminProvider } from "./lib/admin";
 
 export default function App() {
   const route = useRoute();
@@ -129,10 +131,11 @@ export default function App() {
     route === "discover" ? `shell--discover shell--${mobileView}`
     : route === "saved" ? `shell--saved ${panelOpen ? "shell--detail shell--with-panel" : "shell--list"}`
     : route === "compass" ? "shell--compass"
-    : route === "signals" ? "shell--signals"
+    : route === "signals" || route === "settings" ? "shell--signals"
     : "shell--profile";
 
   return (
+    <AdminProvider>
     <SignalPatternsContext.Provider value={signalPatterns}>
     <div className={`shell ${shellClass}`}>
       <SideNav route={route} savedCount={savedCount} />
@@ -200,6 +203,7 @@ export default function App() {
         />
       )}
       {route === "signals" && <SignalsPage />}
+      {route === "settings" && <SettingsPage />}
       {route === "profile" && (
         <ProfilePage
           profile={live.profile}
@@ -224,5 +228,6 @@ export default function App() {
       {toast && <Toast toast={toast} onDismiss={() => setToast(null)} />}
     </div>
     </SignalPatternsContext.Provider>
+    </AdminProvider>
   );
 }

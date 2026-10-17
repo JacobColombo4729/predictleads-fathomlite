@@ -6,6 +6,7 @@ import {
   ARRANGEMENT_OPTIONS, ENTRY_KINDS, LIMITS, fromDraft, newId, toDraft, validateDraft, type ProfileDraft,
 } from "../lib/profile";
 import ProfilePreview from "../components/ProfilePreview";
+import MlNote from "../components/MlNote";
 import { blankProfile, isBlankProfile } from "../lib/profile";
 
 /** A brand-new profile carries a placeholder name for the server; the form shows the name field empty. */
@@ -225,6 +226,7 @@ export default function ProfilePage({ profile, edited, resumeReader = "openai", 
                 Choose a text-based PDF or a plain-text (.txt) resume and the form fills in from it. Only what the resume actually says is used;
                 anything it cannot find is left as it was. It does not guess your desired roles. Nothing is saved until you press Save.
               </p>
+              <MlNote id="magic-fill" variant={resumeReader === "local" || resumeReader === "openai" ? resumeReader : undefined} />
               <input type="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" onChange={(e) => void onResumeFile(e.target.files?.[0])} aria-label="Resume file (PDF or text)" />
               {localReader ? (
                 <p className="muted">

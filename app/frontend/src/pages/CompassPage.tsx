@@ -11,6 +11,7 @@ import RequirementBars from "../components/compass/RequirementBars";
 import NextSteps from "../components/compass/NextSteps";
 import Suggestions from "../components/compass/Suggestions";
 import GapSection from "../components/compass/GapSection";
+import MlNote from "../components/MlNote";
 import type { GapBatch } from "../state/useGapBatch";
 import { themeColor } from "../lib/compass";
 
@@ -149,6 +150,8 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
             <div className="cp-tile"><b>{result.stats.suggestions}</b><span>roles you didn’t pick</span></div>
           </div>
 
+          <MlNote id="compass" />
+
           <section className="cp-block">
             <div className="cp-grid">
               <div className="cp-card">
@@ -159,6 +162,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
                   </div>
                   <button type="button" className="chip" aria-pressed={table} onClick={() => setTable((t) => !t)}>{table ? "View as map" : "View as table"}</button>
                 </header>
+                <MlNote id="compass-map" />
                 {result.themes.length > 1 && (
                   <div className="cp-filters" role="group" aria-label="Filter by theme">
                     <button type="button" aria-pressed={themeFilter === "all"} onClick={() => setThemeFilter("all")}>All themes</button>
@@ -213,6 +217,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
                   </p>
                 </div>
               </header>
+              <MlNote id="tiers" />
               <div className="cp-range">
                 <span>Stay close to my experience</span>
                 <input type="range" min={0} max={100} value={stretch} aria-label="How much stretch are you open to" onChange={(e) => setStretch(Number(e.target.value))}
@@ -234,11 +239,13 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
                   <p className="cp-sub">Requirement lines from your {picks} jobs, grouped by meaning, with the closest line of your own profile.</p>
                 </div>
               </header>
+              <MlNote id="requirements" />
               <RequirementBars requirements={result.requirements} picks={picks} />
             </div>
           </section>
 
           <section className="cp-block">
+            <MlNote id="gap" />
             <GapSection picks={[...result.jobs.filter((j) => j.pick), ...added]} gap={gap} snapshotReady={snapshotReady} />
           </section>
 
@@ -250,6 +257,7 @@ export default function CompassPage({ state, currentProfileVersion, savedIds, on
                   <p className="cp-sub">Ordered by how often a requirement appears in your picks and how little your profile shows it. Tap a status to track it.</p>
                 </div>
               </header>
+              <MlNote id="next-steps" />
               <NextSteps steps={result.nextSteps} picks={picks} />
             </div>
           </section>
