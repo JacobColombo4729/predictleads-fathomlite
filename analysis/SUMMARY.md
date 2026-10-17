@@ -49,4 +49,4 @@ No LLM is trained. The heavy step is encoding the 193,043 listings the app serve
 - **The analysis:** the notebooks in order, EDA_SDA_1–4 → TimeSeries → Profiles → ML_Fit → ML_Rank → Evaluate (`notebooks/`, readable exports in `docs/`). How we work: [`STANDARDS.md`](STANDARDS.md).
 - **The app:** [`../app/DESIGN.md`](../app/DESIGN.md); the combined model's design: [`../app/docs/combined-model-plan.md`](../app/docs/combined-model-plan.md).
 - **Running it:** [`../README.md`](../README.md) (setup; the combined demo; the hand-offs zip, step 9).
-- **What's in and out before the pitch:** [`CUT.md`](CUT.md).
+- **What's left before the pitch, and what's cut:** [`ANALYSIS.md`](ANALYSIS.md).
