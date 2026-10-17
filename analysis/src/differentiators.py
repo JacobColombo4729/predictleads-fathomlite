@@ -1,4 +1,4 @@
-"""Differentiation ideas 1, 3 and 5 (analysis/DIFFERENTIATORS.md, Planned additions).
+"""Differentiation ideas 1, 3 and 5 (DIFFERENTIATORS.md at the root, Planned additions).
 
 Self-contained: pandas/numpy only, column names are parameters, nothing is read from disk.
 Claim rules: counts of listings and of people who moved; never causation, hires or success rates.

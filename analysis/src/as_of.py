@@ -1,6 +1,6 @@
 """Date picker (as-of date): the listings live on a date, with features computed as of that date.
 
-Rule (STANDARDS.md, leakage rules): a listing is live on a date if it was first seen on or before that day and last
+Rule (PROJECT_OUTLINE.md, How we keep it honest): a listing is live on a date if it was first seen on or before that day and last
 seen on or after it. `last_seen` only decides who was live; it never feeds a feature. Every count uses only listings
 first seen before the listing (or on or before the chosen day). The model for a date trains on `training_as_of`:
 listings first seen by that day, with the ones still open that day censored at it.
