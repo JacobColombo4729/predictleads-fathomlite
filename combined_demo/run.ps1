@@ -37,9 +37,13 @@ $env:PREDICTLEADS_FRONTEND_PORT = "$FrontendPort"
 $env:PREDICTLEADS_API_ORIGINS = "http://127.0.0.1:$FrontendPort,http://localhost:$FrontendPort"
 $env:PYTHONUNBUFFERED = "1"
 
+# Inside -Command, PowerShell strips double quotes, so a folder name with a space would split the path:
+# paths go in single quotes (an apostrophe in a path is doubled).
+$pythonQ = $python.Replace("'", "''")
+$frontendQ = $frontend.Replace("'", "''")
 $backend = Start-Process powershell -PassThru -WorkingDirectory $repo -ArgumentList @(
-    "-NoExit", "-Command", "& `"$python`" -m uvicorn combined_demo.server:app --host 127.0.0.1 --port $BackendPort")
-Start-Process powershell -ArgumentList @("-NoExit", "-Command", "Set-Location `"$frontend`"; npm run dev") | Out-Null
+    "-NoExit", "-Command", "& '$pythonQ' -m uvicorn combined_demo.server:app --host 127.0.0.1 --port $BackendPort")
+Start-Process powershell -ArgumentList @("-NoExit", "-Command", "Set-Location -LiteralPath '$frontendQ'; npm run dev") | Out-Null
 
 $label = if ($AI) { "OpenAI features ON" } else { "OpenAI features OFF" }
 Write-Host "Combined demo starting ($label). Waiting for the backend (a few minutes)..."

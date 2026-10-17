@@ -28,7 +28,9 @@ if (-not (Test-Path (Join-Path $frontend "node_modules"))) {
 
 $backend = Start-Process powershell -PassThru -ArgumentList @(
     "-NoExit", "-ExecutionPolicy", "Bypass", "-File", "`"$backendScript`"", "-NoAI", "-Ranker", $Ranker)
-Start-Process powershell -ArgumentList @("-NoExit", "-Command", "Set-Location `"$frontend`"; npm run dev") | Out-Null
+# Inside -Command, PowerShell strips double quotes, so a folder name with a space would split: single quotes, apostrophes doubled.
+$frontendQ = $frontend.Replace("'", "''")
+Start-Process powershell -ArgumentList @("-NoExit", "-Command", "Set-Location -LiteralPath '$frontendQ'; npm run dev") | Out-Null
 
 Write-Host "Demo starting with the OpenAI features OFF. Waiting for the backend (about 3.5 minutes)..."
 $deadline = (Get-Date).AddMinutes(10)

@@ -12,6 +12,8 @@
    - **BGE model:** `python -m fetch.get_bge`.
    - **The app's serving corpus:** move your existing copy into `data/matching/ai_ml_serving_v1` (one `data/` folder at the top now), or rebuild it (README step 13).
    - **The raw PredictLeads export** (optional): `python -m fetch.get_predictleads`.
+   - **spaCy's English model** (needed by EDA_SDA_3 and ML_Fit): `python -m spacy download en_core_web_sm`.
+   - **Running the notebooks** (to rebuild the tables and the hand-offs): `EDA_SDA_1`, `Profiles`, `EDA_SDA_2`, `EDA_SDA_3`, `EDA_SDA_4`, `TimeSeries`, `ML_Fit`, `ML_Rank`, in that order (README step 9).
 6. **Eve (optional):** `git config core.hooksPath .githooks` turns her on. She runs Claude at every push and commit, so it uses your Claude allowance; leave it off if that matters.
 7. **Run the app:** `.\app\run_demo_backend.ps1` (Mac: `./app/run_demo_backend.sh`), then `cd app/frontend; npm run dev`, and open http://127.0.0.1:5173 (README step 12).
 
