@@ -1,6 +1,6 @@
 """Download the trained models' hand-offs from S3, so the apps run without rerunning the analysis notebooks.
 
-Usage, from the repository root (.venv activated; needs AWS access, README steps 7-8, and HANDOFF_S3_PATH in .env):
+Usage, from the repository root (.venv activated; needs AWS access and S3_PATH in .env, README steps 7-8):
     python -m fetch.get_handoffs              -> download the pinned version (VERSION) into its three folders
     python -m fetch.get_handoffs --check      -> what's here and what's on S3 (sizes only)
     python -m fetch.get_handoffs --yes        -> don't ask before downloading (the disk-space check still runs)
@@ -16,7 +16,7 @@ ML_Fit's ratings, so they're always fetched as one set):
 Together they're everything the combined demo (combined_demo/) and Jacob's app (app/run_jacob.ps1) read from the
 analysis. BGE comes from fetch.get_bge.
 
-S3 holds each version under HANDOFF_S3_PATH/<version>/, with INDEX.json (every file's size and SHA-256) written last,
+S3 holds each version under handoffs/<version>/ in S3_PATH's bucket (or under HANDOFF_S3_PATH/<version>/ if .env sets it), with INDEX.json (every file's size and SHA-256) written last,
 so a version without it is incomplete and never downloaded. Downloads go to a staging folder, are checked against
 INDEX.json, and replace the three folders only when all of them are complete. Each downloaded folder gets HANDOFF.json
 (its version), so a rerun skips what's current, and folders without it (the notebooks' own output) are left alone
@@ -33,7 +33,7 @@ from pathlib import Path
 
 from fetch.downloads import confirm_space, gb
 from fetch.paths import DATA_DIR, REPO_ROOT
-from fetch.predictleads import PROFILE, REGION
+from fetch.predictleads import BUCKET as PL_BUCKET, PROFILE, REGION
 
 VERSION = "v1"  # bump after a rerun, then --upload; Jesse's next fetch replaces his copy
 CLEAN_DIR = DATA_DIR / "clean"
@@ -43,18 +43,20 @@ HANDOFFS = {  # name on S3: (folder here, files the readers need)
     "combined_corpus": (CLEAN_DIR / "combined_v1" / "corpus",  # combined/_paths.py CORPUS_DIR
                         {"jobs_prepared_corpus.jsonl", "bge_embeddings.npy", "bge_embeddings_manifest.json"}),
 }
+DEFAULT_PREFIX = "handoffs"  # in S3_PATH's bucket, next to the export
 INDEX = "INDEX.json"     # at the version's root on S3
 MARKER = "HANDOFF.json"  # in each downloaded folder
 STAGING = CLEAN_DIR / ".handoff_staging"
-SETUP = (" Set HANDOFF_S3_PATH=s3://<bucket>/<prefix>/ in the top-level .env (ask the team for it) and AWS_PROFILE:"
-         " README steps 8-9.")
+SETUP = " Set S3_PATH and AWS_PROFILE in the top-level .env: README step 8."
 
 
 def location():
-    """(bucket, prefix of VERSION) from HANDOFF_S3_PATH in .env (loaded by fetch.predictleads)."""
+    """(bucket, prefix of VERSION): HANDOFF_S3_PATH from .env if set, otherwise handoffs/ in S3_PATH's bucket."""
     bucket, _, prefix = os.environ.get("HANDOFF_S3_PATH", "").strip().removeprefix("s3://").partition("/")
     if not bucket:
-        raise SystemExit("HANDOFF_S3_PATH isn't set." + SETUP)
+        bucket, prefix = PL_BUCKET, DEFAULT_PREFIX
+    if not bucket:
+        raise SystemExit("Neither HANDOFF_S3_PATH nor S3_PATH is set." + SETUP)
     prefix = prefix.strip("/")
     return bucket, (prefix + "/" if prefix else "") + VERSION + "/"
 
