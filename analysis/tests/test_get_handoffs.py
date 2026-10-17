@@ -38,42 +38,69 @@ class GetHandoffsTests(unittest.TestCase):
             self.addCleanup(p.stop)
 
     def write_outputs(self, extra=b""):
-        """Made-up notebook outputs: every required file, plus a nested one."""
+        """Made-up notebook outputs: every required file, a nested extra one, and the encoder's leftover chunks."""
         for folder, required in gh.HANDOFFS.values():
             for name in required:
                 (folder / name).parent.mkdir(parents=True, exist_ok=True)
                 (folder / name).write_bytes(b"made-up " + name.encode() + extra)
-        (gh.HANDOFFS["combined_corpus"][0] / "sub").mkdir(exist_ok=True)
-        (gh.HANDOFFS["combined_corpus"][0] / "sub" / "extra.json").write_bytes(b"{}")
+        (gh.HANDOFFS["ml_fit"][0] / "sub").mkdir(exist_ok=True)
+        (gh.HANDOFFS["ml_fit"][0] / "sub" / "extra.json").write_bytes(b"{}")
+        (gh.HANDOFFS["combined_corpus"][0] / "bge_chunks").mkdir(exist_ok=True)
+        (gh.HANDOFFS["combined_corpus"][0] / "bge_chunks" / "chunk_00000.npy").write_bytes(b"x" * 100)
 
     def contents(self, folder):
         return {p.relative_to(folder).as_posix(): p.read_bytes() for p in folder.rglob("*")
                 if p.is_file() and p.name != gh.MARKER}
 
-    def packed(self):
-        """Pack Jacob's made-up outputs, then switch to Jesse's machine; returns the zip and Jacob's files."""
+    def packed(self, **kwargs):
+        """Pack Jacob's made-up outputs, then switch to Jesse's machine; returns the zip's parts and what should arrive."""
         self.write_outputs()
-        jacob = {name: self.contents(folder) for name, (folder, _) in gh.HANDOFFS.items()}
-        zip_file = gh.pack(yes=True)
+        jacob = {name: {rel: data for rel, data in self.contents(folder).items()
+                        if name not in gh.ONLY_REQUIRED or rel in required}
+                 for name, (folder, required) in gh.HANDOFFS.items()}
+        parts = gh.pack(yes=True, **kwargs)
         self.machine("jesse")
-        return zip_file, jacob
+        return parts, jacob
 
-    def test_pack_then_unpack_gives_the_same_files_and_skips_on_a_rerun(self):
-        zip_file, jacob = self.packed()
-        gh.unpack(zip_file, yes=True)
+    def arrived(self, jacob):
         for name, (folder, _) in gh.HANDOFFS.items():
             self.assertEqual(self.contents(folder), jacob[name])
             self.assertEqual(gh.marker_version(folder), gh.VERSION)
         self.assertFalse(gh.STAGING.exists())
+
+    def test_pack_then_unpack_gives_the_same_files_and_skips_on_a_rerun(self):
+        [zip_file], jacob = self.packed()
+        gh.unpack(zip_file, yes=True)
+        self.arrived(jacob)
+        self.assertNotIn("bge_chunks/chunk_00000.npy", self.contents(gh.HANDOFFS["combined_corpus"][0]))
         with mock.patch.object(gh.shutil, "copyfileobj", side_effect=AssertionError("unpacked again")):
             gh.unpack(zip_file, yes=True)
 
     def test_unpack_finds_the_zip_in_its_standard_folder(self):
-        zip_file, _ = self.packed()
+        [zip_file], _ = self.packed()
         gh.ZIP_DIR.mkdir(parents=True)
         zip_file.replace(gh.zip_path())
         gh.unpack(yes=True)
         self.assertEqual(gh.marker_version(gh.HANDOFFS["ml_rank"][0]), gh.VERSION)
+
+    def test_a_big_zip_is_split_and_unpacks_from_its_parts(self):
+        parts, jacob = self.packed(part_size=200)
+        self.assertGreater(len(parts), 2)
+        self.assertTrue(all(p.stat().st_size <= 200 for p in parts))
+        self.assertFalse(parts[0].with_suffix("").exists())  # only the parts are left, not the whole zip
+        moved = self.root / "downloads"  # Jesse saves the parts somewhere and passes one of them
+        moved.mkdir()
+        for p in parts:
+            p.replace(moved / p.name)
+        gh.unpack(moved / parts[1].name, yes=True)
+        self.arrived(jacob)
+        self.assertFalse((moved / gh.zip_path().name).exists())  # the joined zip is removed afterwards
+
+    def test_a_missing_part_is_named(self):
+        parts, _ = self.packed(part_size=200)
+        parts[1].unlink()
+        with self.assertRaisesRegex(SystemExit, "parts .* are missing"):
+            gh.unpack(parts[0], yes=True)
 
     def test_pack_refuses_an_incomplete_set(self):
         self.write_outputs()
@@ -83,7 +110,7 @@ class GetHandoffsTests(unittest.TestCase):
         self.assertFalse(gh.zip_path().exists())
 
     def test_a_changed_file_leaves_every_folder_untouched(self):
-        zip_file, _ = self.packed()
+        [zip_file], _ = self.packed()
         with zipfile.ZipFile(zip_file) as z:
             members = {n: z.read(n) for n in z.namelist()}
         members["ml_rank/queue_config.json"] = b"changed"
@@ -111,7 +138,7 @@ class GetHandoffsTests(unittest.TestCase):
         self.assertFalse((gh.CLEAN_DIR / "escape.txt").exists())
 
     def test_the_notebooks_own_outputs_are_replaced_only_with_force(self):
-        zip_file, _ = self.packed()
+        [zip_file], _ = self.packed()
         self.write_outputs(extra=b" from a local run")
         with self.assertRaisesRegex(SystemExit, "--force"):
             gh.unpack(zip_file, yes=True)

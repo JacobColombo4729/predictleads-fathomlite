@@ -2,9 +2,10 @@
 
 Usage, from the repository root (.venv activated):
     python -m fetch.get_handoffs --pack           -> (the analysis owner, after a rerun) zip this machine's hand-offs
-                                                     as VERSION into data/handoffs/
-    python -m fetch.get_handoffs --unpack         -> install the zip in data/handoffs/ into its three folders
-    python -m fetch.get_handoffs --unpack <zip>   -> install a zip from somewhere else (e.g. Downloads)
+                                                     as VERSION into data/handoffs/, in parts under 1 GB
+                                                     (handoffs_<version>.zip.001, .002, ...; --part-size MB)
+    python -m fetch.get_handoffs --unpack         -> install the zip (or all its parts) in data/handoffs/
+    python -m fetch.get_handoffs --unpack <zip>   -> install a zip from somewhere else (any one of its parts will do)
     python -m fetch.get_handoffs --check          -> what's installed here and what's in data/handoffs/ (sizes only)
     --yes skips the question (the disk-space check still runs); --force also replaces folders the notebooks wrote here
 
@@ -17,7 +18,8 @@ Together they're everything the combined demo (combined_demo/) and Jacob's app (
 analysis. BGE comes from fetch.get_bge.
 
 The project's AWS access is read-only, so the zip is shared by hand, through a private team channel only (the corpus
-holds listing text): README step 9. Inside it, INDEX.json lists every file's size and SHA-256. Unpacking extracts to
+holds listing text): README step 9. Only the files the apps read are packed (the corpus's encoder chunks stay
+behind). Inside the zip, INDEX.json lists every file's size and SHA-256. Unpacking extracts to
 a staging folder, checks every file against the index, and replaces the three folders only when all of them are
 complete. Each installed folder gets HANDOFF.json (its version), so a rerun skips what's current, and folders without
 it (the notebooks' own output) are left alone unless --force. Prints file names and sizes only.
@@ -42,6 +44,9 @@ HANDOFFS = {  # name in the zip: (folder here, files the readers need)
     "combined_corpus": (CLEAN_DIR / "combined_v1" / "corpus",  # combined/_paths.py CORPUS_DIR
                         {"jobs_prepared_corpus.jsonl", "bge_embeddings.npy", "bge_embeddings_manifest.json"}),
 }
+ONLY_REQUIRED = {"combined_corpus"}  # its folder also keeps the encoder's chunks (bge_chunks/), a second copy of the
+                                     # vectors no app reads: only the files the readers need are packed
+PART_SIZE = 900_000_000  # the zip is split into parts of at most this (under the 1 GB upload limits); --part-size
 ZIP_DIR = DATA_DIR / "handoffs"  # where --pack writes the zip and --unpack looks for it
 INDEX = "INDEX.json"     # at the zip's root
 MARKER = "HANDOFF.json"  # in each installed folder
@@ -89,8 +94,49 @@ def current(name, entry, version):
             and local_files(folder) == {rel: f["size"] for rel, f in entry["files"].items()})
 
 
-def pack(yes=False):
-    """Zip this machine's three hand-offs as VERSION, with INDEX.json; refuses an incomplete set."""
+def parts_of(base):
+    """The split parts of a zip (base.001, base.002, ...), in order."""
+    return sorted(p for p in base.parent.glob(base.name + ".*") if p.suffix[1:].isdigit())
+
+
+def split(target, part_size):
+    """Split the zip into numbered parts (removing the whole one) if it's bigger than part_size."""
+    for old in parts_of(target):
+        old.unlink()
+    if target.stat().st_size <= part_size:
+        return [target]
+    parts = []
+    with open(target, "rb") as src:
+        while chunk := src.read(part_size):
+            parts.append(target.with_name(f"{target.name}.{len(parts) + 1:03d}"))
+            parts[-1].write_bytes(chunk)
+    target.unlink()
+    return parts
+
+
+def joined(base):
+    """The zip itself, or its parts joined into it; (path, whether it was joined here and should be removed)."""
+    if base.is_file():
+        return base, False
+    parts = parts_of(base)
+    if not parts:
+        raise SystemExit(f"No zip at {shown(base)}: put the shared handoffs_<version>.zip (or all its .001, .002, ... "
+                         f"parts) in {shown(ZIP_DIR)}, or pass its path.")
+    numbers = [int(p.suffix[1:]) for p in parts]
+    if numbers != list(range(1, len(parts) + 1)):
+        raise SystemExit(f"Some parts of {base.name} are missing: there are {', '.join(p.suffix[1:] for p in parts)}.")
+    confirm_space(sum(p.stat().st_size for p in parts), base.parent, f"joining the {len(parts)} parts", yes=True)
+    partial = base.with_suffix(".joining")
+    with open(partial, "wb") as dst:
+        for p in parts:
+            with open(p, "rb") as src:
+                shutil.copyfileobj(src, dst, 8 << 20)
+    partial.replace(base)
+    return base, True
+
+
+def pack(yes=False, part_size=PART_SIZE):
+    """Zip this machine's three hand-offs as VERSION, with INDEX.json, split into parts; refuses an incomplete set."""
     index = {"version": VERSION, "packed": date.today().isoformat(), "handoffs": {}}
     for name, (folder, required) in HANDOFFS.items():
         files = local_files(folder)
@@ -98,6 +144,8 @@ def pack(yes=False):
         if missing:
             raise SystemExit(f"{name}: {shown(folder)} is missing {', '.join(missing)}: finish that step first "
                              "(see this script's docstring).")
+        if name in ONLY_REQUIRED:
+            files = {rel: size for rel, size in files.items() if rel in required}
         index["handoffs"][name] = {"files": {rel: {"size": size, "sha256": sha256(folder / rel)}
                                              for rel, size in files.items()}}
         print(f"{name}: {len(files)} files, {gb(sum(files.values()))}")
@@ -115,8 +163,12 @@ def pack(yes=False):
         partial.replace(target)
     finally:
         partial.unlink(missing_ok=True)
-    print(f"packed {shown(target)} ({gb(target.stat().st_size)}): share it through a private team channel only")
-    return target
+    parts = split(target, part_size)
+    for p in parts:
+        print(f"  {shown(p)}  {gb(p.stat().st_size)}")
+    print(f"packed version {VERSION} in {len(parts)} file(s): share {'it' if len(parts) == 1 else 'all of them'} "
+          "through a private team channel only")
+    return parts
 
 
 def read_index(z):
@@ -128,10 +180,18 @@ def read_index(z):
 
 def unpack(path=None, yes=False, force=False):
     """Check the zip against its index in staging, then swap all three folders in at once."""
-    path = Path(path) if path else zip_path()
-    if not path.is_file():
-        raise SystemExit(f"No zip at {shown(path)}: put the shared handoffs_<version>.zip in {shown(ZIP_DIR)}, or pass "
-                         "its path.")
+    base = Path(path) if path else zip_path()
+    if base.suffix[1:].isdigit():  # given one of the parts
+        base = base.with_suffix("")
+    path, temporary = joined(base)
+    try:
+        install(path, yes, force)
+    finally:
+        if temporary:
+            path.unlink(missing_ok=True)
+
+
+def install(path, yes, force):
     with zipfile.ZipFile(path) as z:
         index = read_index(z)
         version = index["version"]
@@ -183,7 +243,7 @@ def check():
         files = local_files(folder)
         here = (f"version {marker_version(folder)}" if marker_version(folder) else "from the notebooks") if files else "none"
         print(f"{name}: here {here}, {gb(sum(files.values()))}")
-    zips = sorted(ZIP_DIR.glob("handoffs_*.zip")) if ZIP_DIR.is_dir() else []
+    zips = sorted(ZIP_DIR.glob("handoffs_*.zip*")) if ZIP_DIR.is_dir() else []
     for p in zips:
         print(f"{shown(p)}: {gb(p.stat().st_size)}")
     if not zips:
@@ -198,9 +258,11 @@ def main():
     action.add_argument("--check", action="store_true", help="show what's here, change nothing")
     parser.add_argument("--yes", action="store_true", help="don't ask first (the disk-space check still runs)")
     parser.add_argument("--force", action="store_true", help="also replace folders the notebooks wrote here")
+    parser.add_argument("--part-size", type=int, default=PART_SIZE // 1_000_000, metavar="MB",
+                        help=f"with --pack: the largest part (default {PART_SIZE // 1_000_000} MB)")
     args = parser.parse_args()
     if args.pack:
-        pack(yes=args.yes)
+        pack(yes=args.yes, part_size=args.part_size * 1_000_000)
     elif args.check:
         check()
     else:
