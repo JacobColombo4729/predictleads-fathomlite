@@ -62,6 +62,6 @@ Each ranker ranks the whole serving corpus for each test person, from their pre-
 ## 5. Conclusion
 
 - **E2, E3 and E4 hold; E1 doesn't.** On real career moves, held-out people, the combined model finds the role a career changer actually moved into in its top 3 for 76.4%, against 63.2% for the most common roles, 66.3% for the text match alone (`rrf`) and 69.8% for ML_Rank's queue over the text match (`mlrank`). The text match alone is not shown to beat the baseline.
-- **What it means for the demo** (`CUT.md`): demo the combined model, and show this chart as the comparison: text match alone → plus the queue → plus role fit, each a measured step on the same answer key.
+- **What it means for the demo** (`ANALYSIS.md`): demo the combined model, and show this chart as the comparison: text match alone → plus the queue → plus role fit, each a measured step on the same answer key.
 - **Limits:** 8 roles only (Profiles has no moves into sales engineering or business and market research analysis); the backgrounds are résumé titles and programs from the public data, read with Profiles' rules, not an app user's résumé through the local reader; this scores which roles a ranker points to, not which listings are good to apply to (that's `ML_Rank`'s backtest, 8d-8e).
 - **Next:** the per-factor breakdown in the app (`ANALYSIS.md`); converting listings to roles costs the combined model about 5 points against the trained layer, so showing the person's top roles next to the listings (step 3's output) keeps the full 81.7% visible.
