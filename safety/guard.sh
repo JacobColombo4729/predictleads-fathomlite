@@ -7,5 +7,5 @@ for py in "$d/.venv/Scripts/python.exe" "$d/.venv/bin/python" python3 python py;
     exec "$py" "$d/safety/guard.py"
   fi
 done
-echo "The data guard (safety/guard.sh) found no working Python, so it blocks every checked call: set up .venv (SETUP.md)." >&2
+echo "The data guard (safety/guard.sh) found no working Python, so it blocks every checked call: set up .venv (README Quick start)." >&2
 exit 2
