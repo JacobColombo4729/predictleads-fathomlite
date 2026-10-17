@@ -1,6 +1,6 @@
 # The cut: keep the work, cut the surface, freeze the scope
 
-**Status:** proposed (Jacob, 2026-10-15). Mainly Jacob's half (`analysis/`, `combined/`); the demo and doc items touch the app too, so agree them with Jesse.
+**Status:** the scope freeze is decided (Jacob, 2026-10-16, under 2 weeks left): section 4's defer list is cut; the rest of the plan stands. Proposed 2026-10-15. Mainly Jacob's half (`analysis/`, `combined/`); the demo and doc items touch the app too, so agree them with Jesse.
 
 **Why now:** the project is thorough but hard to explain in the minutes a judge has, and the size is starting to cost accuracy. Nothing here deletes finished work: it changes what is shown first and stops new scope.
 
@@ -78,16 +78,18 @@ For each main-path piece, be able to answer three questions:
 
 ### 4. Freeze the scope
 **Finish:**
-- [ ] Combined model steps 4–5: candidates within the person's top roles, then ML_Rank's queue (`combined/`).
+- [x] Combined model steps 4–5: candidates within the person's top roles, then ML_Rank's queue (`combined/`; built 2026-10-15, v2 2026-10-16).
 - [x] The real-outcome evaluation of `rrf`, `mlrank` and the combined model (done 2026-10-15, `notebooks/Evaluate.ipynb`: combined 76.4%, `mlrank` 69.8%, `rrf` 66.3%, baseline 63.2% at top 3) (`ANALYSIS.md`; combined-model plan step 7).
 - [ ] The per-factor breakdown in the app ("Why this listing": the four factors and the role's top reason), after the evaluation (`ANALYSIS.md`); it meets `STANDARDS.md`'s "every ranking can be explained".
 - [x] The plug-in, as its own app: `combined_demo/` (built 2026-10-15; nothing in `app/` changed).
 
-**Defer or drop** (record as "later" where they are planned):
-- [ ] Combined step 6 (Compass redesign) and step 8 (BGE fine-tuning).
-- [ ] Growth (BLS) beyond the slider at weight 0.
-- [ ] ML_Rank sections 9, 10 and 12 beyond short text; H7 (training without ghosts); 7f's extra baselines.
-- [ ] New differentiator ideas and new features.
+**Cut (decided 2026-10-16; moved to Later in `ANALYSIS.md`, marked in the combined-model plan; nothing deleted):**
+- [x] Combined step 6 (the trained layer driving the Compass: the Compass stays as Jesse built it) and step 8 (BGE fine-tuning).
+- [x] Growth (BLS) beyond the slider at weight 0.
+- [x] ML_Rank sections 9, 10 and 12 beyond short text; H7 (training without ghosts); 7f's extra baselines.
+- [x] New differentiator ideas and new features: ideas 2, 4, 6 and 7 are cut; 1, 3 and 5 (already drafted as tested functions) stay.
+
+**Kept, though time is short (decided 2026-10-16):** the notebook main paths and appendices (2), the docs consolidation (5) and the per-factor breakdown (above).
 
 ### 5. Consolidate the docs
 About ten planning documents today: `PROJECT_OUTLINE.md`, `STANDARDS.md`, `DIFFERENTIATORS.md`, `ANALYSIS.md`, `app/APP.md`, `app/DESIGN.md`, `app/roadmap.md`, `app/docs/ml-inventory.md`, `app/docs/combined-model-plan.md`, and this file.
@@ -99,10 +101,10 @@ About ten planning documents today: `PROJECT_OUTLINE.md`, `STANDARDS.md`, `DIFFE
 
 ## How far to go depends on the deadline
 
-The deadline is still TBD (`CLAUDE.md`).
+Under 2 weeks left (as of 2026-10-16; `CLAUDE.md`), so the short plan applies, with the three kept items above on top.
 - **Weeks left:** do 1–4; start 5.
 - **Days left:** do 1 and 3, finish step 4–5 of the combined model, and stop building.
 
 ## Open
 - [ ] Agree the cut with Jesse (the demo and doc items touch the app).
-- [ ] Set the deadline in `CLAUDE.md`.
+- [x] Set the deadline in `CLAUDE.md` (under 2 weeks as of 2026-10-16; the exact date still to come).
