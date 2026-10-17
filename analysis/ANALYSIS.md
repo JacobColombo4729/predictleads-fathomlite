@@ -7,9 +7,9 @@
 ## Now
 
 1. **Cut and condense the notebooks,** one at a time in pipeline order: EDA_SDA_1–4 (may merge), TimeSeries, Profiles (frozen: text only), ML_Fit, ML_Rank, Evaluate. For each: a keep / cut / condense table → agree → edit → File: Revert File → rerun → regenerate its export. Keep every hand-off a later notebook or the app reads, and the source of every quoted number; a cut step leaves one "tested, not used" line. Small fixes go in with each notebook's review: ML_Fit's `split_people` cutoff (counted on all people, not on development people); EDA_SDA_4 9d's text rows and whether to test `career_open`.
-2. **Rerun Evaluate on combined model v2,** then update the app's number in `PROJECT_OUTLINE.md` (76.4% is v1's).
+2. **Rerun Evaluate on combined model v2,** then update the app's number in `SUMMARY.md` (76.4% is v1's).
 3. **"Why this listing" in the app:** pass `breakdown` through in `app/backend/api.py` and add a compact block to the job detail view: the four factors with their share of the score, and the role with its top reason. Touches Jesse's app: agree it with him first.
-4. **Check the docs after the notebooks:** every figure `PROJECT_OUTLINE.md` and `../DIFFERENTIATORS.md` quote still exists, and condense `DIFFERENTIATORS.md`. During each notebook's review, also repoint its mentions of `STANDARDS.md` (deleted; its rules are in the outline, How we keep it honest) and `analysis/DIFFERENTIATORS.md` (now at the root).
+4. **Check the docs after the notebooks:** every figure `SUMMARY.md`, `PROJECT.md` and `../DIFFERENTIATORS.md` quote still exists, and condense `DIFFERENTIATORS.md`. During each notebook's review, also repoint its mentions of `STANDARDS.md` (deleted; its rules are in the outline, How we keep it honest) and `analysis/DIFFERENTIATORS.md` (now at the root).
 5. **Any time:** delete `data/flat/all_fields_lean_full/` (1.1 GB; nothing reads it) and the sample-era tables in `data/clean/` (`analysis_table.pkl`, `scope_table.pkl`, `job_openings_lean_200000_v2.pkl`).
 
 ## Pitch
@@ -21,7 +21,7 @@
 
 - **Team:** confirm the final due date and deliverables.
 - **Project advisor:** AI tools and data, hosting, presenting results, data deletion; get the AI-and-data answers in writing and record them in your change log.
-- **PredictLeads:** the data questions in `PROJECT_OUTLINE.md` (Questions for PredictLeads).
+- **PredictLeads:** the data questions in `PROJECT.md` (Questions for PredictLeads).
 
 ## Later
 

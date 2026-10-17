@@ -2,7 +2,7 @@
 
 **Status:** Draft for discussion · **Last updated:** 2026-10-11
 
-> A web app for career changers. It turns the analysis (see [`PROJECT_OUTLINE.md`](../analysis/PROJECT_OUTLINE.md)) into a tool a job seeker uses day to day.
+> A web app for career changers. It turns the analysis (see [`PROJECT.md`](../analysis/PROJECT.md)) into a tool a job seeker uses day to day.
 > Items marked **TBD** need a team decision. Follow the [Data & Security Rules](../README.md#data--security-rules).
 
 ---

@@ -63,7 +63,7 @@ Scores are weighted coverage or cosine similarity, **not probabilities of hiring
 
 ## Human Review and Evaluation
 
-> **Historical (superseded 2026-10-15).** The rankers are now evaluated against real outcomes, with no labelling: Profiles' 2,813 real career changers and the role each moved into, scored on hit rate @3/@5 against a baseline on held-out people (`analysis/PROJECT_OUTLINE.md`, How we keep it honest). The labelling rubric and metrics below describe the earlier prototype and are kept for the record.
+> **Historical (superseded 2026-10-15).** The rankers are now evaluated against real outcomes, with no labelling: Profiles' 2,813 real career changers and the role each moved into, scored on hit rate @3/@5 against a baseline on held-out people (`analysis/PROJECT.md`, How we keep it honest). The labelling rubric and metrics below describe the earlier prototype and are kept for the record.
 
 The generated pooled template has one row per `(profile_id, job_id)`, so reviewers label a job once even if multiple methods retrieved it. `retrieval_methods` contains a JSON mapping from each method to its rank. The rubric is:
 

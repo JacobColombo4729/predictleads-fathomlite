@@ -1,31 +1,8 @@
-# Project Outline
+# Project
 
 **For career changers moving into tech:** which roles your background transfers to, which listings you can realistically get, and which to apply to first. Built on PredictLeads' 2026 job listings and 2,813 real career switches from public résumés. PredictLeads × TripleTen externship.
 
-Start here. What's left to do: [`ANALYSIS.md`](ANALYSIS.md). How it stands out and how to pitch it: [`../DIFFERENTIATORS.md`](../DIFFERENTIATORS.md). The app: [`../app/DESIGN.md`](../app/DESIGN.md).
-
-## Three numbers
-
-| | Result | Against | Where |
-|:--|:--|:--|:--|
-| **Roles** | For **81.7%** [78.5%, 84.7%] of 563 real career changers the model never saw, the role they actually moved into is in our top 3 | 63.2% for suggesting the most common roles | ML_Fit 6b |
-| **Listings** | **Half** (0.500) of each career changer's top 10 is relevant: still open 14 days later, not a ghost, and in the role they moved into | 0.031 for newest first; 0.071 for a title search | ML_Rank 8e, test month |
-| **Timing** | **29%** of listings are gone within a week (median 24 days) | | EDA_SDA_1 Q1b |
-
-The robust part of the listings result is the role: 50.4% of our top 10 is in the role the person moved into, against 23.8% for the best possible title search. (Newest first and the title search give everyone the same 10 listings, so their other shares rest on those 10.)
-
-## One path: résumé → role fit → candidate pool → queue
-
-| Box | What it does | How we know it works | What could go wrong |
-|:--|:--|:--|:--|
-| **Résumé** | Reads a résumé on the user's computer and turns it into a career timeline with the same rules used on the 2,813 career changers (`src/fit_serving.py`) | It gives exactly Profiles' features for people who switched at a known month (tests) | A scrambled résumé gives a scrambled timeline; undated entries can't be placed |
-| **Role fit** | A trained model predicts which role someone moves into from their background, with the reasons | The 81.7% above | Only 8 roles have a fit model; growth is not in it |
-| **Candidate pool** | The best text matches overall, plus the best within the person's top roles; listings they can't get are left out | The top roles add about 210 listings the text match alone misses (fictional people) | The text match decides which listings of a role are considered |
-| **Queue** | Ranks the pool by a weighted sum: fit, chance still open, how open the listing is to career changers, and pay | The 0.500 above, on a month the weights never saw | Listings outside the 8 roles get a neutral fit; the weights come from one validation month |
-
-**The score on each listing:** each factor is rated 0–100 and multiplied by its tuned weight (fit 0.3, still open 0.2, accessibility 0.1, pay 0, so fit is half the score).
-
-**The app** runs this whole path (`combined_demo/`): **76.4%** [73.0%, 79.8%] of the same 563 career changers have their real role among the roles of its top 20 listings, against 69.8% for the queue without role fit (`mlrank`), 66.3% for the text match alone (`rrf`) and 63.2% for the baseline (Evaluate). That was measured on version 1; the demo now runs version 2 (roles chosen from the whole profile), not yet rescored.
+**Start with [`SUMMARY.md`](SUMMARY.md)**: the three numbers, the one path (résumé → role fit → candidate pool → queue) and how we know it works, on one page. This outline is the detail behind it. What's left to do: [`ANALYSIS.md`](ANALYSIS.md). How it stands out and how to pitch it: [`../DIFFERENTIATORS.md`](../DIFFERENTIATORS.md). The app: [`../app/DESIGN.md`](../app/DESIGN.md).
 
 ## Data
 

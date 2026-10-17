@@ -1,6 +1,6 @@
 # predictleads-fathomlite
 
-PredictLeads × TripleTen externship project: role discovery and job listing prioritization for career changers, built on PredictLeads job data. Which tech roles a person's background transfers to, which listings they can realistically get, and which to apply to first. **Start with [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md)** (what we built and how we know it works); how it stands out and how to pitch it: [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
+PredictLeads × TripleTen externship project: role discovery and job listing prioritization for career changers, built on PredictLeads job data. Which tech roles a person's background transfers to, which listings they can realistically get, and which to apply to first. **Start with [`analysis/SUMMARY.md`](analysis/SUMMARY.md)** (how it works and how we know, on one page); the detail is in [`analysis/PROJECT.md`](analysis/PROJECT.md), and how it stands out and how to pitch it in [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
 
 > ⚠️ **This repo is private and confidential.** Everything in it is covered by our Training Services Agreements. Read the [Data & Security Rules](#data--security-rules) before you start working.
 
@@ -64,7 +64,7 @@ predictleads-fathomlite/
 │   ├── notebooks/            EDA_SDA_1–4, TimeSeries, Profiles, ML_Fit, ML_Rank, Evaluate
 │   ├── src/                  shared code imported by the notebooks
 │   ├── docs/                 notebook text exports, the volunteer profile form
-│   └── PROJECT_OUTLINE.md (what we built, how we know)  ANALYSIS.md (what's left)
+│   └── SUMMARY.md (start here)  PROJECT.md (the detail)  ANALYSIS.md (what's left)
 └── app/
     ├── backend/              FastAPI demo API
     ├── frontend/             React + Vite app
@@ -388,7 +388,7 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 1. `python code/extract_targeted_pool.py --scan` streams the full snapshot (about 19 GB from S3 with `S3_PATH` and `AWS_PROFILE` from `.env`, or from `data/raw/` if downloaded; about 36 minutes) and keeps AI/ML, data and technical-sales listings. `--check-sample` tests the matcher offline.
 2. `python code/rank_candidates.py build-corpus --targeted-dir ../data/matching/targeted_pool_<timestamp>` builds the deduplicated corpus. `encode` then `finalize-encode` compute the BGE embeddings (GPU recommended).
 3. `python code/rank_candidates.py export-serving` writes the serving subset the backend loads.
-4. `python code/rank_candidates.py rank ...` ranks the fictional test profiles; `python code/build_review_page.py --run-dir <ranking run> --profiles <profile files>` builds an optional blinded review page, a usability check only: the rankers are evaluated on real career moves (`analysis/PROJECT_OUTLINE.md`, How we keep it honest).
+4. `python code/rank_candidates.py rank ...` ranks the fictional test profiles; `python code/build_review_page.py --run-dir <ranking run> --profiles <profile files>` builds an optional blinded review page, a usability check only: the rankers are evaluated on real career moves (`analysis/PROJECT.md`, How we keep it honest).
 5. `python code/role_family_classifier.py` trains and evaluates the supporting role-family classifier.
 
 ---
@@ -519,7 +519,7 @@ Everyone must **permanently delete all copies of the data** (local `data/` folde
 
 ## Where to read more
 
-**Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we built, how we know, how we keep it honest), [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) (the pitch), [`app/DESIGN.md`](app/DESIGN.md), [`analysis/ANALYSIS.md`](analysis/ANALYSIS.md), [`analysis/docs/volunteer_profiles.md`](analysis/docs/volunteer_profiles.md) (the on-hold plan for volunteer career-changer profiles, with its blank form).
+**Analysis:** [`analysis/SUMMARY.md`](analysis/SUMMARY.md) (start here), [`analysis/PROJECT.md`](analysis/PROJECT.md) (data, findings, how we keep it honest), [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) (the pitch), [`app/DESIGN.md`](app/DESIGN.md), [`analysis/ANALYSIS.md`](analysis/ANALYSIS.md), [`analysis/docs/volunteer_profiles.md`](analysis/docs/volunteer_profiles.md) (the on-hold plan for volunteer career-changer profiles, with its blank form).
 
 **App:**
 1. [app/APP.md](app/APP.md) and [app/roadmap.md](app/roadmap.md)
