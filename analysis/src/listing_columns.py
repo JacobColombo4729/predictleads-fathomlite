@@ -8,7 +8,7 @@ version.
 
 What's deliberately left out of lean_part's own columns, and why: recruiter title, pay and location as originally
 written, the posting url, and the two record-type fields exist only for the final scope listings (about 900K, not
-all 13.4M) - full_rows.scope_fields()/scope_values() fetch them later, for that smaller set only. Recruiter *name*
+all 13.4M) - rows_table.scope_fields()/scope_values() fetch them later, for that smaller set only. Recruiter *name*
 is never kept as text anywhere, scope listings included: scope_fields() only ever stores its fingerprint. The full
 description text gets the same scope-only deferral - scope_fields() writes it to its own Parquet file; here, only
 the derived flags below are kept.
@@ -28,7 +28,7 @@ import numpy as np
 import pandas as pd
 
 COLS = {  # flattened column -> short name; every structured field kept at full-file scale, before the scope cut
-    # Identity and company: id/title aren't loaded into any notebook's working frame (full_rows.load_rows skips
+    # Identity and company: id/title aren't loaded into any notebook's working frame (rows_table.load_rows skips
     # them) - row_extras() reads them directly to build id_fp/repost_fp, and that fingerprint is what's loaded
     # instead. The raw text never needs to enter a notebook's memory.
     "id": "id",
@@ -45,7 +45,7 @@ COLS = {  # flattened column -> short name; every structured field kept at full-
     "attributes.onet_data.family": "occupation_group",
     "attributes.onet_data.occupation_name": "occupation",
     # Pay: kept as the numbers PredictLeads already parsed (salary_data), not the original free-text salary field
-    # (attributes.salary) - that text form is only fetched later, for scope listings, by full_rows.scope_fields()
+    # (attributes.salary) - that text form is only fetched later, for scope listings, by rows_table.scope_fields()
     "attributes.salary_data.salary_low_usd": "salary_low_usd",
     "attributes.salary_data.salary_high_usd": "salary_high_usd",
     "attributes.salary_data.salary_time_unit": "salary_unit",
