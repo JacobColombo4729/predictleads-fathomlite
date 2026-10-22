@@ -1,9 +1,24 @@
-"""One cleaned row per job listing: EDA_SDA_1's section 6.1, shared by the notebooks and the full-file stream.
+"""One cleaned row per job listing, shared by every EDA_SDA notebook and the full-file stream (src/stream_full.py).
 
-lean_part(flattened_part) -> one row per listing with the columns EDA_SDA_1 keeps, the text flags (unknown, not False,
-when there's no description), description length, the repost fingerprint and the posting source. No text is kept.
-EDA_SDA_3 validates the keyword rules; change them here so every notebook and the stream use the same version.
+lean_part(flattened_part) -> one row per listing with the columns kept at full-file scale (13.4M listings): the
+structured fields in COLS, plus text flags derived from the description (unknown, not False, when there's no
+description), description length, the repost fingerprint and the posting source. No description text is kept at
+this scale. EDA_SDA_3 validates the keyword rules; change them here so every notebook and the stream use the same
+version.
+
+What's deliberately left out of lean_part's own columns, and why: recruiter title, pay and location as originally
+written, the posting url, and the two record-type fields exist only for the final scope listings (about 900K, not
+all 13.4M) - full_rows.scope_fields()/scope_values() fetch them later, for that smaller set only. Recruiter *name*
+is never kept as text anywhere, scope listings included: scope_fields() only ever stores its fingerprint. The full
+description text gets the same scope-only deferral - scope_fields() writes it to its own Parquet file; here, only
+the derived flags below are kept.
+
+lean_part isn't the whole rows table, though: src/stream_full.py's typed_rows() calls it and then adds a handful
+more full-file-scale columns this function doesn't touch at all - job_title, has_recruiter (a yes/no flag, not
+the name), last_processed, salary_currency, salary_low/high (pre-USD-conversion) - reserved there for EDA_SDA_2's
+feature screening, not used by this notebook. If a column you'd expect isn't in COLS below, check there next.
 """
+
 import hashlib
 import html
 import re
@@ -12,10 +27,14 @@ from urllib.parse import urlparse
 import numpy as np
 import pandas as pd
 
-COLS = {  # flattened column -> short name
+COLS = {  # flattened column -> short name; every structured field kept at full-file scale, before the scope cut
+    # Identity and company: id/title aren't loaded into any notebook's working frame (full_rows.load_rows skips
+    # them) - row_extras() reads them directly to build id_fp/repost_fp, and that fingerprint is what's loaded
+    # instead. The raw text never needs to enter a notebook's memory.
     "id": "id",
     "relationships.company.data.id": "company_id",
     "attributes.title": "title",
+    # Timing and classification: used as-is throughout cleaning and the field comparison
     "attributes.first_seen_at": "first_seen",
     "attributes.last_seen_at": "last_seen",
     "attributes.posted_at": "posted",
@@ -25,13 +44,20 @@ COLS = {  # flattened column -> short name
     "attributes.onet_data.code": "onet_code",
     "attributes.onet_data.family": "occupation_group",
     "attributes.onet_data.occupation_name": "occupation",
+    # Pay: kept as the numbers PredictLeads already parsed (salary_data), not the original free-text salary field
+    # (attributes.salary) - that text form is only fetched later, for scope listings, by full_rows.scope_fields()
     "attributes.salary_data.salary_low_usd": "salary_low_usd",
     "attributes.salary_data.salary_high_usd": "salary_high_usd",
     "attributes.salary_data.salary_time_unit": "salary_unit",
+    # Multi-label fields: a listing can carry several of each. row_extras() turns these into bit flags
+    # (contract_bits/category_bits) or, for EDA_SDA_1_Lean, plain one-hot columns (label_onehot); tags are
+    # counted (n_tags), never read as text.
     "attributes.contract_types": "contract_types",
-    "attributes.location_data": "location_data",
     "attributes.tags": "tags",
     "attributes.categories": "categories",
+    # Location: reduced to a country and a count in lean_part (below) - the raw list of location dicts (city,
+    # state, ...) is dropped once those two numbers are derived.
+    "attributes.location_data": "location_data",
 }
 
 # ---------- text patterns ----------

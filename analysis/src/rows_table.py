@@ -7,10 +7,13 @@ list columns stay on disk and are added back, part by part, when the final table
     load_rows(columns)    the given columns, in table order (row position = the DataFrame index)
     row_extras()          per listing, built part by part: id and repost fingerprints, unified contract types,
                           tags and categories as counts and bit flags; plus the label lists the bits refer to
+    label_onehot(labels)  the plain alternative to contract_bits/category_bits: one boolean column per label (for
+                          EDA_SDA_1_Lean, which reads columns by name instead of bit math), from row_extras()'s labels
     save_final(df, path)  the final table as Parquet: df's columns plus the text and list columns taken from the rows
                           table by row position, written part by part
     with_missing, cat_contains, cat_map, relabel   label work done on a categorical column's categories, not on 13M strings
 """
+import re
 from collections import Counter
 from pathlib import Path
 
@@ -55,9 +58,11 @@ def fingerprint(text):
 
 
 def unify_label(x):
-    """contract_types mixes spellings of the same label ("full_time" and "full time")."""
+    """contract_types mixes spellings of the same label ("full_time" and "full time"); shared by both encodings below."""
     return str(x).strip().lower().replace("_", " ").replace("-", " ")
 
+
+# ---------- contract_types/categories as bit flags: one int64 column, up to 63 labels per column (original) ----------
 
 def _bits(lists, labels):
     """Bit flags of each list's labels (int64; up to 63 labels, the rest counted as other)."""
@@ -111,6 +116,33 @@ def bit_counts(bits, labels):
 
 def has_label(bits, labels, label):
     return pd.Series((np.asarray(bits, dtype="int64") >> labels.index(label)) & 1, index=getattr(bits, "index", None)).astype(bool)
+
+
+# ---------- contract_types/categories as one-hot columns: the plain alternative to the bit flags above,
+# added for EDA_SDA_1_Lean so a column reads by name (no bit math); contract_bits/category_bits are unchanged ----------
+
+def _colname(label):
+    """A label as a safe column suffix: lowercase letters, digits and underscores only."""
+    return re.sub(r"[^0-9a-z]+", "_", str(label).strip().lower()).strip("_")
+
+
+def label_onehot(labels, root=None, table=ROWS_TABLE):
+    """The plain alternative to contract_bits/category_bits: one boolean column per label in labels["contract_types"]
+    and labels["categories"] (the dict row_extras() returns), named contract_<label> and category_<label>, in the
+    same row order as row_extras(). Reads back as a plain column (jobs["contract_full_time"].mean()), no bit math,
+    at the cost of about one byte per label per row in memory (roughly 15 labels x 13.4M rows, well under 1 GB)."""
+    contract_labels, category_labels = labels["contract_types"], labels["categories"]
+    frames = []
+    for p in parts(root, table):
+        d = pq.read_table(p, columns=LIST_COLS).to_pandas()
+        contracts = [set(unify_label(x) for x in (v if v is not None else [])) for v in d.contract_types]
+        cats = [set(v) if v is not None else set() for v in d.categories]
+        cols = {f"contract_{_colname(label)}": np.fromiter((label in row for row in contracts), dtype=bool, count=len(contracts))
+                for label in contract_labels}
+        cols.update({f"category_{_colname(label)}": np.fromiter((label in row for row in cats), dtype=bool, count=len(cats))
+                     for label in category_labels})
+        frames.append(pd.DataFrame(cols))
+    return pd.concat(frames, ignore_index=True)
 
 
 # ---------- label work on categories ----------
