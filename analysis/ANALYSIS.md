@@ -26,6 +26,7 @@
 
 ## Later
 
+- **Clean up `src/`, once every notebook has its Lean rewrite** (`docs/lean_conventions.md`): delete what's now dead rather than relocate it - the four categorical helpers in `rows_table.py` (`cat_contains`/`cat_map`/`relabel`/`with_missing`, orphaned once `EDA_SDA_1.ipynb` is retired), `src/eda_helpers.py`'s formatting/chart/survival helpers once nothing imports them, and anything else a notebook's own Lean rewrite stops using. Related to "Keep the code lightweight" above, but gated on the Lean rewrite actually finishing, not the keep/cut/condense reviews - do this pass after, not instead of, that one.
 - **Profiles is frozen** (refrozen 2026-10-10); reopen only if needed, then rerun it and reload `modeling_table.pkl` downstream.
 - **Volunteer applicant profiles** (`docs/volunteer_profiles.md`), once the advisor answers.
 - **Known gaps in `.claude/settings.json`:** `Read(./.env.*)` also blocks `.env.example`; `Read` rules don't stop shell commands (the guard in `safety/` covers those).

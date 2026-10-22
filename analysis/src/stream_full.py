@@ -4,7 +4,7 @@ Usage, from the project folder (PL or .venv activated):
     python -m src.stream_full --test 1000000   -> a test run on the first 1,000,000 documents, saved separately under
                                                  data/flat/stream_test/, with projections for the full file
     python -m src.stream_full                  -> the full run (resumable: rerun after a crash or a closed laptop)
-    python -m src.stream_full --rows           -> a second pass that saves EDA_SDA_1's full cleaned row (src/listing_rows.py)
+    python -m src.stream_full --rows           -> a second pass that saves EDA_SDA_1's full cleaned row (src/listing_columns.py)
                                                  for every English US listing, for full-scale EDA_SDA_1 (own progress file)
     python -m src.stream_full --extra          -> a third pass that saves every field for the TripleTen roles outside
                                                  computer and mathematical (EXTRA_ONET_BUCKETS in
@@ -124,7 +124,7 @@ LIST_COLS = ["contract_types", "tags", "categories"]
 
 def typed_rows(flat):
     """EDA_SDA_1's cleaned row (lean_part) for every English (or unlabeled) US (or no-country) listing, typed for Parquet."""
-    from src.listing_rows import lean_part
+    from src.listing_columns import lean_part
     out = lean_part(flat)
     col = lambda c: flat.reindex(columns=[c])[c]
     # Raw fields EDA_SDA_1 doesn't use yet, for the feature screening (EDA_SDA_2). Recruiter names and contacts are

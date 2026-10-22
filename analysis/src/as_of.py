@@ -5,7 +5,7 @@ seen on or after it. `last_seen` only decides who was live; it never feeds a fea
 first seen before the listing (or on or before the chosen day). The model for a date trains on `training_as_of`:
 listings first seen by that day, with the ones still open that day censored at it.
 
-Input: one row per listing (listing_rows.lean_part columns): id, company_id, first_seen, last_seen, desc_hash.
+Input: one row per listing (listing_columns.lean_part columns): id, company_id, first_seen, last_seen, desc_hash.
 """
 import pandas as pd
 
