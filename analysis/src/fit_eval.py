@@ -209,13 +209,17 @@ def split_strata(people, folds=5):
 
 def split_people(people, test_share=0.2, folds=5, seed=0):
     """A held-out test set (scored once, at the end) and development folds, both by person and stratified by role
-    and pool, so every role and pool appears in each. Returns (dev index, test index, fold number per dev person)."""
+    and pool, so every role and pool appears in each. Returns (dev index, test index, fold number per dev person).
+    The "rare" cutoff for the dev/test split uses everyone (it only needs enough people for one split); the fold
+    split recomputes it on development people alone, since removing the test share can make a group that looked
+    fine combined too small for 5-fold stratification on its own."""
     from sklearn.model_selection import StratifiedKFold, train_test_split
     strata = split_strata(people, folds)
     dev, test = train_test_split(people.index, test_size=test_share, random_state=seed, stratify=strata)
+    dev_strata = split_strata(people.loc[dev], folds)
     fold = pd.Series(-1, index=dev)
     skf = StratifiedKFold(n_splits=folds, shuffle=True, random_state=seed)
-    for f, (_, held) in enumerate(skf.split(dev, strata.loc[dev])):
+    for f, (_, held) in enumerate(skf.split(dev, dev_strata)):
         fold.iloc[held] = f
     return dev, test, fold
 
