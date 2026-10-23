@@ -30,10 +30,10 @@ Builds the **listing model** and the **priority queue**. The listing model predi
 - **Does the priority queue beat how a career changer searches today** (newest first, title keyword search)? Measured on the test month: of each career changer's top 10, how many are still open long enough to apply, realistically reachable, and in the role they actually moved into (from `ML_Fit`).
 - Does adding career-change accessibility and fit change a career changer's top 10, compared with timing factors alone?
 - How many of a career changer's top 10 listings are still open when they apply, and realistically reachable?
-- **Ghost listings in training:** does the timing model predict the test month better when trained without `likely_ghost` listings (EDA_SDA_2 3.1d)? A ghost's days open isn't a real hiring window. Keep whichever wins; ghosts stay in the data and stay hidden in the app either way.
+- **Ghost listings in training** (H7, frozen for the pitch): would the timing model predict the test month better when trained without `likely_ghost` listings (EDA_SDA_2 3.1d)? A ghost's days open isn't a real hiring window. Not tested; ghosts stay in the data and stay hidden in the app either way.
 - Is the model fast enough to rank listings live in the app?
 
-**Leakage rules** (`STANDARDS.md`):
+**Leakage rules** (`PROJECT.md`, How we keep it honest):
 - Listing features use only what's known when a listing first appears. Company hiring volume and reposts count only listings first seen **before** it; `last_seen_at`, `status` and days open are never features.
 - **Date picker:** a model that scores a chosen date is trained only on what was known by then; listings still open that day are censored at that day. The main model is evaluated on the test months, and earlier dates need a model retrained as of that date.
 - **Role model:** only `feature` columns from the Profiles modeling table. Compass and path counts used as features are rebuilt inside each training fold, so a test person never counts toward their own answer.
@@ -59,9 +59,38 @@ Builds the **listing model** and the **priority queue**. The listing model predi
 | 11. Sensitivity | | Do conclusions hold under our choices (2-day live tolerance, scope boundaries, CET `posted`)? |
 | 12. Solution report | Steps performed, difficulties and how they were solved, the final model and its score | |
 
+## Contents
+
+- [0. Purpose](#0-purpose)
+  - [Clarifying questions](#clarifying-questions)
+  - [Roadmap and methods](#roadmap-and-methods)
+- [1c. Hypotheses and decision rule (written before any modeling)](#1c-hypotheses-and-decision-rule-written-before-any-modeling)
+- [2. Targets](#2-targets)
+- [3. Preprocessing and leakage checks](#3-preprocessing-and-leakage-checks)
+  - [3b Date picker check: July 1 vs. September 1, 2026](#3b-date-picker-check-july-1-vs-september-1-2026)
+  - [3c Preprocessing pipeline](#3c-preprocessing-pipeline)
+- [4. Split](#4-split)
+- [5. Baselines](#5-baselines)
+- [6. Class imbalance](#6-class-imbalance)
+- [7. Models](#7-models)
+  - [7b Grid search](#7b-grid-search)
+  - [7c Cox proportional hazards (company-clustered errors) with the proportional-hazards check](#7c-cox-proportional-hazards-company-clustered-errors-with-the-proportional-hazards-check)
+  - [7d Accelerated failure time models](#7d-accelerated-failure-time-models)
+  - [7e Random survival forest](#7e-random-survival-forest)
+  - [7f LambdaRank](#7f-lambdarank)
+- [8. Evaluation](#8-evaluation)
+  - [8c Test month (run once)](#8c-test-month-run-once)
+  - [8d The priority queue (H4, H5, H6)](#8d-the-priority-queue-h4-h5-h6)
+  - [8e The priority queue on the test month (run once)](#8e-the-priority-queue-on-the-test-month-run-once)
+- [9. Interpretation](#9-interpretation)
+- [10. Business translation](#10-business-translation)
+- [11. Sensitivity](#11-sensitivity)
+- [12. Solution report](#12-solution-report)
+- [13. Hand-off to the app](#13-hand-off-to-the-app)
+
 ## 1c. Hypotheses and decision rule (written before any modeling)
 
-The test month (September) is used once, at the end. **One rule decides H1 to H5 and H7:** the model beats its baseline, and the company-clustered 95% bootstrap interval for the difference (model minus baseline; whole companies resampled together) excludes zero (`rm.clustered_bootstrap_diff` for per-listing or per-person values, `rm.clustered_bootstrap_auc_diff` for ROC-AUC). No fixed cut-off numbers are set; the size of the difference is reported either way. The top-10 overlap test (H6) is secondary.
+The test month (September) is used once, at the end. **One rule decides H1 to H5:** the model beats its baseline, and the company-clustered 95% bootstrap interval for the difference (model minus baseline; whole companies resampled together) excludes zero (`rm.clustered_bootstrap_diff` for per-listing or per-person values, `rm.clustered_bootstrap_auc_diff` for ROC-AUC). No fixed cut-off numbers are set; the size of the difference is reported either way. The top-10 overlap test (H6) is secondary; H7 is frozen for the pitch (`ANALYSIS.md`), not tested.
 
 | # | Hypothesis | Compared with | Supported when |
 |:--|:--|:--|:--|
@@ -71,7 +100,7 @@ The test month (September) is used once, at the end. **One rule decides H1 to H5
 | H4 | The priority queue beats newest first | Share of each career changer's top 10 that is relevant (below), test month | Difference positive, interval excludes 0 |
 | H5 | The queue beats title keyword search | Same | Same |
 | H6 (secondary) | Adding accessibility and fit changes the top 10 versus timing alone | Overlap of the two top 10s (`rm.top_k_overlap`) | Overlap below 80% |
-| H7 | Training without `likely_ghost` listings predicts the test month better | Same rule, trained with ghosts as the baseline | Same |
+| H7 | Training without `likely_ghost` listings predicts the test month better | Same rule, trained with ghosts as the baseline | **Frozen for the pitch, not tested** |
 
 **N, the closing window.** One constant, `rm.CLOSING_DAYS`, drives the main target ("closes within N days"), "open long enough" (still open N days after the person first sees the listing) and every hypothesis. It is 14 for now (TimeSeries: 37-45% close within 14 days); 7, 14 and 30 days are repeated as a sensitivity check in section 11 (`rm.SENSITIVITY_DAYS`). Change it in `src/rank_model.py` only.
 
@@ -156,7 +185,7 @@ Logistic regression, decision tree, random forest, LightGBM, CatBoost, XGBoost (
 **What the data shows**
 - **Tuning moved every model by at most 0.007:** LightGBM and XGBoost 0.801 (± 0.020 and 0.021), CatBoost 0.798, random forest 0.795, the decision tree 0.751 (up from 0.744 with depth 8 and at least 100 listings per leaf), logistic regression 0.746 (C = 0.1).
 - **LightGBM and XGBoost tie at three decimals;** XGBoost is chosen in 8a by the higher unrounded score. Either would do.
-- **The grid took 35 minutes** (9.5 hours of CPU time across cores).
+- **The grid took 40 minutes** (10 hours 42 minutes of CPU time across cores).
 
 ### 7c Cox proportional hazards (company-clustered errors) with the proportional-hazards check
 
@@ -192,6 +221,7 @@ Learning to rank optimizes the order of a list directly. A "query" is one list t
 **What the data shows**
 - **LambdaRank's mean NDCG@10 over 31 validation days is 0.952.** Relevance here is "stayed open" (59% of August listings), so most lists are full of relevant listings and even a random order would score high. No baseline NDCG is computed, so this number shows the pipeline runs, not that LambdaRank adds anything; the career-changer lists (8d) are the real test.
 - The warning about feature names is harmless: the ranker was fit on a table and scored on an array with the same columns.
+- **Tested, not used:** the priority queue (8d) ranks by the chosen classifier's chance still open, not this ranker.
 
 ## 8. Evaluation
 
@@ -253,13 +283,13 @@ The weights from 8d, the test people, September's listings. H4 and H5: the tuned
 
 SHAP and partial dependence; the per-listing breakdown for the detail view (each factor's rating and share of the score from `priority_breakdown`, top SHAP features behind chance still open under plain-language names; check SHAP adds up to each prediction); saved with the scores.
 
-_To do._
+**Frozen for the pitch** (`ANALYSIS.md`): not built.
 
 ## 10. Business translation
 
 Top-10 results with company-clustered bootstrap intervals.
 
-_To do._
+**Frozen for the pitch** (`ANALYSIS.md`): not built.
 
 ## 11. Sensitivity
 
@@ -269,13 +299,13 @@ The 7, 14 and 30 day windows (`rm.SENSITIVITY_DAYS`) for the closing target, the
 - **The listing model's ranking holds across closing windows: cross-validated AUC 0.803 ± 0.023 at 7 days, 0.801 ± 0.021 at 14, 0.790 ± 0.013 at 30.**
 - **The share closing grows with the window (29.4%, 39.2%, 59.3%) while the known answers shrink (867,140, 843,734, 804,571)**, since a longer window needs a longer watch. 14 days keeps the main target near balance with little loss of answers.
 
-_Still to do: live tolerance, scope boundaries, CET `posted`, and H7 (ghosts)._
+**Frozen for the pitch** (`ANALYSIS.md`): live tolerance, scope boundaries, CET `posted`, and H7 (ghosts) not tested.
 
 ## 12. Solution report
 
 Steps performed, difficulties and how they were solved, the final model and its score.
 
-_To do._
+**Frozen for the pitch** (`ANALYSIS.md`): not built.
 
 ## 13. Hand-off to the app
 
