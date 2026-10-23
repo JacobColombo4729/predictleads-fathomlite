@@ -8,7 +8,7 @@
 |:--|:--|:--|:--|
 | **Roles** | For **81.7%** [78.5%, 84.7%] of 563 real career changers the model never saw, the role they actually moved into is in our top 3 | 63.2% for suggesting the most common roles | ML_Fit 6b |
 | **Listings** | **Half** (0.500) of each career changer's top 10 is relevant: still open 14 days later, not a ghost, and in the role they moved into | 0.031 for newest first; 0.071 for a title search | ML_Rank 8e, test month |
-| **Timing** | **29%** of listings are gone within a week (median 24 days) | | EDA_SDA_1 Q1b |
+| **Timing** | **29%** of listings are gone within a week (median 24 days) | | EDA_SDA_1 5b |
 
 The robust part of the listings result is the role: 50.4% of our top 10 is in the role the person moved into, against 23.8% for the best possible title search. (Newest first and the title search give everyone the same 10 listings, so their other shares rest on those 10.)
 
