@@ -18,7 +18,7 @@
 | Finding | Evidence | What it means |
 |:--|:--|:--|
 | **The window is short** | 29% of scope listings are gone within a week; median 24 days; technical sales is slowest (38) | "Still open" is a core factor |
-| **Company hiring volume is the strongest timing signal** | Listings at companies with 500+ earlier listings close in a median 12 days, against 44 at companies with 1–4 (EDA_SDA_1 Q1d); about 1.5× like-for-like (EDA_SDA_2 3.3), mostly at private companies (3.8) | High-volume employers need fast action |
+| **Company hiring volume is the strongest timing signal** | Listings at companies with 500+ earlier listings close in a median 12 days, against 44 at companies with 1–4 (EDA_SDA_1 5c); about 1.5× like-for-like (EDA_SDA_2 3.3), mostly at private companies (3.8) | High-volume employers need fast action |
 | **Source matters** | Median days open: LinkedIn, Oracle and Taleo 15; company sites 21; Greenhouse, Lever and Ashby 49–71 | Source adjusts urgency |
 | **The best-paid field is the hardest to enter** | Computer and mathematical is 1st of 23 fields on pay ($66.73 an hour) but 22nd on entry level (9.4%) and last on asking 2 years or fewer (17%) | Hide what a career changer can't get; show the rest honestly |
 | **Entry doors differ by role** | IT support: 22% entry level, 44% open to career changers, $31 an hour; Data Analytics roles 26% open at $51.20; IT project management 2% entry level, mostly reached from another tech role (EDA_SDA_2 3.6, 3.12) | IT support is a first step; IT project management a later move |
@@ -73,7 +73,7 @@ No LLM is trained. BGE (`BAAI/bge-base-en-v1.5`, 0.44 GB) is a pretrained text-e
 | Score all 2,813 career changers against all 8 roles (ML_Fit) | not timed | 6.3 minutes, BGE on the CPU included |
 | Tune the trained layer (six candidate models) | not timed | 1.4 minutes |
 | Encode the 193,043 serving listings with BGE | 58 minutes | not run; estimated several hours: the one step worth a GPU |
-| Load the app's rankers, then rank one person | 3.3 minutes; 0.4–1.5 s per person | to time on Jesse's laptop (no GPU needed; about 2.5 GB of memory) |
+| Load the app's rankers, then rank one person | 3.6 minutes; 0.4–1.5 s per person | to time on Jesse's laptop (no GPU needed; about 2.5 GB of memory) |
 
 **The same results on any machine:** every package version pinned (`requirements.txt`, Python 3.11); fixed seeds (people split with seed 0, models with 12345) and a run log of each run's settings and metrics (`src/run_log.py`); one fixed export (2026-09-30) with the scope's listing ids saved; the trained models saved once and checked by rescoring the test people from the saved files (largest probability gap 1.5e-06, the same top 3 roles for 100%); and the saved models and encoded listings shared as one checked zip (`python -m fetch.get_handoffs`). The PredictLeads data can't be handed over, so outsiders can rerun the code but not the data; the tests run on made-up data (`analysis/tests/`, `combined/tests/`, `app/tests/`).
 
