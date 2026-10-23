@@ -23,7 +23,7 @@ The robust part of the listings result is the role: 50.4% of our top 10 is in th
 
 **The score on each listing** is that weighted sum: each factor is rated 0–100 and multiplied by its tuned weight (fit 0.3, still open 0.2, accessibility 0.1, pay 0, so fit is half the score).
 
-**The app** runs this whole path (`combined_demo/`): **76.4%** [73.0%, 79.8%] of the same 563 career changers have their real role among the roles of its top 20 listings, against 69.8% for the queue without role fit (`mlrank`), 66.3% for the text match alone (`rrf`) and 63.2% for the baseline (Evaluate). That was measured on version 1; the demo now runs version 2 (roles chosen from the whole profile), which hasn't been rescored yet.
+**The app** runs this whole path (`combined_demo/`, version 2): **68.2%** [64.5%, 72.1%] of the same 563 career changers have their real role among the roles of its top 20 listings, against 69.4% for the queue without role fit (`mlrank`), 67.9% for the text match alone (`rrf`) and 63.2% for the baseline (Evaluate). **On this answer key the three rankers are not separated from each other.** Version 1 scored 76.4% by taking roles from the role-fit model alone; version 2 blends in the text match so that a real résumé leads with the right role and a stated desired role comes first — neither of which this answer key can show, because these backgrounds are the role-fit model's own inputs and carry no desired role. The claims that stand on held-out people are the role result (81.7%) and the queue (0.500).
 
 ## How we know: graded on real outcomes
 
