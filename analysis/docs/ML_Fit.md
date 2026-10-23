@@ -12,15 +12,17 @@ PredictLeads × TripleTen externship · Jacob Colombo
 
 **The series** (each notebook hands its final table to the next):
 
-| Notebook | Question | Hands off |
+| Notebook | Question | Product |
 |:--|:--|:--|
-| EDA_SDA_1 | What's in the full file, how does tech compare with every field, and what's in the scope? (the scope cut, applied first) | Scope table and its descriptions, occupation summary, company activity |
-| EDA_SDA_2 | Which scope listings do we keep, and how do they behave? Additional cleaning, non-text checks by role bucket, ghost listings | Scope table, non-text features |
-| EDA_SDA_3 | What do the descriptions say? Text features, text rules as labels and opt-in filters (keyword rules, not validated), skills mapped to O*NET (no matching models) | Scope table + text features |
-| EDA_SDA_4 | Which features hold up? Statistics, confounders, the adjusted Cox check | Modeling-ready table |
-| TimeSeries | When do listings appear and close? | Timing features |
-| ML_Fit | Which roles and listings fit a career changer? Keyword → TF-IDF → BGE → RRF, skills-based matching, a trained layer on real career moves | Fit scores, role discovery, the compass |
-| ML_Rank | How should listings be ranked? The listing timing model, combined with fit into the priority queue | The priority queue algorithm |
+| EDA_SDA_1 | What's in the data, and what's the scope? | The scope table |
+| EDA_SDA_2 | Which scope listings do we keep, and how do they behave? | Cleaned and flagged scope table (ghosts, hiding rules) |
+| EDA_SDA_3 | What do the descriptions say? | Text features and O*NET skills |
+| EDA_SDA_4 | Which features hold up? | `modeling_ready.parquet` (the features that survived) |
+| TimeSeries | When do listings appear and close? | Timing patterns by month |
+| Profiles | Who really changed into or within tech or math, and how? (frozen) | The 2,813 career changers |
+| **ML_Fit** | **Which roles does a career changer fit?** | **The trained layer (role fit), saved for the app** |
+| ML_Rank | Which listings should they apply to first? | Listing scores and the queue's weights, saved for the app |
+| Evaluate | How well do the app's rankers do on real career moves? | The comparison: `rrf`, `mlrank`, combined |
 
 **Standard:** the TripleTen course templates are the baseline (structure, methods, reporting). Every applicable course method is used, and taken further with more advanced techniques where the data calls for them.
 
@@ -34,22 +36,22 @@ PredictLeads × TripleTen externship · Jacob Colombo
 | 4 | **RRF hybrid** (reciprocal rank fusion of TF-IDF and BGE ranks) | Hybrid | Combines word overlap and meaning without tuning weights |
 | 5 | **Skills-based matching** (résumé and listing both mapped to O*NET skills) | Transferable fit | Steps 1–4 compare words, and a career changer's résumé uses the old field's words, so they favor old-field roles; skills don't |
 | 6 | **Trained layer (Option B)**: steps 2–5 scores plus Profiles features (origin, training field, years before, `from_level`, …) in a model trained on real career moves. Candidates: logistic regression, LightGBM / CatBoost / XGBoost, and a **small neural network (scikit-learn `MLPClassifier`)**, kept only if it wins | **The project's fit model** | Turns similarity into a prediction learned from where career changers actually went; explainable with SHAP |
-| 7 | **Stretch: fine-tuned BGE** (contrastive training so a person's pre-switch background lands near the role they moved into; small model, CPU, a few thousand pairs from the training folds only) | A neural network trained on our own data | Tried only if step 6 plateaus; aimed at the old-field vocabulary problem; scored like every other step |
+| 7 | **Stretch: fine-tuned BGE** | Not attempted | Step 6 already cleared the baseline by 18.5 points at top 3 (6b); tested, not needed |
 
 **How the steps are compared:** for each career changer, rank the role buckets using only their pre-switch background and check whether the role they **actually moved into** is in the top 3 or top 5 (hit rate), **per pool** (retrained after working, retrained as new grads, within tech) and overall, against a title-keyword baseline. For within-tech moves, the person's current role is excluded from the candidates (a move means a different role). Also measured: how often each method suggests the person's **old** field, the bias steps 5 and 6 are meant to fix. No teammate ratings are used: the team's judgments would put personal bias into the measure (`CLAUDE.md`), so fit is measured only on real career moves. **IT project management** is left out of first-job suggestions unless the person's prior career has a real path into it (decided 2026-10-10); hit rates are reported with this rule, and for the retrained pools also without it, to show what it costs.
 
 ### Clarifying questions
-- Which step of the ladder finds the role real career changers moved into most often, and by how much over the keyword baseline? **Answer (test, 6b):** the trained layer (step 6), 81.7% at top 3 against the most-common-role baseline's 63.2% and 96.3% against 87.0% at top 5; the best text method (RRF) reaches 70.0% at top 3.
-- Does a small neural network beat gradient boosting on this small table (2,813 career changers)? Kept only if it wins on held-out people. **Answer (development, 5b):** no. The neural network is the lowest of the six candidates (81.4% top-3 against 83.2% for logistic regression, the chosen one), though all six are within 2 points, so the choice of model matters little.
+- Which step of the ladder finds the role real career changers moved into most often, and by how much over the keyword baseline?
+- Does a small neural network beat gradient boosting on this small table (2,813 career changers)? Kept only if it wins on held-out people.
 - **Why no LLM matching:** listing text can't go to outside AI services, a local LLM on 8 GB is too small and slow for matching, and its judgments can't learn from or be validated against real career moves. LLM agents stay in the app layer (the Coach), working from model outputs and aggregates.
-- Do the similarity methods (1–4) favor the old field, and do skills-based matching and the trained layer fix it? **Answer (6c):** the text methods do (TF-IDF and RRF would put the current role first for 73.7% of within-tech movers). Skills matching does not (69.1% for carry-over; 100% for the profile cosine, by construction). The trained layer does (0.1%), because it learns that a move is never to the current role.
-- Does knowing what someone trained in predict their first tech role better than their background alone? (The evidence behind the retraining compass.) **Answer (test, 6b):** the trained layer on the Profiles features alone (training field, starting role and the rest) reaches 75.8% [72.3%, 79.2%] at top 3 against the baseline's 63.2%. That compares with the baseline, not with the background alone as a separate model, so how much the training field adds on its own is not isolated here.
+- Do the similarity methods (1–4) favor the old field, and do skills-based matching and the trained layer fix it?
+- Does knowing what someone trained in predict their first tech role better than their background alone? (The evidence behind the retraining compass.)
 - Does training on everyone who reached tech (with origin as a feature) predict career changers' roles better than training on career changers alone? Results are always reported on career changers.
 - **Results per pool:** within-tech moves are 73% of career changers (2,049 of 2,813), so one overall score mostly measures them; every metric is also reported per pool.
 - **Role imbalance** (quality assurance and data science are the smallest roles): class weights first, per-role scores, and probabilities corrected to the real role mix. Synthetic people only for a role still predicted poorly, inside training folds only.
 - Which skills should a career changer build for each suggested role (listing skills their background doesn't show)? This feeds the compass ideas.
 
-**Leakage rules** (`STANDARDS.md`):
+**Leakage rules** (`PROJECT.md`, How we keep it honest):
 - Only **pre-switch** text and `feature` columns. Résumé skills aren't dated, so they may be from after the switch and aren't used.
 - TF-IDF vocabularies, embeddings caches used for training, and the trained layer are fit **inside each training fold**; folds are grouped by person.
 - Compass and path counts used as features are rebuilt inside each training fold, so a test person never counts toward their own answer.
@@ -68,9 +70,26 @@ PredictLeads × TripleTen externship · Jacob Colombo
 | 5. The trained layer | Logistic regression, random forest, LightGBM / CatBoost / XGBoost and a small neural network (`MLPClassifier`, scaled inputs, early stopping) with `GridSearchCV`, `class_weight`, `Pipeline` + `ColumnTransformer` | LightGBM LambdaRank for listing order; stretch: fine-tuned BGE (step 7) |
 | 6. Evaluation | Accuracy, F1, confusion matrix on held-out people | Hit rate@3 / @5 per pool; old-field bias (real career moves only; no team ratings) |
 | 7. Interpretation | Feature importance | SHAP, for "why this role" in the app, and **per listing** for the detail view's rating breakdown: the top features behind each fit rating (skills that carry over, similarity of the text, the user's prior career), grouped under plain-language names and handed to `ML_Rank` with the fit scores |
-| 7b. **Growth-adjusted recommendations** | | Among the roles a person fits, roles expected to grow over the next 5 years (at most) rank higher: expected growth is applied **after** the fit model as a visible adjustment with a user-adjustable weight, never trained in (it's a future estimate, so historical career moves can't validate it), and always shown with the role's entry-level share and openings. Source: `role_growth.pkl` (BLS 2025–2035, rolled up to buckets by 2025 employment; job growth tasks in `ANALYSIS.md`). If the team adopts the proposed error band (job growth tasks in `ANALYSIS.md`), the range is shown too; with the scenario extensions (4b/4d), the baseline scenario sets the adjustment and the others are shown alongside. IT project management uses the 15-1299 catch-all's growth, flagged as a proxy |
+| 7b. **Growth-adjusted recommendations** | | Applied **after** the fit model as a visible, user-adjustable weight (0 = no adjustment), never trained in - a future projection can't be validated against past moves. Waits on `role_growth.pkl` (BLS, pending PredictLeads' consent; job growth tasks in `ANALYSIS.md`); until then the weight stays 0 and 7b says so. |
 | 8. **The compass, assembled** | | The single place the compass is put together for the app: Profiles' paths (prior career → training → first tech job; within-tech moves, sideways or up) with people counts and thin paths marked; each role's 2026 openings, hourly pay, closing speed, entry-level share and expected growth (EDA_SDA_2 3.12); the Ideas tab's inputs: skills to build per suggested role, options and time to switch, pay increase against the current field (EDA_SDA_2 1c) and growth. Saved as compass tables under `data/clean/` |
 | 9. Solution report | Steps, difficulties, final model and score | Hand-off of fit scores to `ML_Rank` |
+
+## Contents
+
+- [0. Purpose](#0-purpose)
+  - [The ladder of methods](#the-ladder-of-methods)
+  - [Clarifying questions](#clarifying-questions)
+  - [Roadmap](#roadmap)
+- [2. Targets and the split](#2-targets-and-the-split)
+- [3. Role descriptions](#3-role-descriptions)
+- [4. The methods (ladder steps 1–4)](#4-the-methods-ladder-steps-14)
+- [5. Skills matching and the trained layer (ladder steps 5–6)](#5-skills-matching-and-the-trained-layer-ladder-steps-56)
+- [6. Evaluation](#6-evaluation)
+- [7. Why a role is suggested (SHAP)](#7-why-a-role-is-suggested-shap)
+  - [7b Growth-adjusted suggestions](#7b-growth-adjusted-suggestions)
+- [8. The compass, assembled](#8-the-compass-assembled)
+- [9. Solution report and hand-off](#9-solution-report-and-hand-off)
+  - [Solution report](#solution-report)
 
 ## 2. Targets and the split
 
@@ -81,11 +100,11 @@ The cases are the **career changers** from Profiles. For each one, the input is 
 **What the data shows**
 - **2,813 career changers, split before anything is scored:** 2,250 for development (1,640 changed roles within tech, 325 retrained after working in another field, 285 new grads from another field) and 563 held out for the test (409 / 82 / 72), 20% of each pool. Within-tech movers are 73% of the people (2,049), so every result below is also shown per pool.
 - **Everyone has pre-switch text:** 0 of the 2,813 are empty, so no person ties across all methods.
-- **One warning from the split (2a):** scikit-learn says the least populated class has only 2 members, fewer than the 5 folds. The role-by-pool groups with fewer than 7 people are lumped into one "rare" group before splitting, and the warning says a group has only 2 people in development, so the folds cannot spread it evenly. It touches a handful of people and no number below depends on it, but it is a loose end in `fit_eval.split_people` (the cutoff is counted on all people, not on development people), noted for Jacob rather than changed here, since changing it changes the split.
+- **One warning from the split (2a), fixed but not silenced:** `fit_eval.split_people` now recomputes which role-by-pool groups are too small ("rare") using development people only, not everyone, for the fold split - the loose end noted here before. On this data it changes nothing: every group that was borderline under the old (all-people) cutoff is still well above it after removing the test share, so the fold assignments, and every number below, are unchanged from the prior run. scikit-learn still warns ("the least populated class has only 2 members"), because the one group genuinely this small - 3 people in the whole dataset, 2 after the split - stays too small for 5 folds no matter which people it is measured on; there simply aren't more of them. It touches a handful of people and no number below depends on it.
 
 ## 3. Role descriptions
 
-Each role bucket is described by its **2026 listings**: a reproducible sample of up to 2,000 per role from the full-file scope tables (EDA_SDA_1 cell 4b), each listing's title and description as plain text. The methods compare a person's background with these. No person is involved here, so nothing about the test people leaks into the methods. Later, EDA_SDA_3's cleaned text can replace these with one setting.
+Each role bucket is described by its **2026 listings**: a reproducible sample of up to 2,000 per role from EDA_SDA_1's scope table, each listing's title and description as plain text. The methods compare a person's background with these. No person is involved here, so nothing about the test people leaks into the methods. Later, EDA_SDA_3's cleaned text can replace these with one setting.
 
 **What the data shows**
 - **Every role is described by the same number of listings:** all 8 roles reached the cap of 2,000 sampled listings, including the smallest roles (quality assurance, data science). The sample says nothing about how many listings a role really has; it only gives each role the same amount of text to compare with.
@@ -148,12 +167,6 @@ The best settings are chosen on the same folds that score them in 6a, so 6a's fi
 - **Skills-based matching does not fix the pull:** carry-over would put the current role first for 69.1% of within-tech movers, and profile cosine for 100.0%, which is by construction (a within-tech person's background is their current role's own skill profile, so it is its closest match).
 - **The trained layer has no pull:** 0.1% (0.0% with the Profiles features alone). It learns from real moves that a move is never to the current role, so this is learned from the people, not a sign that it matches skills better; in 6a and 6b the current role is removed from the candidates for every method.
 
-### Where the notebook stands (sections 1–6)
-- **Steps 1–6 are built, run on all 2,813 career changers and evaluated on real career moves.** The text methods find the role people moved into modestly more often than "the most common role" at top 3 (development: RRF 67.1% against 63.3%; test: 70.0% against 63.2%) and not at top 5 (baseline 87.1% in development, 87.0% in test). They favor the person's current role (TF-IDF and RRF 73.7%). Skills-based matching alone is weak and below the baseline (test top 3: profile cosine 55.6%, carry-over 48.3%).
-- **The trained layer (logistic regression, chosen by the one-SD rule on the development folds; all six candidates within 2 points) is the fit model:** test 81.7% [78.5%, 84.7%] at top 3 and 96.3% [94.7%, 97.7%] at top 5, against the baseline's 63.2% and 87.0%. Most of the gain is in the Profiles features (75.8% / 94.5% alone); the scores add about 5.9 points at top 3. New grads are the weakest pool (72.2% against the baseline's 70.8%, intervals overlapping). Caveat: the chosen C is at the edge of its grid.
-- **6b was run for the last time with steps 5–6 included;** it is the test result the project reports for the fit model, and nothing is tuned to it from here.
-- **Sections 7–9 are built and run** (why a role is suggested, growth after the model, the compass, the solution report); the leakage audit passes all 8 checks.
-
 ## 7. Why a role is suggested (SHAP)
 
 The trained layer is a logistic regression, so its SHAP values are exact and cheap: for each person, role and input, the coefficient times the person's value minus the average development person's, on the role's log-odds scale (what `shap.LinearExplainer` computes; they add up to the person's score minus the average score). They are computed for the **test people**, with the model fit on the development people (the one scored in 6b), and grouped under the plain-language names the app shows: **prior career** (origin, background area, years and jobs before, starting role and level), **training** (whether and what they trained in, study level), **text similarity** (keyword, TF-IDF, BGE, RRF) and **skills that carry over** (O*NET carry-over and profile).
@@ -175,7 +188,7 @@ Expected growth is applied **after** the fit model, never trained in (it's a pro
 The one place the compass is put together for the app, from tables earlier notebooks saved (aggregates only):
 - **Paths** (EDA_SDA_2 3.12b, from Profiles): prior career, field trained in or tech job before the move → the role reached, with people counts (thin under 10), joined to each role's **2026 market** (openings, hourly pay, closing speed, entry-level share; EDA_SDA_2 3.12a) and expected growth when it exists.
 - **Skills to build** (the Ideas tab): each role's 10 most asked skills (share of its original listings asking each, required or preferred; EDA_SDA_3 section 6), marked as covered when O*NET lists the skill for the background's occupations (tools, and skills rated 3+ of 5), else to build.
-- **Pay against the prior field:** each background's typical hourly pay (its occupations' median pay in the 2026 listings of every field, EDA_SDA_1 7.2, weighted by listings) against the role's median pay in the career-changer view.
+- **Pay against the prior field:** each background's typical hourly pay (its occupations' median pay in the 2026 listings of every field, weighted by listings) against the role's median pay in the career-changer view.
 
 Time to switch isn't in the data (Profiles has years in the old field, not how long the training took), so the compass shows paths and people counts, not durations.
 

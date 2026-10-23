@@ -338,6 +338,19 @@ def choose_mode():
     return "bulk" if total >= 16 and threads >= 8 else "stream"
 
 
+def assert_bulk_safe(force=False):
+    """Refuse bulk mode on a machine choose_mode() wouldn't pick it for, unless force=True - bulk mode on too
+    little RAM tends to crash or thrash partway through a multi-hour run, not just run slowly."""
+    if force or choose_mode() == "bulk":
+        return
+    total, _, threads = machine()
+    raise RuntimeError(
+        f"bulk mode needs at least 16 GB RAM and 8 threads; this machine has {total:.0f} GB and {threads} "
+        'threads. Use stream mode instead (BUILD_MODE="stream", or "auto", which already picks stream here), '
+        "or pass force=True (--force on the command line) if you're sure."
+    )
+
+
 def default_workers():
     """Worker processes for bulk mode: about 2 GB of free memory each, leaving two threads for reading the file."""
     _, available, threads = machine()
@@ -456,9 +469,12 @@ def run_bulk(workers=None, max_docs=None, local=None, out_root=None):
     return progress
 
 
-def build(mode="auto", workers=None):
+def build(mode="auto", workers=None, force=False):
     """Build every full-file table the notebooks need, skipping what's already done. mode: 'auto' (bulk on a capable
-    machine, else stream), 'bulk' (one parallel pass) or 'stream' (three memory-light passes)."""
+    machine, else stream), 'bulk' (one parallel pass) or 'stream' (three memory-light passes). Explicitly asking
+    for 'bulk' on a machine that fails that check raises (see assert_bulk_safe) unless force=True."""
+    if mode == "bulk":
+        assert_bulk_safe(force)
     mode = choose_mode() if mode == "auto" else mode
     total, available, threads = machine()
     print(f"{mode} mode ({total:.0f} GB RAM, {available:.0f} GB free, {threads} threads)")
@@ -485,6 +501,7 @@ if __name__ == "__main__":
     ap.add_argument("--extra", action="store_true", help="third pass: every field for the TripleTen roles outside computer and mathematical")
     ap.add_argument("--bulk", action="store_true", help="one parallel pass that builds every table (needs about 16 GB RAM, 8+ threads)")
     ap.add_argument("--auto", action="store_true", help="every table: bulk on a capable machine, else the three stream passes")
+    ap.add_argument("--force", action="store_true", help="skip --bulk's RAM/thread check (it can crash or thrash on too little memory)")
     ap.add_argument("--workers", type=int, help="worker processes for --bulk (default: from free memory and threads)")
     ap.add_argument("--local", help=argparse.SUPPRESS)  # a local .jsonl.zst, for tests on synthetic data
     ap.add_argument("--out", help=argparse.SUPPRESS)
@@ -492,6 +509,7 @@ if __name__ == "__main__":
     if args.auto:
         build("auto", workers=args.workers)
     elif args.bulk:
+        assert_bulk_safe(args.force)
         run_bulk(workers=args.workers, max_docs=args.test, local=args.local, out_root=args.out)
     else:
         run(max_docs=args.test, local=args.local, out_root=args.out, rows=args.rows, extra=args.extra)

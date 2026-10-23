@@ -1,9 +1,12 @@
 # Lean notebook conventions
 
 Standing rules for every `_Lean` rewrite (`EDA_SDA_1_Lean` first; the plan is one for every notebook in the
-chain). Written down once, here, so each new `_Lean` notebook applies them from the start instead of
-re-deriving them, and so a rule doesn't quietly drift between notebooks. Update this file when a new situation
-forces a new call - don't leave the reasoning sitting only in a commit or a conversation.
+chain: `EDA_SDA_2`-`4`, `TimeSeries`, `Profiles`, `ML_Fit`, `ML_Rank`, `Evaluate`). This is a side project, not
+on the pitch's critical path - it runs alongside the real notebooks, which keep their normal cut/condense
+treatment, and each `_Lean` notebook only swaps in for its original once it reruns clean with the same results.
+Written down once, here, so each new `_Lean` notebook applies them from the start instead of re-deriving them,
+and so a rule doesn't quietly drift between notebooks. Update this file when a new situation forces a new call -
+don't leave the reasoning sitting only in a commit or a conversation.
 
 ## The goal
 
@@ -70,8 +73,11 @@ The test is "can I say what this line does," not "is this file short."
 
 ## Open / still being decided
 
-- Should `crawl_dropout` listings be treated as censored (for survival calculations) instead of as a real
-  close? Flagged, not yet decided - a real methodology question, separate from the style rewrite.
+- `crawl_dropout` listings should be treated as censored instead of as a real close, and the one-day batch
+  rule's fixed 5-listings/60%-share cutoff should become a company-size-adjusted significance test - both
+  confirmed on synthetic data (the current rule misses real clustering entirely below 60%; treating dropout as
+  a close biases median days-open short by ~4% at the project's real dropout rate). Decided, queued in
+  `ANALYSIS.md` for after the 2026-10-29 pitch, not built now - a real methodology change, not a style one.
 - Whether other notebooks' shared infrastructure (e.g. `src/ts_helpers.py` for `TimeSeries`) has its own
   version of the bit-mapping/auto-formatting issues found in `rows_table.py`/`eda_helpers.py` - not yet checked,
   since no other `_Lean` notebook has started.
