@@ -1,9 +1,9 @@
 # Lean notebook conventions
 
 Standing rules for every `_Lean` rewrite (`EDA_SDA_1_Lean` first; the plan is one for every notebook in the
-chain: `EDA_SDA_2`-`4`, `TimeSeries`, `Profiles`, `ML_Fit`, `ML_Rank`, `Evaluate`). This is a side project, not
-on the pitch's critical path - it runs alongside the real notebooks, which keep their normal cut/condense
-treatment, and each `_Lean` notebook only swaps in for its original once it reruns clean with the same results.
+chain: `EDA_SDA_2`-`4`, `TimeSeries`, `Profiles`, `ML_Fit`, `ML_Rank`, `Evaluate`). This is on the pitch's
+critical path: Jacob presents these findings, so he has to understand every cell. The originals stay as the
+reference, and each `_Lean` notebook only swaps in for its original once it reruns clean with the same results.
 Written down once, here, so each new `_Lean` notebook applies them from the start instead of re-deriving them,
 and so a rule doesn't quietly drift between notebooks. Update this file when a new situation forces a new call -
 don't leave the reasoning sitting only in a commit or a conversation.
@@ -27,6 +27,17 @@ The test is "can I say what this line does," not "is this file short."
    column. Confirmed on synthetic data at full scale (13.4M rows) before dropping them: same results, same
    speed. Don't drop a helper like this without timing the replacement against it first - the justification for
    the original helper might turn out to still be true.
+
+   **Check the replacement's dtype, not only its values and speed, and shape the synthetic column like the real
+   one.** This rule's first version cost a run: `cat_map` returns plain `float64`, but `.map()` on a categorical
+   *keeps the categorical dtype* whenever every label maps to a different value - and a categorical can't be
+   multiplied, so `EDA_SDA_1_Lean`'s 2d-3 died on `mid * factor` ("cannot perform the numpy op multiply") after
+   2a-2d had already run. The first synthetic check missed it because its made-up labels included one the
+   mapping didn't recognize, which makes the result numeric; the real `salary_unit`'s five labels map one-to-one,
+   which doesn't. The fix is an explicit `.astype("float64")` with a comment saying why, pinned by
+   `tests/test_lean_cat_map.py` (both directions: the cast matches `cat_map`, and the uncast version really does
+   come back categorical). So: a replacement is only checked once the synthetic column has the same *shape* of
+   mapping as the real one, and the comparison covers dtype as well as values.
 
 3. **A bit-packed or otherwise encoded column gets a plain, named alternative - after checking the memory
    cost, not instead of checking it.** `contract_bits`/`category_bits` pack several labels into one integer for
