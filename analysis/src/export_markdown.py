@@ -83,6 +83,24 @@ LAYOUTS = {
         ],
         "charts": ["# 3c chart", "# 5a chart", "# 5b chart", "# 5c chart", "# 5h chart", "# 6a chart"],
     },
+    "EDA_SDA_1_Lean": {  # EDA_SDA_1's layout, with the Lean notebook's headings and cell labels
+        "skip_sections": {"About", "1.", "2.", "PredictLeads", "4a", "4b", "7.", "Where"},  # "4." stays: 4c-4e need their parent heading
+        "full_text_sections": {"EDA/SDA", "8."},  # the title and purpose, and the conclusion with its summary
+        "full_text_headings": {"### Why we need the Gehan-Wilcoxon test"},  # this one cell, in full (not its whole section)
+        "max_bullets": 2,
+        "bullets_by_section": {"4c": 1, "4e": 1, "6.": 3},
+        "table_groups": [
+            ["3a. Where computer and mathematical stands"],
+            ["4c. How English US listings enter the scope", "4c. From the full file to the scope", "4c. The scope by role bucket"],
+            ["4d. Scope-only fields"],
+            ["4e. The in-scope table", "4e. Share of in-scope listings with each key field"],
+            ["5d. Source type", "5c. Median days open"],
+            ["5c. Gehan-Wilcoxon test on every pair"],
+            ["5f. Recruiters in the scope", "5f. Window by recruiter"],
+            ["6a. History and weekly arrivals"],
+        ],
+        "charts": ["# 3c chart", "# 5a-3 Chart", "# 5b-2 Chart", "# 5c-3 Chart", "# 5h-2 Chart", "# 6a-2 Chart"],
+    },
     "EDA_SDA_2": {
         "skip_sections": {"2.", "2b."},
         "hide_headings": {"4a–4e"},  # its tables (the funnel and the summary) still show
@@ -331,8 +349,8 @@ def report(nb_path):
                 section = new  # groups wait for all their tables, even across headings (unfinished ones go at the end)
             if _skipped(section, layout["skip_sections"]):
                 continue
-            if section in layout["full_text_sections"]:
-                kept = _markdown(cell)
+            if section in layout["full_text_sections"] or any(text.startswith(h) for h in layout.get("full_text_headings", ())):
+                kept = _markdown(cell)  # whole sections, or single cells that open with one of these headings
             elif text.startswith("**What"):
                 kept = _first_bullets(text, layout.get("bullets_by_section", {}).get(section, layout["max_bullets"]))
             elif section in layout.get("hide_headings", set()):
