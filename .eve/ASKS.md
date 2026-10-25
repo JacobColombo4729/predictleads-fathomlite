@@ -4,6 +4,8 @@
 
 ## For Jesse (from Jacob)
 
+- **Manager level and ghosts: say what the app's default should be (2026-10-24).** In the analysis, manager level and above is now a **tag** (it was a hide), because the app's job-level filter already lets the person choose; likely ghosts stay the one **hide**; document management specialists are dropped from the scope (with GIS technologists and search marketing strategists, 29,354 listings). The columns the app reads keep their names and meaning (`level`, `likely_ghost`; `hidden_occupation` goes away once the Lean tables replace the originals), so nothing breaks today. Decide whether the app should keep hiding manager level and above by default for a user with no management experience, and tell Jacob. See `analysis/docs/EDA_SDA_2_Lean.md` (the rules at a glance) and `JACOB.md`.
+
 - **Run the combined demo without the notebooks (2026-10-16).** You don't need to train anything: the apps only read saved outputs. When Jacob sends `handoffs_v1.zip.001` and `.002` (privately; they hold listing text), merge `jacob`, put both in `data/handoffs/` and run `python -m fetch.get_handoffs --unpack`, then `.\combined_demo\run.ps1` (or `.\app\run_jacob.ps1`). Unpack again whenever Jacob sends a new version.
 
 - **Combining our models as a third model (2026-10-15).** Read `app/docs/combined-model-plan.md` ("Modular design") and say whether you agree (steps 1a–5 are built). The combined model is its own package (`combined/`, shared like `fetch/`), run as its own app (`combined_demo/`); your `rrf` and my `mlrank` stay unchanged as baselines. It uses ML_Fit's trained layer (which builds on your TF-IDF + BGE scores) as the fit factor of ML_Rank's queue, with your RRF picking the candidates. Your calls:
