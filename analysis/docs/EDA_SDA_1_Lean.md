@@ -184,15 +184,17 @@ Before the cut, every field; after it, the scope only. Nothing is deleted: the c
 | **Language** | English; listings with no language label dropped | The text features and the app are English; unlabeled listings have no description (4b) |
 | **Country** | Listings that name the US; no-country listings dropped | Pay is in dollars and the job-growth projections (BLS) are for the US; only these are known US openings (4b) |
 | **Scope** | The roles TripleTen trains for, plus adjacent tech roles; credentialed math out | TripleTen's program catalog, a neutral definition (4a) |
+| **Not a tech path** | Three occupations dropped: document management specialists (15-1299.03), GIS technologists (15-1299.02) and search marketing strategists (13-1161.01) | Records work, mapping and search marketing aren't a tech path a career changer would take. Each is found by an exact O*NET code, so the rule can't misfire, and leaving them in would only add noise to every later table (4c, 4c-4) |
 | **Description** | Listings with no description are kept and flagged `has_desc`, not dropped | 17-18% have none, rising from 6-8% in March-April to 23-25% from June (which points at a PredictLeads collection change, not employers changing, and is still unverified), and they close in a median 3 days vs. 30. Dropping them would erase most of June onward and hide a confounder: missing pay looks predictive only through this group. For model fitting, every text feature is blank (not False) without a description, so `has_desc` has to sit next to them for a model to tell "no description" from "a description that doesn't mention it" (section 2; `EDA_SDA_2` 3.9, `EDA_SDA_4`, `ML_Rank`) |
 | **Time** | April–September; late March kept, flagged `partial_month` | Left out of per-month counts only |
 
-Seniority, long-open listings and staffing agencies are labelled or hidden, never dropped.
+Only whole occupations that aren't a tech path are dropped here. Seniority, long-open listings and staffing agencies are tagged or hidden in `EDA_SDA_2`, never dropped.
 
 ### 4a Why this scope
 
 - **TripleTen's program catalog** (tripleten.com, checked 2026-10-10) defines it: a neutral, outside definition. IT support, networks and systems, database and IT project management have no program but stay as **adjacent tech roles,** since IT support is the most open entry point.
 - **The data supports it:** a switch pays off (section 3), 2,813 career changers in the résumé data moved into these roles (`Profiles.ipynb`), and they're hard to enter, which is where hiding and ranking help.
+- **What is left out:** credentialed math (actuaries and mathematicians need a credential) and three occupations that aren't a tech path, document management specialists (15-1299.03), GIS technologists (15-1299.02) and search marketing strategists (13-1161.01). The test for an occupation: would a TripleTen graduate, or someone moving up from IT support or networking, plausibly apply? The full list of occupations in the scope is 4c-4.
 
 ### 4b Language and country
 
@@ -206,13 +208,16 @@ What the two rules cost: no-country listings may be US remote jobs, and unlabele
 
 ### 4c The scope cut
 
-In the scope: occupation group *Computer and Mathematical* or an O*NET code starting 15-, or one of two TripleTen roles outside the group (sales engineers, market research analysts); minus credentialed math (actuaries, mathematicians). Each listing gets a **role bucket** and a **TripleTen program** (`src/career_switch.py`), or "adjacent tech role" where no program trains for it.
+In the scope: occupation group *Computer and Mathematical* or an O*NET code starting 15-, or one of two TripleTen roles outside the group (sales engineers, market research analysts); minus credentialed math (actuaries, mathematicians) and three occupations that aren't a tech path (document management specialists (15-1299.03), GIS technologists (15-1299.02) and search marketing strategists (13-1161.01)). Each listing gets a **role bucket** and a **TripleTen program** (`src/career_switch.py`), or "adjacent tech role" where no program trains for it.
+
+**Which occupations are in the scope?** The scope is the TripleTen roles plus adjacent tech roles, found from O*NET codes, so it can include an occupation that is not a tech path a career changer would take. The table below lists every occupation in the scope with its code, its name and its size. The test for each: would a TripleTen graduate, or someone moving from IT support or networking, plausibly apply? An occupation that fails it is dropped in 4c-1, next to credentialed math, because the scope's definition lives here.
 
 **What the data shows**
 
-- **The scope is 908,291 listings, 6.8% of the file:** computer and mathematical is 7.2% of English US listings, the two added TripleTen roles add 0.69%, and credentialed math is 0.05%. The O*NET-code fallback adds nothing (the group is always present), and every scope code maps to a role bucket.
-- **Software development is the largest bucket (28.8%),** then networks and systems (18.5%), IT project management (12.4%) and data science (11.6%); technical sales is the smallest (1.1%).
-- **By TripleTen program:** AI Software Engineering 27.7%, Data Analytics 14.5%, Cybersecurity 5.0%, AI & Machine Learning 4.8%, Quality Assurance 3.7%, UX/UI Design 1.1%, Forward Deployed Engineering / AI Automation 1.1%; **42.2% are adjacent tech roles.**
+- **The scope is 878,937 listings, 6.5% of the file:** computer and mathematical is 7.2% of English US listings, the two added TripleTen roles add 0.69%, and credentialed math (0.05%) is set aside. The O*NET-code fallback adds nothing (the group is always present), and every scope code maps to a role bucket.
+- **Three occupations that aren't a tech path are dropped** (29,354 listings, 3.2% of the TripleTen and adjacent roles): search marketing strategists (16,590), GIS technologists (8,758) and document management specialists (4,006). 4c-4 lists the 37 occupations that remain.
+- **Software development is the largest bucket (29.8%),** then networks and systems (19.1%), IT project management (12.9%) and data science (11.9%); technical sales is the smallest named bucket (1.1%), and the catch-all "other computer roles" is 0.4%.
+- **By TripleTen program:** AI Software Engineering 28.6%, Data Analytics 13.1%, Cybersecurity 5.1%, AI & Machine Learning 4.9%, Quality Assurance 3.8%, UX/UI Design 1.2%, Forward Deployed Engineering / AI Automation 1.1%; **42.2% are adjacent tech roles.**
 
 ### 4d Fields only the scope carries
 
@@ -221,12 +226,12 @@ From the stream's full records: the **full description** (`scope_descriptions.pa
 **What the data shows**
 
 - **Every in-scope listing was found in the stream's full records;** the descriptions are saved for EDA_SDA_3 (2.2 GB of text).
-- **Pay as written exists for 48.7%,** and parsing it added hourly pay for 1.5% of listings (46.6% to 48.1%). Every listing carries a location as written.
+- **Pay as written exists for 48.8%,** and parsing it added hourly pay for 1.5% of listings (46.7% to 48.2%). Every listing carries a location as written.
 
 **What the data shows**
 
-- **The in-scope table is 908,291 listings from 71,919 companies.** Timing, role bucket, source and seniority are complete; description 82%, pay 48%, years stated 46%, employer posting date 42%.
-- **Contract types are messy** (free-text labels; full time 55%, remote 21.9%, hybrid 20.6%, onsite 19.7%, contract 8.6%, none 17.6%). Every scope company is in the companies table.
+- **The in-scope table is 878,937 listings from 68,863 companies.** Timing, role bucket, source and seniority are complete; description 82%, pay 48%, years stated 46%, employer posting date 42%.
+- **Contract types are messy** (free-text labels; full time 55.0%, remote 21.9%, hybrid 20.6%, onsite 19.8%, contract 8.7%, none 17.6%). Every scope company is in the companies table.
 - **A correction to `EDA_SDA_1`:** its text said "none 27%" and left out remote, for the same reason as in 4b (the packed column kept only 63 of 161 labels). Its description, pay, years-stated and posting-date shares (78%, 45%, 43%, 39%) were also out of step with its own printed tables (82%, 48%, 46%, 42%); the figures above match this notebook's run.
 
 ## 5. Q2: Which factors should drive prioritization?
@@ -235,9 +240,9 @@ From the stream's full records: the **full description** (`scope_descriptions.pa
 
 **What the data shows**
 
-- **Volume and manager-level seniority vary most between buckets** (27 and 25 times): technical sales gets 340 new listings a week and software development 9,200; manager-level is 1.7% in IT support and 43.7% in IT project management. Of the accessibility measures, entry-level seniority varies 10.8 times and open to career changers 4.8.
+- **Volume and manager-level seniority vary most between buckets** (27 and 25 times; the range leaves out the 3.8K-listing catch-all "other computer roles"): technical sales gets 340 new listings a week and software development 9,200; manager-level is 1.7% in IT support and 43.7% in IT project management. Of the accessibility measures, entry-level seniority varies 10.8 times and open to career changers 4.8.
 - **Pay varies 2.4 times** ($31.10 an hour in IT support to $73.54 in software development), **while timing varies only 1.7** (medians of 22 to 38 days).
-- **By program:** Data Analytics roles are the most open (29.9% show any sign) at $47.84 an hour; AI Software Engineering and AI & Machine Learning pay the most (about $74) but are among the least open (18 to 19%).
+- **By program:** Data Analytics roles are the most open (28.9% show any sign) at $49.28 an hour; AI Software Engineering and AI & Machine Learning pay the most (about $74) but are among the least open (18 to 19%).
 
 ### 5b Application window
 
@@ -245,9 +250,9 @@ Share still open N days after first seen (Kaplan–Meier, so still-open listings
 
 **What the data shows**
 
-- **The window is short:** 28.6% of in-scope listings close within a week, the median is 24.2 days, and 44.8% are still open after 30 days.
-- **Most buckets move alike** (67 to 74% still open after a week). **Technical sales is the slow outlier** (84% after a week, median 38 days); IT support, database, quality assurance and other computer roles are the fastest (median 22 days).
-- **PredictLeads crawl artifacts barely move timing:** without them the median falls from 24.2 to 23.1 days, and the share open after a week stays at 71%.
+- **The window is short:** 28.7% of in-scope listings close within a week, the median is 24.1 days, and 44.8% are still open after 30 days.
+- **Most buckets move alike** (67 to 73% still open after a week). **Technical sales is the slow outlier** (84% after a week, median 38 days); IT support, database, quality assurance and other computer roles are the fastest (median 22 days).
+- **PredictLeads crawl artifacts barely move timing:** without them the median falls from 24.1 to 23.0 days, and the share open after a week stays at 71%.
 
 ### 5c Competition: company hiring volume
 
@@ -255,20 +260,20 @@ Volume is the company's listings **in any field first seen before each listing**
 
 ### Why we need the Gehan-Wilcoxon test
 
-The table above shows medians for four groups of companies, from 44 days at the lowest-volume companies down to 12 at the highest. A median alone can't say whether gaps that size could just be chance, and a plain test on days open would throw away the still-open listings (the same mistake section 3 explains). So the next two cells use a **Gehan-Wilcoxon test**, the survival version of a Wilcoxon test: it compares Kaplan-Meier curves, giving the most weight to early days, when most listings are still being watched and most of them close.
+The table above shows medians for four groups of companies, from 45 days at the lowest-volume companies down to 12 at the highest. A median alone can't say whether gaps that size could just be chance, and a plain test on days open would throw away the still-open listings (the same mistake section 3 explains). So the next two cells use a **Gehan-Wilcoxon test**, the survival version of a Wilcoxon test: it compares Kaplan-Meier curves, giving the most weight to early days, when most listings are still being watched and most of them close.
 
 It is run two ways. **All four bands at once** asks whether any of the four curves differ from the others, which is what the chart shows. **Every pair of bands** (six pairs) asks whether each step is real, and not just the two ends. First the three neighboring steps: 1-4 vs. 5-49, 5-49 vs. 50-499 and 50-499 vs. 500+. Then the pairs two steps apart: 1-4 vs. 50-499 and 5-49 vs. 500+. Last, the two ends: 1-4 vs. 500+.
 
-How to read the results: a **p-value** is the chance of seeing a gap this large if the groups really closed at the same rate. A tiny p-value means the gap is real, **not that it is big**; the size is in the medians (44, 34, 28 and 12 days). It also doesn't say company volume *causes* faster closing, since big companies differ in other ways; `EDA_SDA_4`'s Cox model holds those fixed. The method and a worked example are in `docs/gehan_wilcoxon.md`.
+How to read the results: a **p-value** is the chance of seeing a gap this large if the groups really closed at the same rate. A tiny p-value means the gap is real, **not that it is big**; the size is in the medians (45, 34, 28 and 12 days). It also doesn't say company volume *causes* faster closing, since big companies differ in other ways; `EDA_SDA_4`'s Cox model holds those fixed. The method and a worked example are in `docs/gehan_wilcoxon.md`.
 
 **How to read the chi-square column.** Each chi-square measures how far two bands' closing patterns are from what we'd expect if they closed at the same rate: **0 means identical curves, and bigger means a bigger gap.** It is a score of evidence, not a size: it has no units, and it grows with the number of listings, so with hundreds of thousands per band it comes out in the thousands.
 
-To turn a chi-square into a verdict, compare it with a cutoff. For a single pair (1 degree of freedom), above **3.84** means the gap is unlikely to be chance at the usual 5% level (p < 0.05), and above **10.83** means p < 0.001. For the four-band test in the chart title (3 degrees of freedom) the cutoffs are 7.81 and 16.27. Our values are far above all of these, so every p-value reads "< 0.001": the steps between bands are real, not luck. Use the chi-square to compare rows (a pair at 20,000 differs more strongly than one at 2,000), and use the medians (44, 34, 28, 12 days) for how big the differences are.
+To turn a chi-square into a verdict, compare it with a cutoff. For a single pair (1 degree of freedom), above **3.84** means the gap is unlikely to be chance at the usual 5% level (p < 0.05), and above **10.83** means p < 0.001. For the four-band test in the chart title (3 degrees of freedom) the cutoffs are 7.81 and 16.27. Our values are far above all of these, so every p-value reads "< 0.001": the steps between bands are real, not luck. Use the chi-square to compare rows (a pair at 20,000 differs more strongly than one at 2,000), and use the medians (45, 34, 28, 12 days) for how big the differences are.
 
 **What the data shows**
 
-- **Company volume is the strongest timing signal:** counting only earlier listings in any field, in-scope listings at companies with 500+ listings close in a median **12 days, vs. 44 at companies with 1 to 4**. The four bands differ (Gehan-Wilcoxon test across all four; the chi-square and p are in the chart title), and the pairwise table shows each step between bands separately.
-- **The gradient is steady across bands** (44, 34, 28 and 12 days) and holds for listings first seen from May (56 vs. 12 days).
+- **Company volume is the strongest timing signal:** counting only earlier listings in any field, in-scope listings at companies with 500+ listings close in a median **12 days, vs. 45 at companies with 1 to 4**. The four bands differ (Gehan-Wilcoxon test across all four; the chi-square and p are in the chart title), and the pairwise table shows each step between bands separately.
+- **The gradient is steady across bands** (45, 34, 28 and 12 days) and holds for listings first seen from May (56 vs. 12 days).
 - **High-volume employers dominate:** the top 10% of companies post 47 to 74% of each bucket's listings, and reposting rises with volume (2.4% at 1 to 4 listings to 8.7% at 500+).
 
 ### 5d Source
@@ -277,9 +282,9 @@ Hiring platform, job board or company site: share, arrivals and window. Job boar
 
 **What the data shows**
 
-- **62.5% of in-scope listings are on company sites or other domains,** 29.6% on hiring platforms and 7.9% on job boards.
-- **Windows differ widely by source:** LinkedIn, Oracle and Taleo listings close in a median 14.5 to 15.8 days, company sites 21, Workday 32, Greenhouse 49, Lever 67 and Ashby 72.
-- **The mix is similar in every bucket** (company sites 55 to 66%), so source separates listings, not roles. Platform choice tracks employer size, so source is tested alongside company volume.
+- **62.7% of in-scope listings are on company sites or other domains,** 29.6% on hiring platforms and 7.8% on job boards.
+- **Windows differ widely by source:** LinkedIn, Oracle and Taleo listings close in a median 14.5 to 15.7 days, company sites 21, Workday 32, Greenhouse 49, Lever 67 and Ashby 72.
+- **The mix is similar in every bucket** (company sites 53 to 66%), so source separates listings, not roles. Platform choice tracks employer size, so source is tested alongside company volume.
 - **A correction to `EDA_SDA_1`:** its written shares (65%, 28%, 7.1%, and 56 to 70% across buckets) don't match its own printed tables (62%, 30%, 7.9%); the figures above match both this notebook's run and the original's tables.
 
 ### 5e Competition: reposts
@@ -288,8 +293,8 @@ A repost is the same job listed again under a new id: how common, by bucket and 
 
 **What the data shows**
 
-- **6.5% of in-scope listings are reposts:** most in technical sales (9.4%) and business and data analysis (8.9%), fewest in quality assurance (4.6%) and IT support (4.9%).
-- **Job boards repost far more than other sources** (24.2% of their listings, vs. 4.1% on hiring platforms and 4.9% on company sites).
+- **6.5% of in-scope listings are reposts:** most in technical sales (9.4%) and business and data analysis (9.4%), fewest in quality assurance (4.6%) and IT support (4.9%).
+- **Job boards repost far more than other sources** (24.3% of their listings, vs. 4.1% on hiring platforms and 4.9% on company sites).
 - **Reposts come back fast:** a median 7.6 days after the original, and a quarter within a day, so many are re-listings or PredictLeads crawler refreshes rather than a failed hire.
 
 ### 5f Recruiters
@@ -298,8 +303,8 @@ Anonymous keys only; counts and shares.
 
 **What the data shows**
 
-- **Only 1.3% of in-scope listings name a recruiter:** 5,527 anonymous recruiters; the 437 with 5+ listings post 37% of recruiter listings.
-- **Recruiter listings close much faster:** a median 11.3 days vs. 24.5 without one; for recruiters with 5+ listings, **6.5 days** (48% still open after a week vs. 72%).
+- **Only 1.3% of in-scope listings name a recruiter:** 5,139 anonymous recruiters; the 432 with 5+ listings post 38% of recruiter listings.
+- **Recruiter listings close much faster:** a median 11.2 days vs. 24.4 without one; for recruiters with 5+ listings, **6.5 days** (48% still open after a week vs. 71%).
 - **Many recruiter listings may come from staffing agencies,** so EDA_SDA_2 tests recruiters against its staffing-agency flag before they're used.
 
 ### 5g Who is open to newcomers
@@ -308,8 +313,8 @@ The text rules behind the career-change flags, among listings with a description
 
 **What the data shows**
 
-- **IT support is the entry door:** 48% of its listings that state years ask for 2 or fewer, and 22% are entry level (5a). Then other computer roles (36% show any sign) and business and data analysis (33%). IT project management is the hardest (2.1% entry level, 9.1% open).
-- **Open listings pay less, but still well:** a median $38.00 an hour, vs. $64.62 across the scope ($26.00 for open IT support listings). Degree requirements are rare (3.9%), but 60.5% of listings that state years ask for 5 or more.
+- **IT support is the entry door:** 48% of its listings that state years ask for 2 or fewer, and 22% are entry level (5a). Then business and data analysis (33% show any sign). The small catch-all "other computer roles" (3.8K listings) shows the most openness (65%) but is too small and mixed to read as a door. IT project management is the hardest (2.1% entry level, 9.1% open).
+- **Open listings pay less, but still well:** a median $38.46 an hour, vs. $64.90 across the scope ($26.00 for open IT support listings). Degree requirements are rare (3.9%), but 61.3% of listings that state years ask for 5 or more.
 
 ### 5h Do the flags go with how long listings stay open?
 
@@ -327,10 +332,10 @@ Six months of data rules out seasons. Checks: history and weekly arrivals (full 
 
 **What the data shows**
 
-- **Six months of steady history:** no seasonal advice (7 distinct months, no complete year), but 74.5% of in-scope listings closed by September 30 (25.5% were still open), so timing is well observed. A median **31,411 new in-scope listings arrive per full week**; the quietest week is 0.76x the median and the busiest 1.27x.
-- **`first_seen` is a good freshness clock:** it lags the employer's posting date by a median 1.5 days (75% within 3.4). Its weekdays follow the PredictLeads crawler (Friday peak, 19.8%), while posting dates (41% of listings) peak Tuesday to Thursday.
-- **Still-open rules (merge decision 2):** our rule (last seen within 2 days) counts 25.5% of in-scope listings as open, and the app's signal rule (7 days, not closed) 25.4%, mostly the same listings (94% overlap). **The app's current listing filter (status not closed) counts 39.4%, and 26.1% of those were last seen 30+ days before September 30.**
-- **The date picker is fair from July:** live listings reach 80% of September's level, and the share first seen in the past 30 days sits near 50% in July and August (50.1% and 48.4%) and 43.5% in September.
+- **Six months of steady history:** no seasonal advice (7 distinct months, no complete year), but 74.5% of in-scope listings closed by September 30 (25.5% were still open), so timing is well observed. A median **30,303 new in-scope listings arrive per full week**; the quietest week is 0.76x the median and the busiest 1.27x.
+- **`first_seen` is a good freshness clock:** it lags the employer's posting date by a median 1.4 days (75% within 3.4). Its weekdays follow the PredictLeads crawler (Friday peak, 19.8%), while posting dates (41% of listings) peak Tuesday to Thursday.
+- **Still-open rules (merge decision 2):** our rule (last seen within 2 days) counts 25.5% of in-scope listings as open, and the app's signal rule (7 days, not closed) 25.4%, mostly the same listings (94% overlap). **The app's current listing filter (status not closed) counts 39.6%, and 26.2% of those were last seen 30+ days before September 30.**
+- **The date picker is fair from July:** live listings reach 80% of September's level, and the share first seen in the past 30 days sits near 50% in July and August (50.1% and 48.3%) and 43.5% in September.
 
 ## 7. The in-scope table (hand-off to EDA_SDA_2)
 
@@ -342,19 +347,19 @@ Six months of data rules out seasons. Checks: history and weekly arrivals (full 
 |:--|:--|
 | **Data** | 13,415,388 listings in the file; 13,017,464 English (or unlabeled) and US (or no country); first seen March 30 to September 30, 2026 (the data's end date) |
 | **After cleaning** | 13.0M listings, none removed; 1.4M reposts flagged (10.5%); 11.7M originals from 324K companies; 22.3% still open on September 30 |
-| **In-scope table** | 908K listings (849K originals) from 72K companies in 11 role buckets; 25.5% still open on September 30; 58% under a TripleTen program, 42% adjacent tech roles |
+| **In-scope table** | 879K listings (822K originals) from 69K companies in 11 role buckets (3 occupations that aren't a tech path dropped, 29K listings); 25.5% still open on September 30; 58% under a TripleTen program, 42% adjacent tech roles |
 
 **Q1, how tech compares:** computer and mathematical is the best-paid (1st of 23) and most remote (1st) field, 4th in volume, but 22nd on entry-level roles and openness, and last on asking 2 years or fewer. The scope's design follows from it: hide what a newcomer can't get, rank the rest, and point to the open doors (IT support, business and data analysis, Data Analytics roles).
 
 **Q2, which factors drive prioritization** (inside the scope)
 
-- **Company volume is the strongest timing signal:** listings close in a median 12 days at the highest-volume companies (500+ earlier listings) vs. 44 at the lowest-volume (1 to 4), with the bands in between stepping down steadily (44, 34, 28, 12); every step is a real difference (Gehan-Wilcoxon test, 5c).
+- **Company volume is the strongest timing signal:** listings close in a median 12 days at the highest-volume companies (500+ earlier listings) vs. 45 at the lowest-volume (1 to 4), with the bands in between stepping down steadily (45, 34, 28, 12); every step is a real difference (Gehan-Wilcoxon test, 5c).
 - **The window is short,** and it's what the model predicts: 29% of listings are gone within a week, median 24 days (5b).
-- **Source and recruiters matter:** 15 days on LinkedIn or Taleo vs. 71 on Ashby; 11 days with a named recruiter, though only 1.3% of listings name one (5d, 5f).
+- **Source and recruiters matter:** 15 days on LinkedIn or Taleo vs. 72 on Ashby; 11 days with a named recruiter, though only 1.3% of listings name one (5d, 5f).
 - **Pay and openness vary most between roles:** $31 to $74 an hour, and openness from 9% (IT project management) to 44% (IT support) (5a, 5g).
 - **Weak, or flags only:** remote wording shows no gap, reposts are mostly re-listings, and PredictLeads crawl artifacts barely move timing (5b, 5e, 5h).
 
-**Q3, time information:** posting age works for every listing (`first_seen` lags the posting date by a median 1.5 days); day of week only through `posted` (41%); no seasonality from six months. The still-open rule should be last-seen based: the app's status filter keeps 26% of listings last seen 30+ days before September 30 (6c).
+**Q3, time information:** posting age works for every listing (`first_seen` lags the posting date by a median 1.4 days); day of week only through `posted` (41%); no seasonality from six months. The still-open rule should be last-seen based: the app's status filter keeps 26% of listings last seen 30+ days before September 30 (6c).
 
 ### Limits
 - **Six months of history,** and listings first seen before March 30 are missing, so early dates undercount what was open (the date picker starts July 1).
