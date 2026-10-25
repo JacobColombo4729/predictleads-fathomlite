@@ -101,6 +101,24 @@ LAYOUTS = {
         ],
         "charts": ["# 3c chart", "# 5a-3 Chart", "# 5b-2 Chart", "# 5c-3 Chart", "# 5h-2 Chart", "# 6a-2 Chart"],
     },
+    "EDA_SDA_2_Lean": {  # written from its question: the rules, the evidence for each, the buckets, the 2026 market
+        "skip_sections": {"About", "1."},
+        "full_text_sections": {"EDA/SDA", "8."},  # the title and purpose, and the conclusion with its answers
+        "max_bullets": 4,
+        "table_groups": [
+            ["2 The rules at a glance"],
+            ["3a Closing by listing age"],
+            ["3b Signals among"],
+            ["4.1 Level of each listing"],
+            ["4.3 Median days open (Kaplan-Meier): staffing agencies vs. employers", "4.3 Median days open (Kaplan-Meier) by recruiter"],
+            ["4.4 Senior title"],
+            ["5.2 Role buckets in the scope"],
+            ["5.3 Role buckets: own analysis"],
+            ["6.1 The 2026 market by role bucket", "6.1 The 2026 market by TripleTen program"],
+            ["7.1 Listings each rule touches"],
+        ],
+        "charts": ["# 3a"],
+    },
     "EDA_SDA_2": {
         "skip_sections": {"2.", "2b."},
         "hide_headings": {"4a–4e"},  # its tables (the funnel and the summary) still show

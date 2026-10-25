@@ -10,9 +10,23 @@ don't leave the reasoning sitting only in a commit or a conversation.
 
 ## The goal
 
-Every cell should be explainable from what's in front of you - the way a TripleTen project's code is - even
-where that costs more lines than the original. Not: smaller cells. Not: fewer helper calls for their own sake.
-The test is "can I say what this line does," not "is this file short."
+**Every cell must be 100% defensible by Jacob, who presents it.** This is the whole point of `_Lean`, and it comes
+before everything else in this file. The test is "can Jacob say what this line does, and why it is there?", not
+"is this file short" and not "does it match the original's numbers".
+
+What that means in practice:
+
+- **A `_Lean` notebook is written from its question, not ported from the original.** The original is a reference for
+  what to compute, never a script to translate. If a block of the original can't be written in the plain pandas a
+  TripleTen project uses (`groupby`, `value_counts`, `merge`, `str.contains`, simple masks, `np.where`), it is cut,
+  simplified or moved to its own explained `src/` file with a teaching doc (rule 4). It is never copied in.
+- **Matching the original is a check, not the goal.** Where a simpler rule gives a slightly different number, the
+  simpler rule wins and the difference is written down. Features the original made for the models are rebuilt in the
+  notebook that needs them, in the same plain style.
+- **One section at a time.** Each section is read by Jacob before it is run, and the next one isn't started until he
+  can say what every cell in it does.
+- **Size follows the question.** Cut analysis that doesn't answer the notebook's question, and don't repeat what an
+  earlier notebook already answers. A notebook that needs 120 cells is answering too many questions.
 
 ## Rules
 
