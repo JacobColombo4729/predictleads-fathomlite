@@ -160,6 +160,27 @@ LAYOUTS = {
         ],
         "charts": ["# 2 Chart", "# 3 Chart", "# 6c Chart"],
     },
+    "EDA_SDA_3_Lean": {  # EDA_SDA_3's layout, with the Lean notebook's table titles
+        "skip_sections": {"Plan:", "1.", "7."},
+        "full_text_sections": {"8."},
+        "max_bullets": 3,
+        "bullets_by_section": {"3.": 4, "4.": 4, "6.": 7},
+        "table_groups": [
+            ["2b Words removed as boilerplate", "2b Share of each description kept"],
+            ["3a EDA_SDA_1_Lean's years rule vs. the new one", "3a The 5+ years rule"],
+            ["3a Years required by role bucket"],
+            ["3b Degree rules", "3b Highest degree level"],
+            ["3b Degree required (no equivalent) by role bucket"],
+            ["4a Share of listings with a description where each feature fires"],
+            ["4b Text features vs. closing within 7 days"],
+            ["4c Evergreen wording by ghost status"],
+            ["5b Validation results"],
+            ["6c Coverage"],
+            ["6d Median share", "6e Job Zone"],
+            ["6f Transferable skills both rate"],
+        ],
+        "charts": ["# 2 Chart", "# 3 Chart", "# 6c Chart"],
+    },
     "EDA_SDA_4": {
         "skip_sections": {"1.", "Roadmap"},
         "full_text_sections": {"12."},  # the conclusion with its answers, limits and handoff; the opener duplicates PROJECT.md's notebook table
