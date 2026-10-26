@@ -84,7 +84,7 @@ Each answers one question and hands its final table to the next (`data/clean/`).
 | Notebook | Question | Hands off |
 |:--|:--|:--|
 | **EDA_SDA_1** | What's in the data, how does tech compare to other fields, and what's in scope? | Scope table, descriptions, occupation summary, company activity |
-| **EDA_SDA_2** | Which scope listings do we keep, and how do they behave? | Scope table, non-text features |
+| **EDA_SDA_2** | Which in-scope listings do we keep, tag or hide? | Scope table, non-text features |
 | **EDA_SDA_3** | What do the descriptions say? Skills mapped to O*NET | Scope table + text features |
 | **EDA_SDA_4** | Which features hold up? Statistics, confounders, the adjusted Cox check | Modeling-ready table |
 | **TimeSeries** | When do listings appear and close? | Timing features |
