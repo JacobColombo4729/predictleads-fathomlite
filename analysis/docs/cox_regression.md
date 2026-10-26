@@ -154,8 +154,8 @@ carry little information at this sample size.
 ## Left open, worth learning on your own
 
 - **Time-varying covariates and stratified Cox** - the two standard repairs when proportional hazards fails.
-- **Competing risks.** A listing that ends as a likely ghost did not "close" in the same sense as one that was
-  filled. Cause-specific hazards and the Fine-Gray subdistribution model are the two ways to handle that; 8c
+- **Competing risks.** A listing that ends as a likely ghost did not "close" in the same sense as one that
+  disappeared for another reason. Cause-specific hazards and the Fine-Gray subdistribution model are the two ways to handle that; 8c
   looks at it descriptively instead.
 - **The baseline hazard** (Breslow's estimator) is what turns these ratios into predicted curves - the step
   ML_Rank needs when it scores a listing rather than compares two.
