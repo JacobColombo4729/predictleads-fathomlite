@@ -7,7 +7,7 @@
 ## Data
 
 - **Listings:** PredictLeads' job openings and companies, the export of 2026-09-30. The full file has 13.4M listings (13.0M English and US, first seen 2026-03-30 to 2026-09-30).
-- **The scope (EDA_SDA_1):** 908,291 listings from 72K companies in 11 role buckets: the roles TripleTen trains for (computer and mathematical roles, sales engineers, business and market research analysts; 58% of the scope) plus adjacent tech roles (IT support, networks and systems, database, IT project management; 42%). US, English. Each listing carries its TripleTen program.
+- **The scope (EDA_SDA_1):** 878,937 listings (821,589 originals) from 68,863 companies in 11 role buckets (the original `EDA_SDA_1` run gave 908,291 from 72K before three non-tech occupations were dropped on 2026-10-24): the roles TripleTen trains for (computer and mathematical roles, sales engineers, business and market research analysts; 58% of the scope) plus adjacent tech roles (IT support, networks and systems, database, IT project management; 42%). US, English. Each listing carries its TripleTen program.
 - **The app serves** the 193,043 scope listings still open when the data ends, with a usable description and no duplicates.
 - **Career switches (Profiles):** a public Kaggle résumé dataset (MIT license): 54,933 records → 17,952 people → **2,813 career changers** (2,049 moved within tech, 407 retrained after working in another field, 357 retrained as new grads). The résumés supply career paths; the 2026 listings supply openings, pay and timing.
 - **O*NET 31.0** (CC BY 4.0): skills and related occupations, joined on each listing's occupation code.
