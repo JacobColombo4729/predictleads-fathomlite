@@ -102,7 +102,7 @@ The in-scope table has about 70 columns; the rules below use these. Loading only
 
 ## 2. The rules at a glance
 
-Each rule below answers one question about a listing. Sections 3 to 5 define each rule in code, show what it catches, and give the evidence for the treatment. The two **drop** rules are applied upstream, in `EDA_SDA_1_Lean`'s scope cut next to credentialed math (actuaries and mathematicians), so they are listed here and not built here.
+Each rule below answers one question about a listing. Sections 3 to 5 define each rule in code, show what it catches, and give the evidence for the treatment. The three **drop** rules are applied upstream, in `EDA_SDA_1_Lean`'s scope cut next to credentialed math (actuaries and mathematicians), so they are listed here and not built here.
 
 **Why four treatments.** *Drop* is for whole occupations that aren't a tech path, found by an exact O*NET code, so the rule can't misfire. *Hide* is for the one rule we trust but can't prove from a code alone (a ghost listing can't be observed; the 90-day and 60-day cutoffs are choices). *Tag* is for the keyword rules nobody hand-checked, and for anything the person should decide (their own level). A wrong tag costs a label; a wrong drop or hide costs a listing a career changer might have wanted.
 
