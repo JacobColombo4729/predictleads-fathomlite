@@ -14,6 +14,8 @@ Clean PredictLeads' full job-openings file (every listing first seen March 30 â€
 
 Fix or flag, never drop, except data errors; aggregates only, never rows. **"Still open"** means last seen within 2 days of September 30.
 
+**Occupations: the O*NET-SOC code.** Every listing arrives with an occupation code and an occupation group assigned by PredictLeads (`onet_data`), on the **O*NET-SOC** classification: the federal Standard Occupational Classification (SOC) that the Bureau of Labor Statistics publishes, extended by O*NET with finer detail occupations. A code reads `15-1252.00` - the first two digits are the **major group**, which is the "field" section 3 compares (`15-` is computer and mathematical); the next four are the detailed occupation; the two-digit suffix is an O*NET detail occupation inside it (`15-1299.09` is IT project managers). **Why not job titles:** the same job is posted as "Software Engineer II", "Full-Stack Dev" or "Member of Technical Staff", and one title word crosses fields ("analyst" is market research, data, security and finance), so a title rule would be ours to defend; the code is one label per listing from a published outside standard. What this project adds on top of it is the map from code to **role bucket** and **TripleTen program** (`src/career_switch.py`) and the three exact codes dropped as not a tech path (4c). **Its limits:** the code is PredictLeads' assignment, not the employer's, and we never see how it was made, so 4c-3 reports how much of the scope carries a code no bucket maps to (0.00%) and 4c-4 lists every occupation the scope keeps. **Where it leads:** the same code joins each listing to the **O*NET Database**, the US Department of Labor's description of what every occupation needs - skills, tools and preparation. `EDA_SDA_3` section 6 uses it to check a listing's asked-for skills against its own occupation's and to read its Job Zone, and `ML_Fit` builds the retraining compass's "skills that carry over" from O*NET's transferable skills.
+
 **Hands off (section 7):** the in-scope table (every field) and its descriptions, the occupation summary, and company activity.
 
 | Notebook | Question | Hands off |
@@ -155,7 +157,7 @@ companies). They distort single companies far more than the totals, so they are 
 
 ## 3. Q1: How do computer and mathematical roles compare with every other field?
 
-Every occupation group before the scope cut, on original English listings; weekly rates use full weeks only.
+Every occupation group (the **major group** of the listing's O*NET-SOC code, explained in Purpose) before the scope cut, on original English listings; weekly rates use full weeks only.
 **Context, not cause:** fields differ in company size, source and seniority.
 
 ### Why this needs Kaplan-Meier
