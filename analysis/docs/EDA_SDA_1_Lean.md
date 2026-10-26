@@ -16,17 +16,17 @@ Fix or flag, never drop, except data errors; aggregates only, never rows. **"Sti
 
 **Hands off (section 7):** the in-scope table (every field) and its descriptions, the occupation summary, and company activity.
 
-| Notebook | Question | Product |
+| Notebook | Question | Hands off |
 |:--|:--|:--|
-| **EDA_SDA_1** | **What's in the data, and what's the scope?** | **The scope table** |
-| EDA_SDA_2 | Which scope listings do we keep, and how do they behave? | Cleaned and flagged scope table (ghosts, hiding rules) |
-| EDA_SDA_3 | What do the descriptions say? | Text features and O*NET skills |
-| EDA_SDA_4 | Which features hold up? | `modeling_ready.parquet` (the features that survived) |
-| TimeSeries | When do listings appear and close? | Timing patterns by month |
-| Profiles | Who really changed into or within tech or math, and how? (frozen) | The 2,813 career changers |
-| ML_Fit | Which roles does a career changer fit? | The trained layer (role fit), saved for the app |
-| ML_Rank | Which listings should they apply to first? | Listing scores and the queue's weights, saved for the app |
-| Evaluate | How well do the app's rankers do on real career moves? | The comparison: `rrf`, `mlrank`, combined |
+| **EDA_SDA_1** | **What's in the data, how does tech compare to other fields, and what's in scope?** | **Scope table, descriptions, occupation summary, company activity** |
+| EDA_SDA_2 | Which scope listings do we keep, and how do they behave? | Scope table, non-text features |
+| EDA_SDA_3 | What do the descriptions say? Skills mapped to O*NET | Scope table + text features |
+| EDA_SDA_4 | Which features hold up? Statistics, confounders, the adjusted Cox check | Modeling-ready table |
+| TimeSeries | When do listings appear and close? | Timing features |
+| Profiles | Who really changed into or within tech or math, and how? Career-switch rules on the public résumé data (frozen) | The 2,813 career changers, and the table ML_Fit trains on |
+| ML_Fit | Which roles and listings fit a career changer? Keyword → TF-IDF → BGE → RRF, skills-based matching, a trained layer on real career moves | Fit scores, role discovery, the compass |
+| ML_Rank | How should listings be ranked? The listing timing model, combined with fit into the priority queue | The priority queue algorithm |
+| Evaluate | How well do the app's rankers do on real career moves? `rrf`, `mlrank` and the combined model | The ranker comparison |
 
 Same table as [`../PROJECT.md`](../PROJECT.md) ("The notebooks"), kept in step with it.
 
