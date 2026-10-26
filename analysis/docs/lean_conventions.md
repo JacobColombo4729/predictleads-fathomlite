@@ -96,6 +96,49 @@ What that means in practice:
    `(Lean)` marker to the title); don't restate the project's goals in your own words as part of a style
    rewrite.
 
+9. **Advanced math earns its teaching doc by deciding something. Shrink a course method to a size Jacob can
+   defend; never cut the course method itself.** Rule 4 says what to do with genuinely advanced math once it is
+   staying. This rule is the step before it: decide whether it stays at all. The test is whether the method
+   changes a decision the notebook actually makes. If the keep/drop calls come from a screening rule fixed
+   before the run, a method that only describes the features more elaborately is evidence for a decision
+   already made, and it does not earn a teaching doc, an opaque import or a reader's attention. Two things
+   this rule is **not**: an excuse to drop a TripleTen course method (the templates are the baseline - a
+   course method gets shrunk to two or three named, explained instances, not deleted), and a judgement about
+   whether the math is correct (these are all correct; they are simply not load-bearing).
+
+   **Worked example, decided 2026-10-25: `EDA_SDA_4`.** Its 27 cells call 34 functions from
+   `src/stats_tests.py` (670 lines, 50 functions, no teaching doc) - which rule 4 calls an opaque import, and
+   which makes this the most expensive Lean rewrite in the chain, not the cheapest. Its own 10a says the
+   decisions come from `EDA_SDA_2`'s screening rule (3.13, fixed before that notebook ran) and that "sections
+   3-9 describe the features and decide nothing". So:
+
+   - **Kept, heavy (one teaching doc, beside `docs/kaplan_meier.md`):** the adjusted **Cox** regression with
+     its **proportional-hazards check**. It is the only test that holds every confounder at once - the
+     within-group comparisons hold one at a time - and it is the rigor claim the notebook's Purpose makes out
+     loud. The **joint Wald** test goes: it refines p-values that carry no information at this sample size.
+   - **Kept, shrunk to course size:** hypothesis tests (section 5) keep H0/H1, alpha and effect sizes on two or
+     three named tests; the 113-test battery and the Benjamini-Hochberg correction that existed only to
+     survive it are cut. Correlation keeps Pearson, Spearman and Cramer's V; **VIF** goes, since
+     multicollinearity matters for linear coefficients and nothing downstream fits one.
+   - **Demoted to plain pandas, question kept:** competing risks (8c) becomes a share table of how listings
+     ended (closed vs. likely ghost) instead of **Aalen-Johansen**; left truncation (8b) becomes a sensitivity
+     check on listings whose posting date is near first sighting instead of an entry-time estimator; drift
+     (9e) keeps the standardized mean difference and drops **PSI** and its thresholds.
+   - **Cut outright:** 9f (**mutual information**, conditional MI within confounder cells, and the shuffled
+     noise floor). It is the heaviest block in the notebook and gates nothing; the real gates are 9a
+     stability over months, 9b within-company gaps and 9d the leakage audit, all plain `groupby`.
+   - **Inlined:** the eight plain helpers the decisions actually rest on (`describe_by_group`, `rate_by`,
+     `stratified_gap`, `effect_by_group`, `stability_over_months`, `within_company_effect`,
+     `censoring_summary`, `leakage_audit`). Plumbing (`downcast`, `tests_table`, `decision_log`,
+     `modeling_ready`) stays a shared call under rule 5.
+
+   Net: 12 sections to about 9, 34 shared functions to roughly four plus plumbing, one new teaching doc
+   instead of seven. **What this costs, written down so it can be answered out loud:** no cause-specific
+   incidence curves, no formal left-truncation correction, no multiple-comparison correction. If a reviewer
+   asks about any of the three, the answer is that the simpler check pointed the same way and the decision
+   rule was fixed before the run. Not started: queued for after the 2026-10-29 pitch, which `EDA_SDA_4` is not
+   cited in (`SUMMARY.md` and `../DIFFERENTIATORS.md` cite it zero times).
+
 ## Open / still being decided
 
 - `crawl_dropout` listings should be treated as censored instead of as a real close, and the one-day batch
