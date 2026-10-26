@@ -112,7 +112,7 @@ What that means in practice:
    decisions come from `EDA_SDA_2`'s screening rule (3.13, fixed before that notebook ran) and that "sections
    3-9 describe the features and decide nothing". So:
 
-   - **Kept, heavy (one teaching doc, beside `docs/kaplan_meier.md`):** the adjusted **Cox** regression with
+   - **Kept, heavy (its teaching doc is `docs/cox_regression.md`, written 2026-10-26):** the adjusted **Cox** regression with
      its **proportional-hazards check**. It is the only test that holds every confounder at once - the
      within-group comparisons hold one at a time - and it is the rigor claim the notebook's Purpose makes out
      loud. The **joint Wald** test goes: it refines p-values that carry no information at this sample size.
