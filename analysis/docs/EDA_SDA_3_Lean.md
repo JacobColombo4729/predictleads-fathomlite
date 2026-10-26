@@ -109,7 +109,7 @@ Course standard (MLforTexts): normalize text (lowercase, regex to keep letters),
 The rules in sections 3–4 run on the cleaned text, which keeps case, numbers and punctuation ("3+ years", "B.S.", "Security+"), and tell **requirement lines from preferred ones** using the headings kept in 2a.
 
 **What the data shows**
-- **The cleanup ran on all 878,937 scope listings, 82.2% of which (722,602) have a description.** In this run the text features were loaded from the cache (`eda3_text_features.parquet`), so no run time or template-line count is printed.
+- **The cleanup ran on all 878,937 scope listings, 82.2% of which have a description.** In this run the text features were loaded from the cache (`eda3_text_features.parquet`), so no run time or template-line count is printed.
 - **Boilerplate removed, by kind (words, share of all description words):** equal opportunity and legal 35.0M (6.6%), about the company 23.3M (4.4%), benefits 23.2M (4.4%), shared template text 19.8M (3.7%), application logistics 2.4M (0.4%).
 - **Listings keep most of their text:** the median listing keeps 85-86% of its words in every source type (company site 717 to 557 words, hiring platform 785 to 619, job board 621 to 499), and none is cleaned to nothing.
 
