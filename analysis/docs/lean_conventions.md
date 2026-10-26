@@ -1,7 +1,7 @@
 # Lean notebook conventions
 
 Standing rules for every `_Lean` rewrite (`EDA_SDA_1_Lean` first; the plan is one for every notebook in the
-chain: `EDA_SDA_2`-`4`, `TimeSeries`, `ML_Fit`, `ML_Rank`, `Evaluate`; `Profiles` needs none, see the end). This is on the pitch's
+chain: `EDA_SDA_2`-`4`, `TimeSeries`, `Profiles`, `ML_Fit`, `ML_Rank`, `Evaluate` - though where a notebook already reads Lean its `_Lean` is a replica rather than a rewrite, see the end). This is on the pitch's
 critical path: Jacob presents these findings, so he has to understand every cell. The originals stay as the
 reference, and each `_Lean` notebook only swaps in for its original once it reruns clean with the same results.
 Written down once, here, so each new `_Lean` notebook applies them from the start instead of re-deriving them,
@@ -139,25 +139,31 @@ What that means in practice:
    rule was fixed before the run. Not started: queued for after the 2026-10-29 pitch, which `EDA_SDA_4` is not
    cited in (`SUMMARY.md` and `../DIFFERENTIATORS.md` cite it zero times).
 
-## Notebooks that need no rewrite
+## Replicas: notebooks that already read Lean
 
-A `_Lean` notebook is not owed to every notebook in the chain. Where a notebook already meets the goal above -
-plain pandas, nothing hidden behind a helper, no math outside the curriculum - a rewrite would produce a copy
-with the same cells, so it gets a rule 1 sweep in place and a line here instead.
+A `_Lean` notebook is not always a rewrite. Where a notebook already meets the goal above - plain
+pandas, nothing hidden behind a helper, no math outside the curriculum - there is nothing to write from its
+question, so its `_Lean` is an exact replica of it and the work is threading, not rewriting: the `(Lean)` title,
+`## Purpose`, the shared series table with its own row bolded, a rule 1 sweep, and output paths that cannot
+collide with the original's.
 
-- **`Profiles` (decided 2026-10-25).** 20 code cells, 361 code lines, written in `value_counts`, `np.where`
-  and `groupby`, with one `LogisticRegression` (curriculum) and one `scipy.stats` call, so rule 9 asks nothing
-  of it and there is nothing to port. What it did carry was the rule 1 pattern: 18 `show()` calls, swept in
-  place to `print()` + `display()` the same day, with `show` dropped from its `src/eda_helpers` import (chart
-  setup and colours stay, as in `EDA_SDA_1_Lean`). **Not rerun:** it is the frozen notebook (refrozen
-  2026-10-10) and its `modeling_table.pkl` is what `ML_Fit` trains on and `Evaluate` scores against, so a
-  display-only change does not earn a rerun that would regenerate those tables days before the pitch. Its
-  stored outputs and the `docs/Profiles.md` export therefore still show the old `show` formatting until it is
-  next rerun, after 2026-10-29. **Still open:** `src/career_switch.py` holds the actual career-switch rules
-  (`RULES`, `find_switches`, `background_area`, `fingerprints`), which are shared with the app and so cannot
-  move into the notebook. They are rules rather than advanced math, so rule 4 does not strictly apply - but
-  they are the substance behind the retraining compass and the 2,813 career changers, which makes them the
-  thing most worth a teaching doc of their own. Not decided.
+- **`Profiles` (checked 2026-10-25).** It already met the goal: 20 code cells, 361 code lines, written in
+  `value_counts`, `np.where` and `groupby`, with one `LogisticRegression` (curriculum) and one `scipy.stats`
+  call, so rule 9 asks nothing of it. Its 18 `show()` calls were swept in place the same day, and `show`
+  dropped from its `src/eda_helpers` import (chart setup and colours stay, as in `EDA_SDA_1_Lean`).
+  `Profiles_Lean` is a replica of that swept version, threaded into the family. **The one change that is not
+  cosmetic:** its three saved tables (`retrained_candidates.csv`, `modeling_table.pkl`, `pre_switch_text.pkl`)
+  were moved to `data/profiles/lean/`. `modeling_table.pkl` is what `ML_Fit` trains on and `Evaluate` scores
+  against, and `Profiles` is frozen (refrozen 2026-10-10), so a run of the draft must not be able to replace
+  them - the same reason `EDA_SDA_1_Lean` keeps its tables in `data/clean/lean/`. The hand-off moves back only
+  when the replica replaces the original. **Neither notebook has been rerun:** a display-only change does not
+  earn a rerun that regenerates the frozen tables days before the pitch, so the stored outputs and
+  `docs/Profiles.md` still show the old `show` formatting until after 2026-10-29. **Still open:**
+  `src/career_switch.py` holds the actual career-switch rules (`RULES`, `find_switches`, `background_area`,
+  `fingerprints`), shared with the app and so unable to move into the notebook. They are rules rather than
+  advanced math, so rule 4 does not strictly apply - but they are the substance behind the retraining compass
+  and the 2,813 career changers, which makes them the strongest candidate for a teaching doc of their own.
+  Not decided; not before the pitch.
 
 ## Open / still being decided
 
