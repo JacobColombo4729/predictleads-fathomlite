@@ -200,6 +200,25 @@ LAYOUTS = {
         ],
         "charts": ["# 2b", "# 3a"],
     },
+    "EDA_SDA_4_Lean": {  # EDA_SDA_4's layout, with the Lean notebook's table titles
+        "skip_sections": {"1.", "Roadmap"},
+        "full_text_sections": {"12."},  # the conclusion with its answers, limits and handoff; the opener duplicates PROJECT.md's notebook table
+        "max_bullets": 3,
+        "bullets_by_section": {"10.": 3, "8d.": 2},
+        "table_groups": [
+            ["3b Point-biserial"],
+            ["4b Flags whose gap reverses"],
+            ["4c Close rate by role bucket"],
+            ["6a 7-day close rate"],
+            ["8b Survival by age"],
+            ["8d Joint Wald"],  # the per-covariate proportional-hazards dump (72 rows) stays in _full.md and the notebook
+            ["9a Stability over months"],
+            ["9b Within-company gap"],
+            ["10a Decisions (kept / dropped)"],
+            ["11a The modeling-ready table"],
+        ],
+        "charts": ["# 2b", "# 3a"],
+    },
     "TimeSeries": {
         "skip_sections": {"1.", "Roadmap"},
         "full_text_sections": {"Job", "0.", "Clarifying", "What", "Answers", "Limitations", "Handoff"},  # the purpose, and the conclusion
