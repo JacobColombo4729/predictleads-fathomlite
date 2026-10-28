@@ -26,7 +26,7 @@ One ranker that uses both halves' work:
 
 The trained layer already builds on BGE. Combining the models means bringing it into the app, not replacing Jesse's ranker.
 
-**A second gap: the listings.** Both apps rank only Jesse's targeted pool (`app/code/extract_targeted_pool.py`): titles for AI/ML, data and technical sales plus six O*NET occupations, chosen when the audience was the team itself. The agreed scope (EDA_SDA_1 8c: the roles TripleTen trains for plus adjacent tech roles, 908,291 listings) also covers software and web development, QA, cybersecurity, IT support, networks and systems, database, IT project management and market research, which that pool mostly misses. A user whose background points there gets few relevant listings, whatever the ranker. The combined model serves the scope's listings instead (step 1a). Jesse's methods (BGE, TF-IDF, RRF) carry no personal data and are kept.
+**A second gap: the listings.** Both apps rank only Jesse's targeted pool (`app/code/extract_targeted_pool.py`): titles for AI/ML, data and technical sales plus six O*NET occupations, chosen when the audience was the team itself. The agreed scope (EDA_SDA_1 8c: the roles TripleTen trains for plus adjacent tech roles, 878,937 listings) also covers software and web development, QA, cybersecurity, IT support, networks and systems, database, IT project management and market research, which that pool mostly misses. A user whose background points there gets few relevant listings, whatever the ranker. The combined model serves the scope's listings instead (step 1a). Jesse's methods (BGE, TF-IDF, RRF) carry no personal data and are kept.
 
 ## Modular design
 
