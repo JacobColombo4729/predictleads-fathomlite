@@ -239,9 +239,46 @@ LAYOUTS = {
         ],
         "charts": ["# 2b", "# 2d", "# 2e", "# 3b", "# 4e", "# 4h", "# 5a", "# 5b", "# 6a"],
     },
+    "TimeSeries_Lean": {  # TimeSeries' layout, with the Lean notebook's title and Purpose heading
+        "skip_sections": {"1.", "Roadmap", "About"},
+        "full_text_sections": {"TimeSeries", "Purpose", "Clarifying", "What", "Answers", "Limitations", "Handoff"},  # the purpose, and the conclusion
+        "max_bullets": 4,
+        "bullets_by_section": {"4.": 5, "5.": 4},
+        "table_groups": [
+            ["2a Days and weeks", "2d Share of the week by weekday"],
+            ["2e Mix by month first seen"],
+            ["3b Strength of the STL components", "3d Stationarity tests"],
+            ["4a Features and split"],
+            ["4e Validation scores", "4f Rolling-origin cross-validation"],
+            ["4h Test scores"],
+            ["5a Closing speed by month first seen"],
+            ["5b Share of new listings you see still open, checking every N days: all originals",
+             "5b Share of new listings you see still open, checking every N days: what the app shows"],
+            ["5c Longest gap between checks", "5c Check cadence by role bucket"],
+            ["6b Listing momentum by role bucket"],
+        ],
+        "charts": ["# 2b", "# 2d", "# 2e", "# 3b", "# 4e", "# 4h", "# 5a", "# 5b", "# 6a"],
+    },
     "Profiles": {
         "skip_sections": {"1.", "3.", "4b", "5."},
         "full_text_sections": {"Job", "6."},
+        "max_bullets": 2,
+        "bullets_by_section": {"4a.3": 3},
+        "table_groups": [
+            ["Duplicate resumes", "From every resume to viable candidates"],
+            ["Data science: everyone vs. the career-changer view", "Level of the job at the switch"],
+            ["Summary statistics, all viable candidates"],
+            ["Retrained career changers by path"],
+            ["Prior career → first tech job"],
+            ["Retraining compass"],
+            ["Changed roles within tech"],
+            ["Moves within tech: sideways or up, by", "Moves within tech: sideways or up, overall"],
+        ],
+        "charts": ["# 4a.1a", "# 4a.1b", "# 4a.2a", "# 4a.2b", "# 4a.2c"],
+    },
+    "Profiles_Lean": {  # Profiles' layout, with the Lean notebook's title
+        "skip_sections": {"1.", "3.", "4b", "5."},
+        "full_text_sections": {"Profiles", "6."},  # the title and purpose, and the conclusion
         "max_bullets": 2,
         "bullets_by_section": {"4a.3": 3},
         "table_groups": [
@@ -286,6 +323,20 @@ LAYOUTS = {
         "table_groups": [
             ["6a Imbalance handling: AUC and F1"],
             ["7c Cox on the training months", "7c Cox on the training months"],  # the same cell's two displays
+            ["7d AFT models"],
+            ["8e Test month, once: H4, H5, H6"],
+            ["11a Does the result hold at 7, 14 and 30 days"],
+        ],
+        "charts": [],
+    },
+    "ML_Rank_Lean": {  # ML_Rank's layout, with the Lean notebook's "About this Lean draft" cell skipped
+        "skip_sections": {"About", "1.", "9.", "10.", "12."},
+        "full_text_sections": {"13."},
+        "max_bullets": 2,
+        "bullets_by_section": {"7c": 4, "7": 3, "8": 3, "8d": 4, "8e": 4, "11a": 3},
+        "table_groups": [
+            ["6a Imbalance handling: AUC and F1"],
+            ["7c Cox on the training months", "7c Cox on the training months"],
             ["7d AFT models"],
             ["8e Test month, once: H4, H5, H6"],
             ["11a Does the result hold at 7, 14 and 30 days"],
