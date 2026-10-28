@@ -156,14 +156,35 @@ collide with the original's.
   were moved to `data/profiles/lean/`. `modeling_table.pkl` is what `ML_Fit` trains on and `Evaluate` scores
   against, and `Profiles` is frozen (refrozen 2026-10-10), so a run of the draft must not be able to replace
   them - the same reason `EDA_SDA_1_Lean` keeps its tables in `data/clean/lean/`. The hand-off moves back only
-  when the replica replaces the original. **Neither notebook has been rerun:** a display-only change does not
-  earn a rerun that regenerates the frozen tables days before the pitch, so the stored outputs and
-  `docs/Profiles.md` still show the old `show` formatting until after 2026-10-29. **Still open:**
+  when the replica replaces the original. **`Profiles_Lean` was rerun 2026-10-27** (its tables go to `data/profiles/lean/`, so the frozen ones are
+  untouched); its quoted figures match the frozen `Profiles` run. `Profiles` itself has not been rerun, so its
+  stored outputs and `docs/Profiles.md` still show the old `show` formatting until after 2026-10-29. **Still open:**
   `src/career_switch.py` holds the actual career-switch rules (`RULES`, `find_switches`, `background_area`,
   `fingerprints`), shared with the app and so unable to move into the notebook. They are rules rather than
   advanced math, so rule 4 does not strictly apply - but they are the substance behind the retraining compass
   and the 2,813 career changers, which makes them the strongest candidate for a teaching doc of their own.
   Not decided; not before the pitch.
+- **`TimeSeries` (threaded 2026-10-26, rerun 2026-10-27).** It already met the goal: 26 code cells, plain pandas,
+  its time-series work in `src/ts_helpers.py` (96 lines, 11 small functions, no bit-packing or name-guessing
+  formatting). Its 8 `show()`, 6 `pct()` and 3 `compact()` calls were swept to `print()` + `display()` and inline
+  f-strings, and its Kaplan-Meier now comes from `src/kaplan_meier.py` (as in `EDA_SDA_1_Lean`). **The one change
+  that is not cosmetic:** its three saved tables (`timeseries_daily`, `timeseries_weekly_bucket`,
+  `timeseries_cadence`) go to `data/clean/lean/`, so a run cannot replace the ones `ML_Rank` reads. **Rerun
+  2026-10-27 (26/26 cells, no errors) on the original chain**: it reads `EDA_SDA_2`'s scope table (908,291
+  listings), and every figure reproduces `TimeSeries`' run, so the findings are the original's, checked against
+  this run. **Still open:** STL, SARIMAX and the ADF/KPSS tests are outside the curriculum and have no teaching
+  doc. Saved outputs show tables as raw floats (`0.111854`, `138035.0`) where the original's helpers rounded
+  them; a display choice for the notebook, not decided.
+- **`ML_Rank` (threaded 2026-10-26, rerun 2026-10-27).** It already met the goal and needed no rule 1 sweep (it
+  used plain `print()` and `display()`); the models are in `src/rank_model.py`, and its one heavy method, the Cox
+  regression, has the teaching doc `docs/cox_regression.md` (linked from 7c). **The one change that is not
+  cosmetic:** the hand-off (`listing_model.joblib`, `listing_scores.parquet`, `queue_config.json`) goes to
+  `data/clean/lean/ml_rank/`, because the original's folder is what `app/backend/ml_rank_ranker.py`,
+  `app/backend/api.py` and `combined/` load. **Rerun 2026-10-27 (25/25 cells, no errors) on the original chain**
+  (`modeling_ready`, `scope_table` and `fit_scores` from `data/clean/`, 908,291 listings); every result reproduces
+  `ML_Rank`'s run, including the test-month precision@10 of 0.500, and only the timings differ. Saved outputs show
+  the app's folder untouched. **Still open:** the survival forest and LambdaRank are outside the curriculum and
+  have no teaching doc.
 
 ## Open / still being decided
 
