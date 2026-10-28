@@ -6,12 +6,12 @@ A plain inventory for defending the project. For each piece: what it does, the p
 
 | Piece | Where it shows up | Kind | Trained by us? | Validated? |
 |---|---|---|---|---|
-| 1. Job ranker (TF-IDF + BGE, rank fusion) | Discover | Retrieval: sparse + dense embeddings | No (pretrained BGE) | **No relevance result yet** |
+| 1. Job ranker (TF-IDF + BGE, rank fusion) | Discover | Retrieval: sparse + dense embeddings | No (pretrained BGE) | **Role level, ML_Fit's version: yes, on real career moves** (RRF 70.0% top 3 vs. 63.2% baseline); the app's ranker itself: 66.3% top 3, not shown above the baseline; the combined model 76.4% (`Evaluate.ipynb`) |
 | 2. Relevance feedback (👍/👎) | Discover | Rocchio query adjustment | No | No |
 | 3. Compass analysis | Compass | Embeddings + clustering + similarity matching + MMR | No | No (thresholds hand-tuned on a few examples) |
 | 4. Magic fill (resume to profile) | Profile | GenAI (LLM) with grounding checks | No (hosted model) | Checked by hand on two real resumes |
 | 5. Hiring signals | Signals, job-card badge | Anomaly detection + entity resolution, backtested | Models tried, not shipped | **Yes, temporal backtest** |
-| 6. Role-family classifier | Not in the app | Logistic regression on BGE | Yes | Yes, against provider labels (not against fit) |
+| 6. Role-family classifier | Not in the app | Keyword (TF-IDF) + logistic regression on job titles; BGE title embeddings tried | Yes | Yes, against provider labels (about 72% agreement; not against fit) |
 | 7. Match explanations | Off by default | GenAI with grounding | No | Not run in the demo |
 | 8. Ask the market | Signals tab | GenAI turns a question into a validated search; the answer is plain data analysis | No (hosted model) | Checked by tests and live on public questions; the engine's numbers are counts and medians of real listings |
 | 9. Company research and voice | Signals tab | GenAI with web search (cited sentences only); speech-to-text | No (hosted model) | Tested on one company and one synthetic voice; not measured at scale |
@@ -20,9 +20,9 @@ A plain inventory for defending the project. For each piece: what it does, the p
 
 - **What:** for a profile, score every eligible listing and show the best. Two retrievers run side by side: TF-IDF cosine (keyword match, so exact terms like "Salesforce" or "PyTorch" count) and BGE cosine (`bge-base-en-v1.5`, a pretrained text-embedding model, 768 dimensions, so "customer-facing demos" can match "sales engineering"). Their rankings are combined with **reciprocal-rank fusion** (depth 50, k=60, equal weight).
 - **Principle:** hybrid retrieval. Lexical and semantic retrievers fail in different ways, and fusing ranks (not scores) needs no score calibration and no tuning. Reciprocal-rank fusion is a standard, parameter-light method from the information-retrieval literature (Cormack et al., 2009).
-- **Why not train a model:** there are no match labels. Hiring outcomes are not in the data. Pretrained embeddings plus a transparent fusion rule are the honest option for a cold start.
-- **Evidence:** none for relevance. The blinded review (Jesse and Jacob labelling pairs) has not been done, so TF-IDF vs BGE vs RRF is **not compared on this audience**. A recall check against the target roles you wrote before looking at rankings exists but is deliberately unread until labelling is finished.
-- **If challenged:** "This is a defensible default, not a proven winner. Here is the plan to measure it, and the labelling page is built." Scores are retrieval orders, never match percentages or hiring probabilities.
+- **Why not train a model:** there are no listing-level match labels, and hiring outcomes are not in the data. Pretrained embeddings plus a transparent fusion rule are the honest option for a cold start. Real career moves do give role-level outcomes: ML_Fit's trained layer learns from them and they are the evaluation (below).
+- **Evidence, against real outcomes with no labelling** (`analysis/PROJECT.md`, How we keep it honest): for 2,813 real career changers in the public résumé data we know the role each actually moved into. ML_Fit scores each method on whether that role is in its top 3 from the person's background alone, against the same most-common-role baseline, on held-out people with 95% intervals. Test: TF-IDF + BGE fused (RRF) 70.0% at top 3, against the baseline's 63.2%; ML_Fit's trained layer 81.7% [78.5%, 84.7%]. That is ML_Fit's role-level version of these retrievers. **The app's ranker itself, scored the same way** (each test person's top 20 listings turned into a role ranking; `analysis/notebooks/Evaluate.ipynb`): 66.3% [62.3%, 70.0%] at top 3, 3.0 points over the baseline with an interval from -2.0 to +8.0, so not shown better; ML_Rank's queue on top (`mlrank`) 69.8%, and the combined model 76.4% [73.0%, 79.8%]. The blinded labelling review is no longer the plan for evidence; the review page stays only as an optional usability check, and it refuses the team's own profiles.
+- **If challenged:** "On real career moves, fused TF-IDF + BGE finds the role people actually moved into more often than the most-common-role baseline (70.0% vs. 63.2% at top 3, held-out people), and the trained layer on top of it does better still (81.7%). Over listings, the text match alone is close to the baseline (66.3% vs. 63.2%); with ML_Fit's role fit and ML_Rank's queue on top, the combined model reaches 76.4%." Scores are retrieval orders, never match percentages or hiring probabilities.
 
 ## 2. Relevance feedback
 
@@ -53,9 +53,11 @@ A plain inventory for defending the project. For each piece: what it does, the p
 
 ## 6. Role-family classifier (supporting, not shipped in the app)
 
-- **What:** BGE embeddings + logistic regression predicting 17 role families, trained on the provider's own O*NET occupation labels (no human labels), with a company-held-out 80/20 split so one company's wording cannot leak.
-- **Result:** test accuracy 94.7% (macro-F1 0.94) vs 69.4% for TF-IDF + logistic regression and 29.8% for always guessing the biggest class.
-- **Honest limits:** it measures agreement with the provider's labels, not whether a job fits a person. On resumes it describes past career, not the target. The Signals layer uses rule-based role families, not this classifier.
+- **What:** logistic regression predicting 17 classes (16 role families plus Other) from the job title (one variant also reads the first 2,500 characters of the description), trained on the provider's own O*NET occupation labels (no human labels). Company-held-out 80/20 splits, repeated over 3 random splits so a result comes with a spread.
+- **Result (2026-10-13, 244,527 labelled listings, mean over 3 splits):** always guessing the biggest class 30.2% accuracy; TF-IDF on the title **72.1%** (macro-F1 0.64); BGE embedding of the title 70.5% (0.62); TF-IDF on title + description 68.9% (0.57). Spread between splits is about 0.5 points. Strongest families: Technical Sales / Solutions Engineer 86%, Data Scientist 80%. Weakest: QA / Test 27%, Systems Analyst 39%, Network / Systems Admin 43%, Web Developer 48%.
+- **Correction (2026-10-13):** an earlier version reported 94.7% accuracy (macro-F1 0.94) for BGE + logistic regression against 69.4% for TF-IDF. That comparison was not valid. The saved BGE job text includes "Occupation: <O*NET occupation name>", and the labels come from that same name, so the model could read the answer. A control that deliberately adds the occupation name to the keyword model scores 96.4%; with it removed, the BGE model scored about 62% in a same-split check on 6,000 jobs. Model inputs now never include the occupation, and `tests/test_role_family_classifier.py` keeps it that way. **Do not quote 94.7%.**
+- **What it suggests:** the provider's labels follow the job title closely. The title alone scores as well as or better than title + description, and embeddings did not beat keywords at the same data size. (A reading, not a proof: the provider's labelling method is not documented.)
+- **Honest limits:** it measures agreement with the provider's labels, not whether a job fits a person. Some fits stopped at their iteration limit, so the numbers are approximate. The earlier resume-profile prediction step was removed: it applied a job-title model to resumes, was never validated, and described past career, not the target. The Signals layer uses rule-based role families, not this classifier.
 
 ## 7. Match explanations (off by default)
 
@@ -77,6 +79,6 @@ A grounded GenAI explanation of why a job fits, restricted to facts in the profi
 
 ## Likely questions
 
-- **"Why not fine-tune a model?"** No match labels exist. The blinded review would produce a few hundred; that is enough to evaluate, not to train.
-- **"How do you know it works?"** Signals: temporal backtest with baselines. Ranker: not yet; the labelling step is the planned answer.
+- **"Why not fine-tune a model?"** There are no listing-level labels. Real career moves (2,813 people) give role-level outcomes: enough to train ML_Fit's small trained layer and to evaluate, but small for fine-tuning BGE (an optional later step in the combined-model plan, kept only if it beats the trained layer on the same test people).
+- **"How do you know it works?"** Signals: temporal backtest with baselines. Roles: real career moves, held-out people, against a baseline (ML_Fit: 81.7% vs. 63.2% at top 3). Listings within roles: ML_Rank's backtest on a later month (precision@10 0.500 vs. 0.031 for newest first). The app's rankers, on the same career moves (`Evaluate.ipynb`): text match 66.3%, plus the queue 69.8%, the combined model 76.4%, baseline 63.2%.
 - **"Is this just ChatGPT?"** No. Ranking, feedback, Compass and Signals use no LLM. The LLM appears only in resume reading (opt-in, quote-checked) and the optional explanations.

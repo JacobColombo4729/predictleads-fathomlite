@@ -42,10 +42,10 @@ Status terms: **Built** means working in the running app and verified; **Impleme
 - Relevance feedback (Rocchio-style, liked 1.0 / disliked 0.5) adapts one session; nothing is retrained.
 - Baselines: keyword overlap and TF-IDF cosine in `code/job_matching_engine.py`; the backend can serve TF-IDF alone with `.\run_demo_backend.ps1 -Ranker tfidf`.
 
-**Not validated.** No relevance result exists for any ranker. The blinded review page is built (`data/matching/ai_ml_rankings_20261009/review/review.html`); labelling it is the top remaining item. Until then the demo and write-up must say plainly that RRF is a reasoned default, not a measured winner.
+**Evaluated against real outcomes, not labels** (`analysis/PROJECT.md`, How we keep it honest). For 2,813 real career changers we know the role each moved into; on held-out people, ML_Fit's role-level TF-IDF + BGE fusion puts it in the top 3 for 70.0% and the trained layer for 81.7%, against 63.2% for the most-common-role baseline. The app's rankers are now scored on the same career moves (`analysis/notebooks/Evaluate.ipynb`): the text match alone 66.3% at top 3 (not shown above the baseline), ML_Rank's queue on top 69.8%, the combined model 76.4%. The demo and write-up say so. The blinded review page is an optional usability check, not the evaluation.
 
 **Built: role-family classifier (supporting model, not in the app)**
-- BGE + logistic regression predicts 17 role families from the provider's O*NET label. Test accuracy 94.7% (macro-F1 0.94) vs 69.4% TF-IDF and 29.8% majority class, company-held-out split. Measures agreement with provider labels, not fit.
+- Logistic regression predicts 17 classes (16 role families plus Other) from the job title, trained on the provider's O*NET label. Leak-free test accuracy about 72% (TF-IDF on title; BGE title embeddings 70.5%) vs 30% for the majority class, company-held-out, 3 splits. **The earlier 94.7% was inflated:** its text included the occupation name the labels come from (corrected 2026-10-13). Measures agreement with provider labels, not fit.
 
 **History, not evidence.** Earlier experiments (MiniLM, section-aware text, cross-encoder, weighted RRF, faceted text) were small and inconclusive; see [docs/archive/journal.md](docs/archive/journal.md). Do not quote them.
 

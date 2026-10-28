@@ -68,25 +68,56 @@ def _outputs(cell, fig_dir, fig_count):
 # one group are shown side by side once every member has appeared.
 LAYOUTS = {
     "EDA_SDA_1": {
-        "skip_sections": {"Work", "Notebook", "1.", "2.", "3.", "4.", "5.", "6.0", "6.2", "6.3", "6.4", "6.5", "6.6",
-                          "6.7", "7.0", "7.2", "8.", "8a", "10."},
-        "full_text_sections": {"Job", "13."},  # the purpose, and the conclusion with its summary (as in EDA_SDA_2)
+        "skip_sections": {"Work", "Notebook", "1.", "2.", "4a", "4b", "7."},  # "4." stays: 4c–4e need their parent heading
+        "full_text_sections": {"Job", "8."},  # the purpose, and the conclusion with its summary (as in EDA_SDA_2)
         "max_bullets": 2,  # per "What the data shows" block; the full version keeps them all
-        "bullets_by_section": {"6.1": 1, "11.": 1, "12.": 1},
-        "hide_headings": {"11."},  # its tables still show, in the row under 12
+        "bullets_by_section": {"4c": 1, "4e": 1, "6.": 3},
         "table_groups": [
-            ["Text cleaning results", "Years of experience required", "Posting source"],
-            ["Q3a. Where computer and mathematical stands"],
-            ["8c. How English US listings enter the scope", "8c. From the full file to the scope", "8c. The scope by role bucket"],
-            ["8d. Scope-only fields"],
-            ["Q1c. Source type", "Q1d. Do high-volume"],
-            ["Q1f. Text features vs. application window", "Q1g. Career-change flags vs. application window"],
-            ["Q1h. Recruiters in the scope", "Q1h. Window by recruiter"],
-            ["Q2a. How much history", "Q2d. Weekly arrivals"],
-            ["11d. Share of scope listings with each key field", "The scope table at a glance", "Scope table: role buckets"],
+            ["3a. Where computer and mathematical stands"],
+            ["4c. How English US listings enter the scope", "4c. From the full file to the scope", "4c. The scope by role bucket"],
+            ["4d. Scope-only fields"],
+            ["4e. The scope table", "4e. Share of scope listings with each key field"],
+            ["5d. Source type", "5c. Median days open"],
+            ["5f. Recruiters in the scope", "5f. Window by recruiter"],
+            ["6a. History and weekly arrivals"],
         ],
-        "charts": ["# 6.1i", "# Q3a heat map", "# Q3a chart", "# Q3a charts", "# Q1a chart", "# Q1b chart", "# Q1c chart", "# Q1d charts",
-                   "# Q1e charts", "# Q1f chart", "# Q1g chart", "# Q2 charts: weekday", "# 9.3a Chart"],
+        "charts": ["# 3c chart", "# 5a chart", "# 5b chart", "# 5c chart", "# 5h chart", "# 6a chart"],
+    },
+    "EDA_SDA_1_Lean": {  # EDA_SDA_1's layout, with the Lean notebook's headings and cell labels
+        "skip_sections": {"About", "1.", "2.", "PredictLeads", "4a", "4b", "7.", "Where"},  # "4." stays: 4c-4e need their parent heading
+        "full_text_sections": {"EDA/SDA", "8."},  # the title and purpose, and the conclusion with its summary
+        "full_text_headings": {"### Why we need the Gehan-Wilcoxon test"},  # this one cell, in full (not its whole section)
+        "max_bullets": 2,
+        "bullets_by_section": {"4c": 1, "4e": 1, "6.": 3},
+        "table_groups": [
+            ["3a. Where computer and mathematical stands"],
+            ["4c. How English US listings enter the scope", "4c. From the full file to the scope", "4c. The scope by role bucket"],
+            ["4d. Scope-only fields"],
+            ["4e. The in-scope table", "4e. Share of in-scope listings with each key field"],
+            ["5d. Source type", "5c. Median days open"],
+            ["5c. Gehan-Wilcoxon test on every pair"],
+            ["5f. Recruiters in the scope", "5f. Window by recruiter"],
+            ["6a. History and weekly arrivals"],
+        ],
+        "charts": ["# 3c chart", "# 5a-3 Chart", "# 5b-2 Chart", "# 5c-3 Chart", "# 5h-2 Chart", "# 6a-2 Chart"],
+    },
+    "EDA_SDA_2_Lean": {  # written from its question: the rules, the evidence for each, the buckets, the 2026 market
+        "skip_sections": {"About", "1."},
+        "full_text_sections": {"EDA/SDA", "8."},  # the title and purpose, and the conclusion with its answers
+        "max_bullets": 4,
+        "table_groups": [
+            ["2 The rules at a glance"],
+            ["3a Closing by listing age"],
+            ["3b Signals among"],
+            ["4.1 Level of each listing"],
+            ["4.3 Median days open (Kaplan-Meier): staffing agencies vs. employers", "4.3 Median days open (Kaplan-Meier) by recruiter"],
+            ["4.4 Senior title"],
+            ["5.2 Role buckets in the scope"],
+            ["5.3 Role buckets: own analysis"],
+            ["6.1 The 2026 market by role bucket", "6.1 The 2026 market by TripleTen program"],
+            ["7.1 Listings each rule touches"],
+        ],
+        "charts": ["# 3a"],
     },
     "EDA_SDA_2": {
         "skip_sections": {"2.", "2b."},
@@ -110,7 +141,7 @@ LAYOUTS = {
     },
     "EDA_SDA_3": {
         "skip_sections": {"Plan:", "1.", "7."},
-        "full_text_sections": {"Job", "8."},  # the purpose, and the conclusion with its summary
+        "full_text_sections": {"8."},  # the conclusion with its summary; the opener duplicates PROJECT.md's notebook table
         "max_bullets": 3,
         "bullets_by_section": {"3.": 4, "4.": 4, "6.": 7},
         "table_groups": [
@@ -129,18 +160,39 @@ LAYOUTS = {
         ],
         "charts": ["# 2 Chart", "# 3 Chart", "# 6c Chart"],
     },
+    "EDA_SDA_3_Lean": {  # EDA_SDA_3's layout, with the Lean notebook's table titles
+        "skip_sections": {"Plan:", "1.", "7."},
+        "full_text_sections": {"8."},
+        "max_bullets": 3,
+        "bullets_by_section": {"3.": 4, "4.": 4, "6.": 7},
+        "table_groups": [
+            ["2b Words removed as boilerplate", "2b Share of each description kept"],
+            ["3a EDA_SDA_1_Lean's years rule vs. the new one", "3a The 5+ years rule"],
+            ["3a Years required by role bucket"],
+            ["3b Degree rules", "3b Highest degree level"],
+            ["3b Degree required (no equivalent) by role bucket"],
+            ["4a Share of listings with a description where each feature fires"],
+            ["4b Text features vs. closing within 7 days"],
+            ["4c Evergreen wording by ghost status"],
+            ["5b Validation results"],
+            ["6c Coverage"],
+            ["6d Median share", "6e Job Zone"],
+            ["6f Transferable skills both rate"],
+        ],
+        "charts": ["# 2 Chart", "# 3 Chart", "# 6c Chart"],
+    },
     "EDA_SDA_4": {
         "skip_sections": {"1.", "Roadmap"},
-        "full_text_sections": {"Job", "12."},  # the purpose, and the conclusion with its answers, limits and handoff
+        "full_text_sections": {"12."},  # the conclusion with its answers, limits and handoff; the opener duplicates PROJECT.md's notebook table
         "max_bullets": 3,
-        "bullets_by_section": {"10.": 6, "8d.": 4},
+        "bullets_by_section": {"10.": 3, "8d.": 2},
         "table_groups": [
             ["3b Point-biserial"],
             ["4b Flags whose gap reverses"],
             ["4c Close rate by role bucket"],
             ["6a 7-day close rate"],
             ["8b Survival by age"],
-            ["8d Joint Wald", "8d Proportional"],
+            ["8d Joint Wald"],  # the per-covariate proportional-hazards dump (72 rows) stays in _full.md and the notebook
             ["9a Stability over months"],
             ["9b Within-company gap"],
             ["10a Feature decisions"],
@@ -148,9 +200,48 @@ LAYOUTS = {
         ],
         "charts": ["# 2b", "# 3a"],
     },
+    "EDA_SDA_4_Lean": {  # EDA_SDA_4's layout, with the Lean notebook's table titles
+        "skip_sections": {"1.", "Roadmap"},
+        "full_text_sections": {"12."},  # the conclusion with its answers, limits and handoff; the opener duplicates PROJECT.md's notebook table
+        "max_bullets": 3,
+        "bullets_by_section": {"10.": 3, "8d.": 2},
+        "table_groups": [
+            ["3b Point-biserial"],
+            ["4b Flags whose gap reverses"],
+            ["4c Close rate by role bucket"],
+            ["6a 7-day close rate"],
+            ["8b Survival by age"],
+            ["8d Joint Wald"],  # the per-covariate proportional-hazards dump (72 rows) stays in _full.md and the notebook
+            ["9a Stability over months"],
+            ["9b Within-company gap"],
+            ["10a Decisions (kept / dropped)"],
+            ["11a The modeling-ready table"],
+        ],
+        "charts": ["# 2b", "# 3a"],
+    },
     "TimeSeries": {
         "skip_sections": {"1.", "Roadmap"},
         "full_text_sections": {"Job", "0.", "Clarifying", "What", "Answers", "Limitations", "Handoff"},  # the purpose, and the conclusion
+        "max_bullets": 4,
+        "bullets_by_section": {"4.": 5, "5.": 4},
+        "table_groups": [
+            ["2a Days and weeks", "2d Share of the week by weekday"],
+            ["2e Mix by month first seen"],
+            ["3b Strength of the STL components", "3d Stationarity tests"],
+            ["4a Features and split"],
+            ["4e Validation scores", "4f Rolling-origin cross-validation"],
+            ["4h Test scores"],
+            ["5a Closing speed by month first seen"],
+            ["5b Share of new listings you see still open, checking every N days: all originals",
+             "5b Share of new listings you see still open, checking every N days: what the app shows"],
+            ["5c Longest gap between checks", "5c Check cadence by role bucket"],
+            ["6b Listing momentum by role bucket"],
+        ],
+        "charts": ["# 2b", "# 2d", "# 2e", "# 3b", "# 4e", "# 4h", "# 5a", "# 5b", "# 6a"],
+    },
+    "TimeSeries_Lean": {  # TimeSeries' layout, with the Lean notebook's title and Purpose heading
+        "skip_sections": {"1.", "Roadmap", "About"},
+        "full_text_sections": {"TimeSeries", "Purpose", "Clarifying", "What", "Answers", "Limitations", "Handoff"},  # the purpose, and the conclusion
         "max_bullets": 4,
         "bullets_by_section": {"4.": 5, "5.": 4},
         "table_groups": [
@@ -185,9 +276,26 @@ LAYOUTS = {
         ],
         "charts": ["# 4a.1a", "# 4a.1b", "# 4a.2a", "# 4a.2b", "# 4a.2c"],
     },
+    "Profiles_Lean": {  # Profiles' layout, with the Lean notebook's title
+        "skip_sections": {"1.", "3.", "4b", "5."},
+        "full_text_sections": {"Profiles", "6."},  # the title and purpose, and the conclusion
+        "max_bullets": 2,
+        "bullets_by_section": {"4a.3": 3},
+        "table_groups": [
+            ["Duplicate resumes", "From every resume to viable candidates"],
+            ["Data science: everyone vs. the career-changer view", "Level of the job at the switch"],
+            ["Summary statistics, all viable candidates"],
+            ["Retrained career changers by path"],
+            ["Prior career → first tech job"],
+            ["Retraining compass"],
+            ["Changed roles within tech"],
+            ["Moves within tech: sideways or up, by", "Moves within tech: sideways or up, overall"],
+        ],
+        "charts": ["# 4a.1a", "# 4a.1b", "# 4a.2a", "# 4a.2b", "# 4a.2c"],
+    },
     "ML_Fit": {
         "skip_sections": {"1.", "Roadmap", "Leakage", "Data"},
-        "full_text_sections": {"Job", "0.", "Where"},  # the purpose, and where the notebook stands
+        "full_text_sections": {"Where"},  # where the notebook stands; the opener duplicates PROJECT.md's notebook table
         "max_bullets": 3,
         "bullets_by_section": {"6.": 4, "5.": 4, "7.": 3, "8.": 3},
         "table_groups": [
@@ -205,6 +313,48 @@ LAYOUTS = {
             ["8c Pay change moving into each role"],
         ],
         "charts": [],
+    },
+    "ML_Rank": {
+        # 9, 10 and 12 are "_To do._" stubs (scope frozen, ANALYSIS.md): skipped rather than shown empty.
+        "skip_sections": {"1.", "9.", "10.", "12."},
+        "full_text_sections": {"13."},  # the hand-off to the app; the opener duplicates PROJECT.md's notebook table
+        "max_bullets": 2,
+        "bullets_by_section": {"7c": 4, "7": 3, "8": 3, "8d": 4, "8e": 4, "11a": 3},
+        "table_groups": [
+            ["6a Imbalance handling: AUC and F1"],
+            ["7c Cox on the training months", "7c Cox on the training months"],  # the same cell's two displays
+            ["7d AFT models"],
+            ["8e Test month, once: H4, H5, H6"],
+            ["11a Does the result hold at 7, 14 and 30 days"],
+        ],
+        "charts": [],
+    },
+    "ML_Rank_Lean": {  # ML_Rank's layout, with the Lean notebook's "About this Lean draft" cell skipped
+        "skip_sections": {"About", "1.", "9.", "10.", "12."},
+        "full_text_sections": {"13."},
+        "max_bullets": 2,
+        "bullets_by_section": {"7c": 4, "7": 3, "8": 3, "8d": 4, "8e": 4, "11a": 3},
+        "table_groups": [
+            ["6a Imbalance handling: AUC and F1"],
+            ["7c Cox on the training months", "7c Cox on the training months"],
+            ["7d AFT models"],
+            ["8e Test month, once: H4, H5, H6"],
+            ["11a Does the result hold at 7, 14 and 30 days"],
+        ],
+        "charts": [],
+    },
+    "Evaluate": {
+        "skip_sections": {"1."},
+        "full_text_sections": {"Job", "5."},  # the opener's ranker legend (short, not duplicated elsewhere) and the conclusion
+        "max_bullets": 6,  # one "What the data shows" block carries the whole comparison
+        "table_groups": [
+            ["Career changers by pool"],
+            ["Seconds per person"],
+            ["4b Right role in the top k", "4b Top 3, by pool"],
+            ["4c Difference in top-3 hit rate"],
+            ["4d Top 3 from each ranker's top 10"],
+        ],
+        "charts": ["# 4e"],
     },
 }
 
@@ -245,6 +395,41 @@ def _side_by_side(tables):
     return f"<table><tr>{cells}</tr></table>"
 
 
+def _anchor(heading):
+    """A heading's link target, the way Markdown viewers build it: lowercase, punctuation dropped, spaces hyphenated."""
+    text = heading.lstrip("#").strip()
+    kept = "".join(c for c in text.lower() if c.isalnum() or c in " -_")
+    return "-".join(kept.split())
+
+
+def _toc(parts, min_headings=4):
+    """A contents block linking to every ## and ### heading in the assembled report ("" when there are too few)."""
+    seen, rows = {}, []
+    for part in parts:
+        for line in part.splitlines():
+            line = line.strip()
+            if not (line.startswith("## ") or line.startswith("### ")):
+                continue
+            anchor = _anchor(line)
+            seen[anchor] = seen.get(anchor, 0) + 1
+            if seen[anchor] > 1:
+                anchor = f"{anchor}-{seen[anchor] - 1}"  # repeated headings get -1, -2 ...
+            depth = "  " if line.startswith("### ") else ""
+            rows.append(f"{depth}- [{line.lstrip('#').strip()}](#{anchor})")
+    if len(rows) < min_headings:
+        return ""
+    return "## Contents\n\n" + "\n".join(rows)
+
+
+def _with_toc(parts):
+    """The report's parts with a contents block after the title (or first, when there is no title)."""
+    toc = _toc(parts)
+    if not toc:
+        return parts
+    after = next((i for i, p in enumerate(parts) if p.lstrip().startswith("# ")), -1)
+    return parts[:after + 1] + [toc] + parts[after + 1:]
+
+
 def report(nb_path):
     """The 5-minute version: summary, findings and chosen tables and charts. Returns (path, figures, tables, prose words)."""
     nb_path = Path(nb_path).resolve()
@@ -273,8 +458,8 @@ def report(nb_path):
                 section = new  # groups wait for all their tables, even across headings (unfinished ones go at the end)
             if _skipped(section, layout["skip_sections"]):
                 continue
-            if section in layout["full_text_sections"]:
-                kept = _markdown(cell)
+            if section in layout["full_text_sections"] or any(text.startswith(h) for h in layout.get("full_text_headings", ())):
+                kept = _markdown(cell)  # whole sections, or single cells that open with one of these headings
             elif text.startswith("**What"):
                 kept = _first_bullets(text, layout.get("bullets_by_section", {}).get(section, layout["max_bullets"]))
             elif section in layout.get("hide_headings", set()):
@@ -288,6 +473,7 @@ def report(nb_path):
         if _skipped(section, layout["skip_sections"]) or "data-rows" in cell.get("metadata", {}).get("tags", []):
             continue
         label = "".join(cell["source"]).splitlines()[0] if cell["source"] else ""
+        cell_title = label.lstrip("#").strip()  # a table with no printed title falls back to the cell's own heading comment
         title = None
         for out in cell.get("outputs", []):
             data = out.get("data", {})
@@ -300,10 +486,11 @@ def report(nb_path):
                 name = f"fig_{figs:02d}.png"
                 (fig_dir / name).write_bytes(base64.b64decode("".join(data["image/png"])))
                 parts.append(f"![Figure {figs}]({fig_dir.name}/{name})")
-            elif "text/html" in data and title:
+            elif "text/html" in data and (title or cell_title):
+                use = title or cell_title
                 for i, group in enumerate(groups):
-                    if any(title.startswith(g) for g in group):
-                        found[i].append((title, STYLE.sub("", "".join(data["text/html"])).strip()))
+                    if any(use.startswith(g) for g in group):
+                        found[i].append((use, STYLE.sub("", "".join(data["text/html"])).strip()))
                         if len(found[i]) == len(group):
                             parts.append(_side_by_side(found[i]))
                             n_tables += len(found[i])
@@ -316,7 +503,7 @@ def report(nb_path):
               "Regenerate after editing the notebook; don't edit by hand. Full version: "
               f"{nb_path.stem}_full.md -->")
     out = out_dir / f"{nb_path.stem}.md"
-    out.write_text(header + "\n\n" + "\n\n".join(parts) + "\n", encoding="utf-8")
+    out.write_text(header + "\n\n" + "\n\n".join(_with_toc(parts)) + "\n", encoding="utf-8")
     return out, figs, n_tables, words
 
 
@@ -340,7 +527,7 @@ def export(nb_path, outputs=False):
     header = (f"<!-- Generated from {rel} by src/export_markdown.py ({what}; no code). "
               "Regenerate after editing the notebook; don't edit by hand. -->")
     out = out_dir / (f"{nb_path.stem}_full.md" if outputs else f"{nb_path.stem}.md")
-    out.write_text(header + "\n\n" + "\n\n".join(parts) + "\n", encoding="utf-8")
+    out.write_text(header + "\n\n" + "\n\n".join(_with_toc(parts)) + "\n", encoding="utf-8")
     return out, figs
 
 

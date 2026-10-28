@@ -1,5 +1,7 @@
-"""Leakage audit for ML_Fit: checks, on the saved tables, that nothing about a person's actual next role (or anything
-after their switch) reaches the model or its evaluation, and writes the evidence to reports/ML_Fit_audit.md.
+"""Leakage audit for ML_Fit: checks, on the saved tables, that a person's actual next role is used only as the training
+label (the answer the model learns from), never as an input, and that nothing from after their switch, and no test
+person's answer, reaches the model's inputs, its training or its evaluation. Writes the evidence, and the train/test
+split it checks, to reports/ML_Fit_audit.md.
 
 Run from analysis/ after ML_Fit has run (it reads what ML_Fit 9a saved; a few minutes, no BGE):
     python -m src.leakage_audit
@@ -45,6 +47,49 @@ def load():
 def model(choice):
     pipe, _ = fm.candidates()[choice["model"]]
     return pipe.set_params(**choice["params"])
+
+
+def _md_table(df):
+    head = "| " + " | ".join([df.index.name or "", *map(str, df.columns)]) + " |"
+    return [head, "|" + "---|" * (len(df.columns) + 1),
+            *("| " + " | ".join([str(i), *map(str, row)]) + " |" for i, row in zip(df.index, df.to_numpy()))]
+
+
+def split_section(meta):
+    """The train/test split as markdown (counts and shares only): the ratio, the folds, and the split by pool and role."""
+    dev, test = meta[meta.split == "development"], meta[meta.split == "test"]
+    n, folds = len(meta), int(dev.fold.max()) + 1
+    pct = lambda a, b: f"{a / b:.1%}" if b else "–"
+
+    def by(col, name):
+        t = pd.DataFrame({"development": dev[col].value_counts(), "test": test[col].value_counts()}).fillna(0).astype(int)
+        t["test share"] = [pct(b, a + b) for a, b in t.to_numpy()]
+        t["share of all"] = [pct(a + b, n) for a, b in t[["development", "test"]].to_numpy()]
+        t.index.name = name
+        return t
+
+    sizes = dev.fold.value_counts().sort_index()
+    folds_t = pd.DataFrame({"scored on (people)": sizes, "trained on (people)": len(dev) - sizes})
+    folds_t.index.name = "fold"
+    rare = int(fe.split_strata(meta, folds).eq("rare").sum())
+    return [
+        "## The split",
+        "",
+        f"- **{n:,} career changers**, split by person before anything is scored: **{len(dev):,} development "
+        f"({pct(len(dev), n)})** and **{len(test):,} test ({pct(len(test), n)})**, about "
+        f"{len(dev) / len(test):.0f} to 1 (`fit_eval.split_people`).",
+        f"- **Stratified by role and pool,** so each keeps about the same share on both sides. Role-and-pool groups under "
+        f"{folds + 2} people are pooled into one \"rare\" group first: {rare:,} people.",
+        f"- **Development** is cut into {folds} folds. Each candidate setting is trained on {folds - 1} folds and scored "
+        f"on the remaining one, {folds} times, and the model is chosen on those scores. The chosen model is then trained "
+        f"on all {len(dev):,} development people.",
+        "- **Test** people are never trained on or used for a choice; they are scored once, at the end.",
+        "",
+        *_md_table(folds_t), "",
+        *_md_table(by("pool", "pool")), "",
+        *_md_table(by("target_bucket", "role switched into")),
+        "",
+    ]
 
 
 def check_split(meta):
@@ -192,14 +237,14 @@ def main():
                     f"words inside a longer entry, mostly short titles such as two-word role names, which is wording "
                     f"overlap, not the job itself."))
 
-    write(results, choice, time.time() - start)
+    write(results, choice, time.time() - start, meta)
     for name, ok, _ in results:
         print(f"{'PASS' if ok else 'FAIL'}  {name}")
     print(f"wrote {REPORT.relative_to(REPORT.parents[1])}")
     return 0 if all(ok for _, ok, _ in results) else 1
 
 
-def write(results, choice, seconds):
+def write(results, choice, seconds, meta):
     n_pass = sum(ok for _, ok, _ in results)
     lines = [
         "# ML_Fit: data leakage audit",
@@ -218,7 +263,7 @@ def write(results, choice, seconds):
         "|---|---|---|",
     ]
     lines += [f"| {i} | {name} | {'PASS' if ok else '**FAIL**'} |" for i, (name, ok, _) in enumerate(results, 1)]
-    lines += ["", "## The checks", ""]
+    lines += ["", *split_section(meta), "## The checks", ""]
     for i, (name, ok, msg) in enumerate(results, 1):
         lines += [f"**{i}. {name}: {'PASS' if ok else 'FAIL'}.** {msg}", ""]
     lines += [

@@ -78,6 +78,29 @@ class FitEvalTests(unittest.TestCase):
         self.assertEqual(len(dev) + len(test), 400)
         self.assertEqual(sorted(fold.unique()), [0, 1, 2, 3, 4])
 
+    def test_split_recomputes_rare_groups_after_removing_the_test_share(self):
+        # A role x pool group of 7 passes the "rare" cutoff (folds+2=7) over everyone, but a 20% test share
+        # can still leave fewer than 5 of them in development - this used to warn ("least populated class...
+        # has only N members") because the fold split reused the all-people grouping instead of recomputing it.
+        import warnings
+
+        rng = np.random.default_rng(0)
+        extra_buckets = np.concatenate([["data science"] * 7, ["security"] * 4, ["database"] * 3])
+        extra_pools = np.concatenate([["rare pool a"] * 7, ["rare pool b"] * 4, ["rare pool c"] * 3])
+        n_extra = len(extra_buckets)
+        buckets = rng.choice(fe.ROLES, size=500 - n_extra)
+        pools = rng.choice(["within tech", "retrained"], size=500 - n_extra)
+        people = pd.DataFrame({"target_bucket": np.concatenate([buckets, extra_buckets]),
+                               "pool": np.concatenate([pools, extra_pools])},
+                              index=[f"p{i}" for i in range(500)])
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            dev, test, fold = fe.split_people(people, test_share=0.2, seed=0)
+            least_populated = [w for w in caught if "least populated class" in str(w.message)]
+        self.assertEqual(least_populated, [])
+        self.assertEqual(len(set(dev) & set(test)), 0)  # the fix didn't touch the no-leakage guarantee
+
     def test_evaluate_reports_every_method_pool_and_k(self):
         listings = fe.role_listings(n_per_role=30, root=self.tmp.name)
         people = pd.DataFrame({"target_bucket": fe.ROLES, "pool": ["a", "b"] * 4,

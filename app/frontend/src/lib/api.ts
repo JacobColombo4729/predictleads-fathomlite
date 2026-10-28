@@ -1,4 +1,5 @@
 import { participantId } from "./research";
+import type { ListedRange, ResumeReader } from "../types";
 import type { MarketOverview, MarketQuery, MarketResponse, ResearchResponse, TranscribeResponse } from "./market";
 import type {
   GapBatchResult,
@@ -70,6 +71,8 @@ interface ApiJob {
   description_excerpt: string | null;
   source_url: string | null;
   observed_on: string;
+  listed_on?: string | null;
+  listed_basis?: "posted" | "first_seen" | "unknown";
   source_status: { raw: string | null; state: string };
   level?: JobLevel;
 }
@@ -117,6 +120,8 @@ export function jobFromApi(j: ApiJob): Job {
     description: j.description ?? j.description_excerpt,
     sourceUrl: j.source_url ?? "",
     observedOn: j.observed_on,
+    listedOn: j.listed_on ?? null,
+    listedBasis: j.listed_basis ?? "unknown",
     historicalStatus: statusFor(j.source_status?.state ?? "unknown"),
     level: j.level,
   };
@@ -239,9 +244,11 @@ export const api = {
     return request("POST", "/profile-extraction", "text" in source ? { resume_text: source.text } : { resume_pdf_base64: source.pdfBase64 });
   },
 
-  async snapshot(): Promise<{ id: string; date: string; jobCount: number }> {
-    const r = await request<{ snapshot_id: string; date: string; job_count: number }>("GET", "/snapshots/current");
-    return { id: r.snapshot_id, date: r.date, jobCount: r.job_count };
+  async snapshot(): Promise<{ id: string; date: string; jobCount: number; resumeReader: ResumeReader; listedRange: ListedRange }> {
+    const r = await request<{ snapshot_id: string; date: string; job_count: number; resume_reader?: ResumeReader;
+      listed_range?: { first: string | null; last: string | null } }>("GET", "/snapshots/current");
+    return { id: r.snapshot_id, date: r.date, jobCount: r.job_count, resumeReader: r.resume_reader ?? "openai",
+      listedRange: { first: r.listed_range?.first ?? null, last: r.listed_range?.last ?? null } };
   },
 
   async recommendations(
@@ -256,6 +263,7 @@ export const api = {
     if (filters.location.trim()) apiFilters.location = filters.location.trim();
     if (filters.description !== "any") apiFilters.description = filters.description;
     if (filters.levels.length) apiFilters.levels = filters.levels;
+    if (filters.asOf) apiFilters.as_of = filters.asOf;
     const r = await request<{
       ranking: { ranker_id: string };
       feedback: { good: number; bad: number; applied: boolean };

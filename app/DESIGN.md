@@ -2,7 +2,7 @@
 
 **Status:** Draft for discussion · **Last updated:** 2026-10-11
 
-> A web app for career changers. It turns the analysis (see [`PROJECT_OUTLINE.md`](../analysis/PROJECT_OUTLINE.md)) into a tool a job seeker uses day to day.
+> A web app for career changers. It turns the analysis (see [`PROJECT.md`](../analysis/PROJECT.md)) into a tool a job seeker uses day to day.
 > Items marked **TBD** need a team decision. Follow the [Data & Security Rules](../README.md#data--security-rules).
 
 ---
@@ -188,7 +188,7 @@ A separate tab built on the compass: a personal outlook from the user's résumé
 
 ### 3.8 Honesty rules
 
-*The general rules (no causation, hires, success rates, entry-level growth or certain futures) are in [`DIFFERENTIATORS.md`](../analysis/DIFFERENTIATORS.md), "What we never claim". Compass-specific:*
+*The general rules (no causation, hires, success rates, entry-level growth or certain futures) are in [`DIFFERENTIATORS.md`](../DIFFERENTIATORS.md), "What we never claim". Compass-specific:*
 - **Job growth sits next to the role's entry-level share,** and carries its accuracy (moderate for years 1–2, low to moderate for 3–5; job growth tasks in `ANALYSIS.md`); IT project management's figure is a proxy from the 15-1299 catch-all.
 - **Show the sample size on every path.** Most paths are thin (78% of prior-career paths rest on fewer than 10 people), so the compass falls back to the bucket-level pattern when a user's exact path is thin.
 

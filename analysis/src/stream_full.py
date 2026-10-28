@@ -4,7 +4,7 @@ Usage, from the project folder (PL or .venv activated):
     python -m src.stream_full --test 1000000   -> a test run on the first 1,000,000 documents, saved separately under
                                                  data/flat/stream_test/, with projections for the full file
     python -m src.stream_full                  -> the full run (resumable: rerun after a crash or a closed laptop)
-    python -m src.stream_full --rows           -> a second pass that saves EDA_SDA_1's full cleaned row (src/listing_rows.py)
+    python -m src.stream_full --rows           -> a second pass that saves EDA_SDA_1's full cleaned row (src/listing_columns.py)
                                                  for every English US listing, for full-scale EDA_SDA_1 (own progress file)
     python -m src.stream_full --extra          -> a third pass that saves every field for the TripleTen roles outside
                                                  computer and mathematical (EXTRA_ONET_BUCKETS in
@@ -124,7 +124,7 @@ LIST_COLS = ["contract_types", "tags", "categories"]
 
 def typed_rows(flat):
     """EDA_SDA_1's cleaned row (lean_part) for every English (or unlabeled) US (or no-country) listing, typed for Parquet."""
-    from src.listing_rows import lean_part
+    from src.listing_columns import lean_part
     out = lean_part(flat)
     col = lambda c: flat.reindex(columns=[c])[c]
     # Raw fields EDA_SDA_1 doesn't use yet, for the feature screening (EDA_SDA_2). Recruiter names and contacts are
@@ -338,6 +338,19 @@ def choose_mode():
     return "bulk" if total >= 16 and threads >= 8 else "stream"
 
 
+def assert_bulk_safe(force=False):
+    """Refuse bulk mode on a machine choose_mode() wouldn't pick it for, unless force=True - bulk mode on too
+    little RAM tends to crash or thrash partway through a multi-hour run, not just run slowly."""
+    if force or choose_mode() == "bulk":
+        return
+    total, _, threads = machine()
+    raise RuntimeError(
+        f"bulk mode needs at least 16 GB RAM and 8 threads; this machine has {total:.0f} GB and {threads} "
+        'threads. Use stream mode instead (BUILD_MODE="stream", or "auto", which already picks stream here), '
+        "or pass force=True (--force on the command line) if you're sure."
+    )
+
+
 def default_workers():
     """Worker processes for bulk mode: about 2 GB of free memory each, leaving two threads for reading the file."""
     _, available, threads = machine()
@@ -456,9 +469,12 @@ def run_bulk(workers=None, max_docs=None, local=None, out_root=None):
     return progress
 
 
-def build(mode="auto", workers=None):
+def build(mode="auto", workers=None, force=False):
     """Build every full-file table the notebooks need, skipping what's already done. mode: 'auto' (bulk on a capable
-    machine, else stream), 'bulk' (one parallel pass) or 'stream' (three memory-light passes)."""
+    machine, else stream), 'bulk' (one parallel pass) or 'stream' (three memory-light passes). Explicitly asking
+    for 'bulk' on a machine that fails that check raises (see assert_bulk_safe) unless force=True."""
+    if mode == "bulk":
+        assert_bulk_safe(force)
     mode = choose_mode() if mode == "auto" else mode
     total, available, threads = machine()
     print(f"{mode} mode ({total:.0f} GB RAM, {available:.0f} GB free, {threads} threads)")
@@ -485,6 +501,7 @@ if __name__ == "__main__":
     ap.add_argument("--extra", action="store_true", help="third pass: every field for the TripleTen roles outside computer and mathematical")
     ap.add_argument("--bulk", action="store_true", help="one parallel pass that builds every table (needs about 16 GB RAM, 8+ threads)")
     ap.add_argument("--auto", action="store_true", help="every table: bulk on a capable machine, else the three stream passes")
+    ap.add_argument("--force", action="store_true", help="skip --bulk's RAM/thread check (it can crash or thrash on too little memory)")
     ap.add_argument("--workers", type=int, help="worker processes for --bulk (default: from free memory and threads)")
     ap.add_argument("--local", help=argparse.SUPPRESS)  # a local .jsonl.zst, for tests on synthetic data
     ap.add_argument("--out", help=argparse.SUPPRESS)
@@ -492,6 +509,7 @@ if __name__ == "__main__":
     if args.auto:
         build("auto", workers=args.workers)
     elif args.bulk:
+        assert_bulk_safe(args.force)
         run_bulk(workers=args.workers, max_docs=args.test, local=args.local, out_root=args.out)
     else:
         run(max_docs=args.test, local=args.local, out_root=args.out, rows=args.rows, extra=args.extra)

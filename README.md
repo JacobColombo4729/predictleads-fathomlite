@@ -1,6 +1,6 @@
 # predictleads-fathomlite
 
-PredictLeads × TripleTen externship project: role discovery and job listing prioritization for career changers, built on PredictLeads job data. Which tech roles a person's background transfers to, which listings they can realistically get, and which to apply to first. See [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md).
+PredictLeads × TripleTen externship project: role discovery and job listing prioritization for career changers, built on PredictLeads job data. Which tech roles a person's background transfers to, which listings they can realistically get, and which to apply to first. **Start with [`analysis/SUMMARY.md`](analysis/SUMMARY.md)** (how it works and how we know, on one page); the detail is in [`analysis/PROJECT.md`](analysis/PROJECT.md), and how it stands out and how to pitch it in [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md).
 
 > ⚠️ **This repo is private and confidential.** Everything in it is covered by our Training Services Agreements. Read the [Data & Security Rules](#data--security-rules) before you start working.
 
@@ -15,7 +15,7 @@ New to the repo? About 20 minutes; each step links to its details below.
 2. **One Python 3.11 `.venv`** at the top, from `requirements.txt` ([steps 4–6](#4-create-your-virtual-environment)).
 3. **`.env`** from `.env.example`: the AWS settings and your `OPENAI_API_KEY` ([steps 7–8](#7-set-up-aws-credentials)).
 4. **Data:** `python -m fetch.get_bge` for the BGE model, the app's serving corpus in `data/matching/ai_ml_serving_v1` (move your copy there, or rebuild it), and optionally `python -m fetch.get_predictleads` ([step 9](#9-data-and-models), [step 13](#13-rebuild-the-apps-corpus)).
-5. **Eve (optional)**, the reviewer that tidies and checks every push: `git config core.hooksPath .githooks` ([step 14](#14-daily-git-workflow)). She uses your Claude allowance at every push and commit.
+5. **Eve (optional)**, the reviewer that tidies and checks every push: `git config core.hooksPath .githooks` ([step 14](#14-daily-git-workflow)). She uses your Claude allowance at every push and commit. The other helpers (Thread, Pace, Foreman) run only when you ask for them by name; none of them reads data or keys.
 6. **Run the app** ([step 12](#12-run-the-app)).
 7. **Catch up:** the other person's change log (`JACOB.md` or `JESSE.md`) and any asks waiting for you in [`.eve/ASKS.md`](.eve/ASKS.md).
 
@@ -52,7 +52,7 @@ predictleads-fathomlite/
 ├── .env.example              template for your .env (settings and keys)
 ├── .gitattributes  .gitignore
 ├── requirements.txt          one pinned list for everything (Python 3.11)
-├── SETUP.md                  a welcome for newcomers: setup, Eve, where things live
+├── DIFFERENTIATORS.md        how the project stands out, and how to pitch it
 ├── JACOB.md  JESSE.md        each person's change log, most important first
 ├── .eve/ASKS.md              what each of us wants the other to make sure of (Eve keeps it)
 ├── fetch/                    where every dataset comes from and lives: one download script each, the shared folders
@@ -61,10 +61,10 @@ predictleads-fathomlite/
 ├── data/  pretrained/        local only, git-ignored: raw/ (PredictLeads), external/ (outside data), the notebooks'
 │                             tables, the corpus and embeddings; the BGE model
 ├── analysis/
-│   ├── notebooks/            EDA_SDA_1–4, TimeSeries, Profiles, ML_Fit, ML_Rank
+│   ├── notebooks/            EDA_SDA_1–4, TimeSeries, Profiles, ML_Fit, ML_Rank, Evaluate
 │   ├── src/                  shared code imported by the notebooks
 │   ├── docs/                 notebook text exports, the volunteer profile form
-│   └── ANALYSIS (the analysis priority queue), PROJECT_OUTLINE, STANDARDS, DIFFERENTIATORS
+│   └── SUMMARY.md (start here)  PROJECT.md (the detail)  ANALYSIS.md (what's left)
 └── app/
     ├── backend/              FastAPI demo API
     ├── frontend/             React + Vite app
@@ -76,7 +76,7 @@ predictleads-fathomlite/
     └── run_demo_backend / run_tests (.ps1 for Windows, .sh for macOS / Linux)
 ```
 
-What each analysis doc is for: the table at the top of [`analysis/STANDARDS.md`](analysis/STANDARDS.md). What the app has left to do: [`app/APP.md`](app/APP.md).
+What the analysis has left to do: [`analysis/ANALYSIS.md`](analysis/ANALYSIS.md); the app: [`app/APP.md`](app/APP.md).
 
 ---
 
@@ -263,6 +263,7 @@ Everything lives in two git-ignored folders at the top, shared by the notebooks 
 | Public resumes from Kaggle (`data/external/resume_structured/`, for Profiles) | `python -m fetch.get_resumes` (no Kaggle account needed), or just run Profiles, which calls it first | under a minute |
 | O*NET 31.0 tables (`data/external/onet/`, for EDA_SDA_3 section 6 and ML_Fit: occupations, essential, transferable and software skills, job zones, related occupations) | `python -m fetch.get_onet` (a 13 MB download from the O*NET Resource Center, 10 MB kept, no account needed; CC BY 4.0, credit USDOL/ETA, kept in `SOURCE.json`) | a few seconds |
 | The BGE text-embedding model (`pretrained/bge-base-en-v1.5/`, for the app and ML_Fit) | `python -m fetch.get_bge` (about 0.44 GB from Hugging Face, the pinned version in `app/code/bge_text.py`; no account needed) | about a minute |
+| The trained models' hand-offs (`data/clean/ml_fit/`, `data/clean/ml_rank/`, `data/clean/combined_v1/corpus/`): everything the combined demo and Jacob's app read from the analysis, so they run without the notebooks | Can't be downloaded (the project's AWS access is read-only): Jacob runs `python -m fetch.get_handoffs --pack` after a rerun (bump `VERSION` first) and shares its parts, `data/handoffs/handoffs_<version>.zip.001`, `.002`, … (under 1 GB each, about 1.2 GB in all; only the files the apps read), through a private team channel only, since the corpus holds listing text. Put all the parts in `data/handoffs/` and run `python -m fetch.get_handoffs --unpack` (or `--unpack <path to the zip>`): every file is checked against the zip's index, all three folders or none; it skips what's current and never replaces the notebooks' own output without `--force`; `--check` shows what's there | about a minute |
 | The cleaned tables (`data/clean/`, `data/profiles/`) | Run the notebooks in order: EDA_SDA_1, EDA_SDA_2, …; Profiles | |
 
 **Why scripts:** one setup for both halves, and no bucket names, AWS profiles or personal paths in committed files (our data agreement). The S3 location and profile come only from `.env` (`S3_PATH`, `AWS_PROFILE`, step 8). Each script skips data that's already in its folder, and checks disk space and asks before downloading. Data that can't be downloaded by script goes in its standard folder by hand, with its source noted in the table above. A check on every push (and in the app tests) fails if a committed file hard-codes any of these.
@@ -353,6 +354,10 @@ It needs the serving corpus at `data/matching/ai_ml_serving_v1` (step 13) and th
 ```
 macOS / Linux: `./app/run_demo.sh` (Ctrl+C stops both; `--preview` for the light laptop preview, `--ranker tfidf`). It refuses to start if a backend is already running, so an AI-on backend can't be reused by mistake.
 
+**Jacob's app: the same app ranked by the analysis models, AI always off.** `.\app\run_jacob.ps1` (macOS / Linux: `./app/run_jacob.sh`) starts the same backend and frontend with the `mlrank` ranker (`app/backend/ml_rank_ranker.py`): ML_Rank's priority queue (chance still open, accessibility, pay, with ML_Rank's tuned weights) reorders the listings that match the user's text, and hides what ML_Rank hides by default. Until ML_Fit is wired in, the fit factor is the app's own text match. Magic fill reads the resume on this computer (`app/code/local_resume_reader.py`: sections, entries anchored on their dates, skills from the Skills section and O*NET's tool names), so nothing is sent anywhere; the demo keeps the OpenAI reader. It runs next to the demo, on http://127.0.0.1:5174 with the backend on port 8001, and shares the demo's sessions. Needs ML_Rank's hand-off (`data/clean/ml_rank/`, ML_Rank section 13, or `python -m fetch.get_handoffs --unpack`). Every shared change to the app reaches both; only the ranker differs.
+
+**The combined demo: the same app ranked by the combined model.** `.\combined_demo\run.ps1` (macOS / Linux: `./combined_demo/run.sh`) starts the app with the combined model (`combined/`): ML_Fit's role fit as the fit factor of ML_Rank's queue, over Jesse's text match, on the scope's listings (`combined/corpus.py`). OpenAI is off unless started with `-AI` / `--ai`. It runs on its own: http://127.0.0.1:5175 with the backend on port 8002, and its own session database, so it never mixes with the other two apps. Nothing in `app/` changes: `combined_demo/server.py` builds the same app with `create_app(repository=..., ranker=...)`. Needs the combined corpus (`python -m combined.corpus build`, then `encode`), ML_Fit's hand-off (ML_Fit 9b) and ML_Rank's (section 13), or all three from `python -m fetch.get_handoffs --unpack` (step 9) without running the notebooks. Loading takes about 3 minutes.
+
 To run the pieces by hand instead:
 
 1. **Backend** (about 3.5 minutes to load, about 2.5 GB of memory):
@@ -383,7 +388,7 @@ Run these from `app/` with `.venv` activated; each script's `--help` lists its o
 1. `python code/extract_targeted_pool.py --scan` streams the full snapshot (about 19 GB from S3 with `S3_PATH` and `AWS_PROFILE` from `.env`, or from `data/raw/` if downloaded; about 36 minutes) and keeps AI/ML, data and technical-sales listings. `--check-sample` tests the matcher offline.
 2. `python code/rank_candidates.py build-corpus --targeted-dir ../data/matching/targeted_pool_<timestamp>` builds the deduplicated corpus. `encode` then `finalize-encode` compute the BGE embeddings (GPU recommended).
 3. `python code/rank_candidates.py export-serving` writes the serving subset the backend loads.
-4. `python code/rank_candidates.py rank ...` ranks the 12 test profiles; `python code/build_review_page.py --run-dir <ranking run> --profiles <profile files>` builds an optional blinded review page.
+4. `python code/rank_candidates.py rank ...` ranks the fictional test profiles; `python code/build_review_page.py --run-dir <ranking run> --profiles <profile files>` builds an optional blinded review page, a usability check only: the rankers are evaluated on real career moves (`analysis/PROJECT.md`, How we keep it honest).
 5. `python code/role_family_classifier.py` trains and evaluates the supporting role-family classifier.
 
 ---
@@ -514,7 +519,7 @@ Everyone must **permanently delete all copies of the data** (local `data/` folde
 
 ## Where to read more
 
-**Analysis:** [`analysis/PROJECT_OUTLINE.md`](analysis/PROJECT_OUTLINE.md) (what we're doing), [`analysis/STANDARDS.md`](analysis/STANDARDS.md) (how we work), [`analysis/DIFFERENTIATORS.md`](analysis/DIFFERENTIATORS.md), [`app/DESIGN.md`](app/DESIGN.md), [`analysis/ANALYSIS.md`](analysis/ANALYSIS.md), [`analysis/docs/volunteer_profiles.md`](analysis/docs/volunteer_profiles.md) (the on-hold plan for volunteer career-changer profiles, with its blank form).
+**Analysis:** [`analysis/SUMMARY.md`](analysis/SUMMARY.md) (start here), [`analysis/PROJECT.md`](analysis/PROJECT.md) (data, findings, how we keep it honest), [`DIFFERENTIATORS.md`](DIFFERENTIATORS.md) (the pitch), [`app/DESIGN.md`](app/DESIGN.md), [`analysis/ANALYSIS.md`](analysis/ANALYSIS.md), [`analysis/docs/volunteer_profiles.md`](analysis/docs/volunteer_profiles.md) (the on-hold plan for volunteer career-changer profiles, with its blank form).
 
 **App:**
 1. [app/APP.md](app/APP.md) and [app/roadmap.md](app/roadmap.md)
