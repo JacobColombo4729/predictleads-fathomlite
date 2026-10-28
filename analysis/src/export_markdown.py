@@ -314,6 +314,27 @@ LAYOUTS = {
         ],
         "charts": [],
     },
+    "ML_Fit_Lean": {  # ML_Fit's layout, with the Lean notebook's "About this Lean draft" cell skipped
+        "skip_sections": {"About", "1.", "Roadmap", "Leakage", "Data"},
+        "full_text_sections": {"Where"},  # where the notebook stands; the opener duplicates PROJECT.md's notebook table
+        "max_bullets": 3,
+        "bullets_by_section": {"6.": 4, "5.": 4, "7.": 3, "8.": 3},
+        "table_groups": [
+            ["Career changers by pool"],
+            ["5a People with a background profile", "5a Each role's most important skills"],
+            ["5b Trained layer candidates"],
+            ["Development: hit rate over 5 folds", "Development: top-3 hit rate per pool"],
+            ["Test: hit rate with 95% intervals", "Test: top-3 hit rate per pool"],
+            ["Current-role pull"],
+            ["7a Average size of each group", "7a For each test person"],
+            ["7a The 12 inputs"],
+            ["8a Paths by kind"],
+            ["8b Each role's most asked skills"],
+            ["8b Of each role's 10 most asked skills"],
+            ["8c Pay change moving into each role"],
+        ],
+        "charts": [],
+    },
     "ML_Rank": {
         # 9, 10 and 12 are "_To do._" stubs (scope frozen, ANALYSIS.md): skipped rather than shown empty.
         "skip_sections": {"1.", "9.", "10.", "12."},
@@ -347,6 +368,19 @@ LAYOUTS = {
         "skip_sections": {"1."},
         "full_text_sections": {"Job", "5."},  # the opener's ranker legend (short, not duplicated elsewhere) and the conclusion
         "max_bullets": 6,  # one "What the data shows" block carries the whole comparison
+        "table_groups": [
+            ["Career changers by pool"],
+            ["Seconds per person"],
+            ["4b Right role in the top k", "4b Top 3, by pool"],
+            ["4c Difference in top-3 hit rate"],
+            ["4d Top 3 from each ranker's top 10"],
+        ],
+        "charts": ["# 4e"],
+    },
+    "Evaluate_Lean": {  # Evaluate's layout, with the Lean notebook's "About this Lean draft" cell skipped
+        "skip_sections": {"About", "1."},
+        "full_text_sections": {"Evaluate", "5."},  # the title and purpose (ranker legend), and the conclusion
+        "max_bullets": 6,
         "table_groups": [
             ["Career changers by pool"],
             ["Seconds per person"],
